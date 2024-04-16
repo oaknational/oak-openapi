@@ -1,0 +1,88 @@
+import { protectedProcedure } from '~/lib/auth';
+import { router } from '~/lib/trpc';
+import { gql } from 'graphql-request';
+import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
+import { LessonView, getClient, lessonView } from 'lib/owaClient';
+import { z } from 'zod';
+
+export const getAllKeyStageAndSubjectUnits = router({
+  getAllKeyStageAndSubjectUnits: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        tags: ['lists'],
+        path: '/key-stages/{keyStage}/subject/{subject}/units',
+        description:
+          'Get all the units, and lessons in the unit for a given key stage and subject',
+      },
+    })
+    .input(
+      z.object({
+        keyStage: z.enum(keyStageSlugs as [string], {
+          description: "Key stage slug to filter by, e.g. 'ks2'",
+        }),
+        subject: z.enum(subjectSlugs as [string], {
+          description:
+            "Subject slug to search by, e.g. 'science' - note that casing is important here (always lowercase)",
+        }),
+      })
+    )
+    .output(
+      z.array(
+        z.object({
+          title: z.string({ description: 'Unit title' }),
+          slug: z.string({ description: 'Unit slug' }),
+        })
+      )
+    )
+    .query(async ({ input }) => {
+      const keyStage = decodeURIComponent(input.keyStage);
+      const subject = decodeURIComponent(input.subject);
+
+      const view = lessonView;
+
+      // FIXME this query is actually getting every lesson, not every unit
+      // so I do some data munging to get the unique units, moreover, it's
+      // kind of wasteful to do the full query
+      const query = gql`
+        query ($keyStage: String!, $subject: String!) {
+          ${view}(
+            where: {
+              keyStageSlug: { _eq: $keyStage }
+              subjectSlug: { _eq: $subject }
+              isLegacy: { _eq: false }
+            }
+          ) {
+            unitSlug
+            unitTitle
+          }
+        }
+      `;
+
+      const variables = {
+        keyStage,
+        subject,
+      };
+
+      const graphqlClient = getClient();
+      const res: LessonView = await graphqlClient.request(query, variables);
+
+      if (res[lessonView].length === 0) {
+        return []; // unlikely, but sure.
+      }
+
+      const uniqueUnits = new Map<string, { slug: string; title: string }>();
+
+      res[lessonView].forEach((lesson) => {
+        if (!lesson.unitSlug || !lesson.unitTitle) {
+          return;
+        }
+        uniqueUnits.set(lesson.unitSlug, {
+          slug: lesson.unitSlug,
+          title: lesson.unitTitle,
+        });
+      });
+
+      return Array.from(uniqueUnits.values());
+    }),
+});
