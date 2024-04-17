@@ -230,8 +230,8 @@ export const getAssets = router({
     .output(
       z.array(
         z.object({
-          slug: z.string(),
-          title: z.string({
+          lessonSlug: z.string(),
+          lessonTitle: z.string({
             description: 'Lesson title',
           }),
           assets: z.array(assetOutput),
@@ -306,8 +306,8 @@ export const getAssets = router({
         })
         .map(({ downloads, lessonSlug, lessonTitle }) => {
           return {
-            slug: lessonSlug,
-            title: lessonTitle,
+            lessonSlug,
+            lessonTitle,
             assets: assetDownloadWithVideos(
               lessonSlug,
               downloads,
@@ -324,21 +324,21 @@ export const getAssets = router({
       openapi: {
         method: 'GET',
         tags: ['assets', 'lessons'],
-        path: '/lessons/{slug}/assets',
+        path: '/lessons/{lesson}/assets',
         description:
           'The downloadable assets for a specific lesson, including: slidedecks, worksheets, worksheet answers and videos.',
       },
     })
     .input(
       z.object({
-        slug: z.string({
+        lesson: z.string({
           description: 'The lesson slug',
         }),
       })
     )
     .output(z.array(assetOutput))
     .query(async ({ input }) => {
-      const { slug } = input;
+      const { lesson: lessonSlug } = input;
 
       const queryDownloads = gql`
         query GetDownloads($lessonSlug: String!) {
@@ -367,7 +367,7 @@ export const getAssets = router({
       `;
 
       const variables = {
-        lessonSlug: slug,
+        lessonSlug,
       };
 
       const downloadsQuery: DownloadView = await graphqlClient.request(
@@ -391,6 +391,10 @@ export const getAssets = router({
 
       const downloads = res[0]?.downloads;
 
-      return assetDownloadWithVideos(slug, downloads, videoObjectQuery[view]);
+      return assetDownloadWithVideos(
+        lessonSlug,
+        downloads,
+        videoObjectQuery[view]
+      );
     }),
 });

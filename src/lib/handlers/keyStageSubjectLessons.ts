@@ -38,12 +38,12 @@ export const getKeyStageSubjectLessons = router({
     .output(
       z.array(
         z.object({
-          slug: z.string({ description: 'Unit slug' }),
-          title: z.string({ description: 'Unit title' }),
+          unitSlug: z.string({ description: 'Unit slug' }),
+          unitTitle: z.string({ description: 'Unit title' }),
           lessons: z.array(
             z.object({
-              slug: z.string({ description: 'Lesson slug' }),
-              title: z.string({ description: 'Lesson title' }),
+              lessonSlug: z.string({ description: 'Lesson slug' }),
+              lessonTitle: z.string({ description: 'Lesson title' }),
             })
           ),
         })
@@ -95,32 +95,25 @@ export const getKeyStageSubjectLessons = router({
 
       // transform to be an array of the units with a list of lessons
       const units = lessons.reduce(
-        (acc, lesson) => {
-          const unitSlug = lesson.unitSlug;
-          const unitTitle = lesson.unitTitle;
-          const unit = acc.find((u) => u.slug === unitSlug);
+        (acc, { unitSlug, unitTitle, lessonSlug, lessonTitle }) => {
+          const unit = acc.find((u) => u.unitSlug === unitSlug);
 
           // this is never true, but keeps TypeScript quiet
-          if (
-            !lesson.lessonSlug ||
-            !lesson.lessonTitle ||
-            !unitSlug ||
-            !unitTitle
-          ) {
+          if (!lessonSlug || !lessonTitle || !unitSlug || !unitTitle) {
             return acc;
           }
 
           const res = {
-            slug: lesson.lessonSlug,
-            title: lesson.lessonTitle,
+            lessonSlug,
+            lessonTitle,
           };
 
           if (unit) {
             unit.lessons.push(res);
           } else {
             acc.push({
-              slug: unitSlug,
-              title: unitTitle,
+              unitSlug,
+              unitTitle,
               lessons: [res],
             });
           }
@@ -128,9 +121,9 @@ export const getKeyStageSubjectLessons = router({
           return acc;
         },
         [] as {
-          slug: string;
-          title: string;
-          lessons: { slug: string; title: string }[];
+          unitSlug: string;
+          unitTitle: string;
+          lessons: { lessonSlug: string; lessonTitle: string }[];
         }[]
       );
 

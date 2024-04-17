@@ -10,8 +10,8 @@ import {
 import { z } from 'zod';
 
 export const unitSchema = z.object({
-  slug: z.string(),
-  title: z.string(),
+  unitSlug: z.string(),
+  unitTitle: z.string(),
   tags: z.array(z.string()),
   // notes: z.string(),
   // description: z.string(),
@@ -20,11 +20,11 @@ export const unitSchema = z.object({
   nationalCurriculumContent: z.array(z.string()),
   priorUnits: z.object({
     description: z.string(),
-    units: z.array(z.object({ slug: z.string(), title: z.string() })),
+    units: z.array(z.object({ unitSlug: z.string(), unitTitle: z.string() })),
   }),
   futureUnits: z.object({
     description: z.string(),
-    units: z.array(z.object({ slug: z.string(), title: z.string() })),
+    units: z.array(z.object({ unitSlug: z.string(), unitTitle: z.string() })),
   }),
 });
 
@@ -34,15 +34,15 @@ export const getUnits = router({
       openapi: {
         method: 'GET',
         tags: ['units'],
-        path: '/units/{slug}/summary',
+        path: '/units/{unit}/summary',
         description:
           'Get prior knowledge requirements, national curriculum content, tags, prior and next units to learn for the specified unit',
       },
     })
     .output(unitSchema)
-    .input(z.object({ slug: z.string() }))
+    .input(z.object({ unit: z.string({ description: 'The unit slug' }) }))
     .query(async ({ input }) => {
-      const { slug } = input;
+      const { unit: slug } = input;
       const client = getClient();
 
       const query = gql`
@@ -77,8 +77,8 @@ export const getUnits = router({
       const root = res[unitCurriculumView][0];
 
       return {
-        slug: root.unitSlug,
-        title: root.unitTitle,
+        unitSlug: root.unitSlug,
+        unitTitle: root.unitTitle,
         tags: root.unitTags.map((tag) => tag.title),
         plannedNumberOfLessons: root.plannedNumberOfLessons,
         priorKnowledgeRequirements: root.priorKnowledgeRequirements,
@@ -88,15 +88,15 @@ export const getUnits = router({
         priorUnits: {
           description: root.connectionPriorUnitDescription || '',
           units: root.priorUnits.map((unit) => ({
-            slug: unit.slug,
-            title: unit.title,
+            unitSlug: unit.slug,
+            unitTitle: unit.title,
           })),
         },
         futureUnits: {
           description: root.connectionFutureUnitDescription || '',
           units: root.futureUnits.map((unit) => ({
-            slug: unit.slug,
-            title: unit.title,
+            unitSlug: unit.slug,
+            unitTitle: unit.title,
           })),
         },
       };

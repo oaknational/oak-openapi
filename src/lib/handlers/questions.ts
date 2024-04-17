@@ -16,13 +16,13 @@ export const getQuestions = router({
       openapi: {
         method: 'GET',
         tags: ['lessons', 'questions'],
-        path: '/lessons/{slug}/quiz',
+        path: '/lessons/{lesson}/quiz',
         description: 'Get all the lesson quiz questions and answers',
       },
     })
     .input(
       z.object({
-        slug: z.string(),
+        lesson: z.string(),
       })
     )
     .output(
@@ -36,7 +36,7 @@ export const getQuestions = router({
       )
     )
     .query(async ({ input }) => {
-      const slug = decodeURIComponent(input.slug);
+      const slug = decodeURIComponent(input.lesson);
 
       const client = getClient();
 
@@ -132,8 +132,8 @@ export const getQuestions = router({
     .output(
       z.array(
         z.object({
-          title: z.string(),
-          slug: z.string(),
+          lessonSlug: z.string(),
+          lessonTitle: z.string(),
           questions: z.array(
             z.object({
               question: z.string(),
@@ -193,13 +193,13 @@ export const getQuestions = router({
 
       const lessons = [];
 
-      for (const lesson of data) {
-        if (!lesson.exitQuiz || !lesson.lessonSlug || !lesson.lessonTitle) {
+      for (const { exitQuiz, lessonSlug, lessonTitle } of data) {
+        if (!exitQuiz || !lessonSlug || !lessonTitle) {
           continue;
         }
 
         const questions = [];
-        for (const question of lesson.exitQuiz) {
+        for (const question of exitQuiz) {
           if (question.questionType !== QuestionType.MultipleChoice) {
             continue;
           }
@@ -226,8 +226,8 @@ export const getQuestions = router({
         }
 
         lessons.push({
-          title: lesson.lessonTitle,
-          slug: lesson.lessonSlug,
+          lessonTitle,
+          lessonSlug,
           questions,
         });
       }
