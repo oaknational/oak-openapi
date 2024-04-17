@@ -45,7 +45,9 @@ export const getKeyStages = router({
         }),
       })
     )
-    .output(z.array(z.object({ slug: z.string(), title: z.string() })))
+    .output(
+      z.array(z.object({ keyStageSlug: z.string(), keyStageTitle: z.string() }))
+    )
     .query(({ input }) => {
       const key = decodeURIComponent(input.keyStage);
       const res = subjectsByKeyStage(key);
@@ -55,6 +57,9 @@ export const getKeyStages = router({
           code: 'BAD_REQUEST',
         });
       }
-      return res;
+
+      return res.map(({ slug, title }) => {
+        return { keyStageSlug: slug, keyStageTitle: title };
+      });
     }),
 });

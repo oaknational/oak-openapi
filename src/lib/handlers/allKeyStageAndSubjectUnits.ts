@@ -30,8 +30,8 @@ export const getAllKeyStageAndSubjectUnits = router({
     .output(
       z.array(
         z.object({
-          title: z.string({ description: 'Unit title' }),
-          slug: z.string({ description: 'Unit slug' }),
+          unitTitle: z.string({ description: 'Unit title' }),
+          unitSlug: z.string({ description: 'Unit slug' }),
         })
       )
     )
@@ -71,15 +71,18 @@ export const getAllKeyStageAndSubjectUnits = router({
         return []; // unlikely, but sure.
       }
 
-      const uniqueUnits = new Map<string, { slug: string; title: string }>();
+      const uniqueUnits = new Map<
+        string,
+        { unitSlug: string; unitTitle: string }
+      >();
 
-      res[lessonView].forEach((lesson) => {
-        if (!lesson.unitSlug || !lesson.unitTitle) {
+      res[lessonView].forEach(({ unitSlug, unitTitle }) => {
+        if (!unitSlug || !unitTitle) {
           return;
         }
-        uniqueUnits.set(lesson.unitSlug, {
-          slug: lesson.unitSlug,
-          title: lesson.unitTitle,
+        uniqueUnits.set(unitSlug, {
+          unitSlug,
+          unitTitle,
         });
       });
 

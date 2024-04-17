@@ -41,18 +41,18 @@ export const getLessons = router({
       openapi: {
         method: 'GET',
         tags: ['lessons'],
-        path: '/lessons/{slug}/summary',
+        path: '/lessons/{lesson}/summary',
         description: 'Get a summary of the specified lesson',
       },
     })
     .input(
       z.object({
-        slug: z.string({ description: 'The slug of the lesson' }),
+        lesson: z.string({ description: 'The slug of the lesson' }),
       })
     )
     .output(lessonSummary)
     .query(async ({ input }) => {
-      const slug = decodeURIComponent(input.slug);
+      const slug = decodeURIComponent(input.lesson);
 
       const client = getClient();
 
