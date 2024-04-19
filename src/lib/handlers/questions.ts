@@ -18,6 +18,32 @@ export const getQuestions = router({
         tags: ['lessons', 'questions'],
         path: '/lessons/{lesson}/quiz',
         description: 'Get all the lesson quiz questions and answers',
+        example: {
+          response: [
+            {
+              question: 'What is a main clause?',
+              answers: [
+                {
+                  answer: 'a list of nouns',
+                  distractor: true,
+                },
+                {
+                  answer:
+                    'a group of words that contains a verb and makes complete sense',
+                  distractor: false,
+                },
+                {
+                  answer: 'a word class',
+                  distractor: true,
+                },
+                {
+                  answer: 'a group of words with no verb',
+                  distractor: true,
+                },
+              ],
+            },
+          ],
+        },
       },
     })
     .input(
@@ -42,7 +68,7 @@ export const getQuestions = router({
 
       const query = gql`
         query ($slug: String!) {
-          published_mv_lesson_openapi_1_0_0(
+          ${lessonView}(
             where: {
               lessonSlug: { _eq: $slug }
               exitQuiz: { _neq: "null" }
@@ -107,6 +133,37 @@ export const getQuestions = router({
         path: '/key-stages/{keyStage}/subject/{subject}/questions',
         description:
           'Get all the lesson quizzes for a key stage and subject and includes the questions and answer options',
+        example: {
+          response: [
+            {
+              lessonSlug: 'joining-using-and',
+              lessonTitle: "Joining using 'and'",
+              questions: [
+                {
+                  question: 'Which word is a verb?',
+                  answers: [
+                    {
+                      answer: 'shops',
+                      distractor: true,
+                    },
+                    {
+                      answer: 'Jun',
+                      distractor: true,
+                    },
+                    {
+                      answer: 'I',
+                      distractor: true,
+                    },
+                    {
+                      answer: 'shout',
+                      distractor: false,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
       },
     })
     .input(
@@ -161,7 +218,7 @@ export const getQuestions = router({
           $offset: Int!
           $limit: Int!
         ) {
-          published_mv_lesson_openapi_1_0_0(
+          ${lessonView}(
             where: {
               keyStageSlug: { _eq: $keyStage }
               subjectSlug: { _eq: $subject }

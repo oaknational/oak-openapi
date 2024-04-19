@@ -16,6 +16,7 @@ export const getKeyStages = router({
         method: 'GET',
         path: '/key-stages',
         description: 'List all the key stages',
+        example: { response: [{ slug: 'ks1', title: 'Key Stage 1' }] },
       },
     })
     .input(z.void())
@@ -35,6 +36,12 @@ export const getKeyStages = router({
         tags: ['lists'],
         path: '/key-stages/{keyStage}',
         description: 'Get all the subjects for a key stage',
+        example: {
+          response: {
+            keyStageSlug: 'ks2',
+            keyStageTitle: 'Key Stage 2',
+          },
+        },
       },
     })
     .input(

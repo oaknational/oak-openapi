@@ -11,27 +11,12 @@ export const subjectsRouter = router({
         method: 'GET',
         path: '/subjects',
         description: 'List all the subjects across all key stages',
+        example: { response: ['Biology', 'Chemistry', '...'] },
       },
     })
     .input(z.void()) // required by trpc-openapi
     .output(z.any())
     .query(() => {
       return subjects.toSorted();
-    }),
-  searchSubjects: protectedProcedure
-    .meta({
-      openapi: {
-        tags: ['search'],
-        method: 'GET',
-        path: '/search/subjects',
-        description: 'Search for specific subject',
-      },
-    })
-    .input(z.object({ q: z.string() }))
-    .output(z.string().array())
-    .query(({ input }) => {
-      const q = input.q.toLowerCase();
-      const res = subjects.filter((_) => _.toLowerCase().includes(q));
-      return res;
     }),
 });
