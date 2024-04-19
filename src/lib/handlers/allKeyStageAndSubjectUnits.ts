@@ -14,6 +14,14 @@ export const getAllKeyStageAndSubjectUnits = router({
         path: '/key-stages/{keyStage}/subject/{subject}/units',
         description:
           'Get all the units, and lessons in the unit for a given key stage and subject',
+        example: {
+          response: [
+            {
+              unitTitle: 'Simple, compound and adverbial complex sentences',
+              unitSlug: 'simple-compound-and-adverbial-complex-sentences',
+            },
+          ],
+        },
       },
     })
     .input(

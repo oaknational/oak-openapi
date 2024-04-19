@@ -28,7 +28,9 @@ export const getLatestVersion = (major: string) => {
 
 export const changelog = router({
   changelog: publicProcedure
-    .meta({ openapi: { method: 'GET', path: '/changelog' } })
+    .meta({
+      openapi: { method: 'GET', path: '/changelog', tags: ['changelog'] },
+    })
     .output(
       z.array(
         z.object({
@@ -41,5 +43,27 @@ export const changelog = router({
     .input(z.undefined())
     .query(async () => {
       return versions;
+    }),
+  latest: publicProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/changelog/latest',
+        tags: ['changelog'],
+        example: {
+          response: versions[0],
+        },
+      },
+    })
+    .output(
+      z.object({
+        version: z.string(),
+        date: z.string(),
+        changes: z.array(z.string()),
+      })
+    )
+    .input(z.undefined())
+    .query(async () => {
+      return versions[0];
     }),
 });
