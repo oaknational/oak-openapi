@@ -1,21 +1,37 @@
-import { GraphQLClient } from "graphql-request";
+import { GraphQLClient } from 'graphql-request';
 
-export { gql } from "graphql-request";
+export { gql } from 'graphql-request';
+
+export function querySQL(sql: string) {
+  return fetch(`${process.env.OAK_GRAPHQL_HOST}/v1/query`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-oak-auth-key': process.env.OAK_GRAPHQL_SECRET as string,
+      'x-oak-auth-type': 'oak-admin',
+      'x-hasura-role': 'admin',
+    },
+    body: JSON.stringify({
+      type: 'run_sql',
+      args: { source: 'Oak DB', sql, read_only: true },
+    }),
+  });
+}
 
 export function getClient() {
-  return new GraphQLClient(`https://hasura.thenational.academy/v1/graphql`, {
+  return new GraphQLClient(`${process.env.OAK_GRAPHQL_HOST}/v1/graphql`, {
     headers: {
-      "x-oak-auth-key": process.env.OAK_GRAPHQL_SECRET as string,
-      "x-oak-auth-type": "oak-admin",
+      'x-oak-auth-key': process.env.OAK_GRAPHQL_SECRET as string,
+      'x-oak-auth-type': 'oak-admin',
     },
   });
 }
 
 export const unitCurriculumView =
-  "published_mv_openapi_unit_curriculum_content_1_0_1";
+  'published_mv_openapi_unit_curriculum_content_1_0_2';
 
 export type UnitCurriculumView = {
-  published_mv_openapi_unit_curriculum_content_1_0_1: UnitCurriculum[];
+  published_mv_openapi_unit_curriculum_content_1_0_2: UnitCurriculum[];
 };
 
 export type UnitCurriculum = {
@@ -27,15 +43,21 @@ export type UnitCurriculum = {
   plannedNumberOfLessons: number;
   priorKnowledgeRequirements: string[];
   unitNationalCurriculumContent: UnitNationalCurriculumContent[];
-  priorUnits: PriorUnit[];
-  futureUnits: FutureUnit[];
-  connectionFutureUnitDescription: string;
-  connectionPriorUnitDescription: string;
+  priorUnit: PriorUnit[];
+  futureUnit: FutureUnit[];
+  futureUnitDescription: string;
+  priorUnitDescription: string;
+  unitLessons: UnitLesson[];
 };
 
 export interface UnitTag {
   id: number;
   title: string;
+}
+
+export interface UnitLesson {
+  title: string;
+  slug: string;
 }
 
 export interface UnitNationalCurriculumContent {
@@ -55,10 +77,11 @@ export interface FutureUnit {
   slug: string;
 }
 
-export const lessonView = "published_mv_lesson_openapi_1_0_0";
+export const lessonView = 'published_mv_lesson_openapi_1_1_0';
+export const lessonViewTable = 'published.mv_lesson_openapi_1_1_0';
 
 export type LessonView = {
-  published_mv_lesson_openapi_1_0_0: Lesson[];
+  published_mv_lesson_openapi_1_1_0: Lesson[];
 };
 
 // Note: where any is used, the structure is currently unknown/undocumented
@@ -122,7 +145,7 @@ export interface Question {
 }
 
 export enum QuestionType {
-  MultipleChoice = "multiple-choice",
+  MultipleChoice = 'multiple-choice',
   // etc
 }
 
