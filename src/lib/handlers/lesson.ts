@@ -10,6 +10,7 @@ import {
   querySQL,
 } from 'lib/owaClient';
 import { z } from 'zod';
+import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
 
 const lessonSummary = z.object({
   lessonTitle: z.string(),
@@ -114,28 +115,46 @@ export const getLessons = router({
       openapi: {
         method: 'GET',
         tags: ['lessons', 'search'],
-        path: '/search/lessons/text-similarity',
+        path: '/search/lessons',
         description: 'Find lessons with a similar title as the given text',
       },
     })
     .input(
       z.object({
         q: z.string(),
+        keyStage: z
+          .enum(keyStageSlugs as [string], {
+            description:
+              "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
+          })
+          .optional(),
+        subject: z
+          .enum(subjectSlugs as [string], {
+            description:
+              "Subject slug to filter by, e.g. 'english' - note that casing is important here, and should be lowercase",
+          })
+          .optional(),
+        unit: z
+          .string({
+            description: 'Optional unit slug to additionally filter by.',
+          })
+          .optional(),
       })
     )
     .output(
-      z.any()
-      // z.array(
-      //   z.object({
-      //     slug: z.string(),
-      //     title: z.string(),
-      //     description: z.string(),
-      //   })
-      // )
+      z.array(
+        z.object({
+          lessonSlug: z.string(),
+          lessonTitle: z.string(),
+        })
+      )
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       // store q from input.q and sanitize for use as an sql query:
       const q = input.q.replace(/'/g, "''");
+      const unit = input.unit || null;
+      const subject = input.subject || null;
+      const keyStage = input.keyStage || null;
 
       const result = await querySQL(
         `SELECT * from (SELECT "lessonSlug", SIMILARITY("lessonTitle", '${q}') FROM ${lessonViewTable}) as a order by a.similarity desc limit 20`
@@ -145,16 +164,30 @@ export const getLessons = router({
 
       const client = getClient();
 
+      let where = `lessonSlug in ('${slugs.join("','")}')`;
+
+      if (unit) {
+        where += `, _and: { unitSlug: { _eq: "${unit}" } }`;
+      }
+
+      if (subject) {
+        where += `, _and: { subjectSlug: { _eq: "${subject}" } }`;
+      }
+
+      if (keyStage) {
+        where += `, _and: { keyStageSlug: { _eq: "${keyStage}" } }`;
+      }
+
       const query = gql`
         query ($slugs: [String!]!) {
-          ${lessonView}(where: { lessonSlug: { _in: $slugs } }) {
+          ${lessonView}(where: ${where}) {
             lessonSlug
             lessonTitle
           }
         }
       `;
 
-      const res = await client.request(query, { slugs });
+      const res: LessonView = await client.request(query, { slugs });
 
       if (res[lessonView].length === 0) {
         throw new TRPCError({
@@ -163,32 +196,18 @@ export const getLessons = router({
         });
       }
 
-      return res[lessonView];
+      // all of this code is to satisfy TS.
+      // otherwise it would just be `return res[lessonView];`
+      return res[lessonView].reduce((acc, { lessonSlug, lessonTitle }) => {
+        if (!lessonSlug || !lessonTitle) {
+          return acc;
+        }
 
-      // const res = await ctx.prisma.lesson.findMany({
-      //   select: {
-      //     title: true,
-      //     slug: true,
-      //     content: true,
-      //   },
-      //   where: { id: { in: result.map((r) => r.id) } },
-      // });
-
-      // if (!res) {
-      //   throw new TRPCError({
-      //     message: 'No lessons found',
-      //     code: 'NOT_FOUND',
-      //   });
-      // }
-
-      // return res.map(({ slug, title, content }) => {
-      //   content = content as Content;
-      //   const description = (content?.lessonDescription || '') as string;
-      //   return {
-      //     slug,
-      //     title,
-      //     description,
-      //   };
-      // });
+        acc.push({
+          lessonSlug,
+          lessonTitle,
+        });
+        return acc;
+      }, [] as { lessonSlug: string; lessonTitle: string }[]);
     }),
 });

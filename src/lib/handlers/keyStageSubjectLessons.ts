@@ -3,6 +3,7 @@ import { router } from '~/lib/trpc';
 import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
 import { LessonView, getClient, gql, lessonView } from 'lib/owaClient';
 import { z } from 'zod';
+import { baseUrl } from '../baseUrl';
 
 export const getKeyStageSubjectLessons = router({
   getKeyStageSubjectLessons: protectedProcedure
@@ -32,6 +33,11 @@ export const getKeyStageSubjectLessons = router({
               ],
             },
           ],
+          request: {
+            keyStage: 'ks1',
+            subject: 'english',
+            unit: 'word-class',
+          },
         },
       },
     })
@@ -45,6 +51,11 @@ export const getKeyStageSubjectLessons = router({
           description:
             "Subject slug to filter by, e.g. 'english' - note that casing is important here, and should be lowercase",
         }),
+        unit: z
+          .string({
+            description: 'Optional unit slug to additionally filter by.',
+          })
+          .optional(),
         offset: z.number().optional().default(0),
         limit: z
           .number({
@@ -69,16 +80,51 @@ export const getKeyStageSubjectLessons = router({
         })
       )
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const keyStage = decodeURIComponent(input.keyStage);
       const subject = decodeURIComponent(input.subject);
+      const unit = input.unit || null;
 
       const offset = input.offset;
       const limit = input.limit;
 
       const client = getClient();
 
-      const query = gql`
+      let query;
+      let variables: Record<string, string | number>;
+
+      if (unit) {
+        query = gql`
+        query ($keyStage: String!, $subject: String!, $offset: Int!
+          $limit: Int!) {
+          ${lessonView}(
+            where: {
+              keyStageSlug: { _eq: $keyStage }
+              subjectSlug: { _eq: $subject }
+              unitSlug: {_eq: $unit}
+              isLegacy: { _eq: false }
+            },
+            offset: $offset,
+            limit: $limit,
+            order_by: {unitSlug: asc}
+          ) {
+            lessonSlug
+            lessonTitle
+            unitSlug,
+            unitTitle
+          }
+        }
+      `;
+
+        variables = {
+          keyStage,
+          subject,
+          offset,
+          limit,
+          unit,
+        };
+      } else {
+        query = gql`
         query ($keyStage: String!, $subject: String!, $offset: Int!
           $limit: Int!) {
           ${lessonView}(
@@ -99,18 +145,30 @@ export const getKeyStageSubjectLessons = router({
         }
       `;
 
-      const variables = {
-        keyStage,
-        subject,
-        offset,
-        limit,
-      };
+        variables = {
+          keyStage,
+          subject,
+          offset,
+          limit,
+        };
+      }
 
       const res = (await client.request(query, variables)) as LessonView;
       const lessons = res[lessonView];
 
       if (lessons.length === 0) {
         return [];
+      }
+
+      let next = null;
+      if (lessons.length === limit) {
+        next = `${baseUrl}${ctx.req.url}?offset=${
+          offset + limit
+        }&limit=${limit}`;
+        if (unit) {
+          next += `&unit=${unit}`;
+        }
+        ctx.res.setHeader('link', `<${next}>; rel="next"`);
       }
 
       // transform to be an array of the units with a list of lessons
