@@ -146,6 +146,11 @@ export const getLessons = router({
         z.object({
           lessonSlug: z.string(),
           lessonTitle: z.string(),
+          keyStageSlug: z.string(),
+          subjectSlug: z.string(),
+          unitSlug: z.string(),
+          unitTitle: z.string(),
+          similarity: z.number(),
         })
       )
     )
@@ -161,33 +166,47 @@ export const getLessons = router({
       ).then((res) => res.json());
 
       const slugs = result.result.slice(1).map(([slug]: [string]) => slug);
+      const similarity = result.result
+        .slice(1)
+        .reduce((acc: { [x: string]: number }, [slug, _]: [string, string]) => {
+          acc[slug] = parseFloat(_);
+          return acc;
+        }, {} as Record<string, number>);
 
       const client = getClient();
 
-      let where = `lessonSlug in ('${slugs.join("','")}')`;
+      let where = `lessonSlug: { _in: $slugs }`;
+      const variables: Record<string, string | number> = { slugs };
 
       if (unit) {
-        where += `, _and: { unitSlug: { _eq: "${unit}" } }`;
+        where += `, _and: { unitSlug: { _eq: $unit } }`;
+        variables.unit = unit;
       }
 
       if (subject) {
-        where += `, _and: { subjectSlug: { _eq: "${subject}" } }`;
+        where += `, _and: { subjectSlug: { _eq: $subject } }`;
+        variables.subject = subject;
       }
 
       if (keyStage) {
-        where += `, _and: { keyStageSlug: { _eq: "${keyStage}" } }`;
+        where += `, _and: { keyStageSlug: { _eq: $keyStage } }`;
+        variables.keyStage = keyStage;
       }
 
       const query = gql`
-        query ($slugs: [String!]!) {
-          ${lessonView}(where: ${where}) {
+        query ($slugs: [String!]!, $unit: String, $subject: String, $keyStage: String) {
+          ${lessonView}(where: {${where}}) {
             lessonSlug
             lessonTitle
+            keyStageSlug
+            subjectSlug
+            unitSlug
+            unitTitle
           }
         }
       `;
 
-      const res: LessonView = await client.request(query, { slugs });
+      const res: LessonView = await client.request(query, variables);
 
       if (res[lessonView].length === 0) {
         throw new TRPCError({
@@ -198,16 +217,51 @@ export const getLessons = router({
 
       // all of this code is to satisfy TS.
       // otherwise it would just be `return res[lessonView];`
-      return res[lessonView].reduce((acc, { lessonSlug, lessonTitle }) => {
-        if (!lessonSlug || !lessonTitle) {
-          return acc;
-        }
+      return res[lessonView]
+        .reduce(
+          (
+            acc,
+            {
+              lessonSlug,
+              lessonTitle,
+              unitSlug,
+              subjectSlug,
+              keyStageSlug,
+              unitTitle,
+            }
+          ) => {
+            if (
+              !lessonSlug ||
+              !lessonTitle ||
+              !unitSlug ||
+              !subjectSlug ||
+              !keyStageSlug ||
+              !unitTitle
+            ) {
+              return acc;
+            }
 
-        acc.push({
-          lessonSlug,
-          lessonTitle,
-        });
-        return acc;
-      }, [] as { lessonSlug: string; lessonTitle: string }[]);
+            acc.push({
+              lessonSlug,
+              lessonTitle,
+              unitSlug,
+              subjectSlug,
+              keyStageSlug,
+              unitTitle,
+              similarity: similarity[lessonSlug],
+            });
+            return acc;
+          },
+          [] as {
+            lessonSlug: string;
+            lessonTitle: string;
+            unitSlug: string;
+            subjectSlug: string;
+            keyStageSlug: string;
+            unitTitle: string;
+            similarity: number;
+          }[]
+        )
+        .toSorted((a, b) => b.similarity - a.similarity);
     }),
 });
