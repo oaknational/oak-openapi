@@ -7,6 +7,7 @@ export const versions = [
     date: '2024-04-17',
     changes: [
       'Change `slug` and `title` to `unitSlug` and `unitTitle`, or `lessonSlug` etc.',
+      '/search/lessons/text-similarity changed to /search/lessons',
     ],
   },
   {

@@ -6,6 +6,7 @@ import { protectedProcedure } from '~/lib/auth';
 import { router } from '../trpc';
 import { getClient } from '../owaClient';
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
+import { baseUrl } from '../baseUrl';
 
 // note: I've put these two together in the code because they're
 // directly linked
@@ -98,8 +99,6 @@ export type Download = {
   url?: string;
 };
 
-type AssetCategory = 'slidedeck' | 'worksheet' | 'video' | 'unknown';
-
 type DownloadType =
   | 'presentation'
   | 'intro-quiz-questions'
@@ -131,26 +130,7 @@ const typeEnum = z.enum(
   }
 );
 
-let domain = 'http://localhost:2626';
-
-if (process.env.VERCEL_URL) {
-  domain = `https://${process.env.VERCEL_URL}`;
-}
-
-if (process.env.VERCEL_ENV === 'production' && process.env.PRODUCTION_API_URL) {
-  domain = process.env.PRODUCTION_API_URL;
-}
-
-const baseUrl = `${domain}/api/v0`;
-
 const assetOutput = z.object({
-  category: z.enum([
-    'slidedeck',
-    'worksheet_answers',
-    'worksheet',
-    'video',
-    'unknown',
-  ]),
   title: z.string().optional(),
   url: z.string().optional(),
   type: typeEnum,
@@ -178,20 +158,7 @@ function assetDownloadWithVideos(
   }
 
   return downloads.map((d) => {
-    let category: AssetCategory = 'unknown';
-
-    if (['pdf', 'doc', 'docx'].includes(d.ext)) {
-      category = 'worksheet';
-    }
-    if (['ppt', 'pptx'].includes(d.ext)) {
-      category = 'slidedeck';
-    }
-    if (d.ext === 'mp4') {
-      category = 'video';
-    }
-
     return {
-      category,
       title: d.label,
       type: d.type as DownloadType,
       url: `${baseUrl}/download/${lessonSlug}/type/${d.type}`,
@@ -217,61 +184,51 @@ export const getAssets = router({
                 "Imagining you are the characters: 'The Three Billy Goats Gruff'",
               assets: [
                 {
-                  category: 'slidedeck',
                   title: 'Slide deck',
                   url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/presentation`,
                   type: 'presentation',
                 },
                 {
-                  category: 'worksheet',
                   title: 'Starter quiz questions',
                   url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/intro-quiz-questions`,
                   type: 'intro-quiz-questions',
                 },
                 {
-                  category: 'worksheet',
                   title: 'Starter quiz answers',
                   url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/intro-quiz-answers`,
                   type: 'intro-quiz-answers',
                 },
                 {
-                  category: 'worksheet',
                   title: 'Exit quiz questions',
                   url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/exit-quiz-questions`,
                   type: 'exit-quiz-questions',
                 },
                 {
-                  category: 'worksheet',
                   title: 'Exit quiz answers',
                   url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/exit-quiz-answers`,
                   type: 'exit-quiz-answers',
                 },
                 {
-                  category: 'worksheet',
                   title: 'Worksheet',
                   url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/worksheet-pdf`,
                   type: 'worksheet-pdf',
                 },
                 {
-                  category: 'slidedeck',
                   title: 'Worksheet',
                   url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/worksheet-pptx`,
                   type: 'worksheet-pptx',
                 },
                 {
-                  category: 'worksheet',
                   title: 'Additional material',
                   url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/supplementary-pdf`,
                   type: 'supplementary-pdf',
                 },
                 {
-                  category: 'worksheet',
                   title: 'Additional material',
                   url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/supplementary-docx`,
                   type: 'supplementary-docx',
                 },
                 {
-                  category: 'video',
                   title: 'Video',
                   url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/video-mp4`,
                   type: 'video-mp4',
@@ -279,6 +236,12 @@ export const getAssets = router({
               ],
             },
           ],
+          request: {
+            keyStage: 'ks1',
+            subject: 'english',
+            type: 'presentation',
+            unit: 'word-class',
+          },
         },
       },
     })
@@ -403,61 +366,51 @@ export const getAssets = router({
         example: {
           response: [
             {
-              category: 'slidedeck',
               title: 'Slide deck',
               url: `${baseUrl}/download/four-types-of-simple-sentence/type/presentation`,
               type: 'presentation',
             },
             {
-              category: 'worksheet',
               title: 'Starter quiz questions',
               url: `${baseUrl}/download/four-types-of-simple-sentence/type/intro-quiz-questions`,
               type: 'intro-quiz-questions',
             },
             {
-              category: 'worksheet',
               title: 'Starter quiz answers',
               url: `${baseUrl}/download/four-types-of-simple-sentence/type/intro-quiz-answers`,
               type: 'intro-quiz-answers',
             },
             {
-              category: 'worksheet',
               title: 'Exit quiz questions',
               url: `${baseUrl}/download/four-types-of-simple-sentence/type/exit-quiz-questions`,
               type: 'exit-quiz-questions',
             },
             {
-              category: 'worksheet',
               title: 'Exit quiz answers',
               url: `${baseUrl}/download/four-types-of-simple-sentence/type/exit-quiz-answers`,
               type: 'exit-quiz-answers',
             },
             {
-              category: 'worksheet',
               title: 'Worksheet',
               url: `${baseUrl}/download/four-types-of-simple-sentence/type/worksheet-pdf`,
               type: 'worksheet-pdf',
             },
             {
-              category: 'slidedeck',
               title: 'Worksheet',
               url: `${baseUrl}/download/four-types-of-simple-sentence/type/worksheet-pptx`,
               type: 'worksheet-pptx',
             },
             {
-              category: 'worksheet',
               title: 'Additional material',
               url: `${baseUrl}/download/four-types-of-simple-sentence/type/supplementary-pdf`,
               type: 'supplementary-pdf',
             },
             {
-              category: 'worksheet',
               title: 'Additional material',
               url: `${baseUrl}/download/four-types-of-simple-sentence/type/supplementary-docx`,
               type: 'supplementary-docx',
             },
             {
-              category: 'video',
               title: 'Video',
               url: `${baseUrl}/download/four-types-of-simple-sentence/type/video-mp4`,
               type: 'video-mp4',

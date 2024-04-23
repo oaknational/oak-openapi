@@ -9,6 +9,7 @@ import {
   lessonView,
 } from 'lib/owaClient';
 import { z } from 'zod';
+import { baseUrl } from '../baseUrl';
 
 export const getQuestions = router({
   getQuestionsForLessons: protectedProcedure
@@ -202,7 +203,7 @@ export const getQuestions = router({
         })
       )
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const keyStage = decodeURIComponent(input.keyStage);
       const subject = decodeURIComponent(input.subject);
 
@@ -246,6 +247,14 @@ export const getQuestions = router({
 
       if (data.length === 0) {
         return [];
+      }
+
+      let next = null;
+      if (data.length === limit) {
+        next = `${baseUrl}${ctx.req.url}?offset=${
+          offset + limit
+        }&limit=${limit}`;
+        ctx.res.setHeader('link', `<${next}>; rel="next"`);
       }
 
       const lessons = [];
