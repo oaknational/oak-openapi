@@ -35,7 +35,14 @@ export const t = initTRPC
       if (error.code === 'INTERNAL_SERVER_ERROR') {
         // if dev, surface all the errors to our hard-working developers
         if (process.env.NODE_ENV === 'development') {
-          return { message: { error, shape } };
+          return {
+            ...shape,
+            message: JSON.stringify({ error, shape }),
+            data: {
+              ...shape.data,
+              stack: undefined,
+            },
+          };
         }
 
         return {
@@ -58,7 +65,13 @@ export const t = initTRPC
         };
       }
 
-      return shape;
+      return {
+        ...shape,
+        data: {
+          ...shape.data,
+          zodError: null,
+        },
+      };
     },
   });
 
