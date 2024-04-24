@@ -1,9 +1,11 @@
-import { getLatestVersion } from 'lib/handlers/changelog';
-import router from 'lib/router';
+import { getLatestVersion } from '~/lib/handlers/changelog';
+import router from '~/lib/router';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { OpenAPIV3 } from 'openapi-types';
 import { generateOpenApiDocument } from 'trpc-openapi';
-import type {} from 'trpc-openapi/dist/types';
+import { baseUrl } from '~/lib/baseUrl';
+
+const version = getLatestVersion('0');
 
 const bearerAuth = {
   type: 'http',
@@ -18,20 +20,6 @@ const httpMethods = [
   'patch',
   'delete',
 ] as OpenAPIV3.HttpMethods[];
-
-let domain = 'http://localhost:2727';
-
-const version = getLatestVersion('0');
-
-if (process.env.VERCEL_URL) {
-  domain = `https://${process.env.VERCEL_URL}`;
-}
-
-if (process.env.VERCEL_ENV === 'production' && process.env.PRODUCTION_API_URL) {
-  domain = process.env.PRODUCTION_API_URL;
-}
-
-const baseUrl = `${domain}/api/v0`;
 
 export const openApiDocument = generateOpenApiDocument(router, {
   title: 'Oak OpenAPI',
