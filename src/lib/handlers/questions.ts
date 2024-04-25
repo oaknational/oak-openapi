@@ -20,6 +20,9 @@ export const getQuestions = router({
         path: '/lessons/{lesson}/quiz',
         description: 'Get all the lesson quiz questions and answers',
         example: {
+          request: {
+            lesson: 'joining-using-and',
+          },
           response: [
             {
               question: 'What is a main clause?',
@@ -99,6 +102,7 @@ export const getQuestions = router({
 
       const questions = [];
       for (const question of lesson.exitQuiz) {
+        // FIXME expose more question types
         if (question.questionType !== QuestionType.MultipleChoice) {
           continue;
         }

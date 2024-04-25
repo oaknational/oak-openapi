@@ -12,6 +12,23 @@ import {
 import { z } from 'zod';
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
 
+const lessonSearchResult = z.object({
+  lessonSlug: z.string(),
+  lessonTitle: z.string(),
+  similarity: z.number(),
+  units: z.array(
+    z.object({
+      unitSlug: z.string(),
+      unitTitle: z.string(),
+      examBoardTitle: z.string().or(z.null()),
+      keyStageSlug: z.string(),
+      subjectSlug: z.string(),
+    })
+  ),
+});
+
+type LessonSearchResult = z.infer<typeof lessonSearchResult>;
+
 const lessonSummary = z.object({
   lessonTitle: z.string(),
   unitSlug: z.string(),
@@ -53,8 +70,38 @@ export const getLessons = router({
         description: 'Get a summary of the specified lesson',
         example: {
           request: {
-            lesson: 'simple-compound-and-adverbial-complex-sentences',
+            lesson: 'joining-using-and',
           },
+          response: [
+            {
+              lessonSlug: 'gothic-characters-c8tp4d',
+              lessonTitle: 'Gothic characters',
+              similarity: 0.07692308,
+              units: [
+                {
+                  unitSlug: 'gothic-literature-8196',
+                  unitTitle: 'Gothic Literature',
+                  examBoardTitle: null,
+                  keyStageSlug: 'ks3',
+                  subjectSlug: 'english',
+                },
+              ],
+            },
+            {
+              lessonSlug: 'columbus-in-chains-c8ukct',
+              lessonTitle: 'Columbus in Chains',
+              similarity: 0.07692308,
+              units: [
+                {
+                  unitSlug: 'annie-john-by-jamaica-kincaid-c5ab',
+                  unitTitle: 'Annie John by Jamaica Kincaid',
+                  examBoardTitle: null,
+                  keyStageSlug: 'ks3',
+                  subjectSlug: 'english',
+                },
+              ],
+            },
+          ],
         },
       },
     })
@@ -117,6 +164,13 @@ export const getLessons = router({
         tags: ['lessons', 'search'],
         path: '/search/lessons',
         description: 'Find lessons with a similar title as the given text',
+        example: {
+          request: {
+            q: 'chratchet',
+            subject: 'english',
+          },
+          // TODO: add response example
+        },
       },
     })
     .input(
@@ -141,19 +195,7 @@ export const getLessons = router({
           .optional(),
       })
     )
-    .output(
-      z.array(
-        z.object({
-          lessonSlug: z.string(),
-          lessonTitle: z.string(),
-          keyStageSlug: z.string(),
-          subjectSlug: z.string(),
-          unitSlug: z.string(),
-          unitTitle: z.string(),
-          similarity: z.number(),
-        })
-      )
-    )
+    .output(z.array(lessonSearchResult))
     .query(async ({ input }) => {
       // store q from input.q and sanitize for use as an sql query:
       const q = input.q.replace(/'/g, "''");
@@ -161,9 +203,25 @@ export const getLessons = router({
       const subject = input.subject || null;
       const keyStage = input.keyStage || null;
 
-      const result = await querySQL(
-        `SELECT * from (SELECT "lessonSlug", SIMILARITY("lessonTitle", '${q}') FROM ${lessonViewTable}) as a order by a.similarity desc limit 20`
-      ).then((res) => res.json());
+      let sqlWhere = '1=1';
+
+      if (unit) {
+        sqlWhere += ` AND "unitSlug" = '${unit.replace(/'/g, "''")}'`;
+      }
+
+      if (subject) {
+        sqlWhere += ` AND "subjectSlug" = '${subject.replace(/'/g, "''")}'`;
+      }
+
+      if (keyStage) {
+        sqlWhere += ` AND "keyStageSlug" = '${keyStage.replace(/'/g, "''")}'`;
+      }
+
+      const sql = `SELECT * from (SELECT "lessonSlug", SIMILARITY("lessonTitle", '${q}') FROM ${lessonViewTable} WHERE ${sqlWhere} group by "lessonSlug", "similarity") as a order by a.similarity desc limit 20`;
+
+      console.log({ sql });
+
+      const result = await querySQL(sql).then((res) => res.json());
 
       const slugs = result.result.slice(1).map(([slug]: [string]) => slug);
       const similarity = result.result
@@ -202,11 +260,28 @@ export const getLessons = router({
             subjectSlug
             unitSlug
             unitTitle
+            examBoardTitle
           }
         }
       `;
 
-      const res: LessonView = await client.request(query, variables);
+      const lessonResult = z.object({
+        lessonSlug: z.string(),
+        lessonTitle: z.string(),
+        keyStageSlug: z.string(),
+        subjectSlug: z.string(),
+        unitSlug: z.string(),
+        unitTitle: z.string(),
+        examBoardTitle: z.string(),
+      });
+
+      const lessonQueryResult = z.object({
+        [lessonView]: z.array(lessonResult),
+      });
+
+      type LessonQueryResult = z.infer<typeof lessonQueryResult>;
+
+      const res: LessonQueryResult = await client.request(query, variables);
 
       if (res[lessonView].length === 0) {
         throw new TRPCError({
@@ -215,53 +290,40 @@ export const getLessons = router({
         });
       }
 
-      // all of this code is to satisfy TS.
-      // otherwise it would just be `return res[lessonView];`
-      return res[lessonView]
-        .reduce(
-          (
-            acc,
-            {
-              lessonSlug,
-              lessonTitle,
-              unitSlug,
-              subjectSlug,
-              keyStageSlug,
-              unitTitle,
-            }
-          ) => {
-            if (
-              !lessonSlug ||
-              !lessonTitle ||
-              !unitSlug ||
-              !subjectSlug ||
-              !keyStageSlug ||
-              !unitTitle
-            ) {
-              return acc;
-            }
+      const groupedByLesson = Object.values(
+        Object.groupBy(res[lessonView], ({ lessonSlug }) => lessonSlug)
+      );
 
-            acc.push({
-              lessonSlug,
-              lessonTitle,
-              unitSlug,
-              subjectSlug,
-              keyStageSlug,
-              unitTitle,
-              similarity: similarity[lessonSlug],
-            });
+      console.log({ groupedByLesson });
+
+      return groupedByLesson
+        .reduce((acc, res) => {
+          // I can't see how this is ever true, but it's a TS thing.
+          if (!res) {
             return acc;
-          },
-          [] as {
-            lessonSlug: string;
-            lessonTitle: string;
-            unitSlug: string;
-            subjectSlug: string;
-            keyStageSlug: string;
-            unitTitle: string;
-            similarity: number;
-          }[]
-        )
+          }
+
+          const { lessonSlug, lessonTitle } = res[0];
+
+          const units = res.map((_) => {
+            return {
+              unitSlug: _.unitSlug,
+              unitTitle: _.unitTitle,
+              examBoardTitle: _.examBoardTitle,
+              keyStageSlug: _.keyStageSlug,
+              subjectSlug: _.subjectSlug,
+            };
+          });
+
+          acc.push({
+            lessonSlug,
+            lessonTitle,
+            similarity: similarity[lessonSlug],
+            units,
+          });
+
+          return acc;
+        }, [] as LessonSearchResult[])
         .toSorted((a, b) => b.similarity - a.similarity);
     }),
 });

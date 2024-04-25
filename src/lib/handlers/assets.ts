@@ -364,6 +364,9 @@ export const getAssets = router({
         description:
           'The downloadable assets for a specific lesson, including: slidedecks, worksheets, worksheet answers and videos.',
         example: {
+          request: {
+            lesson: 'joining-using-and',
+          },
           response: [
             {
               title: 'Slide deck',
