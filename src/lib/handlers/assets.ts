@@ -7,7 +7,6 @@ import { router } from '../trpc';
 import { Lesson, LessonView, getClient, lessonView } from '../owaClient';
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
 import { baseUrl } from '../baseUrl';
-import { off } from 'process';
 
 // note: I've put these two together in the code because they're
 // directly linked
