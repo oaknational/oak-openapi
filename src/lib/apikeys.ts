@@ -1,11 +1,17 @@
 import { Redis } from '@upstash/redis';
 
 const redis = new Redis({
-  // @ts-ignore: url prop doesn't seem to be in the types, but it's definitely there
+  // @ts-expect-error: url prop doesn't seem to be in the types, but it's definitely there
   url: process.env.UPSTASH_REDIS_REST_URL,
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
-export const keys = await redis.json.get('apikeys').catch((e) => {
-  console.log(`Failed to collect apikeys: ${e.toString()}`);
-});
+type Keys = string[];
+
+export const keys: Keys = await redis.json
+  .get('apikeys')
+  .catch((e: Error) => {
+    console.log(`Failed to collect apikeys: ${e.toString()}`);
+    return []; // Add type assertion here
+  })
+  .then((keys) => keys as Keys);
