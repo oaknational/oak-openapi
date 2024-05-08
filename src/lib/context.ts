@@ -1,5 +1,5 @@
 import { TRPCError } from '@trpc/server';
-import { keys } from 'lib/apikeys';
+import { keys } from '~/lib/apikeys';
 import { RateLimitInfo } from '~/lib/zod-types';
 import { type CreateNextContextOptions } from '@trpc/server/adapters/next';
 import { inferAsyncReturnType } from '@trpc/server';
@@ -19,7 +19,7 @@ async function findUserByKey(key: string): Promise<APIKeyAuthObject | null> {
 }
 
 /** Use this helper for:
- *  - testing, where we dont have to Mock Next.js' req/res
+ *  - testing, where we don't have to Mock Next.js' req/res
  *  - trpc's `createSSGHelpers` where we don't have req/res
  * @see https://beta.create.t3.gg/en/usage/trpc#-servertrpccontextts
  */

@@ -27,6 +27,10 @@ export const getLatestVersion = (major: string) => {
   return versions[0].version;
 };
 
+export const getLatestMajorVersion = () => {
+  return versions[0].version.split('.')[0];
+};
+
 export const changelog = router({
   changelog: publicProcedure
     .meta({
