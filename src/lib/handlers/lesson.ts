@@ -1,3 +1,5 @@
+import groupBy from 'object.groupby';
+import toSorted from 'array.prototype.tosorted';
 import { protectedProcedure } from '~/lib/auth';
 import { router } from '~/lib/trpc';
 import { TRPCError } from '@trpc/server';
@@ -11,6 +13,9 @@ import {
 } from 'lib/owaClient';
 import { z } from 'zod';
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
+
+toSorted.shim();
+groupBy.shim();
 
 const lessonSearchResult = z.object({
   lessonSlug: z.string(),
