@@ -2,22 +2,54 @@ import { TRPCError } from '@trpc/server';
 import { gql } from 'graphql-request';
 import { z } from 'zod';
 
-// Import type only
 import { protectedProcedure } from '~/lib/auth';
 import { router } from '~/lib/trpc';
-import type { DownloadView } from './assets';
-import { LessonView, getClient, lessonView } from '../owaClient';
+import {
+  DownloadTypeEnum,
+  DownloadView,
+  downloadTypeEnum,
+  downloadView,
+} from './assets';
+import { getClient } from '~/lib/owaClient';
+
+// I'm not keen on this mapping, and wonder if the open api should return
+// streams to the actual files in the buckets, but then, what would be
+// point in signing the urls if the API gives you direct access?
+const downloadMappingToOWA = new Map([
+  ['slidedeck', 'presentation'],
+  ['exitQuiz', 'exit-quiz-questions'],
+  ['exitQuizAnswers', 'exit-quiz-answers'],
+  ['starterQuiz', 'intro-quiz-questions'],
+  ['starterQuizAnswers', 'intro-quiz-answers'],
+  ['supplementaryResource', 'supplementary-pdf'],
+  ['worksheet', 'worksheet-pdf'],
+  ['worksheetAnswers', 'worksheet-pdf'],
+]);
 
 // NOTE: this is a proxy for the download service, which is not implemented in this repository
 // https://downloads-api.thenational.academy/ aka https://github.com/oaknational/curriculum-downloads-api
-export const downloadRouter = router({
-  getDownload: protectedProcedure
+export const getDownloads = router({
+  getDownloads: protectedProcedure
     .meta({
       openapi: {
         method: 'GET',
         tags: ['downloads'],
         path: '/download/{slug}/type/{type}',
-        description: 'Get a signed download URL to the asset type',
+        description:
+          'Get a zip file containing the requested download type. With the exception of video, which will return a direct download URL to the video file. Note that currently worksheet and worksheetAnswers are contained inside the same zip file.',
+        example: {
+          request: {
+            slug: 'imagining-you-are-the-characters-the-three-billy-goats-gruff',
+            type: 'video',
+          },
+          response: [
+            {
+              url: 'https://example.com/video.mp4',
+              stream: false,
+              type: 'video',
+            },
+          ],
+        },
       },
     })
     .input(
@@ -25,125 +57,114 @@ export const downloadRouter = router({
         slug: z.string({
           description: 'The lesson slug',
         }),
-        type: z.enum([
-          'presentation',
-          'intro-quiz-questions',
-          'intro-quiz-answers',
-          'exit-quiz-questions',
-          'exit-quiz-answers',
-          'worksheet-pdf',
-          'worksheet-pptx',
-          'supplementary-pdf',
-          'supplementary-docx',
-          'video-mp4',
-        ]),
+        type: downloadTypeEnum, // FIXME this should be an array but the openapi generator doesn't support it
       })
     )
     .output(
-      z.object({
-        url: z.string({
-          description: 'The signed download URL',
-        }),
-      })
+      z.array(
+        z.object({
+          url: z.string({
+            description: 'The downloadable URL',
+          }),
+          stream: z
+            .boolean({
+              description:
+                'Only present on videos when no direct download/mp4 url is available.',
+            })
+            .optional(),
+          signed: z
+            .boolean({
+              description:
+                'Used for non-video assets, the URL will be signed and valid for 1 hour.',
+            })
+            .optional(),
+          type: downloadTypeEnum,
+        })
+      )
     )
     .query(async ({ input, ctx }) => {
       const { slug, type } = input;
 
+      const { auth } = ctx;
+
       const graphqlClient = getClient();
 
-      const query = gql`
-        select: {
-          slug: true,
-          Downloads: {
-            select: {
-              download: true,
-            },
-          },
-        },
-        where: {
-          slug,
-        },
-      }`;
+      const queryDownloads = gql`
+        query GetDownloads($lessonSlug: String!) {
+          ${downloadView}(
+            where: {
+              lessonSlug: { _eq: $lessonSlug }
+            }
+          ) {
+            lessonSlug
+            lessonTitle
+            exitQuiz
+            exitQuizAnswers
+            lessonSlug
+            lessonTitle
+            slidedeck
+            starterQuizAnswers
+            starterQuiz: starter_quiz
+            supplementaryResource
+            video: videos
+            worksheet
+            worksheetAnswers
+          }
+        }
+      `;
 
-      const res: LessonView = await graphqlClient.request(query);
+      const variables = {
+        lessonSlug: slug,
+      };
 
-      if (!res) {
+      const downloadsQuery: DownloadView = await graphqlClient.request(
+        queryDownloads,
+        variables
+      );
+
+      const res = downloadsQuery[downloadView];
+
+      if (!res || res.length === 0 || !res[0]) {
         throw new TRPCError({
           message: 'No lessons found',
           code: 'NOT_FOUND',
         });
       }
 
-      if (
-        (!res.Downloads || res.Downloads.length === 0) &&
-        type !== 'video-mp4'
-      ) {
-        throw new TRPCError({
-          message: 'No downloads found',
-          code: 'NOT_FOUND',
-        });
-      }
+      const downloads = res[0];
 
-      if (type === 'video-mp4') {
-        // get the videos from Hasura - though eventually I want to get all the
-        // data from Hasura
-        const query = gql`
-          query GetAssets($lessonSlug: String!) {
-            ${lessonView}(
-              where: { lessonSlug: { _eq: $lessonSlug } }
-            ) {
-              lessonSlug
-              video_object
+      // convert all the props into urls
+      const types = (
+        type?.length ? [type] : Object.keys(downloads)
+      ) as DownloadTypeEnum[];
+
+      const result = [];
+
+      for (const type of types) {
+        if (downloads[type]) {
+          if (type === 'video') {
+            result.push({
+              type,
+              url: downloads.video.download || downloads.video.stream,
+              stream: !!downloads.video.stream,
+            });
+          } else {
+            if (downloads[type].bucket_name) {
+              const json = await fetch(
+                `https://downloads-api.thenational.academy/api/lesson/${slug}/download?selection=${downloadMappingToOWA.get(
+                  type
+                )}&openapi_key=${auth.userId}`
+              ).then((res) => res.json());
+
+              result.push({
+                type,
+                url: json.data.url,
+                signed: true,
+              });
             }
           }
-        `;
-        const videoObjectQuery: LessonView = await graphqlClient.request(
-          query,
-          { lessonSlug: slug }
-        );
-
-        const videoView = videoObjectQuery[lessonView];
-        const video = videoView.find((_) => _.lessonSlug === slug);
-
-        if (
-          videoView.length === 0 ||
-          !video ||
-          video.video_object.status !== 'ready'
-        ) {
-          throw new TRPCError({
-            message: 'No downloads found',
-            code: 'NOT_FOUND',
-          });
         }
-
-        const url = `https://stream.mux.com/${video.video_object.mux_playback_id}/high.mp4`;
-
-        return {
-          url,
-        };
       }
-
-      const found = res.Downloads.find((d) => {
-        if (!d.download || Array.isArray(d.download) === false) {
-          return false;
-        }
-
-        return (d.download as DownloadView[]).find((_) => _.type === type);
-      });
-
-      if (!found) {
-        throw new TRPCError({
-          message: 'Download type not found',
-          code: 'NOT_FOUND',
-        });
-      }
-
-      const apikey = ctx.req.headers.authorization?.split(' ')[1];
-
-      const json = await fetch(
-        `https://downloads-api.thenational.academy/api/lesson/${slug}/download?selection=${input.type}&openapi_key=${apikey}`
-      ).then((res) => res.json());
-
-      return json.data;
+      return result;
     }),
 });
