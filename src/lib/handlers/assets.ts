@@ -4,57 +4,67 @@ import { z } from 'zod';
 
 import { protectedProcedure } from '~/lib/auth';
 import { router } from '../trpc';
-import { Lesson, LessonView, getClient, lessonView } from '../owaClient';
+import { getClient } from '../owaClient';
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
 import { baseUrl } from '../baseUrl';
 
-// note: I've put these two together in the code because they're
-// directly linked
+export const downloadView = 'published_mv_openapi_downloads_1_0_0';
+export const unitVariantLessonsView =
+  'published_mv_synthetic_unitvariant_lessons_by_year_6_0_0';
 
-// FIXME stop using this MV, need to move to my own
-const downloadView = 'published_mv_downloads_5_0_2';
-export type DownloadView = {
-  published_mv_downloads_5_0_2: DownloadObjects[];
+type UnitVariantLessonsView = {
+  published_mv_synthetic_unitvariant_lessons_by_year_6_0_0: UnitVariantLesson[];
 };
 
-export interface DownloadObjects {
+type UnitVariantLesson = {
+  lesson_slug: string;
+};
+
+export type DownloadView = {
+  published_mv_openapi_downloads_1_0_0: Download[];
+};
+
+export interface Download {
+  exitQuiz: SignedAsset;
+  exitQuizAnswers: SignedAsset;
   lessonSlug: string;
   lessonTitle: string;
-  unitSlug: string;
-  downloads: Download[];
+  slidedeck: SignedAsset;
+  starterQuizAnswers: SignedAsset;
+  starterQuiz: SignedAsset; // note: this is starter_quiz in the graphql response
+  supplementaryResource: SignedAsset;
+  video: Video;
+  worksheet: SignedAsset;
+  worksheetAnswers: SignedAsset;
 }
 
-type Download = {
+interface SignedAsset {
   ext: string;
-  label: string;
   type: string;
-  url?: string;
-};
+  label: string;
+  bucket_name: string;
+  bucket_path: string;
+}
 
-type DownloadType =
-  | 'presentation'
-  | 'intro-quiz-questions'
-  | 'intro-quiz-answers'
-  | 'exit-quiz-questions'
-  | 'exit-quiz-answers'
-  | 'worksheet-pdf'
-  | 'worksheet-pptx'
-  | 'supplementary-pdf'
-  | 'supplementary-docx'
-  | 'video-mp4';
+interface Video {
+  ext: string;
+  type: string;
+  label: string;
+  stream: string;
+  download: any;
+}
 
-const typeEnum = z.enum(
+export const downloadTypeEnum = z.enum(
   [
-    'presentation',
-    'intro-quiz-questions',
-    'intro-quiz-answers',
-    'exit-quiz-questions',
-    'exit-quiz-answers',
-    'worksheet-pdf',
-    'worksheet-pptx',
-    'supplementary-pdf',
-    'supplementary-docx',
-    'video-mp4',
+    'slidedeck',
+    'exitQuiz',
+    'exitQuizAnswers',
+    'starterQuiz', // note: graphql key is (currently) starter_quiz
+    'starterQuizAnswers',
+    'supplementaryResource',
+    'video',
+    'worksheet',
+    'worksheetAnswers',
   ],
   {
     description:
@@ -62,40 +72,48 @@ const typeEnum = z.enum(
   }
 );
 
-const assetOutput = z.object({
-  title: z.string().optional(),
-  url: z.string().optional(),
-  type: typeEnum,
-});
+export type DownloadTypeEnum = z.infer<typeof downloadTypeEnum>;
 
 const graphqlClient = getClient();
 
-function assetDownloadWithVideos(
+function assetDownloads(
   lessonSlug: string,
   downloads: Download[],
-  videoObjects: Lesson[]
+  filter?: DownloadTypeEnum
 ) {
-  const videos = videoObjects.find((_) => _.lessonSlug === lessonSlug);
+  const allTypes: DownloadTypeEnum[] = downloadTypeEnum.options;
 
-  if (
-    videos?.video_object.status === 'ready' &&
-    videos?.video_object.mux_playback_id
-  ) {
-    downloads.push({
-      ext: 'mp4',
-      label: 'Video',
-      type: 'video-mp4',
-      url: `${baseUrl}/download/${lessonSlug}/type/video-mp4`,
-    });
-  }
+  return downloads
+    .map((d) => {
+      if (filter) {
+        const item = filter in d ? d[filter] : null;
 
-  return downloads.map((d) => {
-    return {
-      title: d.label,
-      type: d.type as DownloadType,
-      url: `${baseUrl}/download/${lessonSlug}/type/${d.type}`,
-    };
-  });
+        if (!item) return null;
+
+        return {
+          type: item.type,
+          url: `${baseUrl}/download/${lessonSlug}/type/${item.type}`,
+        };
+      }
+
+      return allTypes.map((type) => {
+        if (type === 'video') {
+          return {
+            type,
+            url: `${baseUrl}/download/${lessonSlug}/type/${type}`,
+          };
+        }
+
+        if ((d[type] as SignedAsset).bucket_name !== null) {
+          return {
+            type,
+            url: `${baseUrl}/download/${lessonSlug}/type/${type}`,
+          };
+        }
+      });
+    })
+    .flat()
+    .filter(Boolean);
 }
 
 export const getAssets = router({
@@ -110,60 +128,40 @@ export const getAssets = router({
         example: {
           response: [
             {
-              lessonSlug:
-                'imagining-you-are-the-characters-the-three-billy-goats-gruff',
-              lessonTitle:
-                "Imagining you are the characters: 'The Three Billy Goats Gruff'",
+              lessonSlug: 'nouns-singular-and-plural',
+              lessonTitle: 'Nouns: singular and plural',
               assets: [
                 {
-                  title: 'Slide deck',
-                  url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/presentation`,
-                  type: 'presentation',
+                  type: 'slidedeck',
+                  url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/slidedeck'`,
                 },
                 {
-                  title: 'Starter quiz questions',
-                  url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/intro-quiz-questions`,
-                  type: 'intro-quiz-questions',
+                  type: 'exitQuiz',
+                  url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuiz'`,
                 },
                 {
-                  title: 'Starter quiz answers',
-                  url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/intro-quiz-answers`,
-                  type: 'intro-quiz-answers',
+                  type: 'exitQuizAnswers',
+                  url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuizAnswers'`,
                 },
                 {
-                  title: 'Exit quiz questions',
-                  url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/exit-quiz-questions`,
-                  type: 'exit-quiz-questions',
+                  type: 'starterQuiz',
+                  url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuiz'`,
                 },
                 {
-                  title: 'Exit quiz answers',
-                  url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/exit-quiz-answers`,
-                  type: 'exit-quiz-answers',
+                  type: 'starterQuizAnswers',
+                  url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuizAnswers'`,
                 },
                 {
-                  title: 'Worksheet',
-                  url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/worksheet-pdf`,
-                  type: 'worksheet-pdf',
+                  type: 'video',
+                  url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/video'`,
                 },
                 {
-                  title: 'Worksheet',
-                  url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/worksheet-pptx`,
-                  type: 'worksheet-pptx',
+                  type: 'worksheet',
+                  url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheet'`,
                 },
                 {
-                  title: 'Additional material',
-                  url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/supplementary-pdf`,
-                  type: 'supplementary-pdf',
-                },
-                {
-                  title: 'Additional material',
-                  url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/supplementary-docx`,
-                  type: 'supplementary-docx',
-                },
-                {
-                  title: 'Video',
-                  url: `${baseUrl}/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/video-mp4`,
-                  type: 'video-mp4',
+                  type: 'worksheetAnswers',
+                  url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheetAnswers'`,
                 },
               ],
             },
@@ -171,7 +169,6 @@ export const getAssets = router({
           request: {
             keyStage: 'ks1',
             subject: 'english',
-            type: 'presentation',
             unit: 'word-class',
           },
         },
@@ -187,7 +184,7 @@ export const getAssets = router({
           description:
             "Subject slug to search by, e.g. 'science' - note that casing is important here (always lowercase)",
         }),
-        type: typeEnum.optional(),
+        type: downloadTypeEnum.optional(),
         unit: z
           .string({
             description: 'Optional unit slug to additionally filter by.',
@@ -203,105 +200,61 @@ export const getAssets = router({
           .default(10),
       })
     )
-    .output(
-      z.array(
-        z.object({
-          lessonSlug: z.string(),
-          lessonTitle: z.string({
-            description: 'Lesson title',
-          }),
-          assets: z.array(assetOutput),
-        })
-      )
-    )
+    .output(z.any())
     .query(async ({ input, ctx }) => {
       const keyStage = input.keyStage;
       const subject = input.subject;
       const unit = input.unit || null;
-      const typeFilter = input.type || null;
+      const typeFilter = input.type;
 
       const offset = input.offset;
       const limit = input.limit;
 
-      let where =
-        'keyStageSlug: { _eq: $keyStage } subjectSlug: { _eq: $subject } ';
-      if (unit) where += `unitSlug: { _eq: $unit }`;
+      let unitFilter = '';
+      let unitArg = '';
 
-      const queryVideos = gql`
-        query GetAssets(
-          $keyStage: String!
-          $subject: String!
-          $offset: Int!
-          $limit: Int!
-          $unit: String
-        ) {
-          ${lessonView}(
-            where: {
-              ${where}
-            }
-            offset: $offset,
-            limit: $limit,
-            order_by: {lessonSlug: asc}
-          ) {
-            lessonSlug
-            lessonTitle
-            unitSlug
-            video_object
-          }
-        }
-      `;
-
-      const queryDownloads = gql`
-        query GetDownloads(
-          $keyStage: String!
-          $subject: String!
-          $offset: Int!
-          $limit: Int!
-          $unit: String
-        ) {
-          ${downloadView}(
-            where: {
-              ${where}
-            }
-            offset: $offset,
-            limit: $limit,
-            order_by: {lessonSlug: asc}
-          ) {
-            lessonSlug
-            lessonTitle
-            unitSlug
-            downloads
-          }
-        }
-      `;
-
-      const variables = {
-        keyStage,
-        subject,
-        unit,
-        offset,
-        limit,
-      } as {
-        offset: number;
-        limit: number;
-        keyStage: string;
-        subject: string;
-        unit?: string;
-      };
-
-      if (!unit) {
-        delete variables.unit;
+      if (unit) {
+        unitFilter = ', _and: { unit_slug: { _eq: $unit } }';
+        unitArg = ', $unit: String';
       }
 
-      const [downloadsQuery, videoObjectQuery] = await Promise.all([
-        graphqlClient.request(
-          queryDownloads,
-          variables
-        ) as Promise<DownloadView>,
-        graphqlClient.request(queryVideos, variables) as Promise<LessonView>,
-      ]);
+      // step 1: find the slugs that match
+      const lessonQuery = gql`
+        query GetLessons($_contains: jsonb, $limit: Int!, $offset: Int! ${unitArg}) {
+          ${unitVariantLessonsView} (
+            where: {
+              is_legacy: { _eq: false }
+              _and: {
+                programme_fields: { _contains: $_contains }
+                ${unitFilter}
+              }
+            }
+            limit: $limit
+            offset: $offset
+          ) {
+            lesson_slug
+          }
+        }
+      `;
 
-      const res = downloadsQuery[downloadView];
+      const lessonQueryVariables = {
+        _contains: {
+          keystage_slug: keyStage,
+          subject_slug: subject,
+        },
+        limit,
+        offset,
+        unit,
+      };
+
+      if (unit) {
+        lessonQueryVariables.unit = unit;
+      }
+
+      const lessonViewResult: UnitVariantLessonsView =
+        await graphqlClient.request(lessonQuery, lessonQueryVariables);
+
+      const res = lessonViewResult[unitVariantLessonsView];
 
       let next = null;
       if (res.length === limit) {
@@ -314,20 +267,60 @@ export const getAssets = router({
         ctx.res.setHeader('link', `<${next}>; rel="next"`);
       }
 
-      return res.map(({ downloads, lessonSlug, lessonTitle }) => {
+      // step 2: get the assets for each lesson
+      const downloadsQuery = gql`
+        query GetDownloads($lessonSlugs: [String!]!) {
+          ${downloadView}(
+            where: {
+              lessonSlug: { _in: $lessonSlugs }
+            }
+          ) {
+            lessonSlug
+            lessonTitle
+            exitQuiz
+            exitQuizAnswers
+            lessonSlug
+            lessonTitle
+            slidedeck
+            starterQuizAnswers
+            starterQuiz: starter_quiz
+            supplementaryResource
+            video: videos
+            worksheet
+            worksheetAnswers
+          }
+        }
+      `;
+
+      const lessonSlugs = res.map((l) => l.lesson_slug);
+
+      const downloadsViewResult: DownloadView = await graphqlClient.request(
+        downloadsQuery,
+        {
+          lessonSlugs,
+        }
+      );
+
+      const downloads = downloadsViewResult[downloadView];
+
+      if (!downloads || downloads.length === 0 || !downloads[0]) {
+        throw new TRPCError({
+          message: 'No lessons found',
+          code: 'NOT_FOUND',
+        });
+      }
+
+      const result = downloads.map((d) => {
+        const lessonSlug = d.lessonSlug;
+
         return {
           lessonSlug,
-          lessonTitle,
-          assets: assetDownloadWithVideos(
-            lessonSlug,
-            downloads,
-            videoObjectQuery[lessonView]
-          ).filter((asset) => {
-            if (!typeFilter) return true;
-            return asset.type === typeFilter;
-          }),
+          lessonTitle: d.lessonTitle,
+          assets: assetDownloads(lessonSlug, [d], typeFilter),
         };
       });
+
+      return result;
     }),
   getLessonAssets: protectedProcedure
     .meta({
@@ -339,58 +332,40 @@ export const getAssets = router({
           'The downloadable assets for a specific lesson, including: slidedecks, worksheets, worksheet answers and videos.',
         example: {
           request: {
-            lesson: 'joining-using-and',
+            lesson: 'nouns-singular-and-plural',
           },
           response: [
             {
-              title: 'Slide deck',
-              url: `${baseUrl}/download/four-types-of-simple-sentence/type/presentation`,
-              type: 'presentation',
+              type: 'slidedeck',
+              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/slidedeck'`,
             },
             {
-              title: 'Starter quiz questions',
-              url: `${baseUrl}/download/four-types-of-simple-sentence/type/intro-quiz-questions`,
-              type: 'intro-quiz-questions',
+              type: 'exitQuiz',
+              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuiz'`,
             },
             {
-              title: 'Starter quiz answers',
-              url: `${baseUrl}/download/four-types-of-simple-sentence/type/intro-quiz-answers`,
-              type: 'intro-quiz-answers',
+              type: 'exitQuizAnswers',
+              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuizAnswers'`,
             },
             {
-              title: 'Exit quiz questions',
-              url: `${baseUrl}/download/four-types-of-simple-sentence/type/exit-quiz-questions`,
-              type: 'exit-quiz-questions',
+              type: 'starterQuiz',
+              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuiz'`,
             },
             {
-              title: 'Exit quiz answers',
-              url: `${baseUrl}/download/four-types-of-simple-sentence/type/exit-quiz-answers`,
-              type: 'exit-quiz-answers',
+              type: 'starterQuizAnswers',
+              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuizAnswers'`,
             },
             {
-              title: 'Worksheet',
-              url: `${baseUrl}/download/four-types-of-simple-sentence/type/worksheet-pdf`,
-              type: 'worksheet-pdf',
+              type: 'video',
+              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/video'`,
             },
             {
-              title: 'Worksheet',
-              url: `${baseUrl}/download/four-types-of-simple-sentence/type/worksheet-pptx`,
-              type: 'worksheet-pptx',
+              type: 'worksheet',
+              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheet'`,
             },
             {
-              title: 'Additional material',
-              url: `${baseUrl}/download/four-types-of-simple-sentence/type/supplementary-pdf`,
-              type: 'supplementary-pdf',
-            },
-            {
-              title: 'Additional material',
-              url: `${baseUrl}/download/four-types-of-simple-sentence/type/supplementary-docx`,
-              type: 'supplementary-docx',
-            },
-            {
-              title: 'Video',
-              url: `${baseUrl}/download/four-types-of-simple-sentence/type/video-mp4`,
-              type: 'video-mp4',
+              type: 'worksheetAnswers',
+              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheetAnswers'`,
             },
           ],
         },
@@ -401,11 +376,12 @@ export const getAssets = router({
         lesson: z.string({
           description: 'The lesson slug',
         }),
+        type: downloadTypeEnum.optional(),
       })
     )
-    .output(z.array(assetOutput))
+    .output(z.array(z.any()))
     .query(async ({ input }) => {
-      const { lesson: lessonSlug } = input;
+      const { lesson: lessonSlug, type } = input;
 
       const queryDownloads = gql`
         query GetDownloads($lessonSlug: String!) {
@@ -416,19 +392,17 @@ export const getAssets = router({
           ) {
             lessonSlug
             lessonTitle
-            downloads
-          }
-        }
-      `;
-
-      // also get the video assets
-      const query = gql`
-        query GetAssets($lessonSlug: String!) {
-          ${lessonView}(
-            where: { lessonSlug: { _eq: $lessonSlug } }
-          ) {
+            exitQuiz
+            exitQuizAnswers
             lessonSlug
-            video_object
+            lessonTitle
+            slidedeck
+            starterQuizAnswers
+            starterQuiz: starter_quiz
+            supplementaryResource
+            video: videos
+            worksheet
+            worksheetAnswers
           }
         }
       `;
@@ -437,12 +411,12 @@ export const getAssets = router({
         lessonSlug,
       };
 
-      const downloadsQuery: DownloadView = await graphqlClient.request(
+      const downloadsViewResult: DownloadView = await graphqlClient.request(
         queryDownloads,
         variables
       );
 
-      const res = downloadsQuery[downloadView];
+      const res = downloadsViewResult[downloadView];
 
       if (!res || res.length === 0 || !res[0]) {
         throw new TRPCError({
@@ -451,17 +425,6 @@ export const getAssets = router({
         });
       }
 
-      const videoObjectQuery: LessonView = await graphqlClient.request(
-        query,
-        variables
-      );
-
-      const downloads = res[0]?.downloads;
-
-      return assetDownloadWithVideos(
-        lessonSlug,
-        downloads,
-        videoObjectQuery[lessonView]
-      );
+      return assetDownloads(lessonSlug, res, type);
     }),
 });

@@ -9,8 +9,10 @@ import { getQuestions } from './handlers/questions';
 import { getUnits } from './handlers/units';
 import { subjectsRouter } from './handlers/subjects';
 import { getAssets } from './handlers/assets';
+import { getDownloads } from './handlers/download';
 
 export default router({
+  getDownloads,
   getAssets,
   subjectsRouter,
   getKeyStages,
