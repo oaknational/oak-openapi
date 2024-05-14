@@ -51,7 +51,7 @@ interface Video {
   type: string;
   label: string;
   stream: string;
-  download: any;
+  download: string;
 }
 
 export const downloadTypeEnum = z.enum(
