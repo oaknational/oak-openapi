@@ -146,7 +146,11 @@ export interface Question {
 
 export enum QuestionType {
   MultipleChoice = 'multiple-choice',
-  // etc
+  Text = 'text',
+  Match = 'match',
+  ExplanatoryText = 'explanatory-text',
+  Order = 'order',
+  ShortAnswer = 'short-answer',
 }
 
 export type Answers = {

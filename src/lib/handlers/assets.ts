@@ -68,7 +68,7 @@ export const downloadTypeEnum = z.enum(
   ],
   {
     description:
-      'Use the this type and the lesson slug in conjunction to get a signed download URL to the asset type from the /api/download endpoint.',
+      'Use the this type and the lesson slug in conjunction to get a signed download URL to the asset type from the /api/download endpoint',
   }
 );
 
@@ -124,7 +124,7 @@ export const getAssets = router({
         tags: ['assets'],
         path: '/key-stages/{keyStage}/subject/{subject}/assets',
         description:
-          'The downloadable assets for a lessons in a specific key stage and subject, including: slidedecks, worksheets, worksheet answers and videos.',
+          'This endpoint returns signed download URLs and types for the assets currently available on Oak for a given key stage and subject, optionally filtered by type and unit, grouped by lesson',
         example: {
           response: [
             {
@@ -187,7 +187,7 @@ export const getAssets = router({
         type: downloadTypeEnum.optional(),
         unit: z
           .string({
-            description: 'Optional unit slug to additionally filter by.',
+            description: 'Optional unit slug to additionally filter by',
           })
           .optional(),
         offset: z.number().optional().default(0),
@@ -329,7 +329,7 @@ export const getAssets = router({
         tags: ['assets', 'lessons'],
         path: '/lessons/{lesson}/assets',
         description:
-          'The downloadable assets for a specific lesson, including: slidedecks, worksheets, worksheet answers and videos.',
+          'This endpoint returns signed download URLS and types for the assets currently available on Oak for a given lesson',
         example: {
           request: {
             lesson: 'nouns-singular-and-plural',
