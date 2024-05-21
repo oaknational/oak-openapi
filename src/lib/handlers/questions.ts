@@ -11,6 +11,15 @@ import {
 import { z } from 'zod';
 import { baseUrl } from '../baseUrl';
 
+export const questionTypesEnum = z.enum([
+  'text',
+  'match',
+  'explanatory-text',
+  'order',
+  'short-answer',
+  'multiple-choice',
+]);
+
 export const getQuestions = router({
   getQuestionsForLessons: protectedProcedure
     .meta({
@@ -18,7 +27,8 @@ export const getQuestions = router({
         method: 'GET',
         tags: ['lessons', 'questions'],
         path: '/lessons/{lesson}/quiz',
-        description: 'Get all the lesson quiz questions and answers',
+        description:
+          'This endpoint returns the quiz questions and answers (and indicates which answers are correct and which are distractors) for a given lesson',
         example: {
           request: {
             lesson: 'joining-using-and',
@@ -26,6 +36,7 @@ export const getQuestions = router({
           response: [
             {
               question: 'What is a main clause?',
+              questionType: 'multiple-choice',
               answers: [
                 {
                   answer: 'a list of nouns',
@@ -59,6 +70,7 @@ export const getQuestions = router({
       z.array(
         z.object({
           question: z.string(),
+          questionType: questionTypesEnum,
           answers: z.array(
             z.object({ answer: z.string(), distractor: z.boolean() })
           ),
@@ -103,11 +115,12 @@ export const getQuestions = router({
       const questions = [];
       for (const question of lesson.exitQuiz) {
         // FIXME expose more question types
+        // Note that the entire answer structure is different depending on the question type
         if (question.questionType !== QuestionType.MultipleChoice) {
           continue;
         }
 
-        const answers = question.answers[QuestionType.MultipleChoice];
+        const answers = question.answers[question.questionType];
 
         if (!answers) {
           continue;
@@ -118,6 +131,7 @@ export const getQuestions = router({
             .filter((_) => _.type === 'text')
             .map((_) => _.text)
             .join(' '),
+          questionType: question.questionType,
           answers: answers.map((answer) => ({
             answer: answer.answer
               .filter((_) => _.type === 'text')
@@ -137,7 +151,7 @@ export const getQuestions = router({
         method: 'GET',
         path: '/key-stages/{keyStage}/subject/{subject}/questions',
         description:
-          'Get all the lesson quizzes for a key stage and subject and includes the questions and answer options',
+          'This endpoint returns all the quiz questions and answers (and indicates which answers are correct and which are distractors), grouped by lesson, for a given key stage and subject',
         example: {
           response: [
             {

@@ -17,6 +17,29 @@ export const subjectSlugs = Array.from(
   )
 );
 
+export const subjectsWithKeyStages = () => {
+  const obj = source().reduce((acc, { slug: keyStageSlug, subjects }) => {
+    subjects.forEach(({ slug: subjectSlug, title }) => {
+      if (!acc[subjectSlug]) {
+        acc[subjectSlug] = {
+          subjectTitle: title,
+          subjectSlug,
+          keyStages: new Set(),
+        };
+      }
+      acc[subjectSlug].keyStages.add(keyStageSlug);
+    });
+
+    return acc;
+  }, {} as Record<string, { keyStages: Set<string>; subjectTitle: string; subjectSlug: string }>);
+
+  return Object.values(obj).map(({ keyStages, subjectTitle, subjectSlug }) => ({
+    subjectTitle,
+    subjectSlug,
+    keyStages: Array.from(keyStages),
+  }));
+};
+
 export const subjects = Array.from(
   new Set(
     source()
