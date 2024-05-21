@@ -13,7 +13,7 @@ export const getKeyStageSubjectLessons = router({
         tags: ['lists', 'lessons'],
         path: '/key-stages/{keyStage}/subject/{subject}/lessons',
         description:
-          'Get all the lessons for a given key stage and subject grouped by unit.',
+          'This endpoint returns all the lessons (titles and slugs) that are currently available on Oak for a given subject and key stage, grouped by unit',
         example: {
           response: [
             {
@@ -53,7 +53,7 @@ export const getKeyStageSubjectLessons = router({
         }),
         unit: z
           .string({
-            description: 'Optional unit slug to additionally filter by.',
+            description: 'Optional unit slug to additionally filter by',
           })
           .optional(),
         offset: z.number().optional().default(0),
@@ -95,13 +95,17 @@ export const getKeyStageSubjectLessons = router({
 
       if (unit) {
         query = gql`
-        query ($keyStage: String!, $subject: String!, $offset: Int!
+        query (
+          $keyStage: String!,
+          $subject: String!,
+          $offset: Int!
+          $unit: String!,
           $limit: Int!) {
           ${lessonView}(
             where: {
               keyStageSlug: { _eq: $keyStage }
               subjectSlug: { _eq: $subject }
-              unitSlug: {_eq: $unit}
+              unitSlug: {_eq: $unit }
               isLegacy: { _eq: false }
             },
             offset: $offset,
