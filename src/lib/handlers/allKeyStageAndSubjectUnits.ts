@@ -13,7 +13,7 @@ export const getAllKeyStageAndSubjectUnits = router({
         tags: ['lists'],
         path: '/key-stages/{keyStage}/subject/{subject}/units',
         description:
-          'Get all the units, and lessons in the unit for a given key stage and subject',
+          'This endpoint returns all the units (titles and slugs) that are currently available on Oak for a given subject and key stage',
         example: {
           response: [
             {

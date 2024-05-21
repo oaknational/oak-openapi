@@ -15,7 +15,8 @@ export const getKeyStages = router({
         tags: ['lists'],
         method: 'GET',
         path: '/key-stages',
-        description: 'List all the key stages',
+        description:
+          'This endpoint returns all the key stages (titles and slugs) that are currently available on Oak',
         example: { response: [{ slug: 'ks1', title: 'Key Stage 1' }] },
       },
     })
@@ -34,13 +35,20 @@ export const getKeyStages = router({
       openapi: {
         method: 'GET',
         tags: ['lists'],
-        path: '/key-stages/{keyStage}',
-        description: 'Get all the subjects for a key stage',
+        path: '/key-stages/{keyStage}/subjects',
+        description:
+          'This endpoint returns all the subjects (titles and slugs) that are currently available on Oak for a given key stage',
         example: {
-          response: {
-            keyStageSlug: 'ks2',
-            keyStageTitle: 'Key Stage 2',
-          },
+          response: [
+            {
+              subjectSlug: 'english',
+              subjectTitle: 'English',
+            },
+            {
+              subjectSlug: 'geography',
+              subjectTitle: 'Geography',
+            },
+          ],
         },
       },
     })
@@ -53,7 +61,7 @@ export const getKeyStages = router({
       })
     )
     .output(
-      z.array(z.object({ keyStageSlug: z.string(), keyStageTitle: z.string() }))
+      z.array(z.object({ subjectSlug: z.string(), subjectTitle: z.string() }))
     )
     .query(({ input }) => {
       const key = decodeURIComponent(input.keyStage);
@@ -66,7 +74,7 @@ export const getKeyStages = router({
       }
 
       return res.map(({ slug, title }) => {
-        return { keyStageSlug: slug, keyStageTitle: title };
+        return { subjectSlug: slug, subjectTitle: title };
       });
     }),
 });

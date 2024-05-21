@@ -51,15 +51,17 @@ const lessonSummary = z.object({
   ),
   pupilLessonOutcome: z.string().optional(),
   teacherTips: z.array(z.object({ teacherTip: z.string() })),
-  contentGuidance: z.array(
-    z.object({
-      contentGuidanceArea: z.string(),
-      supervisionlevel_id: z.number(),
-      contentGuidanceLabel: z.string(),
-      contentGuidanceDescription: z.string(),
-    })
-  ),
-  supervisionLevel: z.string(),
+  contentGuidance: z
+    .array(
+      z.object({
+        contentGuidanceArea: z.string(),
+        supervisionlevel_id: z.number(),
+        contentGuidanceLabel: z.string(),
+        contentGuidanceDescription: z.string(),
+      })
+    )
+    .or(z.null()),
+  supervisionLevel: z.string().or(z.null()),
   hasDownloadableResources: z.boolean(),
 });
 
@@ -72,41 +74,73 @@ export const getLessons = router({
         method: 'GET',
         tags: ['lessons'],
         path: '/lessons/{lesson}/summary',
-        description: 'Get a summary of the specified lesson',
+        description: 'This endpoint returns a summary for a given lesson',
         example: {
           request: {
             lesson: 'joining-using-and',
           },
-          response: [
-            {
-              lessonSlug: 'gothic-characters-c8tp4d',
-              lessonTitle: 'Gothic characters',
-              similarity: 0.07692308,
-              units: [
-                {
-                  unitSlug: 'gothic-literature-8196',
-                  unitTitle: 'Gothic Literature',
-                  examBoardTitle: null,
-                  keyStageSlug: 'ks3',
-                  subjectSlug: 'english',
-                },
-              ],
-            },
-            {
-              lessonSlug: 'columbus-in-chains-c8ukct',
-              lessonTitle: 'Columbus in Chains',
-              similarity: 0.07692308,
-              units: [
-                {
-                  unitSlug: 'annie-john-by-jamaica-kincaid-c5ab',
-                  unitTitle: 'Annie John by Jamaica Kincaid',
-                  examBoardTitle: null,
-                  keyStageSlug: 'ks3',
-                  subjectSlug: 'english',
-                },
-              ],
-            },
-          ],
+          response: {
+            lessonTitle: "Joining using 'and'",
+            unitSlug: 'simple-sentences',
+            unitTitle: 'Simple sentences',
+            subjectSlug: 'english',
+            subjectTitle: 'English',
+            keyStageSlug: 'ks1',
+            keyStageTitle: 'Key Stage 1',
+            lessonKeywords: [
+              {
+                keyword: 'joining word',
+                description: 'a word that joins words or ideas',
+              },
+              {
+                keyword: 'build on',
+                description: 'add to',
+              },
+              {
+                keyword: 'related',
+                description: 'linked to',
+              },
+            ],
+            keyLearningPoints: [
+              {
+                keyLearningPoint: 'And is a type of joining word.',
+              },
+              {
+                keyLearningPoint:
+                  'A joining word can join two simple sentences.',
+              },
+              {
+                keyLearningPoint:
+                  'Each simple sentence is about one idea and makes complete sense.',
+              },
+              {
+                keyLearningPoint:
+                  'The second idea builds on to the first idea if ‘and’ is used to join them.',
+              },
+              {
+                keyLearningPoint:
+                  'Grammatically accurate sentences start with capital letters and most often end with full stops.',
+              },
+            ],
+            misconceptionsAndCommonMistakes: [
+              {
+                misconception:
+                  'Pupils may struggle to link related ideas together.',
+                response:
+                  'Give some non-examples to show what it sounds like when two ideas are unrelated e.g. Dad baked bread and she missed her sister.',
+              },
+            ],
+            pupilLessonOutcome: "I can join two simple sentences with 'and'.",
+            teacherTips: [
+              {
+                teacherTip:
+                  'In Learning Cycle 1, make sure pupils are given plenty of opportunities to say sentences orally and hear that they make complete sense.',
+              },
+            ],
+            contentGuidance: null,
+            supervisionLevel: null,
+            hasDownloadableResources: true,
+          },
         },
       },
     })
@@ -168,13 +202,43 @@ export const getLessons = router({
         method: 'GET',
         tags: ['lessons', 'search'],
         path: '/search/lessons',
-        description: 'Find lessons with a similar title as the given text',
+        description:
+          'This endpoint returns lessons that are similar to the search criteria, including a similarity score, and details of the unit that it is in',
         example: {
           request: {
             q: 'chratchet',
             subject: 'english',
           },
-          // TODO: add response example
+          response: [
+            {
+              lessonSlug: 'gothic-characters-c8tp4d',
+              lessonTitle: 'Gothic characters',
+              similarity: 0.07692308,
+              units: [
+                {
+                  unitSlug: 'gothic-literature-8196',
+                  unitTitle: 'Gothic Literature',
+                  examBoardTitle: null,
+                  keyStageSlug: 'ks3',
+                  subjectSlug: 'english',
+                },
+              ],
+            },
+            {
+              lessonSlug: 'columbus-in-chains-c8ukct',
+              lessonTitle: 'Columbus in Chains',
+              similarity: 0.07692308,
+              units: [
+                {
+                  unitSlug: 'annie-john-by-jamaica-kincaid-c5ab',
+                  unitTitle: 'Annie John by Jamaica Kincaid',
+                  examBoardTitle: null,
+                  keyStageSlug: 'ks3',
+                  subjectSlug: 'english',
+                },
+              ],
+            },
+          ],
         },
       },
     })
@@ -195,7 +259,7 @@ export const getLessons = router({
           .optional(),
         unit: z
           .string({
-            description: 'Optional unit slug to additionally filter by.',
+            description: 'Optional unit slug to additionally filter by',
           })
           .optional(),
       })
@@ -223,8 +287,6 @@ export const getLessons = router({
       }
 
       const sql = `SELECT * from (SELECT "lessonSlug", SIMILARITY("lessonTitle", '${q}') FROM ${lessonViewTable} WHERE ${sqlWhere} group by "lessonSlug", "similarity") as a order by a.similarity desc limit 20`;
-
-      console.log({ sql });
 
       const result = await querySQL(sql).then((res) => res.json());
 

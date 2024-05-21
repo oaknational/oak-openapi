@@ -36,7 +36,7 @@ export const getDownloads = router({
         tags: ['downloads'],
         path: '/download/{slug}/type/{type}',
         description:
-          'Get a zip file containing the requested download type. With the exception of video, which will return a direct download URL to the video file. Note that currently worksheet and worksheetAnswers are contained inside the same zip file.',
+          'This endpoint provides a zip file containing the requested download type, except for video, which will return a direct download URL to the video file. Note that currently, worksheets and worksheet answers are contained inside the same zip file',
         example: {
           request: {
             slug: 'imagining-you-are-the-characters-the-three-billy-goats-gruff',
@@ -69,13 +69,13 @@ export const getDownloads = router({
           stream: z
             .boolean({
               description:
-                'Only present on videos when no direct download/mp4 url is available.',
+                'Only present on videos when no direct download/mp4 url is available',
             })
             .optional(),
           signed: z
             .boolean({
               description:
-                'Used for non-video assets, the URL will be signed and valid for 1 hour.',
+                'Used for non-video assets, the URL will be signed and valid for 1 hour',
             })
             .optional(),
           type: downloadTypeEnum,

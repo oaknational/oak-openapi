@@ -15,7 +15,7 @@ export const unitSchema = z.object({
   tags: z.array(z.string()),
   // notes: z.string(),
   // description: z.string(),
-  plannedNumberOfLessons: z.number(),
+  // plannedNumberOfLessons: z.number(),
   priorKnowledgeRequirements: z.array(z.string()),
   nationalCurriculumContent: z.array(z.string()),
   priorUnit: z.object({
@@ -39,7 +39,7 @@ export const getUnits = router({
         tags: ['units'],
         path: '/units/{unit}/summary',
         description:
-          'Get prior knowledge requirements, national curriculum content, tags, prior and next units to learn for the specified unit',
+          'This endpoint returns unit information for a given unit, including slug, title, number of lessons, prior knowledge requirements, national curriculum statements, prior unit details, future unit descriptions, and lesson titles that form the unit',
         example: {
           request: {
             unit: 'simple-compound-and-adverbial-complex-sentences',
@@ -48,7 +48,6 @@ export const getUnits = router({
             unitSlug: 'simple-compound-and-adverbial-complex-sentences',
             unitTitle: 'Simple, compound and adverbial complex sentences',
             tags: ['Grammar'],
-            plannedNumberOfLessons: 8,
             priorKnowledgeRequirements: [
               'A simple sentence is about one idea and makes complete sense.',
               'Any simple sentence contains one verb and at least one noun.',
@@ -110,7 +109,6 @@ export const getUnits = router({
             unitTags
             unitNotes
             unitDescription
-            plannedNumberOfLessons
             priorKnowledgeRequirements
             unitNationalCurriculumContent
             priorUnit
@@ -142,7 +140,6 @@ export const getUnits = router({
           lessonTitle: lesson.title,
         })),
         tags: root.unitTags.map((tag) => tag.title),
-        plannedNumberOfLessons: root.plannedNumberOfLessons,
         priorKnowledgeRequirements: root.priorKnowledgeRequirements,
         nationalCurriculumContent: root.unitNationalCurriculumContent.map(
           (content) => content.title
