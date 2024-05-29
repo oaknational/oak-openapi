@@ -1,12 +1,17 @@
 {
   "cSpell.words": [
     "apikeys",
+    "langchain",
+    "llms",
+    "openai",
     "openapi",
+    "pgvector",
     "slidedeck",
     "slidedecks",
     "superjson",
     "trpc",
     "unitvariant",
-    "UPSTASH"
+    "UPSTASH",
+    "vectorstores"
   ]
 }
