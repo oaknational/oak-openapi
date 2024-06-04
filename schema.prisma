@@ -1,0 +1,51 @@
+// note: this a subset of the schema from ai-beta project only including the relevant models
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PRISMA_ACCELERATE_DATABASE_URL")
+  // directUrl = env("DIRECT_DATABASE_URL")
+}
+
+model Snippet {
+  id            String   @id @default(cuid())
+  lessonId      String   @map("lesson_id")
+  transcriptId  String?  @map("transcript_id")
+  questionId    String?  @map("question_id")
+  index         Int?
+  timestamp     Int?
+  sourceContent String   @map("source_content")
+  content       String
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  keyStageSlug  String?  @map("key_stage_slug")
+  subjectSlug   String?  @map("subject_slug")
+  keyStageId    String?  @map("key_stage_id")
+  subjectId     String?  @map("subject_id")
+  Lesson        Lesson   @relation(fields: [lessonId], references: [id])
+
+  @@map("snippets")
+}
+
+model Lesson {
+  id               String   @id @default(cuid())
+  title            String
+  slug             String   @unique
+  keyStageName     String   @map("key_stage")
+  keyStageId       String?  @map("key_stage_id")
+  subjectId        String?  @map("subject_id")
+  content          Json?
+  newLessonContent Json?    @map("new_lesson_content")
+  captions         Json?
+  isNewLesson      Boolean  @default(false) @map("is_new_lesson")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  snippets Snippet[]
+
+  @@map("lessons")
+}
