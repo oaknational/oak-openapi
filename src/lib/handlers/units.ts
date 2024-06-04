@@ -135,25 +135,25 @@ export const getUnits = router({
       return {
         unitSlug: root.unitSlug,
         unitTitle: root.unitTitle,
-        unitLessons: root.unitLessons.map((lesson) => ({
+        unitLessons: (root.unitLessons || []).map((lesson) => ({
           lessonSlug: lesson.slug,
           lessonTitle: lesson.title,
         })),
-        tags: root.unitTags.map((tag) => tag.title),
-        priorKnowledgeRequirements: root.priorKnowledgeRequirements,
-        nationalCurriculumContent: root.unitNationalCurriculumContent.map(
-          (content) => content.title
-        ),
+        tags: (root.unitTags || []).map((tag) => tag.title),
+        priorKnowledgeRequirements: root.priorKnowledgeRequirements || [],
+        nationalCurriculumContent: (
+          root.unitNationalCurriculumContent || []
+        ).map((content) => content.title),
         priorUnit: {
           description: root.priorUnitDescription || '',
-          units: root.priorUnit.map((unit) => ({
+          units: (root.priorUnit || []).map((unit) => ({
             unitSlug: unit.slug,
             unitTitle: unit.title,
           })),
         },
         futureUnit: {
           description: root.futureUnitDescription || '',
-          units: root.futureUnit.map((unit) => ({
+          units: (root.futureUnit || []).map((unit) => ({
             unitSlug: unit.slug,
             unitTitle: unit.title,
           })),

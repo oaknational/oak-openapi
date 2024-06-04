@@ -37,17 +37,17 @@ export type UnitCurriculumView = {
 export type UnitCurriculum = {
   unitSlug: string;
   unitTitle: string;
-  unitTags: UnitTag[];
+  unitTags?: UnitTag[];
   unitNotes: string;
   unitDescription: string;
   plannedNumberOfLessons: number;
-  priorKnowledgeRequirements: string[];
-  unitNationalCurriculumContent: UnitNationalCurriculumContent[];
-  priorUnit: PriorUnit[];
-  futureUnit: FutureUnit[];
+  priorKnowledgeRequirements?: string[];
+  unitNationalCurriculumContent?: UnitNationalCurriculumContent[];
+  priorUnit?: PriorUnit[];
+  futureUnit?: FutureUnit[];
   futureUnitDescription: string;
   priorUnitDescription: string;
-  unitLessons: UnitLesson[];
+  unitLessons?: UnitLesson[];
 };
 
 export interface UnitTag {
@@ -100,7 +100,7 @@ export type Lesson = {
   hasDownloadableResources?: boolean;
   isLegacy?: boolean;
   isWorksheetLandscape?: boolean;
-  keyLearningPonumbers?: any;
+  keyLearningPoints?: any;
   keyStageSlug?: string;
   keyStageTitle?: string;
   lessonCohort?: string;
