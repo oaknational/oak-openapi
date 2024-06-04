@@ -15,7 +15,7 @@ const options: Options = {
 if (process.env.AI_DATABASE_URL?.includes('?')) {
   options.ssl = {
     rejectUnauthorized: false,
-    ca: cert(),
+    ca: cert(), // RADAR unsure why this works when the cert is an empty string
   };
 }
 
