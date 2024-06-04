@@ -11,7 +11,8 @@
     "dev": "pnpm with-env next dev --port 2727",
     "with-env": "dotenv -e ./.env --",
     "build": "next build",
-    "generate-prisma": "pnpm with-env prisma generate"
+    "generate-prisma": "pnpm with-env prisma generate",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
