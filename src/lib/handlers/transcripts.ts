@@ -93,7 +93,7 @@ export const getTranscripts = router({
       // const ids = result.map((r) => r.metadata);
 
       const search = await aiPool.query(
-        `SELECT lesson_id FROM snippets_with_index WHERE to_tsvector('english', source_content) @@ to_tsquery($1) ORDER BY similarity(source_content, $2) DESC limit 5`,
+        `SELECT lesson_id FROM snippets WHERE to_tsvector('english', source_content) @@ to_tsquery($1) ORDER BY similarity(source_content, $2) DESC limit 5`,
         [q.split(' ').join(' & '), q]
       );
 
