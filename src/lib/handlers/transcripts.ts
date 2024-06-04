@@ -56,12 +56,18 @@ export const getTranscripts = router({
     .query(async ({ input }) => {
       const { q } = input;
 
+      console.log('starting search for:', q);
+      console.time('snippet search');
+
       const search = await aiPool.query(
         `SELECT lesson_id FROM snippets WHERE to_tsvector('english', source_content) @@ to_tsquery($1) ORDER BY similarity(source_content, $2) DESC limit 5`,
         [q.split(' ').join(' & '), q]
       );
+      console.timeEnd('snippet search');
 
       const ids = search.rows.map((r) => r.lesson_id);
+
+      console.log('snippet complete: ', ids.length, 'results');
 
       const res = await aiPool.query(
         `SELECT title as "lessonTitle", slug as "lessonSlug" FROM lessons WHERE id = ANY($1)`,
