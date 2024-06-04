@@ -10,6 +10,8 @@
     "slidedecks",
     "superjson",
     "trpc",
+    "tsquery",
+    "tsvector",
     "unitvariant",
     "UPSTASH",
     "vectorstores"
