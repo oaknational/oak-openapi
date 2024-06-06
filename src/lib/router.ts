@@ -7,7 +7,7 @@ import { getKeyStages } from './handlers/keyStages';
 import { getLessons } from './handlers/lesson';
 import { getQuestions } from './handlers/questions';
 import { getUnits } from './handlers/units';
-import { subjectsRouter } from './handlers/subjects';
+import { subjects } from './handlers/subjects';
 import { getAssets } from './handlers/assets';
 import { getDownloads } from './handlers/download';
 import { getTranscripts } from './handlers/transcripts';
@@ -16,7 +16,7 @@ export default router({
   getTranscripts,
   getDownloads,
   getAssets,
-  subjectsRouter,
+  subjects,
   getKeyStages,
   getKeyStageSubjectLessons,
   getAllKeyStageAndSubjectUnits,
