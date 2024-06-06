@@ -3,7 +3,7 @@ import { router } from '~/lib/trpc';
 import { z } from 'zod';
 import { subjectsWithKeyStages } from '../keyStageAndSubjects';
 
-export const subjectsRouter = router({
+export const subjects = router({
   getAllSubjects: protectedProcedure
     .meta({
       openapi: {
