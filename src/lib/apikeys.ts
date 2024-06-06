@@ -16,9 +16,13 @@ export const keys: User[] = await redis.json
   .then((keys) => keys as User[]);
 
 export async function findUserByKey(key: string): Promise<User | null> {
-  const res = await redis.json.get('apikeys', `$[?(@.key=="${key}")]`);
-  if (res) {
-    return res as User;
+  const res = (await redis.json.get(
+    'apikeys',
+    `$[?(@.key=="${key}")]`
+  )) as User[];
+
+  if (res.length === 1) {
+    return res[0];
   }
   return null;
 }
