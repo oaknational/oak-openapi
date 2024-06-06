@@ -85,7 +85,17 @@ export const getDownloads = router({
     .query(async ({ input, ctx }) => {
       const { slug, type } = input;
 
-      const { auth } = ctx;
+      const { user } = ctx;
+
+      // this is never true, but I wasn't sure how to tell TS
+      // that it's always going be available because of the
+      // protectedProcedure
+      if (!user) {
+        throw new TRPCError({
+          message: 'Unauthorized',
+          code: 'UNAUTHORIZED',
+        });
+      }
 
       const graphqlClient = getClient();
 
@@ -153,7 +163,7 @@ export const getDownloads = router({
               const json = await fetch(
                 `https://downloads-api.thenational.academy/api/lesson/${slug}/download?selection=${downloadMappingToOWA.get(
                   type
-                )}&openapi_key=${auth.userId}`
+                )}&openapi_key=${user.id}`
               ).then((res) => res.json());
 
               result.push({
