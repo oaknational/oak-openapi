@@ -3,6 +3,7 @@ import { router } from '~/lib/trpc';
 import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
 import {
   LessonView,
+  Lesson,
   QuestionType,
   getClient,
   gql,
@@ -19,6 +20,73 @@ export const questionTypesEnum = z.enum([
   'short-answer',
   'multiple-choice',
 ]);
+
+const questionZod = z.object({
+  question: z.string(),
+  questionType: questionTypesEnum,
+  answers: z.array(z.object({ answer: z.string(), distractor: z.boolean() })),
+});
+
+type QuestionZod = z.infer<typeof questionZod>;
+type QuizKey = 'exitQuiz' | 'starterQuiz';
+
+function emptyQuizResults() {
+  const result: { [key in QuizKey]: QuestionZod[] } = {
+    starterQuiz: [],
+    exitQuiz: [],
+  };
+  return result;
+}
+
+function questionsForQuiz(lesson: Lesson) {
+  const result = emptyQuizResults();
+  for (const quiz of ['starterQuiz', 'exitQuiz'] as QuizKey[]) {
+    let lessonContent;
+
+    // seems verbose, but TS won't let me access `lesson` with an arbitrary string
+    if (quiz === 'starterQuiz') {
+      lessonContent = lesson.starterQuiz;
+    } else {
+      lessonContent = lesson.exitQuiz;
+    }
+
+    if (!lessonContent) {
+      continue;
+    }
+    const questions: QuestionZod[] = [];
+    for (const question of lessonContent) {
+      // FIXME expose more question types
+      // Note that the entire answer structure is different depending on the question type
+      if (question.questionType !== QuestionType.MultipleChoice) {
+        continue;
+      }
+
+      const answers = question.answers[question.questionType];
+
+      if (!answers) {
+        continue;
+      }
+
+      questions.push({
+        question: question.questionStem
+          .filter((_) => _.type === 'text')
+          .map((_) => _.text)
+          .join(' '),
+        questionType: question.questionType,
+        answers: answers.map((answer) => ({
+          answer: answer.answer
+            .filter((_) => _.type === 'text')
+            .map((_) => _.text)
+            .join(' '),
+          distractor: !answer.answer_is_correct,
+        })),
+      });
+    }
+
+    result[quiz] = questions;
+  }
+  return result;
+}
 
 export const getQuestions = router({
   getQuestionsForLessons: protectedProcedure
@@ -67,15 +135,10 @@ export const getQuestions = router({
       })
     )
     .output(
-      z.array(
-        z.object({
-          question: z.string(),
-          questionType: questionTypesEnum,
-          answers: z.array(
-            z.object({ answer: z.string(), distractor: z.boolean() })
-          ),
-        })
-      )
+      z.object({
+        starterQuiz: z.array(questionZod),
+        exitQuiz: z.array(questionZod),
+      })
     )
     .query(async ({ input }) => {
       const slug = decodeURIComponent(input.lesson);
@@ -87,11 +150,11 @@ export const getQuestions = router({
           ${lessonView}(
             where: {
               lessonSlug: { _eq: $slug }
-              exitQuiz: { _neq: "null" }
               isLegacy: { _eq: false }
             }
           ) {
             exitQuiz
+            starterQuiz
           }
         }
       `;
@@ -100,49 +163,24 @@ export const getQuestions = router({
         slug,
       });
 
+      const result: { [key in QuizKey]: QuestionZod[] } = {
+        starterQuiz: [],
+        exitQuiz: [],
+      };
+
       const data = res[lessonView];
 
       if (data.length === 0) {
-        return [];
+        return result;
       }
 
       const lesson = data[0];
 
-      if (!lesson || !lesson.exitQuiz) {
-        return [];
+      if (!lesson) {
+        return result;
       }
 
-      const questions = [];
-      for (const question of lesson.exitQuiz) {
-        // FIXME expose more question types
-        // Note that the entire answer structure is different depending on the question type
-        if (question.questionType !== QuestionType.MultipleChoice) {
-          continue;
-        }
-
-        const answers = question.answers[question.questionType];
-
-        if (!answers) {
-          continue;
-        }
-
-        questions.push({
-          question: question.questionStem
-            .filter((_) => _.type === 'text')
-            .map((_) => _.text)
-            .join(' '),
-          questionType: question.questionType,
-          answers: answers.map((answer) => ({
-            answer: answer.answer
-              .filter((_) => _.type === 'text')
-              .map((_) => _.text)
-              .join(' '),
-            distractor: !answer.answer_is_correct,
-          })),
-        });
-      }
-
-      return questions;
+      return questionsForQuiz(lesson);
     }),
   getQuestionsForKeyStageAndSubject: protectedProcedure
     .meta({
@@ -210,14 +248,8 @@ export const getQuestions = router({
         z.object({
           lessonSlug: z.string(),
           lessonTitle: z.string(),
-          questions: z.array(
-            z.object({
-              question: z.string(),
-              answers: z.array(
-                z.object({ answer: z.string(), distractor: z.boolean() })
-              ),
-            })
-          ),
+          starterQuiz: z.array(questionZod),
+          exitQuiz: z.array(questionZod),
         })
       )
     )
@@ -241,7 +273,6 @@ export const getQuestions = router({
             where: {
               keyStageSlug: { _eq: $keyStage }
               subjectSlug: { _eq: $subject }
-              exitQuiz: { _neq: "null" }
               isLegacy: { _eq: false }
             }
             offset: $offset
@@ -250,6 +281,7 @@ export const getQuestions = router({
             lessonTitle
             lessonSlug
             exitQuiz
+            starterQuiz
           }
         }
       `;
@@ -277,42 +309,21 @@ export const getQuestions = router({
 
       const lessons = [];
 
-      for (const { exitQuiz, lessonSlug, lessonTitle } of data) {
-        if (!exitQuiz || !lessonSlug || !lessonTitle) {
+      for (const { exitQuiz, starterQuiz, lessonSlug, lessonTitle } of data) {
+        if (!lessonSlug || !lessonTitle) {
           continue;
         }
 
-        const questions = [];
-        for (const question of exitQuiz) {
-          if (question.questionType !== QuestionType.MultipleChoice) {
-            continue;
-          }
-
-          const answers = question.answers[QuestionType.MultipleChoice];
-
-          if (!answers) {
-            continue;
-          }
-
-          questions.push({
-            question: question.questionStem
-              .filter((_) => _.type === 'text')
-              .map((_) => _.text)
-              .join(' '),
-            answers: answers.map((answer) => ({
-              answer: answer.answer
-                .filter((_) => _.type === 'text')
-                .map((_) => _.text)
-                .join(' '),
-              distractor: !answer.answer_is_correct,
-            })),
-          });
+        if (!exitQuiz && !starterQuiz) {
+          continue;
         }
+
+        const results = questionsForQuiz({ exitQuiz, starterQuiz });
 
         lessons.push({
           lessonTitle,
           lessonSlug,
-          questions,
+          ...results,
         });
       }
 
