@@ -3,7 +3,7 @@ name: Run Tests Before Merge
 on:
   pull_request:
     branches:
-      - main # Adjust this to match your default branch
+      - main
 
 jobs:
   test:
