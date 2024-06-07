@@ -3,6 +3,13 @@ import { z } from 'zod';
 
 export const versions = [
   {
+    version: '0.2.0',
+    date: '2024-06-07',
+    changes: [
+      'Quiz and questions now include starterQuiz and exitQuiz as keys to the results, and separate the questions into their own array',
+    ],
+  },
+  {
     version: '0.1.1',
     date: '2024-04-17',
     changes: [

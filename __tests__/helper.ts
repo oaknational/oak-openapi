@@ -1,4 +1,4 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import router from '~/lib/router';
 import { createCallerFactory } from '~/lib/trpc';
 
