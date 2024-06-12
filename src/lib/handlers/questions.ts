@@ -8,6 +8,9 @@ import {
   getClient,
   gql,
   lessonView,
+  Answer,
+  ImageAnswerStem,
+  TextAnswerStem,
 } from 'lib/owaClient';
 import { z } from 'zod';
 import { baseUrl } from '../baseUrl';
@@ -21,14 +24,50 @@ export const questionTypesEnum = z.enum([
   'multiple-choice',
 ]);
 
+const imageDataSchema = z.object({
+  url: z.string(),
+  width: z.number(),
+  height: z.number(),
+  alt: z.string().optional(),
+  text: z.string().optional(),
+  metadata: z
+    .object({
+      attribution: z.string().optional(),
+      source: z.string().optional(),
+      attribution_required: z.boolean().optional(),
+      usageRestrictions: z.string().optional(),
+      usage_notes: z.string().optional(),
+    })
+    .optional(),
+});
+
+const answer = z
+  .object({
+    distractor: z.boolean(),
+  })
+  .and(
+    z.union([
+      z.object({
+        type: z.literal('text'),
+        content: z.string(),
+      }),
+      z.object({
+        type: z.literal('image'),
+        content: imageDataSchema,
+      }),
+    ])
+  );
+
 const questionZod = z.object({
   question: z.string(),
-  questionType: questionTypesEnum,
-  answers: z.array(z.object({ answer: z.string(), distractor: z.boolean() })),
+  questionType: z.literal('multiple-choice'),
+  answers: z.array(answer),
 });
 
 type QuestionZod = z.infer<typeof questionZod>;
 type QuizKey = 'exitQuiz' | 'starterQuiz';
+type AnswerZod = z.infer<typeof answer>;
+type ImageDataSchemaType = z.infer<typeof imageDataSchema>;
 
 function emptyQuizResults() {
   const result: { [key in QuizKey]: QuestionZod[] } = {
@@ -36,6 +75,49 @@ function emptyQuizResults() {
     exitQuiz: [],
   };
   return result;
+}
+
+function formatMultipleChoiceAnswer(answer: Answer): AnswerZod | undefined {
+  if (answer.answer[0].type === 'text') {
+    return {
+      type: answer.answer[0].type,
+      content: answer.answer[0].text,
+      distractor: !answer.answer_is_correct,
+    };
+  }
+
+  if (answer.answer[0].type === 'image') {
+    const text = answer.answer.find((_) => _.type === 'text') as TextAnswerStem;
+    const image = answer.answer.find(
+      (_) => _.type === 'image'
+    ) as ImageAnswerStem;
+    if (!image) {
+      return;
+    }
+
+    const content: ImageDataSchemaType = {
+      url: image.image_object.secure_url || image.image_object.url || '',
+      width: image.image_object.width || 0,
+      height: image.image_object.height || 0,
+      alt: image.image_object.context?.custom?.alt || undefined,
+      text: text?.text || undefined,
+      metadata: image.image_object.metadata || undefined,
+    };
+
+    const res = {
+      type: answer.answer[0].type,
+      content,
+      distractor: !answer.answer_is_correct,
+    };
+
+    if (res.content.metadata?.attribution_required) {
+      res.content.metadata.attribution_required =
+        res.content.metadata.attribution_required ===
+        ('yes' as unknown as boolean);
+    }
+
+    return res;
+  }
 }
 
 function questionsForQuiz(lesson: Lesson) {
@@ -73,13 +155,12 @@ function questionsForQuiz(lesson: Lesson) {
           .map((_) => _.text)
           .join(' '),
         questionType: question.questionType,
-        answers: answers.map((answer) => ({
-          answer: answer.answer
-            .filter((_) => _.type === 'text')
-            .map((_) => _.text)
-            .join(' '),
-          distractor: !answer.answer_is_correct,
-        })),
+        answers: answers
+          .map(formatMultipleChoiceAnswer)
+          .filter((_) => _ !== undefined) as AnswerZod[],
+        // I've added `as AnswerZod[]` here because TS is giving me an error
+        // that I can't resolve. I'm guessing it can't handle the `filter`
+        // but I'm not 100% sure.
       });
     }
 
