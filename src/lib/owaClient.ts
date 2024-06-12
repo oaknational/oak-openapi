@@ -2,6 +2,14 @@ import { GraphQLClient } from 'graphql-request';
 
 export { gql } from 'graphql-request';
 
+export const unitCurriculumView =
+  'published_mv_openapi_unit_curriculum_content_1_0_2';
+export const lessonView = 'published_mv_lesson_openapi_1_1_0';
+export const downloadView = 'published_mv_openapi_downloads_1_0_0';
+export const unitVariantLessonsView =
+  'published_mv_synthetic_unitvariant_lessons_by_year_6_0_0';
+export const lessonViewTable = 'published.mv_lesson_openapi_1_1_0';
+
 export function querySQL(sql: string) {
   return fetch(`${process.env.OAK_GRAPHQL_HOST}/v1/query`, {
     method: 'POST',
@@ -27,8 +35,47 @@ export function getClient() {
   });
 }
 
-export const unitCurriculumView =
-  'published_mv_openapi_unit_curriculum_content_1_0_2';
+export type UnitVariantLessonsView = {
+  published_mv_synthetic_unitvariant_lessons_by_year_6_0_0: UnitVariantLesson[];
+};
+
+type UnitVariantLesson = {
+  lesson_slug: string;
+};
+
+export type DownloadView = {
+  published_mv_openapi_downloads_1_0_0: Download[];
+};
+
+export interface Download {
+  exitQuiz: SignedAsset;
+  exitQuizAnswers: SignedAsset;
+  lessonSlug: string;
+  lessonTitle: string;
+  slidedeck: SignedAsset;
+  starterQuizAnswers: SignedAsset;
+  starterQuiz: SignedAsset; // note: this is starter_quiz in the graphql response
+  supplementaryResource: SignedAsset;
+  video: Video;
+  worksheet: SignedAsset;
+  worksheetAnswers: SignedAsset;
+}
+
+export interface SignedAsset {
+  ext: string;
+  type: string;
+  label: string;
+  bucket_name: string;
+  bucket_path: string;
+}
+
+interface Video {
+  ext: string;
+  type: string;
+  label: string;
+  stream: string;
+  download: string;
+}
 
 export type UnitCurriculumView = {
   published_mv_openapi_unit_curriculum_content_1_0_2: UnitCurriculum[];
@@ -76,9 +123,6 @@ export interface FutureUnit {
   title: string;
   slug: string;
 }
-
-export const lessonView = 'published_mv_lesson_openapi_1_1_0';
-export const lessonViewTable = 'published.mv_lesson_openapi_1_1_0';
 
 export type LessonView = {
   published_mv_lesson_openapi_1_1_0: Lesson[];
