@@ -202,13 +202,29 @@ export type Answers = {
 };
 
 export interface Answer {
-  answer: AnswerStem[];
+  answer: (TextAnswerStem | ImageAnswerStem)[];
   answer_is_correct: boolean;
 }
 
-export interface AnswerStem {
+export interface TextAnswerStem {
+  type: 'text';
   text: string;
-  type: string;
+}
+
+export interface ImageAnswerStem {
+  type: 'image';
+  image_object: {
+    secure_url: string;
+    url: string;
+    width: number;
+    height: number;
+    context?: {
+      custom?: {
+        alt: string;
+      };
+    };
+    metadata?: any;
+  };
 }
 
 export interface QuestionStem {
