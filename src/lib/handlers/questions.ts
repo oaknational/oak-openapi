@@ -171,9 +171,16 @@ function questionsForQuiz(lesson: Lesson) {
     }
     const questions: QuestionZod[] = [];
     for (const question of lessonContent) {
-      // FIXME expose more question types
-      // Note that the entire answer structure is different depending on the question type
-      if (question.questionType !== QuestionType.MultipleChoice) {
+      let allow = false;
+      if (question.questionType === QuestionType.MultipleChoice) {
+        allow = true;
+      }
+
+      if (question.questionType === QuestionType.ShortAnswer) {
+        allow = true;
+      }
+
+      if (!allow) {
         continue;
       }
 
