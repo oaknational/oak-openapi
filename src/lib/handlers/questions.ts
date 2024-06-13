@@ -15,14 +15,10 @@ import {
 import { z } from 'zod';
 import { baseUrl } from '../baseUrl';
 
-export const questionTypesEnum = z.enum([
-  'text',
-  'match',
-  'explanatory-text',
-  'order',
-  'short-answer',
-  'multiple-choice',
-]);
+const multipleChoiceLit = z.literal('multiple-choice');
+const shortAnswerLit = z.literal('short-answer');
+
+const availableQuestionTypes = z.union([multipleChoiceLit, shortAnswerLit]);
 
 const imageDataSchema = z.object({
   url: z.string(),
@@ -64,17 +60,24 @@ const questionZod = z
   .and(
     z.union([
       z.object({
-        questionType: z.literal('multiple-choice'),
+        questionType: multipleChoiceLit,
         answers: z.array(multipleChoiceAnswer),
       }),
       z.object({
-        questionType: z.literal('short-answer'),
+        questionType: shortAnswerLit,
         answers: z.array(shortAnswer),
       }),
     ])
   );
 
-type QuestionZod = z.infer<typeof questionZod>;
+// type QuestionZod = z.infer<typeof questionZod>;
+
+type AvailableQuestionTypes = z.infer<typeof availableQuestionTypes>;
+type QuestionZod = {
+  question: string;
+  questionType: AvailableQuestionTypes;
+  answers: AnswerZod[];
+};
 type QuizKey = 'exitQuiz' | 'starterQuiz';
 type MultipleChoiceAnswer = z.infer<typeof multipleChoiceAnswer> | undefined;
 type ShortAnswer = z.infer<typeof shortAnswer> | undefined;
@@ -154,7 +157,7 @@ function formatAnswer(type: QuestionType, answer: Answer): AnswerZod {
   return undefined;
 }
 
-function questionsForQuiz(lesson: Lesson) {
+function questionsForQuiz(lesson: Lesson): { [key in QuizKey]: QuestionZod[] } {
   const result = emptyQuizResults();
   for (const quiz of ['starterQuiz', 'exitQuiz'] as QuizKey[]) {
     let lessonContent;
@@ -199,11 +202,8 @@ function questionsForQuiz(lesson: Lesson) {
           .filter((_) => _.type === 'text')
           .map((_) => _.text)
           .join(' '),
-        questionType: question.questionType,
+        questionType: question.questionType as AvailableQuestionTypes,
         answers: formattedAnswers,
-        // I've added `as AnswerZod[]` here because TS is giving me an error
-        // that I can't resolve. I'm guessing it can't handle the `filter`
-        // but I'm not 100% sure.
       });
     }
 
