@@ -41,32 +41,44 @@ const imageDataSchema = z.object({
     .optional(),
 });
 
-const answer = z
+const textAnswer = z.object({
+  type: z.literal('text'),
+  content: z.string(),
+});
+
+const imageAnswer = z.object({
+  type: z.literal('image'),
+  content: imageDataSchema,
+});
+
+const multipleChoiceAnswer = z
+  .object({ distractor: z.boolean() })
+  .and(z.union([textAnswer, imageAnswer]));
+
+const shortAnswer = textAnswer;
+
+const questionZod = z
   .object({
-    distractor: z.boolean(),
+    question: z.string(),
   })
   .and(
     z.union([
       z.object({
-        type: z.literal('text'),
-        content: z.string(),
+        questionType: z.literal('multiple-choice'),
+        answers: z.array(multipleChoiceAnswer),
       }),
       z.object({
-        type: z.literal('image'),
-        content: imageDataSchema,
+        questionType: z.literal('short-answer'),
+        answers: z.array(shortAnswer),
       }),
     ])
   );
 
-const questionZod = z.object({
-  question: z.string(),
-  questionType: z.literal('multiple-choice'),
-  answers: z.array(answer),
-});
-
 type QuestionZod = z.infer<typeof questionZod>;
 type QuizKey = 'exitQuiz' | 'starterQuiz';
-type AnswerZod = z.infer<typeof answer>;
+type MultipleChoiceAnswer = z.infer<typeof multipleChoiceAnswer> | undefined;
+type ShortAnswer = z.infer<typeof shortAnswer> | undefined;
+type AnswerZod = MultipleChoiceAnswer | ShortAnswer;
 type ImageDataSchemaType = z.infer<typeof imageDataSchema>;
 
 function emptyQuizResults() {
@@ -77,7 +89,16 @@ function emptyQuizResults() {
   return result;
 }
 
-function formatMultipleChoiceAnswer(answer: Answer): AnswerZod | undefined {
+function formatShortAnswer(answer: Answer): ShortAnswer {
+  if (answer.answer[0].type === 'text') {
+    return {
+      type: answer.answer[0].type,
+      content: answer.answer[0].text,
+    };
+  }
+}
+
+function formatMultipleChoiceAnswer(answer: Answer): MultipleChoiceAnswer {
   if (answer.answer[0].type === 'text') {
     return {
       type: answer.answer[0].type,
@@ -91,6 +112,7 @@ function formatMultipleChoiceAnswer(answer: Answer): AnswerZod | undefined {
     const image = answer.answer.find(
       (_) => _.type === 'image'
     ) as ImageAnswerStem;
+
     if (!image) {
       return;
     }
@@ -118,6 +140,18 @@ function formatMultipleChoiceAnswer(answer: Answer): AnswerZod | undefined {
 
     return res;
   }
+}
+
+function formatAnswer(type: QuestionType, answer: Answer): AnswerZod {
+  if (type === QuestionType.MultipleChoice) {
+    return formatMultipleChoiceAnswer(answer);
+  }
+
+  if (type === QuestionType.ShortAnswer) {
+    return formatShortAnswer(answer);
+  }
+
+  return undefined;
 }
 
 function questionsForQuiz(lesson: Lesson) {
@@ -149,15 +183,17 @@ function questionsForQuiz(lesson: Lesson) {
         continue;
       }
 
+      const formattedAnswers = answers
+        .map((answer) => formatAnswer(question.questionType, answer))
+        .filter((_) => _ !== undefined) as AnswerZod[];
+
       questions.push({
         question: question.questionStem
           .filter((_) => _.type === 'text')
           .map((_) => _.text)
           .join(' '),
         questionType: question.questionType,
-        answers: answers
-          .map(formatMultipleChoiceAnswer)
-          .filter((_) => _ !== undefined) as AnswerZod[],
+        answers: formattedAnswers,
         // I've added `as AnswerZod[]` here because TS is giving me an error
         // that I can't resolve. I'm guessing it can't handle the `filter`
         // but I'm not 100% sure.
