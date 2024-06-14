@@ -190,6 +190,8 @@ export function formatOrderAnswer(answer: DBOrder): OrderAnswer {
 function formatMultipleChoiceAnswer(
   answer: DBMultipleChoiceAnswer
 ): MultipleChoiceAnswer {
+  // sample slug: solving-equations-with-surds
+
   if (answer.answer[0].type === 'text') {
     return {
       type: 'text',
