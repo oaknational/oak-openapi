@@ -185,10 +185,10 @@ export interface Question {
   questionId: number;
   questionUid: string;
   questionStem: QuestionStem[];
-  questionType: QuestionType;
+  questionType: QuestionTypeEnum;
 }
 
-export enum QuestionType {
+export enum QuestionTypeEnum {
   MultipleChoice = 'multiple-choice',
   Text = 'text',
   Match = 'match',
@@ -198,7 +198,7 @@ export enum QuestionType {
 }
 
 export type Answers = {
-  [key in QuestionType]?: Answer[];
+  [key in QuestionTypeEnum]?: Answer[];
 };
 
 export interface Answer {
