@@ -5,25 +5,39 @@ import { QuestionTypeEnum, getClient, gql, lessonView } from 'lib/owaClient';
 import type {
   LessonView,
   Lesson,
-  Answer as DBAnswer,
   Question as DBQuestion,
   ImageAnswerStem,
-  TextAnswerStem,
+  TextType,
+  Match as DBMatch,
+  OrderAnswer as DBOrder,
+  ShortAnswer as DBShortAnswer,
+  MultipleChoiceAnswer as DBMultipleChoiceAnswer,
 } from 'lib/owaClient';
 import { z } from 'zod';
 import { baseUrl } from '../baseUrl';
 
 const multipleChoiceLit = z.literal('multiple-choice');
 const shortAnswerLit = z.literal('short-answer');
+const matchAnswerLit = z.literal('match');
+const orderAnswerLit = z.literal('order');
 
-const availableQuestionTypes = z.union([multipleChoiceLit, shortAnswerLit]);
+const availableQuestionTypes = z.union([
+  multipleChoiceLit,
+  shortAnswerLit,
+  matchAnswerLit,
+  orderAnswerLit,
+]);
 
 const imageAnswerContent = z.object({
   url: z.string(),
   width: z.number(),
   height: z.number(),
   alt: z.string().optional(),
-  text: z.string().optional(),
+  text: z
+    .string({
+      description: 'Supplementary text for the image, if any',
+    })
+    .optional(),
   // RS disabled license for now until we have final answer on how we deal
   // with unknown/uncategorised licenses
 
@@ -54,6 +68,17 @@ const multipleChoiceAnswer = z
 
 const shortAnswer = textAnswer;
 
+const matchAnswer = z.object({
+  matchOption: textAnswer,
+  correctChoice: textAnswer,
+});
+
+const orderAnswer = z
+  .object({
+    order: z.number(),
+  })
+  .and(textAnswer);
+
 const questionZod = z
   .object({
     question: z.string(),
@@ -61,20 +86,54 @@ const questionZod = z
   })
   .and(
     z.union([
-      z.object({
-        questionType: multipleChoiceLit,
-        answers: z.array(multipleChoiceAnswer),
-      }),
-      z.object({
-        questionType: shortAnswerLit,
-        answers: z.array(shortAnswer),
-      }),
+      z.object(
+        {
+          questionType: multipleChoiceLit,
+          answers: z.array(multipleChoiceAnswer),
+        },
+        {
+          description:
+            'Multiple choice answer allows for one or more than one answer to be correct as defined by the distractor field being set to false',
+        }
+      ),
+      z.object(
+        {
+          questionType: shortAnswerLit,
+          answers: z.array(shortAnswer),
+        },
+        {
+          description:
+            'Short answers allow students to enter a free text answer, and the answers array contains a list of acceptable answers',
+        }
+      ),
+      z.object(
+        {
+          questionType: matchAnswerLit,
+          answers: z.array(matchAnswer),
+        },
+        {
+          description:
+            'The student is offered a list from the `match_option` field in the answers array, and must correctly match them to the `correct_choice` value',
+        }
+      ),
+      z.object(
+        {
+          questionType: orderAnswerLit,
+          answers: z.array(orderAnswer),
+        },
+        {
+          description:
+            'The student is offered a list of items to order, and must correctly order them according to the `order` field. When presenting the answer options to the student, you should randomise the order of the items',
+        }
+      ),
     ])
   );
 
 type Question = z.infer<typeof questionZod>;
 type QuizKey = 'exitQuiz' | 'starterQuiz';
 type TextAnswer = z.infer<typeof textAnswer>;
+type MatchAnswer = z.infer<typeof matchAnswer>;
+type OrderAnswer = z.infer<typeof orderAnswer>;
 type MultipleChoiceAnswer = z.infer<typeof multipleChoiceAnswer>;
 type ImageDataSchemaType = z.infer<typeof imageAnswerContent>;
 
@@ -86,7 +145,8 @@ function emptyQuizResults() {
   return result;
 }
 
-function formatShortAnswer(answer: DBAnswer): TextAnswer {
+export function formatShortAnswer(answer: DBShortAnswer): TextAnswer {
+  // sample slug: solving-equations-with-surds
   if (answer.answer[0].type === 'text') {
     return {
       type: answer.answer[0].type,
@@ -97,7 +157,39 @@ function formatShortAnswer(answer: DBAnswer): TextAnswer {
   throw new Error('Unexpected answer type');
 }
 
-function formatMultipleChoiceAnswer(answer: DBAnswer): MultipleChoiceAnswer {
+export function formatMatchAnswer(answer: DBMatch): MatchAnswer {
+  // sample slug: the-theme-of-family-in-grandads-island
+  const matchOption = answer.match_option.filter((_) => _.type === 'text')[0];
+  const correctChoice = answer.correct_choice.filter(
+    (_) => _.type === 'text'
+  )[0];
+
+  return {
+    matchOption: {
+      type: matchOption.type,
+      content: matchOption.text,
+    },
+    correctChoice: {
+      type: correctChoice.type,
+      content: correctChoice.text,
+    },
+  };
+}
+
+export function formatOrderAnswer(answer: DBOrder): OrderAnswer {
+  // sample slug: ordering-negative-integers
+  const content = answer.answer[0].text;
+
+  return {
+    type: 'text',
+    content,
+    order: answer.correct_order,
+  };
+}
+
+function formatMultipleChoiceAnswer(
+  answer: DBMultipleChoiceAnswer
+): MultipleChoiceAnswer {
   if (answer.answer[0].type === 'text') {
     return {
       type: 'text',
@@ -114,7 +206,7 @@ function formatMultipleChoiceAnswer(answer: DBAnswer): MultipleChoiceAnswer {
   ) as ImageAnswerStem;
 
   if (image) {
-    const text = answer.answer.find((_) => _.type === 'text') as TextAnswerStem;
+    const text = answer.answer.find((_) => _.type === 'text') as TextType;
 
     const content: ImageDataSchemaType = {
       url: image.image_object.secure_url || image.image_object.url || '',
@@ -148,28 +240,47 @@ function formatMultipleChoiceAnswer(answer: DBAnswer): MultipleChoiceAnswer {
   throw new Error('Unexpected answer type');
 }
 
-function formatQuestion(
-  question: DBQuestion,
-  answers: DBAnswer[]
-): Question | undefined {
+function formatQuestion(question: DBQuestion): Question | undefined {
   const questionText = question.questionStem
     .filter((_) => _.type === 'text')
     .map((_) => _.text)
     .join(' ');
 
+  // TypeScript really doesn't like DRY. This code could…should be able to reuse
+  // the `questionType`, but TS parser can't handle it, so it's exploded out like this
+
   if (question.questionType === QuestionTypeEnum.MultipleChoice) {
     return {
       question: questionText,
-      questionType: 'multiple-choice',
-      answers: answers.map(formatMultipleChoiceAnswer),
+      questionType: QuestionTypeEnum.MultipleChoice,
+      answers: question.answers[QuestionTypeEnum.MultipleChoice].map(
+        formatMultipleChoiceAnswer
+      ),
     };
   }
 
   if (question.questionType === QuestionTypeEnum.ShortAnswer) {
     return {
       question: questionText,
-      questionType: 'short-answer',
-      answers: answers.map(formatShortAnswer),
+      questionType: QuestionTypeEnum.ShortAnswer,
+      answers:
+        question.answers[QuestionTypeEnum.ShortAnswer].map(formatShortAnswer),
+    };
+  }
+
+  if (question.questionType === QuestionTypeEnum.Match) {
+    return {
+      question: questionText,
+      questionType: QuestionTypeEnum.Match,
+      answers: question.answers[QuestionTypeEnum.Match].map(formatMatchAnswer),
+    };
+  }
+
+  if (question.questionType === QuestionTypeEnum.Order) {
+    return {
+      question: questionText,
+      questionType: QuestionTypeEnum.Order,
+      answers: question.answers[QuestionTypeEnum.Order].map(formatOrderAnswer),
     };
   }
 }
@@ -189,28 +300,14 @@ function questionsForQuiz(lesson: Lesson): { [key in QuizKey]: Question[] } {
     if (!lessonContent) {
       continue;
     }
+
     const questions: Question[] = [];
     for (const question of lessonContent) {
-      let allow = false;
-      if (question.questionType === QuestionTypeEnum.MultipleChoice) {
-        allow = true;
-      }
-
-      if (question.questionType === QuestionTypeEnum.ShortAnswer) {
-        allow = true;
-      }
-
-      if (!allow) {
+      if (!question.answers) {
         continue;
       }
 
-      const answers = question.answers[question.questionType];
-
-      if (!answers) {
-        continue;
-      }
-
-      const res = formatQuestion(question, answers);
+      const res = formatQuestion(question);
       if (res) {
         questions.push(res);
       }
@@ -312,8 +409,8 @@ export const getQuestions = router({
       if (!lesson) {
         return result;
       }
-      return result;
-      // return questionsForQuiz(lesson);
+
+      return questionsForQuiz(lesson);
     }),
   getQuestionsForKeyStageAndSubject: protectedProcedure
     .meta({
