@@ -1,4 +1,4 @@
-import { protectedProcedure } from '~/lib/auth';
+import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
 import { QuestionTypeEnum, getClient, gql, lessonView } from 'lib/owaClient';

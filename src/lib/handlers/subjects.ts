@@ -1,4 +1,4 @@
-import { protectedProcedure } from '~/lib/auth';
+import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 import { z } from 'zod';
 import { subjectsWithKeyStages } from '../keyStageAndSubjects';
