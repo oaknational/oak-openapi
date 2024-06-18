@@ -4,55 +4,17 @@ import { z } from 'zod';
 
 import { protectedProcedure } from '~/lib/auth';
 import { router } from '../trpc';
-import { getClient } from '../owaClient';
+import {
+  Download,
+  DownloadView,
+  SignedAsset,
+  UnitVariantLessonsView,
+  downloadView,
+  getClient,
+  unitVariantLessonsView,
+} from '../owaClient';
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
 import { baseUrl } from '../baseUrl';
-
-export const downloadView = 'published_mv_openapi_downloads_1_0_0';
-export const unitVariantLessonsView =
-  'published_mv_synthetic_unitvariant_lessons_by_year_6_0_0';
-
-type UnitVariantLessonsView = {
-  published_mv_synthetic_unitvariant_lessons_by_year_6_0_0: UnitVariantLesson[];
-};
-
-type UnitVariantLesson = {
-  lesson_slug: string;
-};
-
-export type DownloadView = {
-  published_mv_openapi_downloads_1_0_0: Download[];
-};
-
-export interface Download {
-  exitQuiz: SignedAsset;
-  exitQuizAnswers: SignedAsset;
-  lessonSlug: string;
-  lessonTitle: string;
-  slidedeck: SignedAsset;
-  starterQuizAnswers: SignedAsset;
-  starterQuiz: SignedAsset; // note: this is starter_quiz in the graphql response
-  supplementaryResource: SignedAsset;
-  video: Video;
-  worksheet: SignedAsset;
-  worksheetAnswers: SignedAsset;
-}
-
-interface SignedAsset {
-  ext: string;
-  type: string;
-  label: string;
-  bucket_name: string;
-  bucket_path: string;
-}
-
-interface Video {
-  ext: string;
-  type: string;
-  label: string;
-  stream: string;
-  download: string;
-}
 
 export const downloadTypeEnum = z.enum(
   [

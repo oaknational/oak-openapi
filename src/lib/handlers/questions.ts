@@ -1,44 +1,293 @@
 import { protectedProcedure } from '~/lib/auth';
 import { router } from '~/lib/trpc';
 import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
-import {
+import { QuestionTypeEnum, getClient, gql, lessonView } from 'lib/owaClient';
+import type {
   LessonView,
   Lesson,
-  QuestionType,
-  getClient,
-  gql,
-  lessonView,
+  Question as DBQuestion,
+  ImageAnswerStem,
+  TextType,
+  Match as DBMatch,
+  OrderAnswer as DBOrder,
+  ShortAnswer as DBShortAnswer,
+  MultipleChoiceAnswer as DBMultipleChoiceAnswer,
 } from 'lib/owaClient';
 import { z } from 'zod';
 import { baseUrl } from '../baseUrl';
 
-export const questionTypesEnum = z.enum([
-  'text',
-  'match',
-  'explanatory-text',
-  'order',
-  'short-answer',
-  'multiple-choice',
+const multipleChoiceLit = z.literal('multiple-choice');
+const shortAnswerLit = z.literal('short-answer');
+const matchAnswerLit = z.literal('match');
+const orderAnswerLit = z.literal('order');
+
+const availableQuestionTypes = z.union([
+  multipleChoiceLit,
+  shortAnswerLit,
+  matchAnswerLit,
+  orderAnswerLit,
 ]);
 
-const questionZod = z.object({
-  question: z.string(),
-  questionType: questionTypesEnum,
-  answers: z.array(z.object({ answer: z.string(), distractor: z.boolean() })),
+const imageAnswerContent = z.object({
+  url: z.string(),
+  width: z.number(),
+  height: z.number(),
+  alt: z.string().optional(),
+  text: z
+    .string({
+      description: 'Supplementary text for the image, if any',
+    })
+    .optional(),
+  // RS disabled license for now until we have final answer on how we deal
+  // with unknown/uncategorised licenses
+
+  // license: z
+  //   .object({
+  //     attribution: z.string().optional(),
+  //     source: z.string().optional(),
+  //     attribution_required: z.boolean().optional(),
+  //     usageRestrictions: z.string().optional(),
+  //     usage_notes: z.string().optional(),
+  //   })
+  //   .optional(),
 });
 
-type QuestionZod = z.infer<typeof questionZod>;
+const textAnswer = z.object({
+  type: z.literal('text'),
+  content: z.string(),
+});
+
+const imageAnswer = z.object({
+  type: z.literal('image'),
+  content: imageAnswerContent,
+});
+
+const multipleChoiceAnswer = z
+  .object({ distractor: z.boolean() })
+  .and(z.union([textAnswer, imageAnswer]));
+
+const shortAnswer = textAnswer;
+
+const matchAnswer = z.object({
+  matchOption: textAnswer,
+  correctChoice: textAnswer,
+});
+
+const orderAnswer = z
+  .object({
+    order: z.number(),
+  })
+  .and(textAnswer);
+
+const questionZod = z
+  .object({
+    question: z.string(),
+    questionType: availableQuestionTypes,
+  })
+  .and(
+    z.union([
+      z.object(
+        {
+          questionType: multipleChoiceLit,
+          answers: z.array(multipleChoiceAnswer),
+        },
+        {
+          description:
+            'Multiple choice answer allows for one or more than one answer to be correct as defined by the distractor field being set to false',
+        }
+      ),
+      z.object(
+        {
+          questionType: shortAnswerLit,
+          answers: z.array(shortAnswer),
+        },
+        {
+          description:
+            'Short answers allow students to enter a free text answer, and the answers array contains a list of acceptable answers',
+        }
+      ),
+      z.object(
+        {
+          questionType: matchAnswerLit,
+          answers: z.array(matchAnswer),
+        },
+        {
+          description:
+            'The student is offered a list from the `match_option` field in the answers array, and must correctly match them to the `correct_choice` value',
+        }
+      ),
+      z.object(
+        {
+          questionType: orderAnswerLit,
+          answers: z.array(orderAnswer),
+        },
+        {
+          description:
+            'The student is offered a list of items to order, and must correctly order them according to the `order` field. When presenting the answer options to the student, you should randomise the order of the items',
+        }
+      ),
+    ])
+  );
+
+type Question = z.infer<typeof questionZod>;
 type QuizKey = 'exitQuiz' | 'starterQuiz';
+type TextAnswer = z.infer<typeof textAnswer>;
+type MatchAnswer = z.infer<typeof matchAnswer>;
+type OrderAnswer = z.infer<typeof orderAnswer>;
+type MultipleChoiceAnswer = z.infer<typeof multipleChoiceAnswer>;
+type ImageDataSchemaType = z.infer<typeof imageAnswerContent>;
 
 function emptyQuizResults() {
-  const result: { [key in QuizKey]: QuestionZod[] } = {
+  const result: { [key in QuizKey]: Question[] } = {
     starterQuiz: [],
     exitQuiz: [],
   };
   return result;
 }
 
-function questionsForQuiz(lesson: Lesson) {
+export function formatShortAnswer(answer: DBShortAnswer): TextAnswer {
+  // sample slug: solving-equations-with-surds
+  if (answer.answer[0].type === 'text') {
+    return {
+      type: answer.answer[0].type,
+      content: answer.answer[0].text,
+    };
+  }
+
+  throw new Error('Unexpected answer type');
+}
+
+export function formatMatchAnswer(answer: DBMatch): MatchAnswer {
+  // sample slug: the-theme-of-family-in-grandads-island
+  const matchOption = answer.match_option.filter((_) => _.type === 'text')[0];
+  const correctChoice = answer.correct_choice.filter(
+    (_) => _.type === 'text'
+  )[0];
+
+  return {
+    matchOption: {
+      type: matchOption.type,
+      content: matchOption.text,
+    },
+    correctChoice: {
+      type: correctChoice.type,
+      content: correctChoice.text,
+    },
+  };
+}
+
+export function formatOrderAnswer(answer: DBOrder): OrderAnswer {
+  // sample slug: ordering-negative-integers
+  const content = answer.answer[0].text;
+
+  return {
+    type: 'text',
+    content,
+    order: answer.correct_order,
+  };
+}
+
+function formatMultipleChoiceAnswer(
+  answer: DBMultipleChoiceAnswer
+): MultipleChoiceAnswer {
+  // sample slug: solving-equations-with-surds
+
+  if (answer.answer[0].type === 'text') {
+    return {
+      type: 'text',
+      content: answer.answer[0].text,
+      distractor: !answer.answer_is_correct,
+    };
+  }
+
+  // next two declarations are cast in TypeScript because TS doesn't
+  // know that _.type = 'image' always returns an ImageAnswerStem
+  // (or undefined, which we handle)
+  const image = answer.answer.find(
+    (_) => _.type === 'image'
+  ) as ImageAnswerStem;
+
+  if (image) {
+    const text = answer.answer.find((_) => _.type === 'text') as TextType;
+
+    const content: ImageDataSchemaType = {
+      url: image.image_object.secure_url || image.image_object.url || '',
+      width: image.image_object.width || 0,
+      height: image.image_object.height || 0,
+      alt: image.image_object.context?.custom?.alt || undefined,
+      text: text?.text || undefined,
+      // license: image.image_object.metadata || undefined,
+    };
+
+    const res = {
+      type: answer.answer[0].type,
+      content,
+      distractor: !answer.answer_is_correct,
+    };
+
+    // RS disabled license for now until we have final answer on how we deal
+    // with unknown/uncategorised licenses (and)
+
+    // if (res.content.license) {
+    //   if (res.content.license?.attribution_required) {
+    //     res.content.license.attribution_required =
+    //       res.content.license.attribution_required ===
+    //       ('yes' as unknown as boolean);
+    //   }
+    // }
+
+    return res;
+  }
+
+  throw new Error('Unexpected answer type');
+}
+
+function formatQuestion(question: DBQuestion): Question | undefined {
+  const questionText = question.questionStem
+    .filter((_) => _.type === 'text')
+    .map((_) => _.text)
+    .join(' ');
+
+  // TypeScript really doesn't like DRY. This code could…should be able to reuse
+  // the `questionType`, but TS parser can't handle it, so it's exploded out like this
+
+  if (question.questionType === QuestionTypeEnum.MultipleChoice) {
+    return {
+      question: questionText,
+      questionType: QuestionTypeEnum.MultipleChoice,
+      answers: question.answers[QuestionTypeEnum.MultipleChoice].map(
+        formatMultipleChoiceAnswer
+      ),
+    };
+  }
+
+  if (question.questionType === QuestionTypeEnum.ShortAnswer) {
+    return {
+      question: questionText,
+      questionType: QuestionTypeEnum.ShortAnswer,
+      answers:
+        question.answers[QuestionTypeEnum.ShortAnswer].map(formatShortAnswer),
+    };
+  }
+
+  if (question.questionType === QuestionTypeEnum.Match) {
+    return {
+      question: questionText,
+      questionType: QuestionTypeEnum.Match,
+      answers: question.answers[QuestionTypeEnum.Match].map(formatMatchAnswer),
+    };
+  }
+
+  if (question.questionType === QuestionTypeEnum.Order) {
+    return {
+      question: questionText,
+      questionType: QuestionTypeEnum.Order,
+      answers: question.answers[QuestionTypeEnum.Order].map(formatOrderAnswer),
+    };
+  }
+}
+
+function questionsForQuiz(lesson: Lesson): { [key in QuizKey]: Question[] } {
   const result = emptyQuizResults();
   for (const quiz of ['starterQuiz', 'exitQuiz'] as QuizKey[]) {
     let lessonContent;
@@ -53,34 +302,17 @@ function questionsForQuiz(lesson: Lesson) {
     if (!lessonContent) {
       continue;
     }
-    const questions: QuestionZod[] = [];
+
+    const questions: Question[] = [];
     for (const question of lessonContent) {
-      // FIXME expose more question types
-      // Note that the entire answer structure is different depending on the question type
-      if (question.questionType !== QuestionType.MultipleChoice) {
+      if (!question.answers) {
         continue;
       }
 
-      const answers = question.answers[question.questionType];
-
-      if (!answers) {
-        continue;
+      const res = formatQuestion(question);
+      if (res) {
+        questions.push(res);
       }
-
-      questions.push({
-        question: question.questionStem
-          .filter((_) => _.type === 'text')
-          .map((_) => _.text)
-          .join(' '),
-        questionType: question.questionType,
-        answers: answers.map((answer) => ({
-          answer: answer.answer
-            .filter((_) => _.type === 'text')
-            .map((_) => _.text)
-            .join(' '),
-          distractor: !answer.answer_is_correct,
-        })),
-      });
     }
 
     result[quiz] = questions;
@@ -163,7 +395,7 @@ export const getQuestions = router({
         slug,
       });
 
-      const result: { [key in QuizKey]: QuestionZod[] } = {
+      const result: { [key in QuizKey]: Question[] } = {
         starterQuiz: [],
         exitQuiz: [],
       };
