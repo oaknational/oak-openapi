@@ -1,9 +1,10 @@
 {
   "cSpell.words": [
     "apikeys",
-    "nocheck",
+    "hasura",
     "langchain",
     "llms",
+    "nocheck",
     "openai",
     "openapi",
     "pgvector",
