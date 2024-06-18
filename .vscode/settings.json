@@ -8,6 +8,7 @@
     "openai",
     "openapi",
     "pgvector",
+    "Ratelimit",
     "slidedeck",
     "slidedecks",
     "superjson",
