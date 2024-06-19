@@ -9,7 +9,7 @@
     "dev": "pnpm with-env next dev --port 2727",
     "with-env": "dotenv -e ./.env --",
     "build": "next build",
-    "test": "vitest",
+    "test": "pnpm with-env vitest",
     "generate-prisma": "pnpm with-env prisma generate",
     "postinstall": "prisma generate"
   },
