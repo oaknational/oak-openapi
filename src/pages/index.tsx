@@ -39,7 +39,6 @@ export default function Page() {
       <Hero />
       <Features />
       <HowItWorks />
-      <Footer />
     </>
   );
 }
@@ -157,34 +156,28 @@ function Features() {
               title="How do I get started with Oak OpenAPI?"
               cta="Request an API key"
               ctaHref="/request-api-key">
-              <OakP>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Cupiditate, minima. Doloremque nesciunt deserunt quos nisi unde,
-                eaque iste odio ex similique voluptatibus fugiat eius sed ut
-                reiciendis rem dolor voluptates.
-              </OakP>
+              Lorem ipsum dolor sit amet consectetur adipisicing elit.
+              Cupiditate, minima. Doloremque nesciunt deserunt quos nisi unde,
+              eaque iste odio ex similique voluptatibus fugiat eius sed ut
+              reiciendis rem dolor voluptates.
             </Feature>
             <Feature
               title="What are we offering?"
               cta="Visit OpenAPI playground"
               ctaHref="/playground">
-              <OakP>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Cupiditate, minima. Doloremque nesciunt deserunt quos nisi unde,
-                eaque iste odio ex similique voluptatibus fugiat eius sed ut
-                reiciendis rem dolor voluptates.
-              </OakP>
+              Lorem ipsum dolor sit amet consectetur adipisicing elit.
+              Cupiditate, minima. Doloremque nesciunt deserunt quos nisi unde,
+              eaque iste odio ex similique voluptatibus fugiat eius sed ut
+              reiciendis rem dolor voluptates.
             </Feature>
             <Feature
               title="Help us make Oak OpenAPI better"
               cta="Give feedback here"
               ctaHref="/feedback">
-              <OakP>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Cupiditate, minima. Doloremque nesciunt deserunt quos nisi unde,
-                eaque iste odio ex similique voluptatibus fugiat eius sed ut
-                reiciendis rem dolor voluptates.
-              </OakP>
+              Lorem ipsum dolor sit amet consectetur adipisicing elit.
+              Cupiditate, minima. Doloremque nesciunt deserunt quos nisi unde,
+              eaque iste odio ex similique voluptatibus fugiat eius sed ut
+              reiciendis rem dolor voluptates.
             </Feature>
           </OakGridArea>
         </OakGrid>
@@ -216,8 +209,4 @@ function HowItWorks() {
       </OakMaxWidth>
     </OakBox>
   );
-}
-
-function Footer() {
-  return <footer />;
 }

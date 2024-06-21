@@ -12,7 +12,6 @@ export default function OakOpenAPIApp({ Component }: AppProps) {
   return (
     <>
       <OakGlobalStyle />
-
       <main className={lexend.className}>
         <OakThemeProvider theme={oakDefaultTheme}>
           <Component />
