@@ -87,7 +87,7 @@ function Hero() {
             <OakHeading $font="heading-5" tag="h3">
               Lorem ipsum dolor sit amet consectetur adipisicing elit
             </OakHeading>
-            <OakP $color="black" $font="body-1" data-testId="OakP-id">
+            <OakP $color="black" $font="body-1">
               Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
               Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
               nisi ut aliquip.
