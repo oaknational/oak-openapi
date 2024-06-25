@@ -18,12 +18,6 @@ if (!bugsnagApiKey) {
   throw new Error('Missing env var NEXT_PUBLIC_BUGSNAG_API');
 }
 
-/**
- * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
- * This is especially useful for Docker builds.
- */
-// !process.env.SKIP_ENV_VALIDATION && (await import("./src/env/server.mjs"));
-
 const BUGSNAG_API_KEY = process.env.BUGSNAG_API_KEY;
 
 if (!BUGSNAG_API_KEY || typeof BUGSNAG_API_KEY !== 'string') {
@@ -34,6 +28,10 @@ if (!BUGSNAG_API_KEY || typeof BUGSNAG_API_KEY !== 'string') {
 const getConfig = async () => {
   /** @type {import('next').NextConfig} */
   const config = {
+    compiler: {
+      styledComponents: true,
+    },
+
     reactStrictMode: true,
     swcMinify: true,
     images: {
