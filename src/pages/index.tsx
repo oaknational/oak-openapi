@@ -27,6 +27,15 @@ const OakLinkLogo = styled(OakLink)`
   }
 `;
 
+const AlignFixButton = styled(OakSecondaryButton)`
+  a {
+    display: inline-flex;
+
+    align-items: center;
+    font-size: 2rem;
+  }
+`;
+
 /**
  * Notes:
  * - font currently defaulting to helvetica in oak-components
@@ -93,9 +102,10 @@ function Hero() {
               nisi ut aliquip.
             </OakP>
             <OakFlex $gap={'all-spacing-4'}>
-              <OakSecondaryButton element="a" href="/request-api-key">
+              <AlignFixButton element="a" href="/request-api-key">
                 Request an API key
-              </OakSecondaryButton>
+              </AlignFixButton>
+
               <OakPrimaryButton
                 element="a"
                 href="/playground"
