@@ -4,6 +4,7 @@ import {
   OakGrid,
   OakGridArea,
   OakHeading,
+  OakImage,
   OakLI,
   OakLink,
   OakMaxWidth,
@@ -67,10 +68,12 @@ function Banner() {
       $pv="inner-padding-s"
       $ph="inner-padding-m"
       $bb={'border-solid-m'}>
-      <OakLinkLogo href="https://www.thenational.academy/">
+      <OakLinkLogo
+        aria-label="Oak National Academy"
+        href="https://www.thenational.academy/">
         <Logo width="104" height="48" />
       </OakLinkLogo>
-      <OakHeading tag="h1" $font="heading-6">
+      <OakHeading ariaHidden tag="h1" $font="heading-6">
         Oak OpenAPI
       </OakHeading>
     </OakFlex>
@@ -144,14 +147,12 @@ function Hero() {
           </OakGridArea>
           <OakGridArea $colSpan={5}>
             <OakFlex>
-              <img
+              <OakImage
                 // FIXME
-                src="/images/tmp-workers.png"
-                style={{ height: 'fit-content', width: '100%' }}
-                alt="placeholder"
-                width={2228}
-                height={1472}
-                sizes="400px"
+                src={{ src: '/images/workers.png', width: 2228, height: 1472 }}
+                alt=""
+                $height="all-spacing-21"
+                // style={{ maxHeight: '400px' }}
               />
             </OakFlex>
           </OakGridArea>

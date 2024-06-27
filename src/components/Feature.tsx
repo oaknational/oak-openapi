@@ -16,7 +16,7 @@ export default function Feature({
   return (
     <OakFlex $flexDirection={'column'} $gap="all-spacing-6">
       <h3>{title}</h3>
-      <p>{children}</p>
+      {children}
       {cta ? (
         <OakLink href={ctaHref}>
           <OakSpan $font={'body-2-bold'}>{cta}</OakSpan>
