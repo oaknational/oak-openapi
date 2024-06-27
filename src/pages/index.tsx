@@ -7,10 +7,12 @@ import {
   OakLI,
   OakLink,
   OakMaxWidth,
+  OakOL,
   OakP,
   OakPrimaryButton,
   OakSecondaryButton,
   OakSpan,
+  OakUL,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
 import Feature from '~/components/Feature';
@@ -34,6 +36,10 @@ const AlignFixButton = styled(OakSecondaryButton)`
     align-items: center;
     font-size: 2rem;
   }
+`;
+
+const OakLiLink = styled(OakLink)`
+  text-indent: initial;
 `;
 
 /**
@@ -94,12 +100,33 @@ function Hero() {
               Oak OpenAPI
             </OakHeading>
             <OakHeading $font="heading-5" tag="h3">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit
+              Leverage Oak&apos;s high-quality education content on your
+              platform
             </OakHeading>
             <OakP $color="black" $font="body-1">
-              Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip.
+              Oak National Academy&apos;s mission is to improve pupil outcomes
+              and close the disadvantage gap by supporting teachers to teach,
+              and pupils to access a high-quality curriculum.
+            </OakP>
+            <OakP $color="black" $font="body-1">
+              As part of this mission, we are providing an API to make our
+              high-quality content available to the wider education market for
+              free on the{' '}
+              <OakLink
+                href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/"
+                target="_blank">
+                Open Government Licence
+              </OakLink>
+              . Whether you&apos;re an emerging EdTech start-up, an established
+              learning tool, or a quiz-based gaming platform, you can use our
+              content with assurance that it has been created adhering to the
+              latest in pedagogical research and aligning with our{' '}
+              <OakLink
+                href="https://www.thenational.academy/blog/our-approach-to-curriculum"
+                target="_blank">
+                Curriculum Design Principles
+              </OakLink>
+              .
             </OakP>
             <OakFlex $gap={'all-spacing-4'}>
               <AlignFixButton element="a" href="/request-api-key">
@@ -143,51 +170,77 @@ function Features() {
             $pa="inner-padding-xl"
             $gap={'all-spacing-5'}>
             <OakHeading $font="heading-5" tag="h3">
-              What can I expect?
+              What can we expect?
             </OakHeading>
             <OakP $font="body-1">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Cupiditate, minima. Doloremque nesciunt deserunt quos nisi unde,
-              eaque iste odio ex similique voluptatibus fugiat eius sed ut
-              reiciendis rem dolor voluptates.
+              Access fully resourced lessons across the National Curriculum,
+              meticulously crafted by our expert curriculum partners, each
+              including:
             </OakP>
             <List>
-              <OakLI>List item 1</OakLI>
-              <OakLI>List item 2</OakLI>
-              <OakLI>List item 3</OakLI>
-              <OakLI>List item 4</OakLI>
+              <OakLI>Teacher-led lesson videos</OakLI>
+              <OakLI>Oak formatted slide decks</OakLI>
+              <OakLI>Starter and exit quizzes</OakLI>
+              <OakLI>Worksheets</OakLI>
+              <OakLI>Interactive activities</OakLI>
             </List>
           </OakGridArea>
           <OakGridArea
             $colSpan={8}
             $pa="inner-padding-xl"
             $gap={'all-spacing-10'}>
-            <Feature
-              title="How do I get started with Oak OpenAPI?"
-              cta="Request an API key"
-              ctaHref="/request-api-key">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Cupiditate, minima. Doloremque nesciunt deserunt quos nisi unde,
-              eaque iste odio ex similique voluptatibus fugiat eius sed ut
-              reiciendis rem dolor voluptates.
+            <Feature title="How to get started">
+              <OakOL>
+                <OakLI>
+                  <strong>Sign Up</strong>: Click the link above, or get in
+                  touch with us by sending an email to{' '}
+                  <OakLiLink href="mailto:openapi@thenational.academy">
+                    openapi@thenational.academy
+                  </OakLiLink>
+                  , and we&apos;ll set you up with an API key.
+                </OakLI>
+                <OakLI>
+                  <strong>Explore</strong>: Use our{' '}
+                  <OakLiLink href="/playground">
+                    interactive developer documentation
+                  </OakLiLink>{' '}
+                  to explore the different endpoints and which resources are
+                  most appropriate for your use case.
+                </OakLI>
+                <OakLI>
+                  <strong>Support</strong>: If you need any help with your
+                  set-up or use case, please don&apos;t hesitate to{' '}
+                  <OakLiLink href="mailto:openapi@thenational.academy">
+                    contact us
+                  </OakLiLink>
+                  . We&apos;ll be happy to support you.
+                </OakLI>
+              </OakOL>
             </Feature>
-            <Feature
-              title="What are we offering?"
-              cta="Visit OpenAPI playground"
-              ctaHref="/playground">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Cupiditate, minima. Doloremque nesciunt deserunt quos nisi unde,
-              eaque iste odio ex similique voluptatibus fugiat eius sed ut
-              reiciendis rem dolor voluptates.
-            </Feature>
-            <Feature
-              title="Help us make Oak OpenAPI better"
-              cta="Give feedback here"
-              ctaHref="/feedback">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Cupiditate, minima. Doloremque nesciunt deserunt quos nisi unde,
-              eaque iste odio ex similique voluptatibus fugiat eius sed ut
-              reiciendis rem dolor voluptates.
+            <Feature title="What We Offer">
+              <OakUL>
+                <OakLI>
+                  <strong>Fully resourced curriculums</strong>: we are
+                  developing our resources across the full National Curriculum,
+                  and have content available across multiple subjects and key
+                  stages, ensuring that you have the materials you need to
+                  support a wide range of learning requirements.
+                </OakLI>
+                <OakLI>
+                  <strong>High-quality resources</strong>: Benefit from
+                  meticulously crafted lessons by our expert curriculum
+                  partners, all aligned to Oak&apos;s research-based curriculum
+                  design principles. Our resources are designed to engage
+                  students and support effective teaching and learning.
+                </OakLI>
+                <OakLI>
+                  <strong>Flexible integration</strong>: Our API is designed to
+                  be flexible and easy to integrate into your existing systems.
+                  If you&apos;re looking for an endpoint providing our data in a
+                  format you can&apos;t see, let us know and we&apos;ll explore
+                  solutions for you.
+                </OakLI>
+              </OakUL>
             </Feature>
           </OakGridArea>
         </OakGrid>
@@ -206,13 +259,15 @@ function HowItWorks() {
             $flexDirection={'column'}
             $gap={'all-spacing-6'}>
             <OakHeading $font="heading-5" tag="h3">
-              How our OpenAPI works
+              Help us make Oak OpenAPI better
             </OakHeading>
             <OakP>
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Suscipit
-              nobis officia dicta eveniet aliquid? Consequuntur, vel sed harum
-              cupiditate est voluptates itaque quasi, sapiente quos aspernatur
-              nobis rem, quaerat distinctio?
+              Our API is new, and we strive to make it as accessible and suited
+              to as many use cases as possible. It is designed to be flexible
+              and easy to integrate into your existing systems. If you have
+              feedback or are looking for an endpoint providing our content in a
+              format you can&apos;t see, let us know, and we&apos;ll work with
+              you to find a solution that works for you.
             </OakP>
           </OakGridArea>
         </OakGrid>
