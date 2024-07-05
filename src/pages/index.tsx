@@ -162,7 +162,7 @@ function Features() {
                 How to get started:
               </OakHeading>
               <OakOL>
-                <OakLI>
+                <OakLI $font={'body-1'}>
                   <strong>Sign Up</strong>: Click the link above, or get in
                   touch with us by sending an email to{' '}
                   <OakLiLink href="mailto:xxx@thenational.academy">
@@ -170,7 +170,7 @@ function Features() {
                   </OakLiLink>
                   , and we&apos;ll set you up with an API key.
                 </OakLI>
-                <OakLI>
+                <OakLI $font={'body-1'}>
                   <strong>Explore</strong>: Use our{' '}
                   <OakLiLink href="/playground">
                     interactive developer documentation
@@ -178,7 +178,7 @@ function Features() {
                   to explore the different endpoints and which resources are
                   most appropriate for your use case.
                 </OakLI>
-                <OakLI>
+                <OakLI $font={'body-1'}>
                   <strong>Support</strong>: If you need any help with your
                   set-up or use case, please don&apos;t hesitate to contact us.
                   We&apos;ll be happy to support you.
@@ -254,23 +254,23 @@ function Features() {
                 including:
               </OakP>
               <List>
-                <OakLI>
+                <OakLI $font={'body-1'}>
                   <Tick />
                   Teacher-led lesson videos
                 </OakLI>
-                <OakLI>
+                <OakLI $font={'body-1'}>
                   <Tick />
                   Oak formatted slide decks
                 </OakLI>
-                <OakLI>
+                <OakLI $font={'body-1'}>
                   <Tick />
                   Starter and exit quizzes
                 </OakLI>
-                <OakLI>
+                <OakLI $font={'body-1'}>
                   <Tick />
                   Worksheets
                 </OakLI>
-                <OakLI>
+                <OakLI $font={'body-1'}>
                   <Tick />
                   Interactive activities
                 </OakLI>
