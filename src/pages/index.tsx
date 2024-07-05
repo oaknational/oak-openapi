@@ -223,21 +223,21 @@ function Features() {
             </Feature>
             <Feature title="What We Offer">
               <OakUL>
-                <OakLI>
+                <OakLI $font={'body-1'}>
                   <strong>Fully resourced curriculums</strong>: we are
                   developing our resources across the full National Curriculum,
                   and have content available across multiple subjects and key
                   stages, ensuring that you have the materials you need to
                   support a wide range of learning requirements.
                 </OakLI>
-                <OakLI>
+                <OakLI $font={'body-1'}>
                   <strong>High-quality resources</strong>: Benefit from
                   meticulously crafted lessons by our expert curriculum
                   partners, all aligned to Oak&apos;s research-based curriculum
                   design principles. Our resources are designed to engage
                   students and support effective teaching and learning.
                 </OakLI>
-                <OakLI>
+                <OakLI $font={'body-1'}>
                   <strong>Flexible integration</strong>: Our API is designed to
                   be flexible and easy to integrate into your existing systems.
                   If you&apos;re looking for an endpoint providing our data in a
