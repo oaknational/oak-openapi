@@ -18,9 +18,9 @@ import {
 import styled from 'styled-components';
 import Feature from '~/components/Feature';
 import List from '~/components/List';
-import Logo from '~/components/Logo';
+import Logo, { LogoSVG } from '~/components/Logo';
 import Tick from '~/components/Tick';
-// import Footer from '~/components/Footer';
+import Footer from '~/components/Footer';
 
 const OakLinkLogo = styled(OakLink)`
   margin: 0;
@@ -53,11 +53,12 @@ const OakLiLink = styled(OakLink)`
 export default function Page() {
   return (
     <>
+      <LogoSVG />
       <Banner />
       <Hero />
       <Features />
       <HowItWorks />
-      {/* <Footer /> */}
+      <Footer />
     </>
   );
 }
