@@ -112,7 +112,7 @@ function Hero() {
               We are providing an API to make our high-quality education content
               available to the wider education market for free on the{' '}
               <OakLink
-                href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/"
+                href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
                 target="_blank">
                 Open Government Licence
               </OakLink>
@@ -204,7 +204,7 @@ function Features() {
                 high-quality content available to the wider education market for
                 free on the{' '}
                 <OakLink
-                  href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/"
+                  href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
                   target="_blank">
                   Open Government Licence
                 </OakLink>
