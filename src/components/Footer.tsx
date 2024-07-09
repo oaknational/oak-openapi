@@ -17,6 +17,17 @@ import SocialButtons, { OAK_SOCIALS } from './SocialButtons';
 import Logo from './Logo';
 import Svg from './StyledSvg';
 
+const LoopSvg = styled(Svg)`
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: rgb(190, 242, 189);
+  transform: translate(25%, 15%) rotate(-10deg);
+`;
+
 const OakLinkLogo = styled(OakLink)`
   margin: 0;
   padding: 0;
@@ -39,9 +50,11 @@ const FooterOakLink = styled(OakLink)`
 export default function Footer() {
   return (
     <>
-      <OakBox $background="white">
+      <OakBox $background="white" $position={'relative'}>
         <OakHandDrawnHR $height="all-spacing-1" />
         <nav>
+          <LoopSvg name="looping-line-3" />
+
           <OakMaxWidth
             // $pt={[16, 80]}
             $pt={['inner-padding-m', 'inner-padding-xl6']}
@@ -49,6 +62,7 @@ export default function Footer() {
             $flexDirection={'column'}
             $ph="inner-padding-l"
             $ma={'auto'}
+            $position={'relative'}
             $width={'100%'}>
             <OakGrid>
               <OakGridArea $colSpan={[12, 3]}>
@@ -111,17 +125,6 @@ export default function Footer() {
             </OakFlex>
           </OakMaxWidth>
         </nav>
-        <Svg
-          name="looping-line-3"
-          $color={'mint'}
-          $zIndex={'behind'}
-          $display={['none', 'block']}
-          $transform={[
-            'none',
-            'translate(25%, 25%) scale(0.7) rotate(-10deg)',
-            'translate(25%, 15%) rotate(-10deg)',
-          ]}
-        />
       </OakBox>
     </>
   );
