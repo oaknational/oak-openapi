@@ -18,7 +18,7 @@ import {
 import styled from 'styled-components';
 import Feature from '~/components/Feature';
 import List from '~/components/List';
-import Logo, { LogoSVG } from '~/components/Logo';
+import Logo from '~/components/Logo';
 import Tick from '~/components/Tick';
 import Footer from '~/components/Footer';
 
