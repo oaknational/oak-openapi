@@ -5,6 +5,7 @@ import {
   OakGridArea,
   OakHandDrawnHR,
   OakHeading,
+  OakIcon,
   OakLI,
   OakLink,
   OakMaxWidth,
@@ -42,6 +43,11 @@ const FooterOakLink = styled(OakLink)`
   color: inherit;
   text-decoration: none;
   &:hover {
+    text-decoration: underline;
+    color: inherit;
+  }
+
+  &:visited {
     color: inherit;
     text-decoration: underline;
   }
@@ -50,7 +56,7 @@ const FooterOakLink = styled(OakLink)`
 export default function Footer() {
   return (
     <>
-      <OakBox $background="white" $position={'relative'}>
+      <OakBox $overflow={'hidden'} $background="white" $position={'relative'}>
         <OakHandDrawnHR $height="all-spacing-1" />
         <nav>
           <LoopSvg name="looping-line-3" />
@@ -168,10 +174,16 @@ const FooterSectionLinks = ({ title, links }: FooterSectionLinksProps) => {
   );
 };
 
-const FooterLink = ({ text, href, ariaLabel }: FooterLink) => {
+const FooterLink = ({ text, href, ariaLabel, icon }: FooterLink) => {
   return (
-    <FooterOakLink href={href} {...{ 'aria-label': ariaLabel ?? undefined }}>
-      {text}
-    </FooterOakLink>
+    <OakFlex $gap={'all-spacing-2'} $display={'inline-flex'}>
+      <FooterOakLink
+        target={icon ? '_blank' : null}
+        href={href}
+        {...{ 'aria-label': ariaLabel ?? undefined }}>
+        {text}
+      </FooterOakLink>
+      {icon && <OakIcon iconName={icon} />}
+    </OakFlex>
   );
 };
