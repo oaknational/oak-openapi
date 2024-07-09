@@ -45,11 +45,6 @@ const OakLiLink = styled(OakLink)`
   text-indent: initial;
 `;
 
-/**
- * Notes:
- * - font currently defaulting to helvetica in oak-components
- */
-
 export default function Page() {
   return (
     <>
@@ -135,11 +130,9 @@ function Hero() {
           <OakGridArea $colSpan={5}>
             <OakFlex>
               <OakImage
-                // FIXME
                 src={{ src: '/images/workers.png', width: 2228, height: 1472 }}
                 alt=""
                 $height="all-spacing-20"
-                // style={{ maxHeight: '400px' }}
               />
             </OakFlex>
           </OakGridArea>
@@ -194,7 +187,7 @@ function Features() {
             $pa="inner-padding-xl"
             $gap={'all-spacing-10'}>
             <OakHeading $font="heading-5" tag="h2">
-              Oak OpenAPI
+              About our Open API
             </OakHeading>
             <Feature title="Leverage Oak's high-quality education content on your platform">
               <OakP $font={'body-1'}>
@@ -219,7 +212,7 @@ function Features() {
                 <OakLink
                   href="https://www.thenational.academy/blog/our-approach-to-curriculum"
                   target="_blank">
-                  Curriculum Design Principles
+                  curriculum design principles
                 </OakLink>
                 .
               </OakP>
