@@ -15,6 +15,7 @@ import styled from 'styled-components';
 import { footerSections } from '~/lib/footerSections';
 import SocialButtons, { OAK_SOCIALS } from './SocialButtons';
 import Logo from './Logo';
+import Svg from './StyledSvg';
 
 const OakLinkLogo = styled(OakLink)`
   margin: 0;
@@ -70,13 +71,17 @@ export default function Footer() {
                 />
               </OakGridArea>
               <OakGridArea $colSpan={[12, 3]}>
-                <OakBox $ml={'space-between-none'} $display={['block', 'none']}>
-                  <OakLinkLogo
-                    aria-label="Oak National Academy"
-                    href="https://www.thenational.academy/">
-                    <Logo width="66" height="150" />
-                  </OakLinkLogo>
-                </OakBox>
+                <OakFlex
+                  $justifyContent={['left', 'right']}
+                  $mt={['space-between-m2', 'space-between-none']}>
+                  <OakBox $ml={'space-between-none'} $display={['block']}>
+                    <OakLinkLogo
+                      aria-label="Oak National Academy"
+                      href="https://www.thenational.academy/">
+                      <Logo height="66" width="150" />
+                    </OakLinkLogo>
+                  </OakBox>
+                </OakFlex>
               </OakGridArea>
             </OakGrid>
             <OakFlex
@@ -88,7 +93,7 @@ export default function Footer() {
               $alignItems={['flex-start', 'center']}
               $pt={['inner-padding-s', 'inner-padding-none']}>
               <SocialButtons
-                $display={['none', 'flex']}
+                $display={['flex']}
                 for="Oak National Academy"
                 {...OAK_SOCIALS}
               />
@@ -106,6 +111,18 @@ export default function Footer() {
             </OakFlex>
           </OakMaxWidth>
         </nav>
+        <Svg
+          name="looping-line-3"
+          $color={'mint'}
+          $zIndex={'behind'}
+          $display={['none', 'block']}
+          $transform={[
+            'none',
+            'translate(25%, 25%) scale(0.7) rotate(-10deg)',
+            'translate(25%, 15%) rotate(-10deg)',
+          ]}
+          $cover
+        />
       </OakBox>
     </>
   );

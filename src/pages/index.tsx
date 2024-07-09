@@ -53,7 +53,6 @@ const OakLiLink = styled(OakLink)`
 export default function Page() {
   return (
     <>
-      <LogoSVG />
       <Banner />
       <Hero />
       <Features />
@@ -153,7 +152,10 @@ function Features() {
   return (
     <OakBox $background="white">
       <OakMaxWidth $flexDirection={'row'} $pv={'inner-padding-xl6'}>
-        <OakGrid $cg="space-between-m" $rg="space-between-m">
+        <OakGrid
+          $cg="space-between-m"
+          $rg="space-between-m"
+          $gridTemplateColumns={['1fr', 'repeat(12, 1fr)']}>
           <OakGridArea $colSpan={4} $gap={'all-spacing-5'}>
             <OakBox
               $background={'mint'}
