@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@oaknational/oak-components':
-    specifier: ^0.42.0
-    version: 0.42.1(next-cloudinary@5.20.0)(next@14.2.4)(react-dom@18.3.1)(react@18.3.1)(styled-components@5.3.11)(vitest@1.6.0)
+    specifier: ^1.5.1
+    version: 1.5.1(next-cloudinary@5.20.0)(next@14.2.4)(react-dom@18.3.1)(react@18.3.1)(styled-components@5.3.11)(vitest@1.6.0)
   '@prisma/client':
     specifier: ^5.14.0
     version: 5.15.1(prisma@5.15.1)
@@ -840,8 +840,8 @@ packages:
       fastq: 1.17.1
     dev: true
 
-  /@oaknational/oak-components@0.42.1(next-cloudinary@5.20.0)(next@14.2.4)(react-dom@18.3.1)(react@18.3.1)(styled-components@5.3.11)(vitest@1.6.0):
-    resolution: {integrity: sha512-pX3nBEILttZL7Fd8ASxBrQ5viWNWTHYT1Mf1Qltn+gozaZqdxs/A2wNtWRrqqYNd1CQW+CeGHR993SRvPWZu4w==}
+  /@oaknational/oak-components@1.5.1(next-cloudinary@5.20.0)(next@14.2.4)(react-dom@18.3.1)(react@18.3.1)(styled-components@5.3.11)(vitest@1.6.0):
+    resolution: {integrity: sha512-uitD+Qq8+4Bu8L2ICM95/IduzMepjoP8e3LOVLlv/1+bp5SOXUY7woB3yaZniuF+b/BE2sk3M6f0d4AJZPv6Rg==}
     peerDependencies:
       next: 13.4.4 - 14
       next-cloudinary: ^5.20.0

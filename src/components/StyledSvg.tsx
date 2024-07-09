@@ -1,4 +1,3 @@
-import { FC } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -7,11 +6,7 @@ import {
   OakColorToken,
 } from '@oaknational/oak-components';
 
-const StyledSvg = styled.svg<OakBoxProps>`
-  ${OakBox};
-  transition: all 0.3s ease;
-`;
-export type SvgProps = OakBoxProps & {
+type SvgProps = OakBoxProps & {
   name: string;
   className?: string;
   width?: string;
@@ -20,17 +15,21 @@ export type SvgProps = OakBoxProps & {
   color?: OakColorToken;
   filter?: string;
 };
-const Svg: FC<SvgProps> = (props) => {
+
+const StyledSvg_ = styled.svg<OakBoxProps>`
+  ${OakBox};
+  transition: all 0.3s ease;
+`;
+
+export default function StyledSvg({ name, ...props }: SvgProps) {
   return (
-    <StyledSvg
+    <StyledSvg_
       aria-hidden={true}
       xmlns="http://www.w3.org/2000/svg"
       width="100%"
       height="100%"
       {...props}>
-      <use xlinkHref={`/images/sprite.svg#${props.name}`} />
-    </StyledSvg>
+      <use xlinkHref={`/images/sprite.svg#${name}`} />
+    </StyledSvg_>
   );
-};
-
-export default Svg;
+}
