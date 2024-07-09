@@ -104,8 +104,8 @@ function Hero() {
               Use Oak&apos;s quality content on your platform
             </OakHeading>
             <OakP $color="black" $font="body-1">
-              We are providing an API to make our high-quality education content
-              available to the wider education market for free on the{' '}
+              We are providing a free API to make our high-quality education
+              content available to the wider education market on the{' '}
               <OakLink
                 href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
                 target="_blank">
@@ -130,6 +130,8 @@ function Hero() {
           <OakGridArea $colSpan={5}>
             <OakFlex>
               <OakImage
+                sizes="width: 2228px, height: 1472px"
+                priority={true}
                 src={{ src: '/images/workers.png', width: 2228, height: 1472 }}
                 alt=""
                 $height="all-spacing-20"
@@ -159,10 +161,10 @@ function Features() {
               </OakHeading>
               <OakOL>
                 <OakLI $font={'body-1'}>
-                  <strong>Sign Up</strong>: Click the link above, or get in
+                  <strong>Sign up</strong>: Click the link above, or get in
                   touch with us by sending an email to{' '}
-                  <OakLiLink href="mailto:xxx@thenational.academy">
-                    xxx@thenational.academy
+                  <OakLiLink href="mailto:help@thenational.academy">
+                    help@thenational.academy
                   </OakLiLink>
                   , and we&apos;ll set you up with an API key.
                 </OakLI>
@@ -217,7 +219,7 @@ function Features() {
                 .
               </OakP>
             </Feature>
-            <Feature title="What We Offer">
+            <Feature title="What we offer">
               <OakUL>
                 <OakLI $font={'body-1'}>
                   <strong>Fully resourced curriculums</strong>: we are

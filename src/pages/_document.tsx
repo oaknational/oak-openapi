@@ -38,6 +38,13 @@ class MyDocument extends Document {
     return (
       <Html lang="en-GB">
         <Head>
+          <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="48x48"
+            href="/images/favicon-48x48.png"
+          />
           <link
             href="https://googleapis-fonts.thenational.academy/css2?family=Lexend:wght@300;400;600&display=swap"
             rel="stylesheet"
