@@ -272,7 +272,7 @@ export const getLessons = router({
       const subject = input.subject || null;
       const keyStage = input.keyStage || null;
 
-      let sqlWhere = '1=1';
+      let sqlWhere = '"isLegacy" = false';
 
       if (unit) {
         sqlWhere += ` AND "unitSlug" = '${unit.replace(/'/g, "''")}'`;
