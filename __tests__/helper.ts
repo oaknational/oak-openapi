@@ -3,10 +3,9 @@ import router from '~/lib/router';
 import { createCallerFactory } from '~/lib/trpc';
 import { vi } from 'vitest';
 
-vi.mock('~/lib/rateLimit', async (importOriginal) => {
+vi.mock('~/lib/rateLimit', async (importOriginal: () => Promise<object>) => {
   const actual = await importOriginal();
   return {
-    // @ts-expect-error - we're mocking the rate limit module
     ...actual,
     rateLimiter: () => ({
       check: vi.fn(() => {
