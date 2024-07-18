@@ -116,7 +116,7 @@ function Hero() {
             <OakFlex $gap={'all-spacing-4'}>
               <AlignFixButton
                 element="a"
-                href="mailto:help@thenational.academy">
+                href="mailto:help@thenational.academy?subject=Oak%20OpenAPI">
                 Request an API key
               </AlignFixButton>
 
@@ -165,7 +165,7 @@ function Features() {
                 <OakLI $font={'body-1'}>
                   <strong>Sign up</strong>: Click the link above, or get in
                   touch with us by sending an email to{' '}
-                  <OakLiLink href="mailto:help@thenational.academy">
+                  <OakLiLink href="mailto:help@thenational.academy?subject=Oak%20OpenAPI">
                     help@thenational.academy
                   </OakLiLink>
                   , and we&apos;ll set you up with an API key.
