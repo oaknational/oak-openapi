@@ -80,7 +80,7 @@ function Banner() {
 
 function Hero() {
   return (
-    <OakBox $background="mint50">
+    <OakBox $background="mint">
       <OakMaxWidth $flexDirection={'row'} $pv={'inner-padding-xl6'}>
         <OakGrid $cg="space-between-m" $rg="space-between-m">
           <OakGridArea
@@ -155,7 +155,7 @@ function Features() {
           $gridTemplateColumns={['1fr', 'repeat(12, 1fr)']}>
           <OakGridArea $colSpan={4} $gap={'all-spacing-5'}>
             <OakBox
-              $background={'mint'}
+              $background={'mint50'}
               $borderRadius={'border-radius-m'}
               $pa="inner-padding-xl">
               <OakHeading $font="heading-5" tag="h3">
@@ -284,7 +284,7 @@ function Features() {
 }
 function HowItWorks() {
   return (
-    <OakBox $background="mint110">
+    <OakBox $background="mint50">
       <OakMaxWidth $flexDirection={'row'} $pv={'inner-padding-xl6'}>
         <OakGrid $cg="space-between-m" $rg="space-between-m">
           <OakGridArea
