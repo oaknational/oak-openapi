@@ -114,7 +114,9 @@ function Hero() {
               .
             </OakP>
             <OakFlex $gap={'all-spacing-4'}>
-              <AlignFixButton element="a" href="/request-api-key">
+              <AlignFixButton
+                element="a"
+                href="mailto:help@thenational.academy">
                 Request an API key
               </AlignFixButton>
 
