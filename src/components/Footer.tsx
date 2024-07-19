@@ -18,6 +18,12 @@ import SocialButtons, { OAK_SOCIALS } from './SocialButtons';
 import Logo from './Logo';
 import Svg from './StyledSvg';
 
+const TopOakHandDrawnHR = styled(OakHandDrawnHR)`
+  position: relative;
+  z-index: 10;
+  height: 0.25rem;
+`;
+
 const LoopSvg = styled(Svg)`
   position: absolute;
   top: 0;
@@ -57,7 +63,7 @@ export default function Footer() {
   return (
     <>
       <OakBox $overflow={'hidden'} $background="white" $position={'relative'}>
-        <OakHandDrawnHR $height="all-spacing-1" />
+        <TopOakHandDrawnHR $height="all-spacing-1" />
         <nav>
           <LoopSvg name="looping-line-3" />
 

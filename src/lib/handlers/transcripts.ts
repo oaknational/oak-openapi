@@ -5,44 +5,44 @@ import { router } from '~/lib/trpc';
 
 export const getTranscripts = router({
   searchTranscripts: protectedProcedure
-    // .meta({
-    //   openapi: {
-    //     method: 'GET',
-    //     tags: ['search'],
-    //     path: '/search/transcripts',
-    //     description:
-    //       'Search for a term and find lessons that contain similar text in their video transcripts',
-    //     example: {
-    //       request: {
-    //         q: 'Who were the romans?',
-    //       },
-    //       response: [
-    //         {
-    //           lessonTitle: 'The Roman invasion of Britain ',
-    //           lessonSlug: 'the-roman-invasion-of-britain',
-    //           transcriptSnippet: 'The Romans were ready,',
-    //         },
-    //         {
-    //           lessonTitle:
-    //             'The changes to life brought about by Roman settlement',
-    //           lessonSlug:
-    //             'the-changes-to-life-brought-about-by-roman-settlement',
-    //           transcriptSnippet: 'when the Romans came.',
-    //         },
-    //         {
-    //           lessonTitle: "Boudica's rebellion against Roman rule",
-    //           lessonSlug: 'boudicas-rebellion-against-roman-rule',
-    //           transcriptSnippet: 'kings who resisted the Romans were,',
-    //         },
-    //         {
-    //           lessonTitle: 'How far religion changed under Roman rule',
-    //           lessonSlug: 'how-far-religion-changed-under-roman-rule',
-    //           transcriptSnippet: 'for the Romans.',
-    //         },
-    //       ],
-    //     },
-    //   },
-    // })
+    .meta({
+      openapi: {
+        method: 'GET',
+        tags: ['search'],
+        path: '/search/transcripts',
+        description:
+          'Search for a term and find lessons that contain similar text in their video transcripts',
+        example: {
+          request: {
+            q: 'Who were the romans?',
+          },
+          response: [
+            {
+              lessonTitle: 'The Roman invasion of Britain ',
+              lessonSlug: 'the-roman-invasion-of-britain',
+              transcriptSnippet: 'The Romans were ready,',
+            },
+            {
+              lessonTitle:
+                'The changes to life brought about by Roman settlement',
+              lessonSlug:
+                'the-changes-to-life-brought-about-by-roman-settlement',
+              transcriptSnippet: 'when the Romans came.',
+            },
+            {
+              lessonTitle: "Boudica's rebellion against Roman rule",
+              lessonSlug: 'boudicas-rebellion-against-roman-rule',
+              transcriptSnippet: 'kings who resisted the Romans were,',
+            },
+            {
+              lessonTitle: 'How far religion changed under Roman rule',
+              lessonSlug: 'how-far-religion-changed-under-roman-rule',
+              transcriptSnippet: 'for the Romans.',
+            },
+          ],
+        },
+      },
+    })
     .input(
       z.object({
         q: z.string({
