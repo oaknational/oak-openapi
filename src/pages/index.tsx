@@ -21,6 +21,7 @@ import List from '~/components/List';
 import Logo from '~/components/Logo';
 import Tick from '~/components/Tick';
 import Footer from '~/components/Footer';
+import Head from 'next/head';
 
 const OakLinkLogo = styled(OakLink)`
   margin: 0;
@@ -48,6 +49,9 @@ const OakLiLink = styled(OakLink)`
 export default function Page() {
   return (
     <>
+      <Head>
+        <title>Oak OpenAPI - Oak National Academy</title>
+      </Head>
       <Banner />
       <Hero />
       <Features />
