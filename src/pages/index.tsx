@@ -228,11 +228,11 @@ function Features() {
             <Feature title="What we offer">
               <OakUL>
                 <OakLI $font={'body-1'}>
-                  <strong>Fully resourced curriculums</strong>: we are
-                  developing our resources across the full National Curriculum,
-                  and have content available across multiple subjects and key
-                  stages, ensuring that you have the materials you need to
-                  support a wide range of learning requirements.
+                  <strong>Fully resourced curricula</strong>: we are developing
+                  our resources across the full National Curriculum, and have
+                  content available across multiple subjects and key stages,
+                  ensuring that you have the materials you need to support a
+                  wide range of learning requirements.
                 </OakLI>
                 <OakLI $font={'body-1'}>
                   <strong>High-quality resources</strong>: Benefit from
