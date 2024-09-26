@@ -1,5 +1,24 @@
 # Oak open api front end
 
+## Adding new API keys
+
+Currently this is handled manually:
+
+1. Sign into [upstash](https://console.upstash.com/login)
+2. Visit the [data browser](https://console.upstash.com/redis/8fc6603d-e796-4ef2-9c3b-d594fd8733fc?tab=data-browser)
+3. Generate and copy a [UUID v4](https://www.uuidgenerator.net/version4)
+4. Scroll to the end of the dataset, noting the last id and create a new object in the form of:
+
+```json
+{
+   "name": "$friendly_name",
+   "id": $n,
+   "key": "$uuid"
+}
+```
+
+5. Finally, ensure you hit save - the keys are loaded on demand in the openapi software.
+
 ## Development
 
 Required dependencies:
