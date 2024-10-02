@@ -199,6 +199,16 @@ export const getAssets = router({
         }
       `;
 
+      type LessonQueryVariables = {
+        _contains: {
+          keystage_slug: string;
+          subject_slug: string;
+        };
+        limit: number;
+        offset: number;
+        unit?: string;
+      };
+
       const lessonQueryVariables = {
         _contains: {
           keystage_slug: keyStage,
@@ -206,8 +216,7 @@ export const getAssets = router({
         },
         limit,
         offset,
-        unit,
-      };
+      } as LessonQueryVariables;
 
       if (unit) {
         lessonQueryVariables.unit = unit;
