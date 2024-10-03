@@ -61,5 +61,5 @@ export const rateLimiter = (rateLimit: RateLimit): RateLimiter => {
 };
 
 async function isUnlimited(apiKey: string): Promise<boolean> {
-  return apiKey === '__TODO__';
+  return apiKey === process.env.OAK_API_AUTH_TOKEN;
 }
