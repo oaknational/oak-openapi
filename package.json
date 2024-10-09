@@ -10,6 +10,7 @@
     "with-env": "dotenv -e ./.env --",
     "build": "next build",
     "test": "pnpm with-env vitest",
+    "load-test": "pnpm with-env artillery run __tests__/load-tests.yml",
     "generate-prisma": "pnpm with-env prisma generate",
     "postinstall": "prisma generate"
   },
