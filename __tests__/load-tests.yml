@@ -102,6 +102,12 @@ scenarios:
                     accept: application/json
                     authorization: Bearer {{ token }}
 
+          - get:
+                url: '/search/transcripts?q=Who%20were%20the%20romans%3F'
+                headers:
+                    accept: application/json
+                    authorization: Bearer {{ token }}
+
           # units
           - get:
                 url: '/units/simple-compound-and-adverbial-complex-sentences/summary'
