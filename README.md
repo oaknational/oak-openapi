@@ -46,6 +46,17 @@ An API key is required to call RESTful endpoint.
 - trpc-openapi to add the openapi metadata
 - graphql and some direct sql is used against the Oak Web Application (OWA) hasura based database
 
+# Load testing
+
+Required dependencies:
+
+1. [Artillery](https://www.artillery.io/docs/get-started/get-artillery) installed globally
+
+How to run: 
+
+1. Set env vars for target URL and auth token.
+2. `pnpm load-test`
+
 ## Required env values
 
 Complete the values in `.env.example` and rename to `.env`
