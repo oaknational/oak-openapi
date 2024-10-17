@@ -16,7 +16,7 @@ export const PostHogProvider = ({ children }: PostHogProviderProps) => {
     const apiKey = process.env.NEXT_PUBLIC_POSTHOG_API_KEY;
 
     if (!apiKey) {
-      console.error('NEXT_PUBLIC_POSTHOG_API_KEY is not defined');
+      console.error('NEXT_PUBLIC_POSTHOG_API_KEY is not defined.');
       return;
     }
 
