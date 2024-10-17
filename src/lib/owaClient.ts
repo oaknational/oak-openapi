@@ -7,8 +7,8 @@ export const unitCurriculumView =
 export const lessonView = 'published_mv_lesson_openapi_1_1_0';
 export const downloadView = 'published_mv_openapi_downloads_1_0_0';
 export const unitVariantLessonsView =
-  'published_mv_synthetic_unitvariant_lessons_by_year_6_0_0';
-export const lessonViewTable = 'published.mv_lesson_openapi_1_1_0';
+  'published_mv_synthetic_unitvariant_lessons_by_year_12_0_0';
+export const lessonViewTable = 'published.mv_lesson_openapi_1_2_0';
 
 export function querySQL(sql: string) {
   return fetch(`${process.env.OAK_GRAPHQL_HOST}/v1/query`, {
@@ -36,7 +36,7 @@ export function getClient() {
 }
 
 export type UnitVariantLessonsView = {
-  published_mv_synthetic_unitvariant_lessons_by_year_6_0_0: UnitVariantLesson[];
+  published_mv_synthetic_unitvariant_lessons_by_year_12_0_0: UnitVariantLesson[];
 };
 
 type UnitVariantLesson = {
