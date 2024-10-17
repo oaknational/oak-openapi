@@ -113,6 +113,10 @@ export const getAssets = router({
             {
               lessonSlug: 'nouns-singular-and-plural',
               lessonTitle: 'Nouns: singular and plural',
+              attribution: [
+                'Copyright XYZ Authors',
+                'Creative Commons Attribution Example 4.0',
+              ],
               assets: [
                 {
                   type: 'slidedeck',
@@ -357,40 +361,46 @@ export const getAssets = router({
           request: {
             lesson: 'nouns-singular-and-plural',
           },
-          response: [
-            {
-              type: 'slidedeck',
-              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/slidedeck'`,
-            },
-            {
-              type: 'exitQuiz',
-              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuiz'`,
-            },
-            {
-              type: 'exitQuizAnswers',
-              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuizAnswers'`,
-            },
-            {
-              type: 'starterQuiz',
-              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuiz'`,
-            },
-            {
-              type: 'starterQuizAnswers',
-              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuizAnswers'`,
-            },
-            {
-              type: 'video',
-              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/video'`,
-            },
-            {
-              type: 'worksheet',
-              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheet'`,
-            },
-            {
-              type: 'worksheetAnswers',
-              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheetAnswers'`,
-            },
-          ],
+          response: {
+            attribution: [
+              'Copyright XYZ Authors',
+              'Creative Commons Attribution Example 4.0',
+            ],
+            assets: [
+              {
+                type: 'slidedeck',
+                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/slidedeck'`,
+              },
+              {
+                type: 'exitQuiz',
+                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuiz'`,
+              },
+              {
+                type: 'exitQuizAnswers',
+                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuizAnswers'`,
+              },
+              {
+                type: 'starterQuiz',
+                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuiz'`,
+              },
+              {
+                type: 'starterQuizAnswers',
+                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuizAnswers'`,
+              },
+              {
+                type: 'video',
+                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/video'`,
+              },
+              {
+                type: 'worksheet',
+                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheet'`,
+              },
+              {
+                type: 'worksheetAnswers',
+                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheetAnswers'`,
+              },
+            ],
+          },
         },
       },
     })
