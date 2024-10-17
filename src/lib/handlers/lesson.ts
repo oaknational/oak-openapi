@@ -62,7 +62,7 @@ const lessonSummary = z.object({
     )
     .or(z.null()),
   supervisionLevel: z.string().or(z.null()),
-  hasDownloadableResources: z.boolean(),
+  downloadsAvailable: z.boolean(),
 });
 
 type LessonSummary = z.infer<typeof lessonSummary>;
@@ -139,7 +139,7 @@ export const getLessons = router({
             ],
             contentGuidance: null,
             supervisionLevel: null,
-            hasDownloadableResources: true,
+            downloadsAvailable: true,
           },
         },
       },
@@ -173,7 +173,7 @@ export const getLessons = router({
             pupilLessonOutcome
             teacherTips
             contentGuidance
-            hasDownloadableResources
+            downloadsAvailable: hasDownloadableResources
             supervisionLevel
           }
         }
@@ -193,6 +193,7 @@ export const getLessons = router({
       }
 
       const lesson = data[0] as LessonSummary;
+
       return lesson;
     }),
   searchByTextSimilarity: protectedProcedure
