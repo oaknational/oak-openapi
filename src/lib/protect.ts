@@ -18,7 +18,7 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
   let limit: RateLimitInfo | undefined;
 
   if (user) {
-    limit = await rateLimit.check(user.key);
+    limit = await rateLimit.check(user);
     if (limit.isSubjectToRateLimiting) {
       ctx.res.setHeader('X-RateLimit-Limit', limit.limit);
       ctx.res.setHeader('X-RateLimit-Remaining', limit.remaining);
