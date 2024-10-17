@@ -19,6 +19,7 @@
     "tsvector",
     "unitvariant",
     "UPSTASH",
-    "vectorstores"
+    "vectorstores",
+    "posthog"
   ]
 }
