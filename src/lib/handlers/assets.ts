@@ -18,7 +18,7 @@ import {
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
 import { baseUrl } from '../baseUrl';
 
-import { checkLesson, modifySubject } from '~/lib/queryGate';
+import { checkLesson, checkQuery, modifySubject } from '~/lib/queryGate';
 
 export const downloadTypeEnum = z.enum(
   [
@@ -205,6 +205,17 @@ export const getAssets = router({
       if (unit) {
         unitFilter = ', _and: { unit_slug: { _eq: $unit } }';
         unitArg = ', $unit: String';
+      }
+
+      if (unit || subject) {
+        const supported = checkQuery(subject, unit || '');
+
+        if (!supported) {
+          throw new TRPCError({
+            message: 'Lesson assets not available for this query',
+            code: 'NOT_FOUND',
+          });
+        }
       }
 
       // step 1: find the slugs that match
