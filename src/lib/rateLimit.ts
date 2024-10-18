@@ -47,7 +47,6 @@ export const rateLimiter = (rateLimit: RateLimit): RateLimiter => {
       }
 
       if (await isUnlimited(user)) {
-        console.log('Bypassing rate-limit for oak user %s', apiKey);
         return { isSubjectToRateLimiting: false };
       }
 

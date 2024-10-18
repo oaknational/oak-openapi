@@ -18,6 +18,8 @@ import {
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
 import { baseUrl } from '../baseUrl';
 
+import { checkLesson, modifySubject } from '~/lib/queryGate';
+
 export const downloadTypeEnum = z.enum(
   [
     'slidedeck',
@@ -237,7 +239,7 @@ export const getAssets = router({
       const lessonQueryVariables = {
         _contains: {
           keystage_slug: keyStage,
-          subject_slug: subject,
+          subject_slug: modifySubject(subject),
         },
         limit,
         offset,
@@ -415,6 +417,16 @@ export const getAssets = router({
     .output(z.any()) //lessonAssetsType
     .query(async ({ input }) => {
       const { lesson: lessonSlug, type } = input;
+
+      // FIXME - gate with a query to check if the lesson is in maths
+      const supported = await checkLesson(graphqlClient, lessonSlug);
+
+      if (!supported) {
+        throw new TRPCError({
+          message: 'Lesson not available',
+          code: 'NOT_FOUND',
+        });
+      }
 
       const queryDownloads = gql`
         query GetDownloads($lessonSlug: String!) {
