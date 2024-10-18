@@ -20,5 +20,7 @@
     "unitvariant",
     "UPSTASH",
     "vectorstores"
-  ]
+  ],
+
+  "prettier.singleQuote": true
 }
