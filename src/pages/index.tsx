@@ -54,7 +54,7 @@ const navItems = [
   { title: 'About our open API', href: '#about-api' },
   { title: 'How to get stated', href: '#get-started' },
   { title: 'What we offer', href: '#what-we-offer' },
-  { title: `What's available`, href: `#whats-available` },
+  { title: `What’s available`, href: `#whats-available` },
   { title: 'FAQs', href: '#faqs' },
   { title: 'Give feedback', href: '#give-feedback' },
 ];
