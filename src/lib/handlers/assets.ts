@@ -7,10 +7,12 @@ import { router } from '../trpc';
 import {
   Download,
   DownloadView,
+  LessonView,
   SignedAsset,
   UnitVariantLessonsView,
   downloadView,
   getClient,
+  lessonView,
   unitVariantLessonsView,
 } from '../owaClient';
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
@@ -32,6 +34,25 @@ export const downloadTypeEnum = z.enum(
     description:
       'Use the this type and the lesson slug in conjunction to get a signed download URL to the asset type from the /api/download endpoint',
   }
+);
+
+const assetType = z.object({
+  type: downloadTypeEnum,
+  url: z.string(),
+});
+
+export const lessonAssetsType = z.object({
+  attribution: z.array(z.string()).optional(),
+  assets: z.array(assetType).optional(),
+});
+
+export const lessonsAssetsType = z.array(
+  z.object({
+    lessonSlug: z.string(),
+    lessonTitle: z.string(),
+    attribution: z.array(z.string()).optional(),
+    assets: z.array(assetType),
+  })
 );
 
 export type DownloadTypeEnum = z.infer<typeof downloadTypeEnum>;
@@ -92,6 +113,10 @@ export const getAssets = router({
             {
               lessonSlug: 'nouns-singular-and-plural',
               lessonTitle: 'Nouns: singular and plural',
+              attribution: [
+                'Copyright XYZ Authors',
+                'Creative Commons Attribution Example 4.0',
+              ],
               assets: [
                 {
                   type: 'slidedeck',
@@ -162,7 +187,7 @@ export const getAssets = router({
           .default(10),
       })
     )
-    .output(z.any())
+    .output(z.any()) //lessonsAssetsType
     .query(async ({ input, ctx }) => {
       const keyStage = input.keyStage;
       const subject = input.subject;
@@ -281,12 +306,43 @@ export const getAssets = router({
         });
       }
 
+      const tpcQuery = gql`
+        query GetTPC($lessonSlugs: [String!]!) {
+          ${lessonView}(
+            where: {
+              lessonSlug: { _in: $lessonSlugs }
+            }
+          ) {
+            lessonSlug
+            tpcWorks
+            tpcMedia
+          }
+        }
+      `;
+
+      const tpcViewResult: LessonView = await graphqlClient.request(tpcQuery, {
+        lessonSlugs,
+      });
+
+      const tpc = tpcViewResult[lessonView];
+
       const result = downloads.map((d) => {
         const lessonSlug = d.lessonSlug;
+
+        const attribution = tpc.find((l) => l.lessonSlug === lessonSlug);
+        let mappedAttribution: (string | undefined)[] = [];
+
+        if (attribution) {
+          mappedAttribution = [
+            ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
+            ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
+          ].filter(Boolean);
+        }
 
         return {
           lessonSlug,
           lessonTitle: d.lessonTitle,
+          attribution: mappedAttribution.length ? mappedAttribution : undefined,
           assets: assetDownloads(lessonSlug, [d], typeFilter),
         };
       });
@@ -305,40 +361,46 @@ export const getAssets = router({
           request: {
             lesson: 'nouns-singular-and-plural',
           },
-          response: [
-            {
-              type: 'slidedeck',
-              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/slidedeck'`,
-            },
-            {
-              type: 'exitQuiz',
-              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuiz'`,
-            },
-            {
-              type: 'exitQuizAnswers',
-              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuizAnswers'`,
-            },
-            {
-              type: 'starterQuiz',
-              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuiz'`,
-            },
-            {
-              type: 'starterQuizAnswers',
-              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuizAnswers'`,
-            },
-            {
-              type: 'video',
-              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/video'`,
-            },
-            {
-              type: 'worksheet',
-              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheet'`,
-            },
-            {
-              type: 'worksheetAnswers',
-              url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheetAnswers'`,
-            },
-          ],
+          response: {
+            attribution: [
+              'Copyright XYZ Authors',
+              'Creative Commons Attribution Example 4.0',
+            ],
+            assets: [
+              {
+                type: 'slidedeck',
+                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/slidedeck'`,
+              },
+              {
+                type: 'exitQuiz',
+                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuiz'`,
+              },
+              {
+                type: 'exitQuizAnswers',
+                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuizAnswers'`,
+              },
+              {
+                type: 'starterQuiz',
+                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuiz'`,
+              },
+              {
+                type: 'starterQuizAnswers',
+                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuizAnswers'`,
+              },
+              {
+                type: 'video',
+                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/video'`,
+              },
+              {
+                type: 'worksheet',
+                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheet'`,
+              },
+              {
+                type: 'worksheetAnswers',
+                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheetAnswers'`,
+              },
+            ],
+          },
         },
       },
     })
@@ -350,7 +412,7 @@ export const getAssets = router({
         type: downloadTypeEnum.optional(),
       })
     )
-    .output(z.array(z.any()))
+    .output(z.any()) //lessonAssetsType
     .query(async ({ input }) => {
       const { lesson: lessonSlug, type } = input;
 
@@ -396,6 +458,38 @@ export const getAssets = router({
         });
       }
 
-      return assetDownloads(lessonSlug, res, type);
+      const tpcQuery = gql`
+        query GetTPC($lessonSlug: String!) {
+          ${lessonView}(
+            where: {
+              lessonSlug: { _eq: $lessonSlug }
+            }
+          ) {
+            lessonSlug
+            tpcWorks
+            tpcMedia
+          }
+        }
+      `;
+
+      const tpcViewResult: LessonView = await graphqlClient.request(tpcQuery, {
+        lessonSlug,
+      });
+
+      const attribution = tpcViewResult[lessonView][0];
+
+      let mappedAttribution: (string | undefined)[] = [];
+
+      if (attribution) {
+        mappedAttribution = [
+          ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
+          ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
+        ].filter(Boolean);
+      }
+
+      return {
+        attribution: mappedAttribution.length ? mappedAttribution : undefined,
+        assets: assetDownloads(lessonSlug, res, type),
+      };
     }),
 });
