@@ -13,6 +13,9 @@ interface PostHogProviderProps {
 
 export const PostHogProvider = ({ children }: PostHogProviderProps) => {
   useEffect(() => {
+    if (process.env.NODE_ENV !== 'production') {
+      return;
+    }
     const apiKey = process.env.NEXT_PUBLIC_POSTHOG_API_KEY;
 
     if (!apiKey) {
