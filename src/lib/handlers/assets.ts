@@ -372,7 +372,7 @@ export const getAssets = router({
           'This endpoint returns signed download URLS and types for the assets currently available on Oak for a given lesson',
         example: {
           request: {
-            lesson: 'nouns-singular-and-plural',
+            lesson: 'child-workers-in-the-victorian-era',
           },
           response: {
             attribution: [
