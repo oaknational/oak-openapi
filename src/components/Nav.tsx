@@ -44,17 +44,20 @@ export type NavProps = {
   onClick?: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
 };
 
-export const Nav = ({ items, ariaLabel, anchorTarget, ...rest }: NavProps) => {
+export const Nav = ({
+  items,
+  ariaLabel,
+  anchorTarget,
+  onClick,
+  ...rest
+}: NavProps) => {
   const [currentHref, setCurrentHref] = useState<string | null>(null);
 
+  // Handles the current href - a keyboard user returning to the menu knows the last item they were on
   const handleKeyDown = (event: React.KeyboardEvent<HTMLAnchorElement>) => {
     if (event.key && event.key !== 'Tab') {
       setCurrentHref(event.currentTarget.hash);
     }
-  };
-
-  const onClick = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-    setCurrentHref(event.currentTarget.hash);
   };
 
   return (
