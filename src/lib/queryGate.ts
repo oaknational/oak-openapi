@@ -42,6 +42,10 @@ export function modifySubject(subject: string) {
   return supportedSubjects[0];
 }
 
+export function checkQuery(subject: string = '', unit: string = '') {
+  return supportedSubjects.includes(subject) || supportedUnits.includes(unit);
+}
+
 export async function checkLesson(client: GraphQLClient, slug: string) {
   const query = gql`
   query ($slug: String!) {
