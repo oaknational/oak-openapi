@@ -1,5 +1,4 @@
 import {
-  OakAccordion,
   OakBox,
   OakFlex,
   OakGrid,
@@ -10,6 +9,7 @@ import {
   OakLink,
   OakMaxWidth,
   OakOL,
+  OakOutlineAccordion,
   OakP,
   OakPrimaryButton,
   OakSecondaryButton,
@@ -339,26 +339,27 @@ function Features() {
               </OakTertiaryButton>
             </Feature>
             <Feature anchorTarget="faqs" title="FAQs">
-              <OakAccordion header="Question 1 TBC" id="accordion-1">
+              <OakOutlineAccordion header="Question 1 TBC" id="accordion-1">
                 <OakBox $pt="inner-padding-l">
                   <OakP $font="body-2">Answer 1 TBC</OakP>
                 </OakBox>
-              </OakAccordion>
-              <OakAccordion header="Question 2 TBC" id="accordion-1">
+              </OakOutlineAccordion>
+              <OakOutlineAccordion header="Question 2 TBC" id="accordion-1">
                 <OakBox $pt="inner-padding-l">
                   <OakP $font="body-2">Answer 2 TBC</OakP>
                 </OakBox>
-              </OakAccordion>
-              <OakAccordion header="Question 3 TBC" id="accordion-1">
+              </OakOutlineAccordion>
+              <OakOutlineAccordion header="Question 3 TBC" id="accordion-1">
                 <OakBox $pt="inner-padding-l">
                   <OakP $font="body-2">Answer 3 TBC</OakP>
                 </OakBox>
-              </OakAccordion>
-              <OakAccordion header="Question 4 TBC" id="accordion-1">
+              </OakOutlineAccordion>
+              <OakOutlineAccordion header="Question 4 TBC" id="accordion-1">
                 <OakBox $pt="inner-padding-l">
                   <OakP $font="body-2">Answer 4 TBC</OakP>
                 </OakBox>
-              </OakAccordion>
+              </OakOutlineAccordion>
+
               <OakSpan>
                 If you need more help{' '}
                 <OakLink href="mailto:help@thenational.academy?subject=Oak%20OpenAPI">
