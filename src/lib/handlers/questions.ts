@@ -309,6 +309,18 @@ function questionsForQuiz(lesson: Lesson): { [key in QuizKey]: Question[] } {
         continue;
       }
 
+      // filter out questions where the answers contain an image
+      if (question.questionType === QuestionTypeEnum.MultipleChoice) {
+        // images only appear in multiple choice questions (validated by checking db)
+        const hasImageAnswer = question.answers[question.questionType].some(
+          (answer) => answer.answer.some((a) => a.type === 'image')
+        );
+
+        if (hasImageAnswer) {
+          continue;
+        }
+      }
+
       const res = formatQuestion(question);
       if (res) {
         questions.push(res);
