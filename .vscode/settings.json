@@ -2,6 +2,9 @@
   "cSpell.words": [
     "apikeys",
     "hasura",
+    "hgetall",
+    "hincrby",
+    "hset",
     "langchain",
     "Lexend",
     "llms",
