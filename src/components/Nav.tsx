@@ -1,5 +1,5 @@
 import { OakAnchorTarget, OakLI } from '@oaknational/oak-components';
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const StyledNav = styled.nav`
@@ -51,27 +51,13 @@ export const Nav = ({
   onClick,
   ...rest
 }: NavProps) => {
-  const [currentHref, setCurrentHref] = useState<string | null>(null);
-
-  // Handles the current href - a keyboard user returning to the menu knows the last item they were on
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLAnchorElement>) => {
-    if (event.key && event.key !== 'Tab') {
-      setCurrentHref(event.currentTarget.hash);
-    }
-  };
-
   return (
     <StyledNav aria-label={ariaLabel} {...rest}>
       {anchorTarget && <OakAnchorTarget id={anchorTarget} />}
       <StyledUL role="list">
         {items.map((item, index) => (
           <StyledOLItem $font={'heading-6'} key={index}>
-            <StyledOakLink
-              onClick={onClick}
-              href={item.href}
-              aria-current={item.href === currentHref ? 'true' : undefined}
-              onKeyDown={handleKeyDown}
-            >
+            <StyledOakLink onClick={onClick} href={item.href}>
               {item.title}
             </StyledOakLink>
           </StyledOLItem>
