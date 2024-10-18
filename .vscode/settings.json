@@ -21,6 +21,5 @@
     "UPSTASH",
     "vectorstores",
     "posthog"
-  ],
-  "prettier.singleQuote": true
+  ]
 }
