@@ -16,7 +16,7 @@ const supportedSubjects = ['maths'];
 const supportedUnits = ['victorian-childhood-non-fiction-reading-and-writing'];
 
 export const blockedSubjects = ['english'];
-export const allowedUnits = supportedUnits.concat([
+export const allowedUnits = [
   'a-christmas-carol-narrative-writing-and-reading',
   'action-words',
   'ada-twist-scientist-reading-and-writing',
@@ -227,7 +227,7 @@ export const allowedUnits = supportedUnits.concat([
   'writing-masters',
   'yoshi-the-stonecutter-reading',
   'zim-zam-zoom-by-james-carter-reading-poetry',
-]);
+];
 
 type KV = Record<string, string>;
 
