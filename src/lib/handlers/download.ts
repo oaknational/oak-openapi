@@ -6,6 +6,7 @@ import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 import { DownloadTypeEnum, downloadTypeEnum } from './assets';
 import { DownloadView, downloadView, getClient } from '~/lib/owaClient';
+import { checkLessonAllowedAsset } from '../queryGate';
 
 // I'm not keen on this mapping, and wonder if the open api should return
 // streams to the actual files in the buckets, but then, what would be
@@ -93,6 +94,15 @@ export const getDownloads = router({
       }
 
       const graphqlClient = getClient();
+
+      const supported = await checkLessonAllowedAsset(graphqlClient, slug);
+
+      if (!supported) {
+        throw new TRPCError({
+          message: 'Lesson assets not available for this query',
+          code: 'NOT_FOUND',
+        });
+      }
 
       const queryDownloads = gql`
         query GetDownloads($lessonSlug: String!) {
