@@ -505,10 +505,17 @@ function Features() {
                 content in a format you can&apos;t see, let us know, and
                 we&apos;ll work with you to find a solution.
               </OakP>
-              {/** @todo add link to give feedback */}
-              <OakTertiaryButton isTrailingIcon iconName="arrow-right">
+              <OakTertiaryButton
+                element="a"
+                href="mailto:help@thenational.academy?subject=Oak%20OpenAPI"
+                isTrailingIcon
+                iconName="arrow-right"
+              >
                 Give feedback
               </OakTertiaryButton>
+              <OakLink href="mailto:help@thenational.academy?subject=Oak%20OpenAPI">
+                contact us here
+              </OakLink>
             </Feature>
           </OakGridArea>
         </OakGrid>
