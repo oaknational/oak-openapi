@@ -129,9 +129,15 @@ function Hero() {
             </OakHeading>
 
             <OakP $mb={'space-between-l'} $color="black" $font="body-2">
-              Use our content with assurance that it has been created adhering
-              to the latest in pedagogical research and aligning with our
-              curriculum design principles.
+              We’re offering a free API to share our high-quality educational
+              content with the broader education community, all under the{' '}
+              <OakLink
+                href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+                target="_blank"
+              >
+                Open Government Licence
+              </OakLink>
+              .
             </OakP>
             <OakFlex $gap={'all-spacing-4'}>
               <AlignFixButton
@@ -513,9 +519,6 @@ function Features() {
               >
                 Give feedback
               </OakTertiaryButton>
-              <OakLink href="mailto:help@thenational.academy?subject=Oak%20OpenAPI">
-                contact us here
-              </OakLink>
             </Feature>
           </OakGridArea>
         </OakGrid>
