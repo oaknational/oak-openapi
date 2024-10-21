@@ -62,7 +62,12 @@ const FooterOakLink = styled(OakLink)`
 export default function Footer() {
   return (
     <>
-      <OakBox $overflow={'hidden'} $background="white" $position={'relative'}>
+      <OakBox
+        $overflow={'hidden'}
+        $background="white"
+        $color="text-primary"
+        $position={'relative'}
+      >
         <TopOakHandDrawnHR $height="all-spacing-1" />
         <nav>
           <LoopSvg name="looping-line-3" />
