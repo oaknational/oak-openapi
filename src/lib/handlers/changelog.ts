@@ -3,6 +3,11 @@ import { z } from 'zod';
 
 export const versions = [
   {
+    version: '0.3.0',
+    date: '2024-10-21',
+    changes: ['Add `attribution` to asset endpoints'],
+  },
+  {
     version: '0.2.0',
     date: '2024-06-07',
     changes: [
