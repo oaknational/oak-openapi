@@ -97,7 +97,9 @@ export const getTranscripts = router({
           title: true,
           slug: true,
         },
-      });
+        cacheStrategy: { ttl: 60 * 5, swr: 60 * 2 },
+      },  
+    );
 
       // sort the rows by the order of the ids array
       return res
