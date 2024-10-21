@@ -145,7 +145,6 @@ function Hero() {
                 element="a"
                 href="/playground"
                 isTrailingIcon={true}
-                iconName="external"
               >
                 Visit OpenAPI playground
               </OakPrimaryButton>
@@ -189,8 +188,8 @@ function Features() {
             $colSpan={[12]}
             $position={['static', 'static', 'sticky']}
             $display={['block', 'none', 'none']}
-            $background="grey20"
-            $pa="inner-padding-m"
+            $pt="inner-padding-m"
+            $pb="inner-padding-m"
           >
             <OakBox $position="relative">
               <Nav anchorTarget="open-api-contents" items={navItems} />
