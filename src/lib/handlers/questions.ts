@@ -507,7 +507,7 @@ export const getQuestions = router({
         z.object({
           lessonSlug: z.string(),
           lessonTitle: z.string(),
-          unitSlug: z.string(),
+          // unitSlug: z.string(),
           starterQuiz: z.array(questionZod),
           exitQuiz: z.array(questionZod),
         })
@@ -601,13 +601,7 @@ export const getQuestions = router({
 
       const lessons = [];
 
-      for (const {
-        exitQuiz,
-        starterQuiz,
-        lessonSlug,
-        lessonTitle,
-        unitSlug,
-      } of data) {
+      for (const { exitQuiz, starterQuiz, lessonSlug, lessonTitle } of data) {
         if (!lessonSlug || !lessonTitle) {
           continue;
         }
@@ -621,7 +615,7 @@ export const getQuestions = router({
         lessons.push({
           lessonTitle,
           lessonSlug,
-          unitSlug,
+          // unitSlug,
           ...results,
         });
       }
