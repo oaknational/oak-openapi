@@ -13,10 +13,7 @@ import {
 } from 'lib/owaClient';
 import { z } from 'zod';
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
-import {
-  blockLessonForCopyrightText,
-  blockUnitForCopyrightText,
-} from '../queryGate';
+import { blockLessonForCopyrightText } from '../queryGate';
 
 toSorted.shim();
 groupBy.shim();
