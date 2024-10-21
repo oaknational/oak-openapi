@@ -52,7 +52,7 @@ const OakLiLink = styled(OakLink)`
 
 const navItems = [
   { title: 'About our open API', href: '#about-api' },
-  { title: 'How to get stated', href: '#get-started' },
+  { title: 'How to get started', href: '#get-started' },
   { title: 'What we offer', href: '#what-we-offer' },
   { title: `What’s available`, href: `#whats-available` },
   { title: 'FAQs', href: '#faqs' },
@@ -203,7 +203,7 @@ function Features() {
           >
             <Feature
               anchorTarget="about-api"
-              title="Why is Oak providing an API"
+              title="Why is Oak providing an API?"
             >
               <OakP $font={'body-2'}>
                 Oak National Academy&apos;s mission is to improve pupil outcomes
