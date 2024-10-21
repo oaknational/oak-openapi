@@ -88,12 +88,10 @@ function Banner() {
       $pv="inner-padding-s"
       $ph="inner-padding-m"
       $bb={'border-solid-m'}
-      $color="text-primary"
-    >
+      $color="text-primary">
       <OakLinkLogo
         aria-label="Oak National Academy"
-        href="https://www.thenational.academy/"
-      >
+        href="https://www.thenational.academy/">
         <Logo width="104" height="48" />
       </OakLinkLogo>
       <OakHeading ariaHidden tag="h1" $font="heading-6">
@@ -109,8 +107,7 @@ function Hero() {
       <OakMaxWidth
         $ph="inner-padding-m"
         $flexDirection={'row'}
-        $pv="inner-padding-xl6"
-      >
+        $pv="inner-padding-xl6">
         <OakGrid $cg="space-between-m" $rg="space-between-m">
           <OakGridArea $colSpan={[12, 7]} $flexDirection={'column'}>
             <OakSpan
@@ -119,8 +116,7 @@ function Hero() {
               $borderRadius="border-radius-xl"
               $pv="inner-padding-xs"
               $ph="inner-padding-s"
-              $font={'body-3-bold'}
-            >
+              $font={'body-3-bold'}>
               Beta
             </OakSpan>
 
@@ -133,8 +129,7 @@ function Hero() {
               content with the broader education community, all under the{' '}
               <OakLink
                 href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
-                target="_blank"
-              >
+                target="_blank">
                 Open Government Licence
               </OakLink>
               .
@@ -142,8 +137,7 @@ function Hero() {
             <OakFlex $gap={'all-spacing-4'}>
               <AlignFixButton
                 element="a"
-                href="mailto:help@thenational.academy?subject=Oak%20OpenAPI"
-              >
+                href="mailto:help@thenational.academy?subject=Oak%20OpenAPI">
                 Request an API key
               </AlignFixButton>
 
@@ -178,16 +172,14 @@ function Features() {
       <OakMaxWidth
         $ph="inner-padding-m"
         $flexDirection={'row'}
-        $pv={['inner-padding-xl2', 'inner-padding-xl6']}
-      >
+        $pv={['inner-padding-xl2', 'inner-padding-xl6']}>
         <OakGrid $cg="space-between-m" $rg="space-between-m">
           <OakGridArea
             $colSpan={[12, 4]}
             $alignSelf={'start'}
             $position={['static', 'sticky', 'sticky']}
             $top={'all-spacing-10'}
-            $display={['none', 'block', 'block']}
-          >
+            $display={['none', 'block', 'block']}>
             <Nav anchorTarget="#open-api-contents" items={navItems} />
           </OakGridArea>
           <OakGridArea
@@ -205,8 +197,7 @@ function Features() {
           <OakGridArea
             $width={'100%'}
             $colSpan={[12, 7]}
-            $gap={'all-spacing-9'}
-          >
+            $gap={'all-spacing-9'}>
             <Feature
               anchorTarget="about-api"
               title="Why are we providing an API?"
@@ -223,8 +214,7 @@ function Features() {
                 free on the{' '}
                 <OakLink
                   href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
-                  target="_blank"
-                >
+                  target="_blank">
                   Open Government Licence
                 </OakLink>
                 . Whether you&apos;re an emerging EdTech start-up, an
@@ -233,8 +223,7 @@ function Features() {
                 line with the latest pedagogical research and aligned with our{' '}
                 <OakLink
                   href="https://www.thenational.academy/blog/our-approach-to-curriculum"
-                  target="_blank"
-                >
+                  target="_blank">
                   curriculum design principles
                 </OakLink>
                 .
@@ -244,8 +233,7 @@ function Features() {
             <Feature
               variant="mint"
               anchorTarget="get-started"
-              title="How to get started"
-            >
+              title="How to get started">
               <OakOL>
                 <OakLI $font={'body-2'}>
                   <strong>Sign up</strong>
@@ -314,8 +302,7 @@ function Features() {
             </Feature>
             <Feature
               anchorTarget="whats-available"
-              title="What data is available"
-            >
+              title="What data is available">
               <OakP $font="body-2">
                 Access fully resourced lessons across the national curriculum,
                 created by our expert curriculum partners, each including:
@@ -501,8 +488,7 @@ function Features() {
             </Feature>
             <Feature
               anchorTarget="give-feedback"
-              title="Help us make Oak OpenAPI better"
-            >
+              title="Help us make Oak OpenAPI better">
               <OakP $font="body-2">
                 Our API is new, and we strive to make it as accessible and
                 suited to as many use cases as possible. It is designed to be

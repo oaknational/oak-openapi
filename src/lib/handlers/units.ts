@@ -8,6 +8,7 @@ import {
   unitCurriculumView,
 } from 'lib/owaClient';
 import { z } from 'zod';
+import { blockUnitForCopyrightText } from '../queryGate';
 
 export const unitSchema = z.object({
   unitSlug: z.string(),
@@ -100,6 +101,15 @@ export const getUnits = router({
     .query(async ({ input }) => {
       const { unit: slug } = input;
       const client = getClient();
+
+      const blocked = await blockUnitForCopyrightText(client, slug);
+
+      if (blocked) {
+        throw new TRPCError({
+          message: 'Unit not available for this query',
+          code: 'NOT_FOUND',
+        });
+      }
 
       const query = gql`
         query getUnit($slug: String!) {
