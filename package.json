@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "pnpm with-env next dev --port 2727",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "with-env": "dotenv -e ./.env --",
     "build": "next build",
     "test": "pnpm with-env vitest",
@@ -54,6 +55,7 @@
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.1",
     "postcss": "^8.4.38",
+    "prettier": "^3.3.3",
     "prisma": "^5.14.0",
     "typescript": "^5.4.5",
     "vite": "^5.2.12",
