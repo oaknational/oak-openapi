@@ -9,7 +9,7 @@ import {
   OakLink,
   OakMaxWidth,
   OakOL,
-  OakOutlineAccordion,
+  OakAccordion,
   OakP,
   OakPrimaryButton,
   OakSecondaryButton,
@@ -119,7 +119,7 @@ function Hero() {
             </OakSpan>
 
             <OakHeading $mv={'space-between-m'} $font="heading-3" tag="h2">
-              Leverage Oak's high-quality education content on your platform
+              Leverage Oak’s high-quality education content on your platform
             </OakHeading>
 
             <OakP $mb={'space-between-l'} $color="black" $font="body-2">
@@ -338,27 +338,69 @@ function Features() {
                 Download data overview (PDF)
               </OakTertiaryButton>
             </Feature>
+
             <Feature anchorTarget="faqs" title="FAQs">
-              <OakOutlineAccordion header="Question 1 TBC" id="accordion-1">
-                <OakBox $pt="inner-padding-l">
-                  <OakP $font="body-2">Answer 1 TBC</OakP>
-                </OakBox>
-              </OakOutlineAccordion>
-              <OakOutlineAccordion header="Question 2 TBC" id="accordion-1">
-                <OakBox $pt="inner-padding-l">
-                  <OakP $font="body-2">Answer 2 TBC</OakP>
-                </OakBox>
-              </OakOutlineAccordion>
-              <OakOutlineAccordion header="Question 3 TBC" id="accordion-1">
-                <OakBox $pt="inner-padding-l">
-                  <OakP $font="body-2">Answer 3 TBC</OakP>
-                </OakBox>
-              </OakOutlineAccordion>
-              <OakOutlineAccordion header="Question 4 TBC" id="accordion-1">
-                <OakBox $pt="inner-padding-l">
-                  <OakP $font="body-2">Answer 4 TBC</OakP>
-                </OakBox>
-              </OakOutlineAccordion>
+              <OakBox>
+                <OakAccordion header="What are ‘slugs’?" id="accordion-slugs">
+                  <OakBox $pt="inner-padding-s">
+                    <OakP $font="body-2">
+                      Slugs are a way of uniquely identifying different lessons,
+                      units or key stages. These are likely to be used for
+                      technical purposes for identification rather than ever
+                      displayed to users.
+                    </OakP>
+                  </OakBox>
+                </OakAccordion>
+
+                <OakAccordion
+                  header="What is the difference between starter quizzes and exit quizzes?"
+                  id="accordion-quizzes"
+                >
+                  <OakBox $pt="inner-padding-s">
+                    <OakP $font="body-2">
+                      Every lesson has a starter quiz - testing pupils on the
+                      prior knowledge they will need for the lesson, and an exit
+                      quiz - testing pupils’ understanding of the lesson’s
+                      content. Each quiz has six questions. You can get these on
+                      a per lesson or per subject/key stage basis.
+                    </OakP>
+                  </OakBox>
+                </OakAccordion>
+
+                <OakAccordion
+                  header="What are the different types of content guidance?"
+                  id="accordion-content-guidance"
+                >
+                  <OakBox $pt="inner-padding-s">
+                    <OakP $font="body-2">
+                      Content guidance warnings will fall into one of the
+                      following four categories:
+                    </OakP>
+                    <OakUL>
+                      <OakLI>Language and discrimination</OakLI>
+                      <OakLI>Upsetting, disturbing and sensitive</OakLI>
+                      <OakLI>Nudity and sex</OakLI>
+                      <OakLI>
+                        Physical activity and equipment requiring safe use
+                      </OakLI>
+                    </OakUL>
+                  </OakBox>
+                </OakAccordion>
+
+                <OakAccordion
+                  header="What does the supervision level ID mean?"
+                  id="accordion-supervision-level-id"
+                >
+                  <OakBox $pt="inner-padding-s">
+                    <OakP $font="body-2">
+                      The lesson field ‘supervisionLevel’ returns the
+                      description of the highest level of suggested guidance, so
+                      it is advised to use this field rather than rely on the
+                      sub-guidance levels.
+                    </OakP>
+                  </OakBox>
+                </OakAccordion>
+              </OakBox>
 
               <OakSpan>
                 If you need more help{' '}
