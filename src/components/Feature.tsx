@@ -36,7 +36,7 @@ export default function Feature({
         {title}
       </OakHeading>
       {children}
-      <OakBox $display={['block', 'block', 'none']}>
+      <OakBox $display={['block', 'none', 'none']}>
         <OakLink iconName="arrow-up" href={'#open-api-contents'} isTrailingIcon>
           {'Back to contents'}
         </OakLink>
