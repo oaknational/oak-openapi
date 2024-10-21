@@ -64,14 +64,17 @@ export const rateLimiter = (rateLimit: RateLimit): RateLimiter => {
 };
 
 async function isUnlimited(user: User): Promise<boolean> {
-  const oakAuthToken = process.env.OAK_API_AUTH_TOKEN;
-  if (!oakAuthToken) {
-    return false;
-  }
+  // remove rate limit for hackathon
+  return !!user;
 
-  if (user.rateLimit === 0) {
-    return true;
-  }
+  // const oakAuthToken = process.env.OAK_API_AUTH_TOKEN;
+  // if (!oakAuthToken) {
+  //   return false;
+  // }
 
-  return user.key === oakAuthToken;
+  // if (user.rateLimit === 0) {
+  //   return true;
+  // }
+
+  // return user.key === oakAuthToken;
 }
