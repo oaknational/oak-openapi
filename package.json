@@ -60,5 +60,8 @@
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^1.6.0",
     "webpack-bugsnag-plugins": "^1.8.0"
+  },
+  "prettier": {
+    "singleQuote": true
   }
 }
