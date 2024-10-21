@@ -125,19 +125,13 @@ function Hero() {
             </OakSpan>
 
             <OakHeading $mv={'space-between-m'} $font="heading-3" tag="h2">
-              Leverage Oak’s high-quality education content on your platform
+              Access high-quality education content with Oak OpenAPI
             </OakHeading>
 
             <OakP $mb={'space-between-l'} $color="black" $font="body-2">
-              We are providing a free API to make our high-quality education
-              content available to the wider education market on the{' '}
-              <OakLink
-                href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
-                target="_blank"
-              >
-                Open Government Licence
-              </OakLink>
-              .
+              Use our content with assurance that it has been created adhering
+              to the latest in pedagogical research and aligning with our
+              curriculum design principles.
             </OakP>
             <OakFlex $gap={'all-spacing-4'}>
               <AlignFixButton
@@ -209,12 +203,13 @@ function Features() {
           >
             <Feature
               anchorTarget="about-api"
-              title="Why is Oak providing an API?"
+              title="Why are we providing an API?"
             >
               <OakP $font={'body-2'}>
-                Oak National Academy&apos;s mission is to improve pupil outcomes
-                and close the disadvantage gap by supporting teachers to teach,
-                and pupils to access a high-quality curriculum.
+                We’re here to support great teaching. We work in partnership
+                with experts to improve pupil outcomes and close the
+                disadvantage gap by supporting teachers to teach, and enabling
+                pupils to access a high-quality curriculum.
               </OakP>
               <OakP $font={'body-2'}>
                 As part of this mission, we are providing an API to make our
@@ -228,9 +223,8 @@ function Features() {
                 </OakLink>
                 . Whether you&apos;re an emerging EdTech start-up, an
                 established learning tool, or a quiz-based gaming platform, you
-                can use our content with assurance that it has been created
-                adhering to the latest in pedagogical research and aligning with
-                our{' '}
+                can use our content with assurance that it has been created in
+                line with the latest pedagogical research and aligned with our{' '}
                 <OakLink
                   href="https://www.thenational.academy/blog/our-approach-to-curriculum"
                   target="_blank"
@@ -291,7 +285,7 @@ function Features() {
               <OakUL>
                 <OakLI $mb="space-between-xs" $font={'body-2'}>
                   <strong>Fully resourced curricula</strong>: we are developing
-                  our resources across the full National Curriculum, and have
+                  our resources across the full national curriculum, and have
                   content available across multiple subjects and key stages,
                   ensuring that you have the materials you need to support a
                   wide range of learning requirements.
@@ -317,9 +311,8 @@ function Features() {
               title="What data is available"
             >
               <OakP $font="body-2">
-                Access fully resourced lessons across the National Curriculum,
-                meticulously crafted by our expert curriculum partners, each
-                including:
+                Access fully resourced lessons across the national curriculum,
+                created by our expert curriculum partners, each including:
               </OakP>
               <OakUL>
                 <OakLI $mb={'space-between-ssx'} $font={'body-2'}>
@@ -510,7 +503,7 @@ function Features() {
                 flexible and easy to integrate into your existing systems. If
                 you have feedback or are looking for an endpoint providing our
                 content in a format you can&apos;t see, let us know, and
-                we&apos;ll work with you to find a solution that works for you.
+                we&apos;ll work with you to find a solution.
               </OakP>
               {/** @todo add link to give feedback */}
               <OakTertiaryButton isTrailingIcon iconName="arrow-right">
