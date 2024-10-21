@@ -1,24 +1,24 @@
-import { protectedProcedure } from '~/lib/protect';
-import { router } from '~/lib/trpc';
-import { gql } from 'graphql-request';
-import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
-import { LessonView, getClient, lessonView } from 'lib/owaClient';
-import { z } from 'zod';
+import { protectedProcedure } from "~/lib/protect";
+import { router } from "~/lib/trpc";
+import { gql } from "graphql-request";
+import { keyStageSlugs, subjectSlugs } from "lib/keyStageAndSubjects";
+import { LessonView, getClient, lessonView } from "lib/owaClient";
+import { z } from "zod";
 
 export const getAllKeyStageAndSubjectUnits = router({
   getAllKeyStageAndSubjectUnits: protectedProcedure
     .meta({
       openapi: {
-        method: 'GET',
-        tags: ['lists'],
-        path: '/key-stages/{keyStage}/subject/{subject}/units',
+        method: "GET",
+        tags: ["lists"],
+        path: "/key-stages/{keyStage}/subject/{subject}/units",
         description:
-          'This endpoint returns all the units (titles and slugs) that are currently available on Oak for a given subject and key stage',
+          "This endpoint returns all the units (titles and slugs) that are currently available on Oak for a given subject and key stage",
         example: {
           response: [
             {
-              unitTitle: 'Simple, compound and adverbial complex sentences',
-              unitSlug: 'simple-compound-and-adverbial-complex-sentences',
+              unitTitle: "Simple, compound and adverbial complex sentences",
+              unitSlug: "simple-compound-and-adverbial-complex-sentences",
             },
           ],
         },
@@ -33,15 +33,15 @@ export const getAllKeyStageAndSubjectUnits = router({
           description:
             "Subject slug to search by, e.g. 'science' - note that casing is important here (always lowercase)",
         }),
-      })
+      }),
     )
     .output(
       z.array(
         z.object({
-          unitTitle: z.string({ description: 'Unit title' }),
-          unitSlug: z.string({ description: 'Unit slug' }),
-        })
-      )
+          unitTitle: z.string({ description: "Unit title" }),
+          unitSlug: z.string({ description: "Unit slug" }),
+        }),
+      ),
     )
     .query(async ({ input }) => {
       const keyStage = decodeURIComponent(input.keyStage);

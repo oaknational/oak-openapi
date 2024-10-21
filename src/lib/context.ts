@@ -1,8 +1,8 @@
-import { User, findUserByKey } from '~/lib/apikeys';
-import { type CreateNextContextOptions } from '@trpc/server/adapters/next';
-import { inferAsyncReturnType } from '@trpc/server';
-import type { NextApiRequest } from 'next';
-import { RateLimitInfo } from './rateLimit';
+import { User, findUserByKey } from "~/lib/apikeys";
+import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
+import { inferAsyncReturnType } from "@trpc/server";
+import type { NextApiRequest } from "next";
+import { RateLimitInfo } from "./rateLimit";
 
 export type Context = inferAsyncReturnType<typeof createContext>;
 
@@ -20,7 +20,7 @@ export const withUser = async (req: NextApiRequest) => {
   let user: User | null = null;
 
   if (req.headers.authorization) {
-    const token = req.headers.authorization?.split(' ')[1];
+    const token = req.headers.authorization?.split(" ")[1];
     if (token) {
       user = await findUserByKey(token);
     }

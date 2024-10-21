@@ -1,6 +1,6 @@
-import { redis } from '~/lib/redis';
-import { defaultRateLimit } from './rateLimit';
-import { v4 as uuid } from 'uuid';
+import { redis } from "~/lib/redis";
+import { defaultRateLimit } from "./rateLimit";
+import { v4 as uuid } from "uuid";
 
 export type User = {
   id: number;
@@ -24,7 +24,7 @@ export async function addUser({
   const userExists = await redis.exists(`user:${key}`);
 
   if (!userExists) {
-    const id = await redis.incr('next_user_id');
+    const id = await redis.incr("next_user_id");
 
     const user = {
       id,
@@ -62,7 +62,7 @@ export async function findUserByKey(key: string): Promise<User | null> {
   if (user) {
     // track how many requests in total (for a fast way to find busy
     // or idle users)
-    await redis.hincrby(`user:${key}`, 'requests', 1);
+    await redis.hincrby(`user:${key}`, "requests", 1);
 
     if (user.rateLimit === undefined) {
       user.rateLimit = defaultRateLimit;

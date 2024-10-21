@@ -1,8 +1,8 @@
-import groupBy from 'object.groupby';
-import toSorted from 'array.prototype.tosorted';
-import { protectedProcedure } from '~/lib/protect';
-import { router } from '~/lib/trpc';
-import { TRPCError } from '@trpc/server';
+import groupBy from "object.groupby";
+import toSorted from "array.prototype.tosorted";
+import { protectedProcedure } from "~/lib/protect";
+import { router } from "~/lib/trpc";
+import { TRPCError } from "@trpc/server";
 import {
   LessonView,
   getClient,
@@ -10,9 +10,9 @@ import {
   lessonView,
   lessonViewTable,
   querySQL,
-} from 'lib/owaClient';
-import { z } from 'zod';
-import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
+} from "lib/owaClient";
+import { z } from "zod";
+import { keyStageSlugs, subjectSlugs } from "../keyStageAndSubjects";
 
 toSorted.shim();
 groupBy.shim();
@@ -28,7 +28,7 @@ const lessonSearchResult = z.object({
       examBoardTitle: z.string().or(z.null()),
       keyStageSlug: z.string(),
       subjectSlug: z.string(),
-    })
+    }),
   ),
 });
 
@@ -43,11 +43,11 @@ const lessonSummary = z.object({
   keyStageSlug: z.string(),
   keyStageTitle: z.string(),
   lessonKeywords: z.array(
-    z.object({ keyword: z.string(), description: z.string() })
+    z.object({ keyword: z.string(), description: z.string() }),
   ),
   keyLearningPoints: z.array(z.object({ keyLearningPoint: z.string() })),
   misconceptionsAndCommonMistakes: z.array(
-    z.object({ misconception: z.string(), response: z.string() })
+    z.object({ misconception: z.string(), response: z.string() }),
   ),
   pupilLessonOutcome: z.string().optional(),
   teacherTips: z.array(z.object({ teacherTip: z.string() })),
@@ -58,7 +58,7 @@ const lessonSummary = z.object({
         supervisionlevel_id: z.number(),
         contentGuidanceLabel: z.string(),
         contentGuidanceDescription: z.string(),
-      })
+      }),
     )
     .or(z.null()),
   supervisionLevel: z.string().or(z.null()),
@@ -71,70 +71,70 @@ export const getLessons = router({
   getLesson: protectedProcedure
     .meta({
       openapi: {
-        method: 'GET',
-        tags: ['lessons'],
-        path: '/lessons/{lesson}/summary',
-        description: 'This endpoint returns a summary for a given lesson',
+        method: "GET",
+        tags: ["lessons"],
+        path: "/lessons/{lesson}/summary",
+        description: "This endpoint returns a summary for a given lesson",
         example: {
           request: {
-            lesson: 'joining-using-and',
+            lesson: "joining-using-and",
           },
           response: {
             lessonTitle: "Joining using 'and'",
-            unitSlug: 'simple-sentences',
-            unitTitle: 'Simple sentences',
-            subjectSlug: 'english',
-            subjectTitle: 'English',
-            keyStageSlug: 'ks1',
-            keyStageTitle: 'Key Stage 1',
+            unitSlug: "simple-sentences",
+            unitTitle: "Simple sentences",
+            subjectSlug: "english",
+            subjectTitle: "English",
+            keyStageSlug: "ks1",
+            keyStageTitle: "Key Stage 1",
             lessonKeywords: [
               {
-                keyword: 'joining word',
-                description: 'a word that joins words or ideas',
+                keyword: "joining word",
+                description: "a word that joins words or ideas",
               },
               {
-                keyword: 'build on',
-                description: 'add to',
+                keyword: "build on",
+                description: "add to",
               },
               {
-                keyword: 'related',
-                description: 'linked to',
+                keyword: "related",
+                description: "linked to",
               },
             ],
             keyLearningPoints: [
               {
-                keyLearningPoint: 'And is a type of joining word.',
+                keyLearningPoint: "And is a type of joining word.",
               },
               {
                 keyLearningPoint:
-                  'A joining word can join two simple sentences.',
+                  "A joining word can join two simple sentences.",
               },
               {
                 keyLearningPoint:
-                  'Each simple sentence is about one idea and makes complete sense.',
+                  "Each simple sentence is about one idea and makes complete sense.",
               },
               {
                 keyLearningPoint:
-                  'The second idea builds on to the first idea if ‘and’ is used to join them.',
+                  "The second idea builds on to the first idea if ‘and’ is used to join them.",
               },
               {
                 keyLearningPoint:
-                  'Grammatically accurate sentences start with capital letters and most often end with full stops.',
+                  "Grammatically accurate sentences start with capital letters and most often end with full stops.",
               },
             ],
             misconceptionsAndCommonMistakes: [
               {
                 misconception:
-                  'Pupils may struggle to link related ideas together.',
+                  "Pupils may struggle to link related ideas together.",
                 response:
-                  'Give some non-examples to show what it sounds like when two ideas are unrelated e.g. Dad baked bread and she missed her sister.',
+                  "Give some non-examples to show what it sounds like when two ideas are unrelated e.g. Dad baked bread and she missed her sister.",
               },
             ],
             pupilLessonOutcome: "I can join two simple sentences with 'and'.",
             teacherTips: [
               {
                 teacherTip:
-                  'In Learning Cycle 1, make sure pupils are given plenty of opportunities to say sentences orally and hear that they make complete sense.',
+                  "In Learning Cycle 1, make sure pupils are given plenty of opportunities to say sentences orally and hear that they make complete sense.",
               },
             ],
             contentGuidance: null,
@@ -146,8 +146,8 @@ export const getLessons = router({
     })
     .input(
       z.object({
-        lesson: z.string({ description: 'The slug of the lesson' }),
-      })
+        lesson: z.string({ description: "The slug of the lesson" }),
+      }),
     )
     .output(lessonSummary)
     .query(async ({ input }) => {
@@ -187,8 +187,8 @@ export const getLessons = router({
 
       if (data.length === 0) {
         throw new TRPCError({
-          message: 'Lesson not found',
-          code: 'NOT_FOUND',
+          message: "Lesson not found",
+          code: "NOT_FOUND",
         });
       }
 
@@ -200,42 +200,42 @@ export const getLessons = router({
     .meta({
       // FIXME what is this exactly?
       openapi: {
-        method: 'GET',
-        tags: ['lessons', 'search'],
-        path: '/search/lessons',
+        method: "GET",
+        tags: ["lessons", "search"],
+        path: "/search/lessons",
         description:
-          'This endpoint returns lessons that are similar to the search criteria, including a similarity score, and details of the unit that it is in',
+          "This endpoint returns lessons that are similar to the search criteria, including a similarity score, and details of the unit that it is in",
         example: {
           request: {
-            q: 'chratchet',
-            subject: 'english',
+            q: "chratchet",
+            subject: "english",
           },
           response: [
             {
-              lessonSlug: 'gothic-characters-c8tp4d',
-              lessonTitle: 'Gothic characters',
+              lessonSlug: "gothic-characters-c8tp4d",
+              lessonTitle: "Gothic characters",
               similarity: 0.07692308,
               units: [
                 {
-                  unitSlug: 'gothic-literature-8196',
-                  unitTitle: 'Gothic Literature',
+                  unitSlug: "gothic-literature-8196",
+                  unitTitle: "Gothic Literature",
                   examBoardTitle: null,
-                  keyStageSlug: 'ks3',
-                  subjectSlug: 'english',
+                  keyStageSlug: "ks3",
+                  subjectSlug: "english",
                 },
               ],
             },
             {
-              lessonSlug: 'columbus-in-chains-c8ukct',
-              lessonTitle: 'Columbus in Chains',
+              lessonSlug: "columbus-in-chains-c8ukct",
+              lessonTitle: "Columbus in Chains",
               similarity: 0.07692308,
               units: [
                 {
-                  unitSlug: 'annie-john-by-jamaica-kincaid-c5ab',
-                  unitTitle: 'Annie John by Jamaica Kincaid',
+                  unitSlug: "annie-john-by-jamaica-kincaid-c5ab",
+                  unitTitle: "Annie John by Jamaica Kincaid",
                   examBoardTitle: null,
-                  keyStageSlug: 'ks3',
-                  subjectSlug: 'english',
+                  keyStageSlug: "ks3",
+                  subjectSlug: "english",
                 },
               ],
             },
@@ -260,10 +260,10 @@ export const getLessons = router({
           .optional(),
         unit: z
           .string({
-            description: 'Optional unit slug to additionally filter by',
+            description: "Optional unit slug to additionally filter by",
           })
           .optional(),
-      })
+      }),
     )
     .output(z.array(lessonSearchResult))
     .query(async ({ input }) => {
@@ -292,12 +292,13 @@ export const getLessons = router({
       const result = await querySQL(sql).then((res) => res.json());
 
       const slugs = result.result.slice(1).map(([slug]: [string]) => slug);
-      const similarity = result.result
-        .slice(1)
-        .reduce((acc: { [x: string]: number }, [slug, _]: [string, string]) => {
+      const similarity = result.result.slice(1).reduce(
+        (acc: { [x: string]: number }, [slug, _]: [string, string]) => {
           acc[slug] = parseFloat(_);
           return acc;
-        }, {} as Record<string, number>);
+        },
+        {} as Record<string, number>,
+      );
 
       const client = getClient();
 
@@ -353,13 +354,13 @@ export const getLessons = router({
 
       if (res[lessonView].length === 0) {
         throw new TRPCError({
-          message: 'No lessons found',
-          code: 'NOT_FOUND',
+          message: "No lessons found",
+          code: "NOT_FOUND",
         });
       }
 
       const groupedByLesson = Object.values(
-        Object.groupBy(res[lessonView], ({ lessonSlug }) => lessonSlug)
+        Object.groupBy(res[lessonView], ({ lessonSlug }) => lessonSlug),
       );
 
       console.log({ groupedByLesson });

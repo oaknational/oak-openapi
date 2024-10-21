@@ -9,11 +9,11 @@ allow access to the following lessons:
 
 */
 
-import { gql, GraphQLClient } from 'graphql-request';
-import { LessonView, lessonView } from './owaClient';
+import { gql, GraphQLClient } from "graphql-request";
+import { LessonView, lessonView } from "./owaClient";
 
-const supportedSubjects = ['maths'];
-const supportedUnits = ['victorian-childhood-non-fiction-reading-and-writing'];
+const supportedSubjects = ["maths"];
+const supportedUnits = ["victorian-childhood-non-fiction-reading-and-writing"];
 
 type KV = Record<string, string>;
 
@@ -24,8 +24,8 @@ type KV = Record<string, string>;
  * @returns {string} modified query
  */
 export function modifyQueryWithSubject(query: string, vars: KV) {
-  vars.subjectSlug = 'maths';
-  if (query.includes('subjectSlug')) {
+  vars.subjectSlug = "maths";
+  if (query.includes("subjectSlug")) {
     return query;
   }
 
@@ -42,7 +42,7 @@ export function modifySubject(subject: string) {
   return supportedSubjects[0];
 }
 
-export function checkQuery(subject: string = '', unit: string = '') {
+export function checkQuery(subject: string = "", unit: string = "") {
   return supportedSubjects.includes(subject) || supportedUnits.includes(unit);
 }
 
@@ -66,7 +66,7 @@ export async function checkLesson(client: GraphQLClient, slug: string) {
     return false;
   }
 
-  const { subjectSlug = '', unitSlug = '' } = res[lessonView][0];
+  const { subjectSlug = "", unitSlug = "" } = res[lessonView][0];
 
   return (
     supportedSubjects.includes(subjectSlug) || supportedUnits.includes(unitSlug)

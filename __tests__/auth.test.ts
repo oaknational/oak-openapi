@@ -1,15 +1,15 @@
-import { expect, test } from 'vitest';
-import { makeCaller } from './helper';
+import { expect, test } from "vitest";
+import { makeCaller } from "./helper";
 
-test('without auth', async () => {
+test("without auth", async () => {
   const caller = makeCaller();
 
   await expect(
-    async () => await caller.subjects.getAllSubjects()
-  ).rejects.toThrow('API token not provided');
+    async () => await caller.subjects.getAllSubjects(),
+  ).rejects.toThrow("API token not provided");
 });
 
-test('with user', async () => {
+test("with user", async () => {
   const caller = makeCaller({
     user: 1,
   });

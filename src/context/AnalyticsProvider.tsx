@@ -1,5 +1,5 @@
-import { createContext, useEffect, useContext, ReactNode } from 'react';
-import posthog from 'posthog-js';
+import { createContext, useEffect, useContext, ReactNode } from "react";
+import posthog from "posthog-js";
 
 interface PostHogContextType {
   posthog: typeof posthog | null;
@@ -13,17 +13,17 @@ interface PostHogProviderProps {
 
 export const PostHogProvider = ({ children }: PostHogProviderProps) => {
   useEffect(() => {
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== "production") {
       return;
     }
     const apiKey = process.env.NEXT_PUBLIC_POSTHOG_API_KEY;
 
     if (!apiKey) {
-      console.error('NEXT_PUBLIC_POSTHOG_API_KEY is not defined');
+      console.error("NEXT_PUBLIC_POSTHOG_API_KEY is not defined");
       return;
     }
 
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       posthog.init(apiKey, {
         api_host: process.env.NEXT_PUBLIC_POSTHOG_API_HOST,
         autocapture: true,

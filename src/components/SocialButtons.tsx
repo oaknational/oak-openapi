@@ -3,9 +3,9 @@ import {
   OakFlexProps,
   OakIconName,
   OakLink,
-} from '@oaknational/oak-components';
-import { FC, useId } from 'react';
-import styled from 'styled-components';
+} from "@oaknational/oak-components";
+import { FC, useId } from "react";
+import styled from "styled-components";
 
 const OakSocialLink = styled(OakLink)`
   color: inherit;
@@ -15,30 +15,30 @@ const OakSocialLink = styled(OakLink)`
 }`;
 
 export const OAK_SOCIALS: Record<SocialNetwork, string> = {
-  instagram: 'oaknational',
-  facebook: 'oaknationalacademy',
-  twitter: 'oaknational',
-  linkedIn: 'https://www.linkedin.com/company/oak-national-academy',
+  instagram: "oaknational",
+  facebook: "oaknationalacademy",
+  twitter: "oaknational",
+  linkedIn: "https://www.linkedin.com/company/oak-national-academy",
 };
 
 const getSocialUrl = (network: SocialNetwork, usernameOrUrl: string) => {
   switch (network) {
-    case 'instagram':
+    case "instagram":
       return `https://instagram.com/${usernameOrUrl}`;
-    case 'facebook':
+    case "facebook":
       return `https://facebook.com/${usernameOrUrl}`;
-    case 'twitter':
+    case "twitter":
       return `https://twitter.com/${usernameOrUrl}`;
-    case 'linkedIn':
+    case "linkedIn":
       return usernameOrUrl;
   }
 };
 
 const SOCIAL_NETWORKS = [
-  'instagram',
-  'facebook',
-  'twitter',
-  'linkedIn',
+  "instagram",
+  "facebook",
+  "twitter",
+  "linkedIn",
 ] as const;
 type SocialNetwork = (typeof SOCIAL_NETWORKS)[number];
 type SocialButtonConfig = {
@@ -47,20 +47,20 @@ type SocialButtonConfig = {
 };
 const SOCIAL_BUTTON_CONFIGS: Record<SocialNetwork, SocialButtonConfig> = {
   instagram: {
-    label: 'instagram',
-    icon: 'instagram',
+    label: "instagram",
+    icon: "instagram",
   },
   facebook: {
-    label: 'facebook',
-    icon: 'facebook',
+    label: "facebook",
+    icon: "facebook",
   },
   twitter: {
-    label: 'twitter',
-    icon: 'twitter',
+    label: "twitter",
+    icon: "twitter",
   },
   linkedIn: {
-    label: 'linkedIn',
-    icon: 'linkedin',
+    label: "linkedIn",
+    icon: "linkedin",
   },
 } as const;
 
@@ -74,7 +74,7 @@ type SocialButtonsProps = OakFlexProps &
      * @example Joan Baez
      */
     for: string;
-    size?: 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge' | 'xxxlarge';
+    size?: "small" | "medium" | "large" | "xlarge" | "xxlarge" | "xxxlarge";
     spaceBetween?: ResponsiveValues<number>;
   };
 const SocialButtons: FC<SocialButtonsProps> = (props) => {
@@ -88,10 +88,11 @@ const SocialButtons: FC<SocialButtonsProps> = (props) => {
 
   return (
     <OakFlex
-      $gap={'all-spacing-4'}
-      $alignItems={'center'}
-      $justifyContent={'center'}
-      {...flexProps}>
+      $gap={"all-spacing-4"}
+      $alignItems={"center"}
+      $justifyContent={"center"}
+      {...flexProps}
+    >
       {socialsToShow.map((network) => {
         const { label, icon } = SOCIAL_BUTTON_CONFIGS[network];
         const profile = props[network];

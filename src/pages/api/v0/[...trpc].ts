@@ -1,12 +1,12 @@
-import { TRPCError } from '@trpc/server';
-import Cors from 'cors';
-import router from 'lib/router';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { createOpenApiNextHandler } from 'trpc-openapi';
-import { createContext } from 'lib/context';
+import { TRPCError } from "@trpc/server";
+import Cors from "cors";
+import router from "lib/router";
+import { NextApiRequest, NextApiResponse } from "next";
+import { createOpenApiNextHandler } from "trpc-openapi";
+import { createContext } from "lib/context";
 
 const cors = Cors({
-  methods: ['GET', 'HEAD'],
+  methods: ["GET", "HEAD"],
 });
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -15,8 +15,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   cors(req, res, (result: unknown) => {
     if (result instanceof Error) {
       throw new TRPCError({
-        message: 'Denied by CORS',
-        code: 'PRECONDITION_FAILED',
+        message: "Denied by CORS",
+        code: "PRECONDITION_FAILED",
       });
     }
   });

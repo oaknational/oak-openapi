@@ -1,9 +1,9 @@
-import { TRPCError } from '@trpc/server';
-import { gql } from 'graphql-request';
-import { z } from 'zod';
+import { TRPCError } from "@trpc/server";
+import { gql } from "graphql-request";
+import { z } from "zod";
 
-import { protectedProcedure } from '~/lib/protect';
-import { router } from '../trpc';
+import { protectedProcedure } from "~/lib/protect";
+import { router } from "../trpc";
 import {
   Download,
   DownloadView,
@@ -14,28 +14,28 @@ import {
   getClient,
   lessonView,
   unitVariantLessonsView,
-} from '../owaClient';
-import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
-import { baseUrl } from '../baseUrl';
+} from "../owaClient";
+import { keyStageSlugs, subjectSlugs } from "../keyStageAndSubjects";
+import { baseUrl } from "../baseUrl";
 
-import { checkLesson, checkQuery, modifySubject } from '~/lib/queryGate';
+import { checkLesson, checkQuery, modifySubject } from "~/lib/queryGate";
 
 export const downloadTypeEnum = z.enum(
   [
-    'slidedeck',
-    'exitQuiz',
-    'exitQuizAnswers',
-    'starterQuiz', // note: graphql key is (currently) starter_quiz
-    'starterQuizAnswers',
-    'supplementaryResource',
-    'video',
-    'worksheet',
-    'worksheetAnswers',
+    "slidedeck",
+    "exitQuiz",
+    "exitQuizAnswers",
+    "starterQuiz", // note: graphql key is (currently) starter_quiz
+    "starterQuizAnswers",
+    "supplementaryResource",
+    "video",
+    "worksheet",
+    "worksheetAnswers",
   ],
   {
     description:
-      'Use the this type and the lesson slug in conjunction to get a signed download URL to the asset type from the /api/download endpoint',
-  }
+      "Use the this type and the lesson slug in conjunction to get a signed download URL to the asset type from the /api/download endpoint",
+  },
 );
 
 const assetType = z.object({
@@ -54,7 +54,7 @@ export const lessonsAssetsType = z.array(
     lessonTitle: z.string(),
     attribution: z.array(z.string()).optional(),
     assets: z.array(assetType),
-  })
+  }),
 );
 
 export type DownloadTypeEnum = z.infer<typeof downloadTypeEnum>;
@@ -64,7 +64,7 @@ const graphqlClient = getClient();
 function assetDownloads(
   lessonSlug: string,
   downloads: Download[],
-  filter?: DownloadTypeEnum
+  filter?: DownloadTypeEnum,
 ) {
   const allTypes: DownloadTypeEnum[] = downloadTypeEnum.options;
 
@@ -82,7 +82,7 @@ function assetDownloads(
       }
 
       return allTypes.map((type) => {
-        if (type === 'video') {
+        if (type === "video") {
           return {
             type,
             url: `${baseUrl}/download/${lessonSlug}/type/${type}`,
@@ -105,60 +105,60 @@ export const getAssets = router({
   getUnitAssets: protectedProcedure
     .meta({
       openapi: {
-        method: 'GET',
-        tags: ['assets'],
-        path: '/key-stages/{keyStage}/subject/{subject}/assets',
+        method: "GET",
+        tags: ["assets"],
+        path: "/key-stages/{keyStage}/subject/{subject}/assets",
         description:
-          'This endpoint returns signed download URLs and types for the assets currently available on Oak for a given key stage and subject, optionally filtered by type and unit, grouped by lesson',
+          "This endpoint returns signed download URLs and types for the assets currently available on Oak for a given key stage and subject, optionally filtered by type and unit, grouped by lesson",
         example: {
           response: [
             {
-              lessonSlug: 'nouns-singular-and-plural',
-              lessonTitle: 'Nouns: singular and plural',
+              lessonSlug: "nouns-singular-and-plural",
+              lessonTitle: "Nouns: singular and plural",
               attribution: [
-                'Copyright XYZ Authors',
-                'Creative Commons Attribution Example 4.0',
+                "Copyright XYZ Authors",
+                "Creative Commons Attribution Example 4.0",
               ],
               assets: [
                 {
-                  type: 'slidedeck',
+                  type: "slidedeck",
                   url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/slidedeck'`,
                 },
                 {
-                  type: 'exitQuiz',
+                  type: "exitQuiz",
                   url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuiz'`,
                 },
                 {
-                  type: 'exitQuizAnswers',
+                  type: "exitQuizAnswers",
                   url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuizAnswers'`,
                 },
                 {
-                  type: 'starterQuiz',
+                  type: "starterQuiz",
                   url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuiz'`,
                 },
                 {
-                  type: 'starterQuizAnswers',
+                  type: "starterQuizAnswers",
                   url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuizAnswers'`,
                 },
                 {
-                  type: 'video',
+                  type: "video",
                   url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/video'`,
                 },
                 {
-                  type: 'worksheet',
+                  type: "worksheet",
                   url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheet'`,
                 },
                 {
-                  type: 'worksheetAnswers',
+                  type: "worksheetAnswers",
                   url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheetAnswers'`,
                 },
               ],
             },
           ],
           request: {
-            keyStage: 'ks1',
-            subject: 'english',
-            unit: 'word-class',
+            keyStage: "ks1",
+            subject: "english",
+            unit: "word-class",
           },
         },
       },
@@ -176,18 +176,18 @@ export const getAssets = router({
         type: downloadTypeEnum.optional(),
         unit: z
           .string({
-            description: 'Optional unit slug to additionally filter by',
+            description: "Optional unit slug to additionally filter by",
           })
           .optional(),
         offset: z.number().optional().default(0),
         limit: z
           .number({
-            description: 'Limit the number of results returned, max 100',
+            description: "Limit the number of results returned, max 100",
           })
           .lte(100)
           .optional()
           .default(10),
-      })
+      }),
     )
     .output(z.any()) //lessonsAssetsType
     .query(async ({ input, ctx }) => {
@@ -199,21 +199,21 @@ export const getAssets = router({
       const offset = input.offset;
       const limit = input.limit;
 
-      let unitFilter = '';
-      let unitArg = '';
+      let unitFilter = "";
+      let unitArg = "";
 
       if (unit) {
-        unitFilter = ', _and: { unit_slug: { _eq: $unit } }';
-        unitArg = ', $unit: String';
+        unitFilter = ", _and: { unit_slug: { _eq: $unit } }";
+        unitArg = ", $unit: String";
       }
 
       if (unit || subject) {
-        const supported = checkQuery(subject, unit || '');
+        const supported = checkQuery(subject, unit || "");
 
         if (!supported) {
           throw new TRPCError({
-            message: 'Lesson assets not available for this query',
-            code: 'NOT_FOUND',
+            message: "Lesson assets not available for this query",
+            code: "NOT_FOUND",
           });
         }
       }
@@ -273,7 +273,7 @@ export const getAssets = router({
         if (unit) {
           next += `&unit=${unit}`;
         }
-        ctx.res.setHeader('link', `<${next}>; rel="next"`);
+        ctx.res.setHeader("link", `<${next}>; rel="next"`);
       }
 
       // step 2: get the assets for each lesson
@@ -307,15 +307,15 @@ export const getAssets = router({
         downloadsQuery,
         {
           lessonSlugs,
-        }
+        },
       );
 
       const downloads = downloadsViewResult[downloadView];
 
       if (!downloads || downloads.length === 0 || !downloads[0]) {
         throw new TRPCError({
-          message: 'No lessons found',
-          code: 'NOT_FOUND',
+          message: "No lessons found",
+          code: "NOT_FOUND",
         });
       }
 
@@ -365,51 +365,51 @@ export const getAssets = router({
   getLessonAssets: protectedProcedure
     .meta({
       openapi: {
-        method: 'GET',
-        tags: ['assets', 'lessons'],
-        path: '/lessons/{lesson}/assets',
+        method: "GET",
+        tags: ["assets", "lessons"],
+        path: "/lessons/{lesson}/assets",
         description:
-          'This endpoint returns signed download URLS and types for the assets currently available on Oak for a given lesson',
+          "This endpoint returns signed download URLS and types for the assets currently available on Oak for a given lesson",
         example: {
           request: {
-            lesson: 'child-workers-in-the-victorian-era',
+            lesson: "child-workers-in-the-victorian-era",
           },
           response: {
             attribution: [
-              'Copyright XYZ Authors',
-              'Creative Commons Attribution Example 4.0',
+              "Copyright XYZ Authors",
+              "Creative Commons Attribution Example 4.0",
             ],
             assets: [
               {
-                type: 'slidedeck',
+                type: "slidedeck",
                 url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/slidedeck'`,
               },
               {
-                type: 'exitQuiz',
+                type: "exitQuiz",
                 url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuiz'`,
               },
               {
-                type: 'exitQuizAnswers',
+                type: "exitQuizAnswers",
                 url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuizAnswers'`,
               },
               {
-                type: 'starterQuiz',
+                type: "starterQuiz",
                 url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuiz'`,
               },
               {
-                type: 'starterQuizAnswers',
+                type: "starterQuizAnswers",
                 url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuizAnswers'`,
               },
               {
-                type: 'video',
+                type: "video",
                 url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/video'`,
               },
               {
-                type: 'worksheet',
+                type: "worksheet",
                 url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheet'`,
               },
               {
-                type: 'worksheetAnswers',
+                type: "worksheetAnswers",
                 url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheetAnswers'`,
               },
             ],
@@ -420,10 +420,10 @@ export const getAssets = router({
     .input(
       z.object({
         lesson: z.string({
-          description: 'The lesson slug',
+          description: "The lesson slug",
         }),
         type: downloadTypeEnum.optional(),
-      })
+      }),
     )
     .output(z.any()) //lessonAssetsType
     .query(async ({ input }) => {
@@ -434,8 +434,8 @@ export const getAssets = router({
 
       if (!supported) {
         throw new TRPCError({
-          message: 'Lesson not available',
-          code: 'NOT_FOUND',
+          message: "Lesson not available",
+          code: "NOT_FOUND",
         });
       }
 
@@ -469,15 +469,15 @@ export const getAssets = router({
 
       const downloadsViewResult: DownloadView = await graphqlClient.request(
         queryDownloads,
-        variables
+        variables,
       );
 
       const res = downloadsViewResult[downloadView];
 
       if (!res || res.length === 0 || !res[0]) {
         throw new TRPCError({
-          message: 'No lessons found',
-          code: 'NOT_FOUND',
+          message: "No lessons found",
+          code: "NOT_FOUND",
         });
       }
 

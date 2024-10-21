@@ -1,6 +1,6 @@
-import { OakAnchorTarget, OakLI } from '@oaknational/oak-components';
-import React from 'react';
-import styled from 'styled-components';
+import { OakAnchorTarget, OakLI } from "@oaknational/oak-components";
+import React from "react";
+import styled from "styled-components";
 
 const StyledNav = styled.nav`
   outline: none;
@@ -56,7 +56,7 @@ export const Nav = ({
       {anchorTarget && <OakAnchorTarget id={anchorTarget} />}
       <StyledUL role="list">
         {items.map((item, index) => (
-          <StyledOLItem $font={'heading-6'} key={index}>
+          <StyledOLItem $font={"heading-6"} key={index}>
             <StyledOakLink onClick={onClick} href={item.href}>
               {item.title}
             </StyledOakLink>

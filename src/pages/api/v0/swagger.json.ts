@@ -1,33 +1,33 @@
-import { getLatestVersion } from '~/lib/handlers/changelog';
-import router from '~/lib/router';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { OpenAPIV3 } from 'openapi-types';
-import { generateOpenApiDocument } from 'trpc-openapi';
-import { baseUrl } from '~/lib/baseUrl';
+import { getLatestVersion } from "~/lib/handlers/changelog";
+import router from "~/lib/router";
+import { NextApiRequest, NextApiResponse } from "next";
+import { OpenAPIV3 } from "openapi-types";
+import { generateOpenApiDocument } from "trpc-openapi";
+import { baseUrl } from "~/lib/baseUrl";
 
-const version = getLatestVersion('0');
+const version = getLatestVersion("0");
 
 const bearerAuth = {
-  type: 'http',
-  scheme: 'bearer',
-  bearerFormat: 'JWT', // Optional, only if you want to specify the token format
+  type: "http",
+  scheme: "bearer",
+  bearerFormat: "JWT", // Optional, only if you want to specify the token format
 } as const;
 
 const httpMethods = [
-  'get',
-  'post',
-  'put',
-  'patch',
-  'delete',
+  "get",
+  "post",
+  "put",
+  "patch",
+  "delete",
 ] as OpenAPIV3.HttpMethods[];
 
 export const openApiDocument = generateOpenApiDocument(router, {
-  title: 'Oak OpenAPI',
+  title: "Oak OpenAPI",
   version: process.env.VERCEL_GIT_COMMIT_SHA
     ? `${version}-${process.env.VERCEL_GIT_COMMIT_SHA}`
     : version,
   baseUrl,
-  docsUrl: baseUrl + '/swagger.json',
+  docsUrl: baseUrl + "/swagger.json",
   securitySchemes: {
     bearerAuth,
   },
@@ -46,7 +46,7 @@ function camelCase(str: string, lcFirst = false): string {
     .split(/[^a-z0-9]+/i)
     .filter(Boolean)
     .map((_: string) => _[0].toUpperCase() + _.slice(1))
-    .join('');
+    .join("");
 
   if (!lcFirst) {
     return res;
@@ -82,7 +82,7 @@ Object.keys(openApiDocument.paths).forEach((_) => {
     if (root.operationId) {
       // the dash in the operationId is causing problems with openai's GPT -
       // resulting in the GPT service not being able to parse the path or method
-      root.operationId = camelCase(root.operationId.replace(/-/g, ' '), true);
+      root.operationId = camelCase(root.operationId.replace(/-/g, " "), true);
     }
 
     const responseObject = root.responses;
@@ -98,7 +98,7 @@ Object.keys(openApiDocument.paths).forEach((_) => {
       }
 
       // Weird test because TypeScript doesn't handle `if (response.$ref)`
-      if ('$ref' in response) {
+      if ("$ref" in response) {
         // skip existing references
         return;
       }
@@ -107,14 +107,14 @@ Object.keys(openApiDocument.paths).forEach((_) => {
         return;
       }
 
-      const schema = response.content['application/json']?.schema;
+      const schema = response.content["application/json"]?.schema;
 
       if (!schema) {
         return;
       }
 
-      if (response.content['application/json']) {
-        response.content['application/json'].schema = {
+      if (response.content["application/json"]) {
+        response.content["application/json"].schema = {
           $ref: `#/components/schemas/${id}`,
         };
       }

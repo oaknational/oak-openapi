@@ -1,15 +1,15 @@
-import { Ratelimit as RateLimit } from '@upstash/ratelimit';
-import { redis } from '~/lib/redis';
-import { User } from './apikeys';
+import { Ratelimit as RateLimit } from "@upstash/ratelimit";
+import { redis } from "~/lib/redis";
+import { User } from "./apikeys";
 
 export const defaultRateLimit = 1000;
 
 export const rateLimits = {
   standard: new RateLimit({
     redis,
-    prefix: 'rateLimit:standard',
+    prefix: "rateLimit:standard",
     // github is 5000/hour as an arbitrary reference
-    limiter: RateLimit.slidingWindow(defaultRateLimit, '1 h'),
+    limiter: RateLimit.slidingWindow(defaultRateLimit, "1 h"),
   }),
 } as const;
 
@@ -42,7 +42,7 @@ export const rateLimiter = (rateLimit: RateLimit): RateLimiter => {
       if (!apiKey) {
         // should never happen
         throw new Error(
-          'authenticated user is required for userBasedRateLimiter'
+          "authenticated user is required for userBasedRateLimiter",
         );
       }
 

@@ -1,28 +1,28 @@
-import { protectedProcedure } from '~/lib/protect';
-import { router } from '~/lib/trpc';
-import { z } from 'zod';
-import { subjectsWithKeyStages } from '../keyStageAndSubjects';
+import { protectedProcedure } from "~/lib/protect";
+import { router } from "~/lib/trpc";
+import { z } from "zod";
+import { subjectsWithKeyStages } from "../keyStageAndSubjects";
 
 export const subjects = router({
   getAllSubjects: protectedProcedure
     .meta({
       openapi: {
-        tags: ['lists'],
-        method: 'GET',
-        path: '/subjects',
+        tags: ["lists"],
+        method: "GET",
+        path: "/subjects",
         description:
-          'This endpoint returns an array of all subjects that are currently available on Oak across all key stages',
+          "This endpoint returns an array of all subjects that are currently available on Oak across all key stages",
         example: {
           response: [
             {
-              subjectTitle: 'English',
-              subjectSlug: 'english',
-              keyStages: ['ks1', 'ks2', 'ks3', 'ks4'],
+              subjectTitle: "English",
+              subjectSlug: "english",
+              keyStages: ["ks1", "ks2", "ks3", "ks4"],
             },
             {
-              subjectTitle: 'Geography',
-              subjectSlug: 'geography',
-              keyStages: ['ks1', 'ks2'],
+              subjectTitle: "Geography",
+              subjectSlug: "geography",
+              keyStages: ["ks1", "ks2"],
             },
           ],
         },

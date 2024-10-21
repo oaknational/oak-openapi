@@ -1,9 +1,9 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import router from '~/lib/router';
-import { createCallerFactory } from '~/lib/trpc';
-import { vi } from 'vitest';
+import type { NextApiRequest, NextApiResponse } from "next";
+import router from "~/lib/router";
+import { createCallerFactory } from "~/lib/trpc";
+import { vi } from "vitest";
 
-vi.mock('~/lib/rateLimit', async (importOriginal: () => Promise<object>) => {
+vi.mock("~/lib/rateLimit", async (importOriginal: () => Promise<object>) => {
   const actual = await importOriginal();
   return {
     ...actual,

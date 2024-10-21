@@ -16,16 +16,16 @@ import {
   OakSpan,
   OakTertiaryButton,
   OakUL,
-} from '@oaknational/oak-components';
-import styled from 'styled-components';
-import Feature from '~/components/Feature';
+} from "@oaknational/oak-components";
+import styled from "styled-components";
+import Feature from "~/components/Feature";
 
-import Logo from '~/components/Logo';
+import Logo from "~/components/Logo";
 
-import Footer from '~/components/Footer';
-import Head from 'next/head';
+import Footer from "~/components/Footer";
+import Head from "next/head";
 
-import { Nav } from '~/components/Nav';
+import { Nav } from "~/components/Nav";
 
 const OakLinkLogo = styled(OakLink)`
   margin: 0;
@@ -51,12 +51,12 @@ const OakLiLink = styled(OakLink)`
 `;
 
 const navItems = [
-  { title: 'About our open API', href: '#about-api' },
-  { title: 'How to get started', href: '#get-started' },
-  { title: 'What we offer', href: '#what-we-offer' },
+  { title: "About our open API", href: "#about-api" },
+  { title: "How to get started", href: "#get-started" },
+  { title: "What we offer", href: "#what-we-offer" },
   { title: `What’s available`, href: `#whats-available` },
-  { title: 'FAQs', href: '#faqs' },
-  { title: 'Give feedback', href: '#give-feedback' },
+  { title: "FAQs", href: "#faqs" },
+  { title: "Give feedback", href: "#give-feedback" },
 ];
 
 export default function Page() {
@@ -77,11 +77,11 @@ function Banner() {
   return (
     <OakFlex
       as="header"
-      $alignItems={'center'}
-      $gap={'all-spacing-10'}
+      $alignItems={"center"}
+      $gap={"all-spacing-10"}
       $pv="inner-padding-s"
       $ph="inner-padding-m"
-      $bb={'border-solid-m'}
+      $bb={"border-solid-m"}
       $color="text-primary"
     >
       <OakLinkLogo
@@ -102,29 +102,29 @@ function Hero() {
     <OakBox $background="mint" $color="text-primary">
       <OakMaxWidth
         $ph="inner-padding-m"
-        $flexDirection={'row'}
+        $flexDirection={"row"}
         $pv="inner-padding-xl6"
       >
         <OakGrid $cg="space-between-m" $rg="space-between-m">
-          <OakGridArea $colSpan={[12, 7]} $flexDirection={'column'}>
+          <OakGridArea $colSpan={[12, 7]} $flexDirection={"column"}>
             <OakSpan
-              style={{ width: 'fit-content' }}
+              style={{ width: "fit-content" }}
               $background="mint110"
               $borderRadius="border-radius-xl"
               $pv="inner-padding-xs"
               $ph="inner-padding-s"
-              $font={'body-3-bold'}
+              $font={"body-3-bold"}
             >
               Beta
             </OakSpan>
 
-            <OakHeading $mv={'space-between-m'} $font="heading-3" tag="h2">
+            <OakHeading $mv={"space-between-m"} $font="heading-3" tag="h2">
               Leverage Oak's high-quality education content on your platform
             </OakHeading>
 
-            <OakP $mb={'space-between-l'} $color="black" $font="body-2">
+            <OakP $mb={"space-between-l"} $color="black" $font="body-2">
               We are providing a free API to make our high-quality education
-              content available to the wider education market on the{' '}
+              content available to the wider education market on the{" "}
               <OakLink
                 href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
                 target="_blank"
@@ -133,7 +133,7 @@ function Hero() {
               </OakLink>
               .
             </OakP>
-            <OakFlex $gap={'all-spacing-4'}>
+            <OakFlex $gap={"all-spacing-4"}>
               <AlignFixButton
                 element="a"
                 href="mailto:help@thenational.academy?subject=Oak%20OpenAPI"
@@ -151,12 +151,12 @@ function Hero() {
               </OakPrimaryButton>
             </OakFlex>
           </OakGridArea>
-          <OakGridArea $display={['none', 'block']} $colSpan={[12, 5]}>
+          <OakGridArea $display={["none", "block"]} $colSpan={[12, 5]}>
             <OakFlex>
               <OakImage
                 sizes="width: 2228px, height: 1472px"
                 priority={true}
-                src={{ src: '/images/workers.png', width: 2228, height: 1472 }}
+                src={{ src: "/images/workers.png", width: 2228, height: 1472 }}
                 alt=""
                 $height="all-spacing-20"
               />
@@ -172,23 +172,23 @@ function Features() {
     <OakBox $width="100%" $background="white" $color="text-primary">
       <OakMaxWidth
         $ph="inner-padding-m"
-        $flexDirection={'row'}
-        $pv={['inner-padding-xl2', 'inner-padding-xl6']}
+        $flexDirection={"row"}
+        $pv={["inner-padding-xl2", "inner-padding-xl6"]}
       >
         <OakGrid $cg="space-between-m" $rg="space-between-m">
           <OakGridArea
             $colSpan={[12, 4]}
-            $alignSelf={'start'}
-            $position={['static', 'sticky', 'sticky']}
-            $top={'all-spacing-10'}
-            $display={['none', 'block', 'block']}
+            $alignSelf={"start"}
+            $position={["static", "sticky", "sticky"]}
+            $top={"all-spacing-10"}
+            $display={["none", "block", "block"]}
           >
             <Nav anchorTarget="#open-api-contents" items={navItems} />
           </OakGridArea>
           <OakGridArea
             $colSpan={[12]}
-            $position={['static', 'static', 'sticky']}
-            $display={['block', 'none', 'none']}
+            $position={["static", "static", "sticky"]}
+            $display={["block", "none", "none"]}
             $background="grey20"
             $pa="inner-padding-m"
           >
@@ -198,23 +198,23 @@ function Features() {
           </OakGridArea>
 
           <OakGridArea
-            $width={'100%'}
+            $width={"100%"}
             $colSpan={[12, 7]}
-            $gap={'all-spacing-9'}
+            $gap={"all-spacing-9"}
           >
             <Feature
               anchorTarget="about-api"
               title="Why is Oak providing an API?"
             >
-              <OakP $font={'body-2'}>
+              <OakP $font={"body-2"}>
                 Oak National Academy&apos;s mission is to improve pupil outcomes
                 and close the disadvantage gap by supporting teachers to teach,
                 and pupils to access a high-quality curriculum.
               </OakP>
-              <OakP $font={'body-2'}>
+              <OakP $font={"body-2"}>
                 As part of this mission, we are providing an API to make our
                 high-quality content available to the wider education market for
-                free on the{' '}
+                free on the{" "}
                 <OakLink
                   href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
                   target="_blank"
@@ -225,7 +225,7 @@ function Features() {
                 established learning tool, or a quiz-based gaming platform, you
                 can use our content with assurance that it has been created
                 adhering to the latest in pedagogical research and aligning with
-                our{' '}
+                our{" "}
                 <OakLink
                   href="https://www.thenational.academy/blog/our-approach-to-curriculum"
                   target="_blank"
@@ -242,7 +242,7 @@ function Features() {
               title="How to get started"
             >
               <OakOL>
-                <OakLI $font={'body-2'}>
+                <OakLI $font={"body-2"}>
                   <strong>Sign up</strong>
                 </OakLI>
                 <OakP $mb="space-between-s">
@@ -250,30 +250,30 @@ function Features() {
                     Request an API key here
                   </OakLiLink>
                   <OakSpan $ma="auto">
-                    , or get in touch with us by sending an email to{' '}
+                    , or get in touch with us by sending an email to{" "}
                   </OakSpan>
                   <OakLink href="mailto:help@thenational.academy?subject=Oak%20OpenAPI">
                     help@thenational.academy
                   </OakLink>
                   , and we&apos;ll set you up with an API key.
                 </OakP>
-                <OakLI $mt="space-between-m2" $font={'body-2'}>
+                <OakLI $mt="space-between-m2" $font={"body-2"}>
                   <strong>Explore</strong>
                 </OakLI>
                 <OakP $mb="space-between-s">
-                  Use our{' '}
+                  Use our{" "}
                   <OakLink href="/playground">
                     interactive developer documentation
-                  </OakLink>{' '}
+                  </OakLink>{" "}
                   to explore the different endpoints and which resources are
                   most appropriate for your use case.
                 </OakP>
-                <OakLI $font={'body-2'}>
+                <OakLI $font={"body-2"}>
                   <strong>Support</strong>
                 </OakLI>
                 <OakP>
                   If you need any help with your set-up or use case, please
-                  don&apos;t hesitate to{' '}
+                  don&apos;t hesitate to{" "}
                   <OakLink href="mailto:help@thenational.academy?subject=Oak%20OpenAPI">
                     contact us
                   </OakLink>
@@ -284,21 +284,21 @@ function Features() {
 
             <Feature anchorTarget="what-we-offer" title="What we offer">
               <OakUL>
-                <OakLI $mb="space-between-xs" $font={'body-2'}>
+                <OakLI $mb="space-between-xs" $font={"body-2"}>
                   <strong>Fully resourced curricula</strong>: we are developing
                   our resources across the full National Curriculum, and have
                   content available across multiple subjects and key stages,
                   ensuring that you have the materials you need to support a
                   wide range of learning requirements.
                 </OakLI>
-                <OakLI $mb="space-between-xs" $font={'body-2'}>
+                <OakLI $mb="space-between-xs" $font={"body-2"}>
                   <strong>High-quality resources</strong>: Benefit from
                   meticulously crafted lessons by our expert curriculum
                   partners, all aligned to Oak&apos;s research-based curriculum
                   design principles. Our resources are designed to engage
                   students and support effective teaching and learning.
                 </OakLI>
-                <OakLI $mb="space-between-xs" $font={'body-2'}>
+                <OakLI $mb="space-between-xs" $font={"body-2"}>
                   <strong>Flexible integration</strong>: Our API is designed to
                   be flexible and easy to integrate into your existing systems.
                   If you&apos;re looking for an endpoint providing our data in a
@@ -317,19 +317,19 @@ function Features() {
                 including:
               </OakP>
               <OakUL>
-                <OakLI $mb={'space-between-ssx'} $font={'body-2'}>
+                <OakLI $mb={"space-between-ssx"} $font={"body-2"}>
                   Teacher-led lesson videos
                 </OakLI>
-                <OakLI $mb={'space-between-ssx'} $font={'body-2'}>
+                <OakLI $mb={"space-between-ssx"} $font={"body-2"}>
                   Oak formatted slide decks
                 </OakLI>
-                <OakLI $mb={'space-between-ssx'} $font={'body-2'}>
+                <OakLI $mb={"space-between-ssx"} $font={"body-2"}>
                   Starter and exit quizzes
                 </OakLI>
-                <OakLI $mb={'space-between-ssx'} $font={'body-2'}>
+                <OakLI $mb={"space-between-ssx"} $font={"body-2"}>
                   Worksheets
                 </OakLI>
-                <OakLI $mb={'space-between-ssx'} $font={'body-2'}>
+                <OakLI $mb={"space-between-ssx"} $font={"body-2"}>
                   Interactive activities
                 </OakLI>
               </OakUL>
@@ -362,7 +362,7 @@ function Features() {
               </OakOutlineAccordion>
 
               <OakSpan>
-                If you need more help{' '}
+                If you need more help{" "}
                 <OakLink href="mailto:help@thenational.academy?subject=Oak%20OpenAPI">
                   contact us here
                 </OakLink>

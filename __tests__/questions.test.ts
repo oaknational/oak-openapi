@@ -1,7 +1,7 @@
-import { expect, test } from 'vitest';
-import { makeCaller } from './helper';
+import { expect, test } from "vitest";
+import { makeCaller } from "./helper";
 
-test('get questions from hasura and check structure', async () => {
+test("get questions from hasura and check structure", async () => {
   const caller = makeCaller({
     user: 1,
     res: {
@@ -10,19 +10,19 @@ test('get questions from hasura and check structure', async () => {
   });
 
   const resLesson = await caller.getQuestions.getQuestionsForLessons({
-    lesson: 'joining-using-and',
+    lesson: "joining-using-and",
   });
 
-  expect(Object.keys(resLesson)).toEqual(['starterQuiz', 'exitQuiz']);
+  expect(Object.keys(resLesson)).toEqual(["starterQuiz", "exitQuiz"]);
 
   const resLessons =
     await caller.getQuestions.getQuestionsForKeyStageAndSubject({
-      keyStage: 'ks1',
-      subject: 'english',
+      keyStage: "ks1",
+      subject: "english",
     });
 
   expect(Array.isArray(resLessons)).toBe(true);
   expect(Object.keys(resLessons[0])).toEqual(
-    expect.arrayContaining(['starterQuiz', 'exitQuiz'])
+    expect.arrayContaining(["starterQuiz", "exitQuiz"]),
   );
 });

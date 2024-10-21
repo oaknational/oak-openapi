@@ -1,31 +1,31 @@
-import { publicProcedure, router } from '~/lib/trpc';
-import { z } from 'zod';
+import { publicProcedure, router } from "~/lib/trpc";
+import { z } from "zod";
 
 export const versions = [
   {
-    version: '0.2.0',
-    date: '2024-06-07',
+    version: "0.2.0",
+    date: "2024-06-07",
     changes: [
-      'Quiz and questions now include starterQuiz and exitQuiz as keys to the results, and separate the questions into their own array',
+      "Quiz and questions now include starterQuiz and exitQuiz as keys to the results, and separate the questions into their own array",
     ],
   },
   {
-    version: '0.1.1',
-    date: '2024-04-17',
+    version: "0.1.1",
+    date: "2024-04-17",
     changes: [
-      'Change `slug` and `title` to `unitSlug` and `unitTitle`, or `lessonSlug` etc',
-      '/search/lessons/text-similarity changed to /search/lessons',
+      "Change `slug` and `title` to `unitSlug` and `unitTitle`, or `lessonSlug` etc",
+      "/search/lessons/text-similarity changed to /search/lessons",
     ],
   },
   {
-    version: '0.1.0',
-    date: '2024-03-19',
-    changes: ['Initial beta release'],
+    version: "0.1.0",
+    date: "2024-03-19",
+    changes: ["Initial beta release"],
   },
 ];
 
 export const getLatestVersion = (major: string) => {
-  const found = versions.find((v) => v.version.startsWith(major + '.'));
+  const found = versions.find((v) => v.version.startsWith(major + "."));
 
   if (found) {
     return found.version;
@@ -35,13 +35,13 @@ export const getLatestVersion = (major: string) => {
 };
 
 export const getLatestMajorVersion = () => {
-  return versions[0].version.split('.')[0];
+  return versions[0].version.split(".")[0];
 };
 
 export const changelog = router({
   changelog: publicProcedure
     .meta({
-      openapi: { method: 'GET', path: '/changelog', tags: ['changelog'] },
+      openapi: { method: "GET", path: "/changelog", tags: ["changelog"] },
     })
     .output(
       z.array(
@@ -49,8 +49,8 @@ export const changelog = router({
           version: z.string(),
           date: z.string(),
           changes: z.array(z.string()),
-        })
-      )
+        }),
+      ),
     )
     .input(z.undefined())
     .query(async () => {
@@ -59,9 +59,9 @@ export const changelog = router({
   latest: publicProcedure
     .meta({
       openapi: {
-        method: 'GET',
-        path: '/changelog/latest',
-        tags: ['changelog'],
+        method: "GET",
+        path: "/changelog/latest",
+        tags: ["changelog"],
         example: {
           response: versions[0],
         },
@@ -72,7 +72,7 @@ export const changelog = router({
         version: z.string(),
         date: z.string(),
         changes: z.array(z.string()),
-      })
+      }),
     )
     .input(z.undefined())
     .query(async () => {

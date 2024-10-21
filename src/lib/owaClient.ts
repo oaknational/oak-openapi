@@ -1,27 +1,27 @@
-import { GraphQLClient } from 'graphql-request';
+import { GraphQLClient } from "graphql-request";
 
-export { gql } from 'graphql-request';
+export { gql } from "graphql-request";
 
 export const unitCurriculumView =
-  'published_mv_openapi_unit_curriculum_content_1_0_2';
-export const lessonView = 'published_mv_lesson_openapi_1_2_1';
-export const downloadView = 'published_mv_openapi_downloads_1_0_0';
+  "published_mv_openapi_unit_curriculum_content_1_0_2";
+export const lessonView = "published_mv_lesson_openapi_1_2_1";
+export const downloadView = "published_mv_openapi_downloads_1_0_0";
 export const unitVariantLessonsView =
-  'published_mv_synthetic_unitvariant_lessons_by_year_12_0_0';
-export const lessonViewTable = 'published.mv_lesson_openapi_1_2_1';
+  "published_mv_synthetic_unitvariant_lessons_by_year_12_0_0";
+export const lessonViewTable = "published.mv_lesson_openapi_1_2_1";
 
 export function querySQL(sql: string) {
   return fetch(`${process.env.OAK_GRAPHQL_HOST}/v1/query`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'content-type': 'application/json',
-      'x-oak-auth-key': process.env.OAK_GRAPHQL_SECRET as string,
-      'x-oak-auth-type': 'oak-admin',
-      'x-hasura-role': 'admin',
+      "content-type": "application/json",
+      "x-oak-auth-key": process.env.OAK_GRAPHQL_SECRET as string,
+      "x-oak-auth-type": "oak-admin",
+      "x-hasura-role": "admin",
     },
     body: JSON.stringify({
-      type: 'run_sql',
-      args: { source: 'Oak DB', sql, read_only: true },
+      type: "run_sql",
+      args: { source: "Oak DB", sql, read_only: true },
     }),
   });
 }
@@ -29,8 +29,8 @@ export function querySQL(sql: string) {
 export function getClient() {
   return new GraphQLClient(`${process.env.OAK_GRAPHQL_HOST}/v1/graphql`, {
     headers: {
-      'x-oak-auth-key': process.env.OAK_GRAPHQL_SECRET as string,
-      'x-oak-auth-type': 'oak-admin',
+      "x-oak-auth-key": process.env.OAK_GRAPHQL_SECRET as string,
+      "x-oak-auth-type": "oak-admin",
     },
   });
 }
@@ -184,12 +184,12 @@ export type HasAttribution = {
 };
 
 export enum QuestionTypeEnum {
-  Text = 'text',
-  ExplanatoryText = 'explanatory-text',
-  MultipleChoice = 'multiple-choice',
-  Match = 'match',
-  Order = 'order',
-  ShortAnswer = 'short-answer',
+  Text = "text",
+  ExplanatoryText = "explanatory-text",
+  MultipleChoice = "multiple-choice",
+  Match = "match",
+  Order = "order",
+  ShortAnswer = "short-answer",
 }
 
 export type Question = {
@@ -243,12 +243,12 @@ export interface Match {
 }
 
 export interface TextType {
-  type: 'text';
+  type: "text";
   text: string;
 }
 
 export interface ImageAnswerStem {
-  type: 'image';
+  type: "image";
   image_object: {
     secure_url: string;
     url: string;

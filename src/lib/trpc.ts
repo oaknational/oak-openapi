@@ -1,9 +1,9 @@
-import { initTRPC } from '@trpc/server';
-import superjson from 'superjson';
-import { OpenApiMeta } from 'trpc-openapi';
-import { ZodError } from 'zod';
+import { initTRPC } from "@trpc/server";
+import superjson from "superjson";
+import { OpenApiMeta } from "trpc-openapi";
+import { ZodError } from "zod";
 
-import type { Context } from '~/lib/context';
+import type { Context } from "~/lib/context";
 
 export const t = initTRPC
   .context<Context>()
@@ -11,7 +11,7 @@ export const t = initTRPC
   .create({
     transformer: superjson,
     errorFormatter({ shape, error }) {
-      console.error('trpc error', { shape, error });
+      console.error("trpc error", { shape, error });
 
       // this shouldn't happen before landing in production, but
       // by putting this ahead of the generic catch all ISE500 handler
@@ -32,9 +32,9 @@ export const t = initTRPC
        * unhandled and we potentially don't want to return
        * the full stack to the client
        */
-      if (error.code === 'INTERNAL_SERVER_ERROR') {
+      if (error.code === "INTERNAL_SERVER_ERROR") {
         // if dev, surface all the errors to our hard-working developers
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === "development") {
           return {
             ...shape,
             message: JSON.stringify({ error, shape }),
@@ -47,7 +47,7 @@ export const t = initTRPC
 
         return {
           ...shape,
-          message: 'Internal server error',
+          message: "Internal server error",
           data: {
             ...shape.data,
             stack: undefined,
@@ -55,7 +55,7 @@ export const t = initTRPC
         };
       }
 
-      if (error.code === 'BAD_REQUEST' && error.cause instanceof ZodError) {
+      if (error.code === "BAD_REQUEST" && error.cause instanceof ZodError) {
         return {
           ...shape,
           data: {

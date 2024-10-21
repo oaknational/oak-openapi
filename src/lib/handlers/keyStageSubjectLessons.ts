@@ -1,42 +1,42 @@
-import { protectedProcedure } from '~/lib/protect';
-import { router } from '~/lib/trpc';
-import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
-import { LessonView, getClient, gql, lessonView } from 'lib/owaClient';
-import { z } from 'zod';
-import { baseUrl } from '../baseUrl';
+import { protectedProcedure } from "~/lib/protect";
+import { router } from "~/lib/trpc";
+import { keyStageSlugs, subjectSlugs } from "lib/keyStageAndSubjects";
+import { LessonView, getClient, gql, lessonView } from "lib/owaClient";
+import { z } from "zod";
+import { baseUrl } from "../baseUrl";
 
 export const getKeyStageSubjectLessons = router({
   getKeyStageSubjectLessons: protectedProcedure
     .meta({
       openapi: {
-        method: 'GET',
-        tags: ['lists', 'lessons'],
-        path: '/key-stages/{keyStage}/subject/{subject}/lessons',
+        method: "GET",
+        tags: ["lists", "lessons"],
+        path: "/key-stages/{keyStage}/subject/{subject}/lessons",
         description:
-          'This endpoint returns all the lessons (titles and slugs) that are currently available on Oak for a given subject and key stage, grouped by unit',
+          "This endpoint returns all the lessons (titles and slugs) that are currently available on Oak for a given subject and key stage, grouped by unit",
         example: {
           response: [
             {
-              unitSlug: 'simple-compound-and-adverbial-complex-sentences',
-              unitTitle: 'Simple, compound and adverbial complex sentences',
+              unitSlug: "simple-compound-and-adverbial-complex-sentences",
+              unitTitle: "Simple, compound and adverbial complex sentences",
               lessons: [
                 {
-                  lessonSlug: 'four-types-of-simple-sentence',
-                  lessonTitle: 'Four types of simple sentence',
+                  lessonSlug: "four-types-of-simple-sentence",
+                  lessonTitle: "Four types of simple sentence",
                 },
                 {
                   lessonSlug:
-                    'three-ways-for-co-ordination-in-compound-sentences',
+                    "three-ways-for-co-ordination-in-compound-sentences",
                   lessonTitle:
-                    'Three ways for co-ordination in compound sentences',
+                    "Three ways for co-ordination in compound sentences",
                 },
               ],
             },
           ],
           request: {
-            keyStage: 'ks1',
-            subject: 'english',
-            unit: 'word-class',
+            keyStage: "ks1",
+            subject: "english",
+            unit: "word-class",
           },
         },
       },
@@ -53,32 +53,32 @@ export const getKeyStageSubjectLessons = router({
         }),
         unit: z
           .string({
-            description: 'Optional unit slug to additionally filter by',
+            description: "Optional unit slug to additionally filter by",
           })
           .optional(),
         offset: z.number().optional().default(0),
         limit: z
           .number({
-            description: 'Limit the number of results returned, max 100',
+            description: "Limit the number of results returned, max 100",
           })
           .lte(100)
           .optional()
           .default(10),
-      })
+      }),
     )
     .output(
       z.array(
         z.object({
-          unitSlug: z.string({ description: 'Unit slug' }),
-          unitTitle: z.string({ description: 'Unit title' }),
+          unitSlug: z.string({ description: "Unit slug" }),
+          unitTitle: z.string({ description: "Unit title" }),
           lessons: z.array(
             z.object({
-              lessonSlug: z.string({ description: 'Lesson slug' }),
-              lessonTitle: z.string({ description: 'Lesson title' }),
-            })
+              lessonSlug: z.string({ description: "Lesson slug" }),
+              lessonTitle: z.string({ description: "Lesson title" }),
+            }),
           ),
-        })
-      )
+        }),
+      ),
     )
     .query(async ({ input, ctx }) => {
       const keyStage = decodeURIComponent(input.keyStage);
@@ -172,7 +172,7 @@ export const getKeyStageSubjectLessons = router({
         if (unit) {
           next += `&unit=${unit}`;
         }
-        ctx.res.setHeader('link', `<${next}>; rel="next"`);
+        ctx.res.setHeader("link", `<${next}>; rel="next"`);
       }
 
       // transform to be an array of the units with a list of lessons
@@ -206,7 +206,7 @@ export const getKeyStageSubjectLessons = router({
           unitSlug: string;
           unitTitle: string;
           lessons: { lessonSlug: string; lessonTitle: string }[];
-        }[]
+        }[],
       );
 
       return units;
