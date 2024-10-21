@@ -18,7 +18,11 @@ import {
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
 import { baseUrl } from '../baseUrl';
 
-import { checkLesson, checkQuery, modifySubject } from '~/lib/queryGate';
+import {
+  checkLessonAllowedAsset,
+  checkQueryAllowedAssets,
+  modifySubject,
+} from '~/lib/queryGate';
 
 export const downloadTypeEnum = z.enum(
   [
@@ -208,7 +212,7 @@ export const getAssets = router({
       }
 
       if (unit || subject) {
-        const supported = checkQuery(subject, unit || '');
+        const supported = checkQueryAllowedAssets(subject, unit || '');
 
         if (!supported) {
           throw new TRPCError({
@@ -430,7 +434,10 @@ export const getAssets = router({
       const { lesson: lessonSlug, type } = input;
 
       // FIXME - gate with a query to check if the lesson is in maths
-      const supported = await checkLesson(graphqlClient, lessonSlug);
+      const supported = await checkLessonAllowedAsset(
+        graphqlClient,
+        lessonSlug
+      );
 
       if (!supported) {
         throw new TRPCError({

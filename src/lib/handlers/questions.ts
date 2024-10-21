@@ -15,6 +15,12 @@ import type {
 } from 'lib/owaClient';
 import { z } from 'zod';
 import { baseUrl } from '../baseUrl';
+import {
+  allowedUnits,
+  blockLessonForCopyrightText,
+  blockedSubjects,
+} from '../queryGate';
+import { TRPCError } from '@trpc/server';
 
 const multipleChoiceLit = z.literal('multiple-choice');
 const shortAnswerLit = z.literal('short-answer');
@@ -389,6 +395,15 @@ export const getQuestions = router({
 
       const client = getClient();
 
+      const blocked = await blockLessonForCopyrightText(client, slug);
+
+      if (blocked) {
+        throw new TRPCError({
+          message: 'Unit not available for this query',
+          code: 'NOT_FOUND',
+        });
+      }
+
       const query = gql`
         query ($slug: String!) {
           ${lessonView}(
@@ -492,6 +507,7 @@ export const getQuestions = router({
         z.object({
           lessonSlug: z.string(),
           lessonTitle: z.string(),
+          // unitSlug: z.string(),
           starterQuiz: z.array(questionZod),
           exitQuiz: z.array(questionZod),
         })
@@ -506,7 +522,37 @@ export const getQuestions = router({
 
       const client = getClient();
 
-      const query = gql`
+      let query;
+
+      // this is a brittle hack to get us through the hackathon. I know that
+      if (blockedSubjects.includes(subject)) {
+        query = gql`
+        query (
+          $keyStage: String!
+          $subject: String!
+          $offset: Int!
+          $limit: Int!
+        ) {
+          ${lessonView}(
+            where: {
+              keyStageSlug: { _eq: $keyStage }
+              subjectSlug: { _eq: $subject }
+              isLegacy: { _eq: false }
+              unitSlug: { _in: ${JSON.stringify(allowedUnits)} }
+            }
+            offset: $offset
+            limit: $limit
+          ) {
+            lessonTitle
+            lessonSlug
+            unitSlug
+            exitQuiz
+            starterQuiz
+          }
+        }
+      `;
+      } else {
+        query = gql`
         query (
           $keyStage: String!
           $subject: String!
@@ -524,11 +570,13 @@ export const getQuestions = router({
           ) {
             lessonTitle
             lessonSlug
+            unitSlug
             exitQuiz
             starterQuiz
           }
         }
       `;
+      }
 
       const res: LessonView = await client.request(query, {
         keyStage,
@@ -567,6 +615,7 @@ export const getQuestions = router({
         lessons.push({
           lessonTitle,
           lessonSlug,
+          // unitSlug,
           ...results,
         });
       }

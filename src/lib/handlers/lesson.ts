@@ -13,6 +13,7 @@ import {
 } from 'lib/owaClient';
 import { z } from 'zod';
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
+import { blockLessonForCopyrightText } from '../queryGate';
 
 toSorted.shim();
 groupBy.shim();
@@ -154,6 +155,15 @@ export const getLessons = router({
       const slug = decodeURIComponent(input.lesson);
 
       const client = getClient();
+
+      const blocked = await blockLessonForCopyrightText(client, slug);
+
+      if (blocked) {
+        throw new TRPCError({
+          message: 'Unit not available for this query',
+          code: 'NOT_FOUND',
+        });
+      }
 
       const query = gql`
         query ($slug: String!) {
