@@ -50,6 +50,12 @@ const OakLiLink = styled(OakLink)`
   text-indent: initial;
 `;
 
+const LeftAlignedChildButtons = styled('div')`
+  button {
+    text-align: left;
+  }
+`;
+
 const navItems = [
   { title: 'About our open API', href: '#about-api' },
   { title: 'How to get started', href: '#get-started' },
@@ -119,12 +125,12 @@ function Hero() {
             </OakSpan>
 
             <OakHeading $mv={'space-between-m'} $font="heading-3" tag="h2">
-              Leverage Oak’s high-quality education content on your platform
+              Access high-quality education content with Oak OpenAPI
             </OakHeading>
 
             <OakP $mb={'space-between-l'} $color="black" $font="body-2">
-              We are providing a free API to make our high-quality education
-              content available to the wider education market on the{' '}
+              We’re offering a free API to share our high-quality educational
+              content with the broader education community, all under the{' '}
               <OakLink
                 href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
                 target="_blank"
@@ -203,12 +209,13 @@ function Features() {
           >
             <Feature
               anchorTarget="about-api"
-              title="Why is Oak providing an API?"
+              title="Why are we providing an API?"
             >
               <OakP $font={'body-2'}>
-                Oak National Academy&apos;s mission is to improve pupil outcomes
-                and close the disadvantage gap by supporting teachers to teach,
-                and pupils to access a high-quality curriculum.
+                We’re here to support great teaching. We work in partnership
+                with experts to improve pupil outcomes and close the
+                disadvantage gap by supporting teachers to teach, and enabling
+                pupils to access a high-quality curriculum.
               </OakP>
               <OakP $font={'body-2'}>
                 As part of this mission, we are providing an API to make our
@@ -222,9 +229,8 @@ function Features() {
                 </OakLink>
                 . Whether you&apos;re an emerging EdTech start-up, an
                 established learning tool, or a quiz-based gaming platform, you
-                can use our content with assurance that it has been created
-                adhering to the latest in pedagogical research and aligning with
-                our{' '}
+                can use our content with assurance that it has been created in
+                line with the latest pedagogical research and aligned with our{' '}
                 <OakLink
                   href="https://www.thenational.academy/blog/our-approach-to-curriculum"
                   target="_blank"
@@ -285,7 +291,7 @@ function Features() {
               <OakUL>
                 <OakLI $mb="space-between-xs" $font={'body-2'}>
                   <strong>Fully resourced curricula</strong>: we are developing
-                  our resources across the full National Curriculum, and have
+                  our resources across the full national curriculum, and have
                   content available across multiple subjects and key stages,
                   ensuring that you have the materials you need to support a
                   wide range of learning requirements.
@@ -311,9 +317,8 @@ function Features() {
               title="What data is available"
             >
               <OakP $font="body-2">
-                Access fully resourced lessons across the National Curriculum,
-                meticulously crafted by our expert curriculum partners, each
-                including:
+                Access fully resourced lessons across the national curriculum,
+                created by our expert curriculum partners, each including:
               </OakP>
               <OakUL>
                 <OakLI $mb={'space-between-ssx'} $font={'body-2'}>
@@ -340,7 +345,7 @@ function Features() {
             </Feature>
 
             <Feature anchorTarget="faqs" title="FAQs">
-              <OakBox>
+              <LeftAlignedChildButtons>
                 <OakAccordion header="What are ‘slugs’?" id="accordion-slugs">
                   <OakBox $pt="inner-padding-s">
                     <OakP $font="body-2">
@@ -392,15 +397,100 @@ function Features() {
                   id="accordion-supervision-level-id"
                 >
                   <OakBox $pt="inner-padding-s">
-                    <OakP $font="body-2">
+                    <OakP $font="body-2" $mb="space-between-xs">
                       The lesson field ‘supervisionLevel’ returns the
                       description of the highest level of suggested guidance, so
                       it is advised to use this field rather than rely on the
                       sub-guidance levels.
                     </OakP>
+                    <OakP $font="body-2">
+                      However, the definitions of this ID are as follows:
+                    </OakP>
+                    <OakBox $ml="space-between-m" $mb="space-between-xs">
+                      <OakP $font="body-2">
+                        <strong>1:</strong> Adult supervision suggested
+                      </OakP>
+                      <OakP $font="body-2">
+                        <strong>2:</strong> Adult supervision recommended
+                      </OakP>
+                      <OakP $font="body-2">
+                        <strong>3:</strong> Adult supervision required
+                      </OakP>
+                      <OakP $font="body-2">
+                        <strong>4:</strong> Adult support required
+                      </OakP>
+                    </OakBox>
+                    <OakP $font="body-2">
+                      A description of the content is given, and content
+                      guidance is suggested to help teachers better understand
+                      and prepare for the lesson, as they know their students
+                      best.
+                    </OakP>
                   </OakBox>
                 </OakAccordion>
-              </OakBox>
+
+                <OakAccordion
+                  header="Why are only some subjects/resources available?"
+                  id="accordion-limited-subjects"
+                >
+                  <OakBox $pt="inner-padding-s">
+                    <OakP $font="body-2">
+                      We will have our fully resourced curricula for all
+                      subjects available by Autumn 2025. We currently have fully
+                      resourced curricula in English, Maths, Science, History,
+                      and Geography (Primary). Due to an ongoing copyright
+                      review, downloadable resources are limited to maths and
+                      the english unit ‘Victorian childhoods’.
+                    </OakP>
+                  </OakBox>
+                </OakAccordion>
+
+                <OakAccordion
+                  header="Why are there two search endpoints?"
+                  id="accordion-two-search-endpoints"
+                >
+                  <OakBox $pt="inner-padding-s">
+                    <OakP $font="body-2" $mb="space-between-xs">
+                      The API contains two different ways of searching for Oak
+                      lessons because we have two different databases holding
+                      those lessons.
+                    </OakP>
+
+                    <OakP $font="body-2" $mb="space-between-xs">
+                      Endpoint 6.1 uses our main Oak database to do a similarity
+                      search on lesson titles. Endpoint 6.2 uses our AI
+                      experiments database, which contains video transcripts for
+                      each lesson and ‘snippets’ of those. Endpoint 6.2 does a
+                      similarity search on the video transcript ‘snippets’ for
+                      each lesson, so the same query can result in a different
+                      set of lessons being returned than from endpoint 6.1.
+                      However, it doesn’t have the ability to filter by key
+                      stage, subject or unit that endpoint 6.1 has.
+                    </OakP>
+
+                    <OakP $font="body-2">
+                      We recommend you test both endpoints as one may be more
+                      suitable and/or performant than the other depending on
+                      your use case.
+                    </OakP>
+                  </OakBox>
+                </OakAccordion>
+
+                <OakAccordion
+                  header="What is the difference between the assets and downloads endpoints?"
+                  id="accordion-assets-vs-downloads"
+                >
+                  <OakBox $pt="inner-padding-s">
+                    <OakP $font="body-2">
+                      The available assets for each lesson may vary, so the
+                      assets endpoints are used to get the available assets for
+                      a lesson or group of lessons. The downloads endpoint,
+                      which the asset endpoint provides for each available
+                      asset, then allows you to download the asset in a zip.
+                    </OakP>
+                  </OakBox>
+                </OakAccordion>
+              </LeftAlignedChildButtons>
 
               <OakSpan>
                 If you need more help{' '}
@@ -419,10 +509,14 @@ function Features() {
                 flexible and easy to integrate into your existing systems. If
                 you have feedback or are looking for an endpoint providing our
                 content in a format you can&apos;t see, let us know, and
-                we&apos;ll work with you to find a solution that works for you.
+                we&apos;ll work with you to find a solution.
               </OakP>
-              {/** @todo add link to give feedback */}
-              <OakTertiaryButton isTrailingIcon iconName="arrow-right">
+              <OakTertiaryButton
+                element="a"
+                href="mailto:help@thenational.academy?subject=Oak%20OpenAPI"
+                isTrailingIcon
+                iconName="arrow-right"
+              >
                 Give feedback
               </OakTertiaryButton>
             </Feature>
