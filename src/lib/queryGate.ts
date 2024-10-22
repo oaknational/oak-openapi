@@ -13,7 +13,9 @@ import { gql, GraphQLClient } from 'graphql-request';
 import { LessonView, lessonView } from './owaClient';
 
 const supportedSubjects = ['maths'];
-const supportedUnits: string[] = []; //['victorian-childhood-non-fiction-reading-and-writing'];
+const supportedUnits: string[] = [
+  'victorian-childhood-non-fiction-reading-and-writing',
+];
 
 export const blockedSubjects = ['english'];
 export const allowedUnits = [

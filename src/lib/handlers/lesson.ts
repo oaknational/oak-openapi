@@ -217,7 +217,7 @@ export const getLessons = router({
           'This endpoint returns lessons that are similar to the search criteria, including a similarity score, and details of the unit that it is in',
         example: {
           request: {
-            q: 'chratchet',
+            q: 'cratchit',
             subject: 'english',
           },
           response: [
