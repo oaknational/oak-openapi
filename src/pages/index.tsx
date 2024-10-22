@@ -422,12 +422,11 @@ function Features() {
                 >
                   <OakBox $pt="inner-padding-s">
                     <OakP $font="body-2">
-                      We will have our fully resourced curricula for all
-                      subjects available by Autumn 2025. We currently have fully
-                      resourced curricula in English, Maths, Science, History,
-                      and Geography (Primary). Due to an ongoing copyright
-                      review, downloadable resources are limited to maths and
-                      the english unit ‘Victorian childhoods’.
+                      We will have our fully resourced curricula for all subjects 
+                      available by Autumn 2025. We currently have fully resourced 
+                      curricula in English, Maths, Science, History, and Geography (Primary). 
+                      We will make all of these resources available through the API, with an 
+                      early release of a representative subset available for the hackathon.
                     </OakP>
                   </OakBox>
                 </OakAccordion>
@@ -444,15 +443,15 @@ function Features() {
                     </OakP>
 
                     <OakP $font="body-2" $mb="space-between-xs">
-                      Endpoint 6.1 uses our main Oak database to do a similarity
-                      search on lesson titles. Endpoint 6.2 uses our AI
+                      The lesson search endpoint (/search/lessons) uses our main Oak database to do a similarity
+                      search on lesson titles. The transcript search (/search/transcripts) uses our AI
                       experiments database, which contains video transcripts for
-                      each lesson and ‘snippets’ of those. Endpoint 6.2 does a
+                      each lesson and ‘snippets’ of those. The transcript search does a
                       similarity search on the video transcript ‘snippets’ for
                       each lesson, so the same query can result in a different
-                      set of lessons being returned than from endpoint 6.1.
-                      However, it doesn’t have the ability to filter by key
-                      stage, subject or unit that endpoint 6.1 has.
+                      set of lessons being returned than from the lesson search endpoint.
+                      However, it does not have the ability to filter by key
+                      stage, subject or unit that lesson search endpoint has.
                     </OakP>
 
                     <OakP $font="body-2">
