@@ -17,6 +17,8 @@ get() {
   OUT=$(curl -s -X 'GET' "$ROOT$1" -H 'accept: application/json' \
     -H "Authorization: Bearer $API_KEY" | jq "$Q" 2>&1)
 
+  echo $OUT
+
   if [[ $Q == "." ]]; then
     echo $OUT | jq
   fi
@@ -66,5 +68,7 @@ get "/lessons/the-power-of-rhetoric-in-writing/assets" '.code? | not'
 get "/search/lessons?q=run&keyStage=ks1&subject=english" '.code? | not'
 
 get "/lessons/theatre-trips/assets" '.code == "NOT_FOUND"'
+
+get "/lessons/multiply-a-2-digit-number-by-a-1-digit-number-using-short-multiplication-regrouping-1s-to-10s/quiz" '.exitQuiz | map(select(.questionImage)) | length > 0'
 
 title "FIN $TESTS tests run"

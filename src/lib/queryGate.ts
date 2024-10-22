@@ -254,8 +254,16 @@ export async function blockLessonForCopyrightText(
     return true;
   }
 
-  const { subjectSlug, unitSlug } = res;
+  return isBlockedUnitOrSubject(res);
+}
 
+export function isBlockedUnitOrSubject({
+  unitSlug,
+  subjectSlug,
+}: {
+  unitSlug: string;
+  subjectSlug: string;
+}): boolean {
   if (allowedUnits.includes(unitSlug)) {
     // not copyright
     return false;
@@ -296,7 +304,7 @@ export async function blockUnitForCopyrightText(
 export function modifySubject(subject: string) {
   // this is stupid code, but my thinking is that hopefully we can open up to
   // more subjects quickly
-  if (supportedSubjects.includes(subject)) {
+  if (isUnitSupported(subject)) {
     return subject;
   }
   return supportedSubjects[0];
@@ -306,7 +314,7 @@ export function checkQueryAllowedAssets(
   subject: string = '',
   unit: string = ''
 ) {
-  return supportedSubjects.includes(subject) || supportedUnits.includes(unit);
+  return isSubjectSupported(subject) || isUnitSupported(unit);
 }
 
 export async function checkLessonAllowedAsset(
@@ -321,12 +329,22 @@ export async function checkLessonAllowedAsset(
 
   const { subjectSlug, unitSlug } = res;
 
-  return (
-    supportedSubjects.includes(subjectSlug) || supportedUnits.includes(unitSlug)
-  );
+  return isSubjectSupported(subjectSlug) || isUnitSupported(unitSlug);
 }
 
-async function getSubjectAndUnitForLesson(
+export function supportsImages(subject: string, unit: string) {
+  return isSubjectSupported(subject) || isUnitSupported(unit);
+}
+
+export function isSubjectSupported(subject: string) {
+  return supportedSubjects.includes(subject);
+}
+
+export function isUnitSupported(unit: string) {
+  return supportedUnits.includes(unit);
+}
+
+export async function getSubjectAndUnitForLesson(
   client: GraphQLClient,
   slug: string
 ): Promise<{ subjectSlug: string; unitSlug: string } | false> {
