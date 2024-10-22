@@ -6,7 +6,7 @@ import type {
   LessonView,
   Lesson,
   Question as DBQuestion,
-  ImageAnswerStem,
+  ImageStem,
   TextType,
   Match as DBMatch,
   OrderAnswer as DBOrder,
@@ -17,8 +17,10 @@ import { z } from 'zod';
 import { baseUrl } from '../baseUrl';
 import {
   allowedUnits,
-  blockLessonForCopyrightText,
   blockedSubjects,
+  getSubjectAndUnitForLesson,
+  isBlockedUnitOrSubject,
+  supportsImages,
 } from '../queryGate';
 import { TRPCError } from '@trpc/server';
 
@@ -34,7 +36,7 @@ const availableQuestionTypes = z.union([
   orderAnswerLit,
 ]);
 
-const imageAnswerContent = z.object({
+const imageContent = z.object({
   url: z.string(),
   width: z.number(),
   height: z.number(),
@@ -65,7 +67,7 @@ const textAnswer = z.object({
 
 const imageAnswer = z.object({
   type: z.literal('image'),
-  content: imageAnswerContent,
+  content: imageContent,
 });
 
 const multipleChoiceAnswer = z
@@ -89,6 +91,7 @@ const questionZod = z
   .object({
     question: z.string(),
     questionType: availableQuestionTypes,
+    questionImage: imageContent.optional(),
   })
   .and(
     z.union([
@@ -141,7 +144,7 @@ type TextAnswer = z.infer<typeof textAnswer>;
 type MatchAnswer = z.infer<typeof matchAnswer>;
 type OrderAnswer = z.infer<typeof orderAnswer>;
 type MultipleChoiceAnswer = z.infer<typeof multipleChoiceAnswer>;
-type ImageDataSchemaType = z.infer<typeof imageAnswerContent>;
+type ImageDataSchemaType = z.infer<typeof imageContent>;
 
 function emptyQuizResults() {
   const result: { [key in QuizKey]: Question[] } = {
@@ -209,21 +212,12 @@ function formatMultipleChoiceAnswer(
   // next two declarations are cast in TypeScript because TS doesn't
   // know that _.type = 'image' always returns an ImageAnswerStem
   // (or undefined, which we handle)
-  const image = answer.answer.find(
-    (_) => _.type === 'image'
-  ) as ImageAnswerStem;
+  const image = answer.answer.find((_) => _.type === 'image') as ImageStem;
 
   if (image) {
     const text = answer.answer.find((_) => _.type === 'text') as TextType;
 
-    const content: ImageDataSchemaType = {
-      url: image.image_object.secure_url || image.image_object.url || '',
-      width: image.image_object.width || 0,
-      height: image.image_object.height || 0,
-      alt: image.image_object.context?.custom?.alt || undefined,
-      text: text?.text || undefined,
-      // license: image.image_object.metadata || undefined,
-    };
+    const content = formatImage(image, text);
 
     const res = {
       type: answer.answer[0].type,
@@ -248,11 +242,50 @@ function formatMultipleChoiceAnswer(
   throw new Error('Unexpected answer type');
 }
 
-function formatQuestion(question: DBQuestion): Question | undefined {
+function formatImage(image: ImageStem, text: null | { text: string } = null) {
+  const content: ImageDataSchemaType = {
+    url: image.image_object.secure_url || image.image_object.url || '',
+    width: image.image_object.width || 0,
+    height: image.image_object.height || 0,
+    alt: image.image_object.context?.custom?.alt || undefined,
+    text: text?.text || undefined,
+    // license: image.image_object.metadata || undefined,
+    // attribution
+  };
+
+  return content;
+}
+
+function formatQuestion(
+  question: DBQuestion,
+  imagesAllowed: boolean = false
+): Question | undefined {
+  // FIXME this is losing the image
+  /*
+  questionStem: [
+    {
+      text: 'What is the size of the largest angle in the triangle formed from these three squares?',
+      type: 'text'
+    },
+    { type: 'image', image_object: [Object] }
+  ],
+
+  */
   const questionText = question.questionStem
     .filter((_) => _.type === 'text')
     .map((_) => _.text)
     .join(' ');
+
+  let questionImage: undefined | ImageDataSchemaType;
+
+  if (imagesAllowed && question.questionStem.length === 2) {
+    // probably contains the image
+    const image = question.questionStem.filter((_) => _.type === 'image').pop();
+
+    if (image) {
+      questionImage = formatImage(image);
+    }
+  }
 
   // TypeScript really doesn't like DRY. This code could…should be able to reuse
   // the `questionType`, but TS parser can't handle it, so it's exploded out like this
@@ -261,6 +294,7 @@ function formatQuestion(question: DBQuestion): Question | undefined {
     return {
       question: questionText,
       questionType: QuestionTypeEnum.MultipleChoice,
+      questionImage,
       answers: question.answers[QuestionTypeEnum.MultipleChoice].map(
         formatMultipleChoiceAnswer
       ),
@@ -271,6 +305,7 @@ function formatQuestion(question: DBQuestion): Question | undefined {
     return {
       question: questionText,
       questionType: QuestionTypeEnum.ShortAnswer,
+      questionImage,
       answers:
         question.answers[QuestionTypeEnum.ShortAnswer].map(formatShortAnswer),
     };
@@ -288,12 +323,16 @@ function formatQuestion(question: DBQuestion): Question | undefined {
     return {
       question: questionText,
       questionType: QuestionTypeEnum.Order,
+      questionImage,
       answers: question.answers[QuestionTypeEnum.Order].map(formatOrderAnswer),
     };
   }
 }
 
-function questionsForQuiz(lesson: Lesson): { [key in QuizKey]: Question[] } {
+function questionsForQuiz(
+  lesson: Lesson,
+  imagesAllowed: boolean = false
+): { [key in QuizKey]: Question[] } {
   const result = emptyQuizResults();
   for (const quiz of ['starterQuiz', 'exitQuiz'] as QuizKey[]) {
     let lessonContent;
@@ -322,12 +361,12 @@ function questionsForQuiz(lesson: Lesson): { [key in QuizKey]: Question[] } {
           (answer) => answer.answer.some((a) => a.type === 'image')
         );
 
-        if (hasImageAnswer) {
+        if (hasImageAnswer && imagesAllowed === false) {
           continue;
         }
       }
 
-      const res = formatQuestion(question);
+      const res = formatQuestion(question, imagesAllowed);
       if (res) {
         questions.push(res);
       }
@@ -395,11 +434,20 @@ export const getQuestions = router({
 
       const client = getClient();
 
-      const blocked = await blockLessonForCopyrightText(client, slug);
+      const subjectUnit = await getSubjectAndUnitForLesson(client, slug);
+
+      if (!subjectUnit) {
+        throw new TRPCError({
+          message: 'Lesson not found',
+          code: 'NOT_FOUND',
+        });
+      }
+
+      const blocked = isBlockedUnitOrSubject(subjectUnit);
 
       if (blocked) {
         throw new TRPCError({
-          message: 'Unit not available for this query',
+          message: 'Lesson not available for this query',
           code: 'NOT_FOUND',
         });
       }
@@ -439,7 +487,12 @@ export const getQuestions = router({
         return result;
       }
 
-      return questionsForQuiz(lesson);
+      const imagesAllowed = supportsImages(
+        subjectUnit.subjectSlug,
+        subjectUnit.unitSlug
+      );
+
+      return questionsForQuiz(lesson, imagesAllowed);
     }),
   getQuestionsForKeyStageAndSubject: protectedProcedure
     .meta({
@@ -601,7 +654,14 @@ export const getQuestions = router({
 
       const lessons = [];
 
-      for (const { exitQuiz, starterQuiz, lessonSlug, lessonTitle } of data) {
+      for (const {
+        exitQuiz,
+        starterQuiz,
+        lessonSlug,
+        lessonTitle,
+        unitSlug,
+        subjectSlug,
+      } of data) {
         if (!lessonSlug || !lessonTitle) {
           continue;
         }
@@ -610,7 +670,12 @@ export const getQuestions = router({
           continue;
         }
 
-        const results = questionsForQuiz({ exitQuiz, starterQuiz });
+        const imagesAllowed = supportsImages(subjectSlug || '', unitSlug || '');
+
+        const results = questionsForQuiz(
+          { exitQuiz, starterQuiz },
+          imagesAllowed
+        );
 
         lessons.push({
           lessonTitle,
