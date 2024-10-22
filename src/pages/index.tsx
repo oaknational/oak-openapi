@@ -325,8 +325,12 @@ function Features() {
                 </OakLI>
               </OakUL>
 
-              {/** @todo add link to PDF below  */}
-              <OakTertiaryButton isTrailingIcon iconName="arrow-right">
+              <OakTertiaryButton
+                element="a"
+                href="https://drive.google.com/file/d/14QBLs7cvcS_Z10EhrirOSZeN_paaaezC/view"
+                isTrailingIcon
+                iconName="arrow-right"
+              >
                 Download data overview (PDF)
               </OakTertiaryButton>
             </Feature>
