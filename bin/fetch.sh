@@ -63,4 +63,6 @@ get "/lessons/writing-an-effective-speech-using-rhetoric-6xj32r/summary" '.code 
 get "/lessons/writing-an-effective-speech-using-rhetoric-6xj32r/assets" '.code == "NOT_FOUND"'
 get "/lessons/the-power-of-rhetoric-in-writing/assets" '.code == "NOT_FOUND"'
 
+get "/search/lessons?q=run&keyStage=ks1&subject=english" '.code? | not'
+
 title "FIN $TESTS tests run"
