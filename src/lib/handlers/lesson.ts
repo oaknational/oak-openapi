@@ -311,26 +311,33 @@ export const getLessons = router({
 
       const client = getClient();
 
-      let where = `lessonSlug: { _in: $slugs }`;
       const variables: Record<string, string | number> = { slugs };
 
+      const _and: string[] = ['lessonSlug: { _in: $slugs }'];
+      const queryArgs = [];
+
       if (unit) {
-        where += `, _and: { unitSlug: { _eq: $unit } }`;
+        _and.push('unitSlug: { _eq: $unit }');
+        queryArgs.push('$unit: String');
         variables.unit = unit;
       }
 
       if (subject) {
-        where += `, _and: { subjectSlug: { _eq: $subject } }`;
+        _and.push('subjectSlug: { _eq: $subject }');
+        queryArgs.push('$subject: String');
         variables.subject = subject;
       }
 
       if (keyStage) {
-        where += `, _and: { keyStageSlug: { _eq: $keyStage } }`;
+        _and.push('keyStageSlug: { _eq: $keyStage }');
+        queryArgs.push('$keyStage: String');
         variables.keyStage = keyStage;
       }
 
+      const where = `, _and: { ${_and.join(',')}}`;
+
       const query = gql`
-        query ($slugs: [String!]!, $unit: String, $subject: String, $keyStage: String) {
+        query ($slugs: [String!]!, ${queryArgs.join(',')}) {
           ${lessonView}(where: {${where}}) {
             lessonSlug
             lessonTitle
