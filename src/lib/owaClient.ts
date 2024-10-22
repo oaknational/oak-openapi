@@ -198,7 +198,7 @@ export type Question = {
   feedback: string;
   questionId: number;
   questionUid: string;
-  questionStem: TextType[];
+  questionStem: (TextType | ImageStem)[];
 } & Answers;
 
 export type Answers =
@@ -228,7 +228,7 @@ interface ShortAnswerObject {
 }
 
 export interface MultipleChoiceAnswer {
-  answer: (TextType | ImageAnswerStem)[];
+  answer: (TextType | ImageStem)[];
   answer_is_correct: boolean;
 }
 
@@ -247,7 +247,7 @@ export interface TextType {
   text: string;
 }
 
-export interface ImageAnswerStem {
+export interface ImageStem {
   type: 'image';
   image_object: {
     secure_url: string;
