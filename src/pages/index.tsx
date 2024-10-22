@@ -197,16 +197,17 @@ function Features() {
           <OakGridArea
             $width={'100%'}
             $colSpan={[12, 7]}
-            $gap={'all-spacing-9'}>
+            $gap={'all-spacing-9'}
+          >
             <Feature
               anchorTarget="about-api"
               title="Why are we providing an API?"
             >
               <OakP $font={'body-2'}>
-                We’re here to support great teaching. We work in partnership
-                with experts to improve pupil outcomes and close the
-                disadvantage gap by supporting teachers to teach, and enabling
-                pupils to access a high-quality curriculum.
+                We’re here to support great teaching. We work to improve pupil
+                outcomes and close the disadvantage gap by supporting teachers
+                to teach, and enabling pupils to access a high-quality
+                curriculum.
               </OakP>
               <OakP $font={'body-2'}>
                 As part of this mission, we are providing an API to make our
