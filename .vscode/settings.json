@@ -5,6 +5,7 @@
     "hgetall",
     "hincrby",
     "hset",
+    "keystage",
     "langchain",
     "Lexend",
     "llms",
@@ -13,6 +14,7 @@
     "openai",
     "openapi",
     "pgvector",
+    "posthog",
     "Ratelimit",
     "slidedeck",
     "slidedecks",
@@ -22,7 +24,6 @@
     "tsvector",
     "unitvariant",
     "UPSTASH",
-    "vectorstores",
-    "posthog"
+    "vectorstores"
   ]
 }
