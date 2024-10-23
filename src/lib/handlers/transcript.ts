@@ -102,7 +102,10 @@ export const getLessonTranscript = router({
       const [file] = files;
 
       const [contents] = await file.download(); // Download the file contents
-      const vtt = contents.toString().replace(/\r/g, '');
+      const vtt = contents
+        .toString()
+        .replace(/\r/g, '')
+        .replace(/<\/?[^>]+(>|$)/g, '');
       const transcript = vtt
         .split('\n\n')
         .slice(1)
