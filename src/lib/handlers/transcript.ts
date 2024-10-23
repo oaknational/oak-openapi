@@ -101,10 +101,8 @@ export const getLessonTranscript = router({
 
       const [file] = files;
 
-      // console.log(file);
-
       const [contents] = await file.download(); // Download the file contents
-      const vtt = contents.toString();
+      const vtt = contents.toString().replace(/\r/g, '');
       const transcript = vtt
         .split('\n\n')
         .slice(1)
