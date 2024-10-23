@@ -6,7 +6,21 @@ import { z } from 'zod';
 import { checkLessonAllowedAsset } from '../queryGate';
 import { Storage } from '@google-cloud/storage';
 
-const storage = new Storage();
+let storage;
+
+// Check if GOOGLE_APPLICATION_CREDENTIALS_JSON is set
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  const credentials = JSON.parse(
+    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
+  );
+
+  // Initialize storage client with credentials
+  storage = new Storage({ credentials });
+} else {
+  // Use default method, which relies on GOOGLE_APPLICATION_CREDENTIALS path
+  storage = new Storage();
+}
+
 const transcriptBucket = 'oak-captions-2023-production';
 
 export const getLessonTranscript = router({
