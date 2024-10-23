@@ -41,6 +41,11 @@ export type UnitVariantLessonsView = {
 
 type UnitVariantLesson = {
   lesson_slug: string;
+  lesson_title?: string;
+  supplementary_data?: {
+    unit_order: number;
+    order_in_unit: number;
+  };
 };
 
 export type DownloadView = {

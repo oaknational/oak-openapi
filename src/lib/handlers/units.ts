@@ -3,9 +3,11 @@ import { router } from '~/lib/trpc';
 import { TRPCError } from '@trpc/server';
 import {
   UnitCurriculumView,
+  UnitVariantLessonsView,
   getClient,
   gql,
   unitCurriculumView,
+  unitVariantLessonsView,
 } from 'lib/owaClient';
 import { z } from 'zod';
 import { blockUnitForCopyrightText } from '../queryGate';
@@ -14,6 +16,7 @@ export const unitSchema = z.object({
   unitSlug: z.string(),
   unitTitle: z.string(),
   tags: z.array(z.string()),
+  unitOrder: z.number().optional(),
   // notes: z.string(),
   // description: z.string(),
   // plannedNumberOfLessons: z.number(),
@@ -28,9 +31,15 @@ export const unitSchema = z.object({
     units: z.array(z.object({ unitSlug: z.string(), unitTitle: z.string() })),
   }),
   unitLessons: z.array(
-    z.object({ lessonSlug: z.string(), lessonTitle: z.string() })
+    z.object({
+      lessonSlug: z.string(),
+      lessonTitle: z.string(),
+      lessonOrder: z.number().optional(),
+    })
   ),
 });
+
+type UnitSchema = z.infer<typeof unitSchema>;
 
 export const getUnits = router({
   getUnit: protectedProcedure
@@ -136,13 +145,29 @@ export const getUnits = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
       }
 
-      // transform the data to clean up objects to arrays
-      //   slug, title, tags: .tags | map(.title), notes, description, plannedNumberOfLessons, priorKnowledgeRequirements, nationalCurriculumContent: .nationalCurriculumContent | map(.title), priorUnit: { description: .priorUnitDescription, units: .priorUnit | map({ slug, title }) }, futureUnit: { description: .futureUnitDescription, units: .futureUnit | map({ slug, title }) }
-      // }
-
       const root = res[unitCurriculumView][0];
 
-      return {
+      // now get the lesson order in the units
+      const orderQuery = gql`
+        query getLessonOrder($slug: String!) {
+          ${unitVariantLessonsView}(
+            where: { unit_slug: { _eq: $slug } }
+          ) {
+            lesson_slug
+            lesson_title:lesson_data(path:"title")
+            supplementary_data
+          }
+        }
+      `;
+
+      const orderResult: UnitVariantLessonsView = await client.request(
+        orderQuery,
+        {
+          slug,
+        }
+      );
+
+      const reply: UnitSchema = {
         unitSlug: root.unitSlug,
         unitTitle: root.unitTitle,
         unitLessons: (root.unitLessons || []).map((lesson) => ({
@@ -169,5 +194,22 @@ export const getUnits = router({
           })),
         },
       };
+
+      if (
+        orderResult[unitVariantLessonsView].length &&
+        orderResult[unitVariantLessonsView][0].supplementary_data
+      ) {
+        reply.unitOrder =
+          orderResult[unitVariantLessonsView][0].supplementary_data.unit_order;
+        reply.unitLessons = (orderResult[unitVariantLessonsView] || []).map(
+          (lesson) => ({
+            lessonSlug: lesson.lesson_slug,
+            lessonTitle: lesson.lesson_title || '',
+            lessonOrder: lesson.supplementary_data?.order_in_unit,
+          })
+        );
+      }
+
+      return reply;
     }),
 });
