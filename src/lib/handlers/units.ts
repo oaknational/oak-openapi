@@ -17,6 +17,10 @@ export const unitSchema = z.object({
   unitTitle: z.string(),
   tags: z.array(z.string()),
   unitOrder: z.number().optional(),
+  yearSlug: z.string(),
+  phaseSlug: z.string(),
+  subjectSlug: z.string(),
+  keyStageSlug: z.string(),
   // notes: z.string(),
   // description: z.string(),
   // plannedNumberOfLessons: z.number(),
@@ -136,10 +140,23 @@ export const getUnits = router({
             priorUnitDescription
             unitLessons
           }
+
+          ${unitVariantLessonsView}(
+            where: { unit_slug: { _eq: $slug } }
+          ) {
+            lesson_slug
+            lesson_title:lesson_data(path:"title")
+            supplementary_data
+            year_slug:programme_fields(path:"year_slug")
+            phase_slug:programme_fields(path:"phase_slug")
+            subject_slug:programme_fields(path:"subject_slug")
+            keystage_slug:programme_fields(path:"keystage_slug")
+          }
         }
       `;
 
-      const res: UnitCurriculumView = await client.request(query, { slug });
+      const res: UnitCurriculumView & UnitVariantLessonsView =
+        await client.request(query, { slug });
 
       if (res[unitCurriculumView].length === 0) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
@@ -147,32 +164,19 @@ export const getUnits = router({
 
       const root = res[unitCurriculumView][0];
 
-      // now get the lesson order in the units
-      const orderQuery = gql`
-        query getLessonOrder($slug: String!) {
-          ${unitVariantLessonsView}(
-            where: { unit_slug: { _eq: $slug } }
-          ) {
-            lesson_slug
-            lesson_title:lesson_data(path:"title")
-            supplementary_data
-          }
-        }
-      `;
+      const orderData = res[unitVariantLessonsView];
+      const additionalUnitData = orderData[0];
 
-      const orderResult: UnitVariantLessonsView = await client.request(
-        orderQuery,
-        {
-          slug,
-        }
-      );
+      console.log({ additionalUnitData });
 
       const reply: UnitSchema = {
         unitSlug: root.unitSlug,
         unitTitle: root.unitTitle,
-        unitLessons: (root.unitLessons || []).map((lesson) => ({
-          lessonSlug: lesson.slug,
-          lessonTitle: lesson.title,
+        unitOrder: additionalUnitData.supplementary_data.unit_order,
+        unitLessons: (orderData || []).map((lesson) => ({
+          lessonSlug: lesson.lesson_slug,
+          lessonTitle: lesson.lesson_title || '',
+          lessonOrder: lesson.supplementary_data?.order_in_unit,
         })),
         tags: (root.unitTags || []).map((tag) => tag.title),
         priorKnowledgeRequirements: root.priorKnowledgeRequirements || [],
@@ -193,22 +197,11 @@ export const getUnits = router({
             unitTitle: unit.title,
           })),
         },
+        yearSlug: additionalUnitData.year_slug,
+        phaseSlug: additionalUnitData.phase_slug,
+        subjectSlug: additionalUnitData.subject_slug,
+        keyStageSlug: additionalUnitData.keystage_slug,
       };
-
-      if (
-        orderResult[unitVariantLessonsView].length &&
-        orderResult[unitVariantLessonsView][0].supplementary_data
-      ) {
-        reply.unitOrder =
-          orderResult[unitVariantLessonsView][0].supplementary_data.unit_order;
-        reply.unitLessons = (orderResult[unitVariantLessonsView] || []).map(
-          (lesson) => ({
-            lessonSlug: lesson.lesson_slug,
-            lessonTitle: lesson.lesson_title || '',
-            lessonOrder: lesson.supplementary_data?.order_in_unit,
-          })
-        );
-      }
 
       return reply;
     }),
