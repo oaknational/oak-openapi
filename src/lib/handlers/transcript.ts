@@ -45,7 +45,7 @@ export const getLessonTranscript = router({
         lesson: z.string({ description: 'The slug of the lesson' }),
       })
     )
-    .output(z.object({ transcript: z.string() }))
+    .output(z.object({ transcript: z.string(), vtt: z.string() }))
     .query(async ({ input }) => {
       const slug = decodeURIComponent(input.lesson);
 
@@ -104,8 +104,13 @@ export const getLessonTranscript = router({
       // console.log(file);
 
       const [contents] = await file.download(); // Download the file contents
-      const transcript = contents.toString();
+      const vtt = contents.toString();
+      const transcript = vtt
+        .split('\n\n')
+        .slice(1)
+        .map((_) => _.split('\n').pop())
+        .join(' ');
 
-      return { transcript };
+      return { vtt, transcript };
     }),
 });
