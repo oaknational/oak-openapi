@@ -6,7 +6,7 @@ test('fetch transcripts from AI project', { timeout: 15 * 1000 }, async () => {
     user: 1,
   });
 
-  const res = await caller.getTranscripts.searchTranscripts({
+  const res = await caller.searchTranscripts.searchTranscripts({
     q: 'who were the romans?',
   });
 
