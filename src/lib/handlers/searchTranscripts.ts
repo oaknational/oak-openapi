@@ -3,7 +3,7 @@ import { prisma } from '~/lib/db';
 import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 
-export const getTranscripts = router({
+export const searchTranscripts = router({
   searchTranscripts: protectedProcedure
     .meta({
       openapi: {
@@ -98,8 +98,7 @@ export const getTranscripts = router({
           slug: true,
         },
         cacheStrategy: { ttl: 60 * 5, swr: 60 * 2 },
-      },  
-    );
+      });
 
       // sort the rows by the order of the ids array
       return res
