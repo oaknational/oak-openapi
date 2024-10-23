@@ -39,8 +39,17 @@ export type UnitVariantLessonsView = {
   published_mv_synthetic_unitvariant_lessons_by_year_12_0_0: UnitVariantLesson[];
 };
 
-type UnitVariantLesson = {
+export type UnitVariantLesson = {
   lesson_slug: string;
+  lesson_title: string;
+  year_slug: string;
+  phase_slug: string;
+  keystage_slug: string;
+  subject_slug: string;
+  supplementary_data: {
+    unit_order: number;
+    order_in_unit: number;
+  };
 };
 
 export type DownloadView = {
