@@ -10,10 +10,12 @@ import { getUnits } from './handlers/units';
 import { subjects } from './handlers/subjects';
 import { getAssets } from './handlers/assets';
 import { getDownloads } from './handlers/download';
-import { getTranscripts } from './handlers/transcripts';
+import { searchTranscripts } from './handlers/searchTranscripts';
+import { getLessonTranscript } from './handlers/transcript';
 
 export default router({
-  getTranscripts,
+  getLessonTranscript,
+  searchTranscripts,
   getDownloads,
   getAssets,
   subjects,
