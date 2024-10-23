@@ -3,9 +3,11 @@ import { router } from '~/lib/trpc';
 import { TRPCError } from '@trpc/server';
 import {
   UnitCurriculumView,
+  UnitVariantLessonsView,
   getClient,
   gql,
   unitCurriculumView,
+  unitVariantLessonsView,
 } from 'lib/owaClient';
 import { z } from 'zod';
 import { blockUnitForCopyrightText } from '../queryGate';
@@ -14,6 +16,11 @@ export const unitSchema = z.object({
   unitSlug: z.string(),
   unitTitle: z.string(),
   tags: z.array(z.string()),
+  unitOrder: z.number().optional(),
+  yearSlug: z.string(),
+  phaseSlug: z.string(),
+  subjectSlug: z.string(),
+  keyStageSlug: z.string(),
   // notes: z.string(),
   // description: z.string(),
   // plannedNumberOfLessons: z.number(),
@@ -28,9 +35,15 @@ export const unitSchema = z.object({
     units: z.array(z.object({ unitSlug: z.string(), unitTitle: z.string() })),
   }),
   unitLessons: z.array(
-    z.object({ lessonSlug: z.string(), lessonTitle: z.string() })
+    z.object({
+      lessonSlug: z.string(),
+      lessonTitle: z.string(),
+      lessonOrder: z.number().optional(),
+    })
   ),
 });
+
+type UnitSchema = z.infer<typeof unitSchema>;
 
 export const getUnits = router({
   getUnit: protectedProcedure
@@ -127,27 +140,43 @@ export const getUnits = router({
             priorUnitDescription
             unitLessons
           }
+
+          ${unitVariantLessonsView}(
+            where: { unit_slug: { _eq: $slug } }
+          ) {
+            lesson_slug
+            lesson_title:lesson_data(path:"title")
+            supplementary_data
+            year_slug:programme_fields(path:"year_slug")
+            phase_slug:programme_fields(path:"phase_slug")
+            subject_slug:programme_fields(path:"subject_slug")
+            keystage_slug:programme_fields(path:"keystage_slug")
+          }
         }
       `;
 
-      const res: UnitCurriculumView = await client.request(query, { slug });
+      const res: UnitCurriculumView & UnitVariantLessonsView =
+        await client.request(query, { slug });
 
       if (res[unitCurriculumView].length === 0) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
       }
 
-      // transform the data to clean up objects to arrays
-      //   slug, title, tags: .tags | map(.title), notes, description, plannedNumberOfLessons, priorKnowledgeRequirements, nationalCurriculumContent: .nationalCurriculumContent | map(.title), priorUnit: { description: .priorUnitDescription, units: .priorUnit | map({ slug, title }) }, futureUnit: { description: .futureUnitDescription, units: .futureUnit | map({ slug, title }) }
-      // }
-
       const root = res[unitCurriculumView][0];
 
-      return {
+      const orderData = res[unitVariantLessonsView];
+      const additionalUnitData = orderData[0];
+
+      console.log({ additionalUnitData });
+
+      const reply: UnitSchema = {
         unitSlug: root.unitSlug,
         unitTitle: root.unitTitle,
-        unitLessons: (root.unitLessons || []).map((lesson) => ({
-          lessonSlug: lesson.slug,
-          lessonTitle: lesson.title,
+        unitOrder: additionalUnitData.supplementary_data.unit_order,
+        unitLessons: (orderData || []).map((lesson) => ({
+          lessonSlug: lesson.lesson_slug,
+          lessonTitle: lesson.lesson_title || '',
+          lessonOrder: lesson.supplementary_data?.order_in_unit,
         })),
         tags: (root.unitTags || []).map((tag) => tag.title),
         priorKnowledgeRequirements: root.priorKnowledgeRequirements || [],
@@ -168,6 +197,12 @@ export const getUnits = router({
             unitTitle: unit.title,
           })),
         },
+        yearSlug: additionalUnitData.year_slug,
+        phaseSlug: additionalUnitData.phase_slug,
+        subjectSlug: additionalUnitData.subject_slug,
+        keyStageSlug: additionalUnitData.keystage_slug,
       };
+
+      return reply;
     }),
 });
