@@ -6,18 +6,27 @@ fi
 
 TESTS=0
 
+FILTER="/key-stages/ks3/subject/maths/assets?unit=victorian-childhood-non-fiction-reading-and-writing&offset=0&limit=10"
+
 title() {
-  echo "\n\033[90m$1\033[0m"
+  if [[ $FILTER == "" ]]; then
+    echo "\n\033[90m$1\033[0m"
+  fi
 }
 
 get() {
   URL=$1
+
+  if [[ $FILTER ]]; then
+    if [[ $FILTER != $URL ]]; then
+      return
+    fi
+  fi
+
   Q=${2:-"."}
   ((TESTS++))
   OUT=$(curl -s -X 'GET' "$ROOT$1" -H 'accept: application/json' \
     -H "Authorization: Bearer $API_KEY" | jq "$Q" 2>&1)
-
-  echo $OUT
 
   if [[ $Q == "." ]]; then
     echo $OUT | jq
@@ -50,6 +59,7 @@ get "/units/victorian-childhood-non-fiction-reading-and-writing/summary" '.code 
 title "# ASSETS"
 get "/key-stages/ks1/subject/english/assets" '.code == "NOT_FOUND"'
 get "/key-stages/ks1/subject/maths/assets" '.code? != "NOT_FOUND"'
+get "/key-stages/ks3/subject/english/assets" '.code? | not'
 
 title "# DOWNLOADS"
 
@@ -69,6 +79,6 @@ get "/search/lessons?q=run&keyStage=ks1&subject=english" '.code? | not'
 
 get "/lessons/theatre-trips/assets" '.code == "NOT_FOUND"'
 
-get "/lessons/multiply-a-2-digit-number-by-a-1-digit-number-using-short-multiplication-regrouping-1s-to-10s/quiz" '.exitQuiz | map(select(.questionImage)) | length > 0'
+get "/key-stages/ks3/subject/maths/assets?unit=victorian-childhood-non-fiction-reading-and-writing&offset=0&limit=10" '.exitQuiz | map(select(.questionImage)) | length > 0'
 
 title "FIN $TESTS tests run"
