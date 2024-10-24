@@ -13,11 +13,13 @@ export type User = {
 export async function addUser({
   email = null,
   name = null,
+  company = null,
   rateLimit = defaultRateLimit,
   key = uuid(),
 }: {
   email?: null | string;
   name?: null | string;
+  company?: null | string;
   rateLimit?: number;
   key?: string;
 } = {}): Promise<string> {
@@ -31,6 +33,7 @@ export async function addUser({
       key,
       email,
       name,
+      company,
       rateLimit,
       requests: 0,
     };
@@ -46,6 +49,7 @@ export async function addUser({
     const updates = {
       email: email,
       name: name,
+      company: company,
       rateLimit: rateLimit || null,
     };
 
