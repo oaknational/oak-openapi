@@ -106,14 +106,15 @@ export const getLessonTranscript = router({
       const [file] = files;
 
       const [contents] = await file.download(); // Download the file contents
-      const vtt = contents
-        .toString()
-        .replace(/\r/g, '')
-        .replace(/<\/?[^>]+(>|$)/g, '');
+
+      const vtt = contents.toString().replace(/\r/g, ''); // Remove carriage returns
+
+      // convert vtt to "plain text" transcript
       const transcript = vtt
+        .replace(/<\/?[^>]+(>|$)/g, '') // strip tags
         .split('\n\n')
         .slice(1)
-        .map((_) => _.split('\n').pop())
+        .map((_: string) => _.split('\n').pop())
         .join(' ');
 
       return { vtt, transcript };
