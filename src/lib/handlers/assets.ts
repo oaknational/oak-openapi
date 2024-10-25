@@ -23,6 +23,10 @@ import {
   modifySubject,
 } from '~/lib/queryGate';
 
+function camelCase(str: string) {
+  return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+}
+
 export const downloadTypeEnum = z.enum(
   [
     'slideDeck',
@@ -42,7 +46,9 @@ export const downloadTypeEnum = z.enum(
 );
 
 const assetType = z.object({
-  type: downloadTypeEnum,
+  assetType: downloadTypeEnum,
+  type: z.string(),
+  label: z.string(),
   url: z.string(),
 });
 
@@ -70,10 +76,9 @@ function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
   const assetUrls = [];
 
   if (downloads.slidedeck && downloads.slidedeck.bucket_path) {
-    const { type, label } = downloads.slidedeck;
     assetUrls.push({
-      type,
-      label,
+      type: camelCase(downloads.slidedeck.type),
+      label: downloads.slidedeck.label,
       assetType: 'slideDeck',
       url: `${baseUrl}/${downloads.slidedeck.bucket_path}`,
     });
@@ -81,7 +86,7 @@ function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
 
   if (downloads.worksheet && downloads.worksheet.bucket_path) {
     assetUrls.push({
-      type: downloads.worksheet.type,
+      type: camelCase(downloads.worksheet.type),
       label: downloads.worksheet.label,
       assetType: 'worksheet',
       url: `${baseUrl}/${downloads.worksheet.bucket_path}`,
@@ -90,7 +95,7 @@ function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
 
   if (downloads.worksheetAnswers && downloads.worksheetAnswers.bucket_path) {
     assetUrls.push({
-      type: downloads.worksheetAnswers.type,
+      type: camelCase(downloads.worksheetAnswers.type),
       label: downloads.worksheetAnswers.label,
       assetType: 'worksheetAnswers',
       url: `${baseUrl}/${downloads.worksheetAnswers.bucket_path}`,
@@ -102,7 +107,7 @@ function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
     downloads.supplementaryResource.bucket_path
   ) {
     assetUrls.push({
-      type: downloads.supplementaryResource.type,
+      type: camelCase(downloads.supplementaryResource.type),
       label: downloads.supplementaryResource.label,
       assetType: 'supplementaryResource',
       url: `${baseUrl}/${downloads.supplementaryResource.bucket_path}`,
@@ -111,7 +116,7 @@ function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
 
   if (downloads.starterQuiz && downloads.starterQuiz.bucket_path) {
     assetUrls.push({
-      type: downloads.starterQuiz.type,
+      type: 'worksheet',
       label: downloads.starterQuiz.label,
       assetType: 'starterQuiz',
       url: `${baseUrl}/${downloads.starterQuiz.bucket_path}`,
@@ -123,7 +128,7 @@ function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
     downloads.starterQuizAnswers.bucket_path
   ) {
     assetUrls.push({
-      type: downloads.starterQuizAnswers.type,
+      type: 'worksheetAnswers',
       label: downloads.starterQuizAnswers.label,
       assetType: 'starterQuizAnswers',
       url: `${baseUrl}/${downloads.starterQuizAnswers.bucket_path}`,
@@ -132,7 +137,7 @@ function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
 
   if (downloads.exitQuiz && downloads.exitQuiz.bucket_path) {
     assetUrls.push({
-      type: downloads.exitQuiz.type,
+      type: 'worksheet',
       label: downloads.exitQuiz.label,
       assetType: 'exitQuiz',
       url: `${baseUrl}/${downloads.exitQuiz.bucket_path}`,
@@ -141,7 +146,7 @@ function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
 
   if (downloads.exitQuizAnswers && downloads.exitQuizAnswers.bucket_path) {
     assetUrls.push({
-      type: downloads.exitQuizAnswers.type,
+      type: 'worksheetAnswers',
       label: downloads.exitQuizAnswers.label,
       assetType: 'exitQuizAnswers',
       url: `${baseUrl}/${downloads.exitQuizAnswers.bucket_path}`,
@@ -150,7 +155,7 @@ function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
 
   if (downloads.video && (downloads.video.download || downloads.video.stream)) {
     assetUrls.push({
-      type: 'video',
+      type: camelCase(downloads.video.type),
       label: downloads.video.label,
       assetType: 'video',
       url: downloads.video.download || downloads.video.stream,
