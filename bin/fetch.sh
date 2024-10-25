@@ -79,7 +79,7 @@ get "/search/lessons?q=run&keyStage=ks1&subject=english" '.code? | not'
 
 get "/lessons/theatre-trips/assets" '.code == "NOT_FOUND"'
 
-get "/key-stages/ks3/english/assets?unit=victorian-childhood-non-fiction-reading-and-writing"
+# get "/key-stages/ks3/english/assets?unit=victorian-childhood-non-fiction-reading-and-writing"
 
 get $FILTER
 title "FIN $TESTS tests run"

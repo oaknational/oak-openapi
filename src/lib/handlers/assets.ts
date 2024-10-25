@@ -25,7 +25,7 @@ import {
 
 export const downloadTypeEnum = z.enum(
   [
-    'slidedeck',
+    'slideDeck',
     'exitQuiz',
     'exitQuizAnswers',
     'starterQuiz', // note: graphql key is (currently) starter_quiz
@@ -70,22 +70,29 @@ function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
   const assetUrls = [];
 
   if (downloads.slidedeck && downloads.slidedeck.bucket_path) {
+    const { type, label } = downloads.slidedeck;
     assetUrls.push({
-      type: 'slidedeck',
+      type,
+      label,
+      assetType: 'slideDeck',
       url: `${baseUrl}/${downloads.slidedeck.bucket_path}`,
     });
   }
 
   if (downloads.worksheet && downloads.worksheet.bucket_path) {
     assetUrls.push({
-      type: 'worksheet',
+      type: downloads.worksheet.type,
+      label: downloads.worksheet.label,
+      assetType: 'worksheet',
       url: `${baseUrl}/${downloads.worksheet.bucket_path}`,
     });
   }
 
   if (downloads.worksheetAnswers && downloads.worksheetAnswers.bucket_path) {
     assetUrls.push({
-      type: 'worksheetAnswers',
+      type: downloads.worksheetAnswers.type,
+      label: downloads.worksheetAnswers.label,
+      assetType: 'worksheetAnswers',
       url: `${baseUrl}/${downloads.worksheetAnswers.bucket_path}`,
     });
   }
@@ -95,14 +102,18 @@ function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
     downloads.supplementaryResource.bucket_path
   ) {
     assetUrls.push({
-      type: 'supplementaryResource',
+      type: downloads.supplementaryResource.type,
+      label: downloads.supplementaryResource.label,
+      assetType: 'supplementaryResource',
       url: `${baseUrl}/${downloads.supplementaryResource.bucket_path}`,
     });
   }
 
   if (downloads.starterQuiz && downloads.starterQuiz.bucket_path) {
     assetUrls.push({
-      type: 'starterQuiz',
+      type: downloads.starterQuiz.type,
+      label: downloads.starterQuiz.label,
+      assetType: 'starterQuiz',
       url: `${baseUrl}/${downloads.starterQuiz.bucket_path}`,
     });
   }
@@ -112,21 +123,27 @@ function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
     downloads.starterQuizAnswers.bucket_path
   ) {
     assetUrls.push({
-      type: 'starterQuizAnswers',
+      type: downloads.starterQuizAnswers.type,
+      label: downloads.starterQuizAnswers.label,
+      assetType: 'starterQuizAnswers',
       url: `${baseUrl}/${downloads.starterQuizAnswers.bucket_path}`,
     });
   }
 
   if (downloads.exitQuiz && downloads.exitQuiz.bucket_path) {
     assetUrls.push({
-      type: 'exitQuiz',
+      type: downloads.exitQuiz.type,
+      label: downloads.exitQuiz.label,
+      assetType: 'exitQuiz',
       url: `${baseUrl}/${downloads.exitQuiz.bucket_path}`,
     });
   }
 
   if (downloads.exitQuizAnswers && downloads.exitQuizAnswers.bucket_path) {
     assetUrls.push({
-      type: 'exitQuizAnswers',
+      type: downloads.exitQuizAnswers.type,
+      label: downloads.exitQuizAnswers.label,
+      assetType: 'exitQuizAnswers',
       url: `${baseUrl}/${downloads.exitQuizAnswers.bucket_path}`,
     });
   }
@@ -134,6 +151,8 @@ function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
   if (downloads.video && (downloads.video.download || downloads.video.stream)) {
     assetUrls.push({
       type: 'video',
+      label: downloads.video.label,
+      assetType: 'video',
       url: downloads.video.download || downloads.video.stream,
     });
   }
@@ -161,7 +180,7 @@ export const getAssets = router({
               ],
               assets: [
                 {
-                  type: 'slidedeck',
+                  type: 'slideDeck',
                   url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/slidedeck'`,
                 },
                 {
@@ -421,7 +440,7 @@ export const getAssets = router({
             ],
             assets: [
               {
-                type: 'slidedeck',
+                type: 'slideDeck',
                 url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/slidedeck'`,
               },
               {
