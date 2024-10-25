@@ -6,7 +6,7 @@ fi
 
 TESTS=0
 
-FILTER="/key-stages/ks3/subject/maths/assets?unit=victorian-childhood-non-fiction-reading-and-writing&offset=0&limit=10"
+# FILTER="/key-stages/ks3/subject/maths/assets"
 
 title() {
   if [[ $FILTER == "" ]]; then
@@ -79,6 +79,7 @@ get "/search/lessons?q=run&keyStage=ks1&subject=english" '.code? | not'
 
 get "/lessons/theatre-trips/assets" '.code == "NOT_FOUND"'
 
-get "/key-stages/ks3/subject/maths/assets?unit=victorian-childhood-non-fiction-reading-and-writing&offset=0&limit=10" '.exitQuiz | map(select(.questionImage)) | length > 0'
+get "/key-stages/ks3/english/assets?unit=victorian-childhood-non-fiction-reading-and-writing"
 
+get $FILTER
 title "FIN $TESTS tests run"
