@@ -9,14 +9,12 @@ import { getQuestions } from './handlers/questions';
 import { getUnits } from './handlers/units';
 import { subjects } from './handlers/subjects';
 import { getAssets } from './handlers/assets';
-import { getDownloads } from './handlers/download';
 import { searchTranscripts } from './handlers/searchTranscripts';
 import { getLessonTranscript } from './handlers/transcript';
 
 export default router({
   getLessonTranscript,
   searchTranscripts,
-  getDownloads,
   getAssets,
   subjects,
   getKeyStages,

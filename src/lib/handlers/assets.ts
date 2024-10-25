@@ -8,7 +8,6 @@ import {
   Download,
   DownloadView,
   LessonView,
-  SignedAsset,
   UnitVariantLessonsView,
   downloadView,
   getClient,
@@ -65,44 +64,81 @@ export type DownloadTypeEnum = z.infer<typeof downloadTypeEnum>;
 
 const graphqlClient = getClient();
 
-function assetDownloads(
-  lessonSlug: string,
-  downloads: Download[],
-  filter?: DownloadTypeEnum
-) {
-  const allTypes: DownloadTypeEnum[] = downloadTypeEnum.options;
+function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
+  const baseUrl = 'https://storage.cloud.google.com/ingested-assets-production';
 
-  return downloads
-    .map((d) => {
-      if (filter) {
-        const item = filter in d ? d[filter] : null;
+  const assetUrls = [];
 
-        if (!item) return null;
+  if (downloads.slidedeck && downloads.slidedeck.bucket_path) {
+    assetUrls.push({
+      type: 'slidedeck',
+      url: `${baseUrl}/${downloads.slidedeck.bucket_path}`,
+    });
+  }
 
-        return {
-          type: item.type,
-          url: `${baseUrl}/download/${lessonSlug}/type/${item.type}`,
-        };
-      }
+  if (downloads.worksheet && downloads.worksheet.bucket_path) {
+    assetUrls.push({
+      type: 'worksheet',
+      url: `${baseUrl}/${downloads.worksheet.bucket_path}`,
+    });
+  }
 
-      return allTypes.map((type) => {
-        if (type === 'video') {
-          return {
-            type,
-            url: `${baseUrl}/download/${lessonSlug}/type/${type}`,
-          };
-        }
+  if (downloads.worksheetAnswers && downloads.worksheetAnswers.bucket_path) {
+    assetUrls.push({
+      type: 'worksheetAnswers',
+      url: `${baseUrl}/${downloads.worksheetAnswers.bucket_path}`,
+    });
+  }
 
-        if ((d[type] as SignedAsset).bucket_name !== null) {
-          return {
-            type,
-            url: `${baseUrl}/download/${lessonSlug}/type/${type}`,
-          };
-        }
-      });
-    })
-    .flat()
-    .filter(Boolean);
+  if (
+    downloads.supplementaryResource &&
+    downloads.supplementaryResource.bucket_path
+  ) {
+    assetUrls.push({
+      type: 'supplementaryResource',
+      url: `${baseUrl}/${downloads.supplementaryResource.bucket_path}`,
+    });
+  }
+
+  if (downloads.starterQuiz && downloads.starterQuiz.bucket_path) {
+    assetUrls.push({
+      type: 'starterQuiz',
+      url: `${baseUrl}/${downloads.starterQuiz.bucket_path}`,
+    });
+  }
+
+  if (
+    downloads.starterQuizAnswers &&
+    downloads.starterQuizAnswers.bucket_path
+  ) {
+    assetUrls.push({
+      type: 'starterQuizAnswers',
+      url: `${baseUrl}/${downloads.starterQuizAnswers.bucket_path}`,
+    });
+  }
+
+  if (downloads.exitQuiz && downloads.exitQuiz.bucket_path) {
+    assetUrls.push({
+      type: 'exitQuiz',
+      url: `${baseUrl}/${downloads.exitQuiz.bucket_path}`,
+    });
+  }
+
+  if (downloads.exitQuizAnswers && downloads.exitQuizAnswers.bucket_path) {
+    assetUrls.push({
+      type: 'exitQuizAnswers',
+      url: `${baseUrl}/${downloads.exitQuizAnswers.bucket_path}`,
+    });
+  }
+
+  if (downloads.video && (downloads.video.download || downloads.video.stream)) {
+    assetUrls.push({
+      type: 'video',
+      url: downloads.video.download || downloads.video.stream,
+    });
+  }
+
+  return assetUrls.filter((asset) => !filter || asset.type === filter);
 }
 
 export const getAssets = router({
@@ -360,7 +396,7 @@ export const getAssets = router({
           lessonSlug,
           lessonTitle: d.lessonTitle,
           attribution: mappedAttribution.length ? mappedAttribution : undefined,
-          assets: assetDownloads(lessonSlug, [d], typeFilter),
+          assets: assetDownloads(d, typeFilter),
         };
       });
 
@@ -446,6 +482,23 @@ export const getAssets = router({
         });
       }
 
+      // const queryLessonDetail = gql`
+      //   query GetLessonDetail($lessonSlug: String!) {
+      //     ${lessonDetailView}(
+      //       where: { lesson_slug: { _eq: $lessonSlug } }
+      //     ) {
+      //       has_slide_deck_asset_object
+      //       has_worksheet_asset_object
+      //       has_worksheet_answers_asset_object
+      //       has_supplementary_asset_object
+      //     }
+
+      //     lessons(where: { slug: { _eq: $lessonSlug } }) {
+      //       lesson_uid
+      //     }
+      //   }
+      // `;
+
       const queryDownloads = gql`
         query GetDownloads($lessonSlug: String!) {
           ${downloadView}(
@@ -474,12 +527,12 @@ export const getAssets = router({
         lessonSlug,
       };
 
-      const downloadsViewResult: DownloadView = await graphqlClient.request(
+      const lessonDetailViewResult: DownloadView = await graphqlClient.request(
         queryDownloads,
         variables
       );
 
-      const res = downloadsViewResult[downloadView];
+      const res = lessonDetailViewResult[downloadView];
 
       if (!res || res.length === 0 || !res[0]) {
         throw new TRPCError({
@@ -519,7 +572,7 @@ export const getAssets = router({
 
       return {
         attribution: mappedAttribution.length ? mappedAttribution : undefined,
-        assets: assetDownloads(lessonSlug, res, type),
+        assets: assetDownloads(res[0], type),
       };
     }),
 });
