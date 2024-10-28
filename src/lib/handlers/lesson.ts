@@ -379,8 +379,6 @@ export const getLessons = router({
         Object.groupBy(res[lessonView], ({ lessonSlug }) => lessonSlug)
       );
 
-      console.log({ groupedByLesson });
-
       return groupedByLesson
         .reduce((acc, res) => {
           // I can't see how this is ever true, but it's a TS thing.
