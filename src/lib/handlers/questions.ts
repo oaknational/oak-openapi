@@ -48,10 +48,10 @@ const imageContent = z.object({
     .optional(),
   // RS disabled license for now until we have final answer on how we deal
   // with unknown/uncategorised licenses
+  attribution: z.string().optional(),
 
   // license: z
   //   .object({
-  //     attribution: z.string().optional(),
   //     source: z.string().optional(),
   //     attribution_required: z.boolean().optional(),
   //     usageRestrictions: z.string().optional(),
@@ -249,8 +249,7 @@ function formatImage(image: ImageStem, text: null | { text: string } = null) {
     height: image.image_object.height || 0,
     alt: image.image_object.context?.custom?.alt || undefined,
     text: text?.text || undefined,
-    // license: image.image_object.metadata || undefined,
-    // attribution
+    attribution: image.image_object.metadata?.attribution || undefined,
   };
 
   return content;
