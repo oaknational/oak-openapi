@@ -482,13 +482,18 @@ function Features() {
                   </OakBox>
                 </OakAccordion>
               </LeftAlignedChildButtons>
-
-              <OakSpan>
+              <OakP $font="body-2">
                 If you need more help{' '}
                 <OakLink href="mailto:help@thenational.academy?subject=Oak%20OpenAPI">
                   contact us here
                 </OakLink>
-              </OakSpan>
+              </OakP>
+              <OakP $font="body-2">
+              When using our API key, please ensure you comply with our{' '}
+                <OakLink href="https://www.thenational.academy/legal/terms-and-conditions">
+                  Terms and Conditions
+                </OakLink>
+              </OakP>
             </Feature>
             <Feature
               anchorTarget="give-feedback"
@@ -503,7 +508,7 @@ function Features() {
               </OakP>
               <OakTertiaryButton
                 element="a"
-                href="mailto:help@thenational.academy?subject=Oak%20OpenAPI"
+                href="https://survey.hsforms.com/1C1LX6MhoTWi2_3iF6Q6y3gbvumd"
                 isTrailingIcon
                 iconName="arrow-right"
               >
