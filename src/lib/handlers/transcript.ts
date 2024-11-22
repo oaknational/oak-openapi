@@ -72,6 +72,12 @@ export const getLessonTranscript = router({
             lesson_uid
             slug
           }
+
+          published_mv_lesson_content_published_3_0_0(
+            where: { lesson_slug: { _eq: $slug } }
+          ) {
+            transcript_sentences
+          }
         }
       `;
 
@@ -80,6 +86,9 @@ export const getLessonTranscript = router({
           lesson_uid: string;
           slug: string;
         }[];
+        published_mv_lesson_content_published_3_0_0: {
+          transcript_sentences: string;
+        }[];
       };
 
       const res: LessonResponse = await client.request(query, {
@@ -87,6 +96,8 @@ export const getLessonTranscript = router({
       });
 
       const lesson = res.lessons[0];
+      const transcript =
+        res.published_mv_lesson_content_published_3_0_0[0].transcript_sentences;
 
       if (!lesson) {
         throw new TRPCError({
@@ -108,14 +119,6 @@ export const getLessonTranscript = router({
       const [contents] = await file.download(); // Download the file contents
 
       const vtt = contents.toString().replace(/\r/g, ''); // Remove carriage returns
-
-      // convert vtt to "plain text" transcript
-      const transcript = vtt
-        .replace(/<\/?[^>]+(>|$)/g, '') // strip tags
-        .split('\n\n')
-        .slice(1)
-        .map((_: string) => _.split('\n').pop())
-        .join(' ');
 
       return { vtt, transcript };
     }),
