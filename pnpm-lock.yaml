@@ -44,6 +44,9 @@ dependencies:
   posthog-js:
     specifier: ^1.172.0
     version: 1.172.0
+  renvy:
+    specifier: ^4.0.2
+    version: 4.0.2
   styled-components:
     specifier: ^6.1.12
     version: 6.1.12(react-dom@18.3.1)(react@18.3.1)
@@ -2834,10 +2837,19 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
+  /dotenv-expand@4.2.0:
+    resolution: {integrity: sha512-pHWVt6L/YkqbBCMb1hG6e7oO0WdMhlapDIibl+BZ9PncVE3i+G77uvNr8GUxW2ItSituOK8QOYC9oOJjwWD94A==}
+    dev: false
+
   /dotenv@16.4.5:
     resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
     engines: {node: '>=12'}
     dev: true
+
+  /dotenv@4.0.0:
+    resolution: {integrity: sha512-XcaMACOr3JMVcEv0Y/iUM2XaOsATRZ3U1In41/1jjK6vJZ2PZbQ1bzCG8uvaByfaBpl9gqc9QWJovpUGBXLLYQ==}
+    engines: {node: '>=4.6.0'}
+    dev: false
 
   /drange@1.1.1:
     resolution: {integrity: sha512-pYxfDYpued//QpnLIm4Avk7rsNtAtQkUES2cwAYSvD/wd2pKD71gN2Ebj3e7klzXwjocvE8c5vx/1fxwpqmSxA==}
@@ -5560,6 +5572,14 @@ packages:
     dependencies:
       argparse: 1.0.10
       autolinker: 3.16.2
+    dev: false
+
+  /renvy@4.0.2:
+    resolution: {integrity: sha512-QiJlO8VlaEZWFGdIphKHSQr6vpxsML7kA60s/EMLS/3pie9ZPqWFuWERLsdjbGzTOLetlKIlP3VXQsN8UxnpHg==}
+    hasBin: true
+    dependencies:
+      dotenv: 4.0.0
+      dotenv-expand: 4.2.0
     dev: false
 
   /repeat-string@1.6.1:
