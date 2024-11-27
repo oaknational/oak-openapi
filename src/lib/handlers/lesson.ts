@@ -14,9 +14,13 @@ import {
 import { z } from 'zod';
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
 import { blockLessonForCopyrightText } from '../queryGate';
+import { defaultCaching } from '../networkCache';
+import Timing from '~/lib/serverTimings';
 
 toSorted.shim();
 groupBy.shim();
+
+const timing = new Timing();
 
 const lessonSearchResult = z.object({
   lessonSlug: z.string(),
@@ -70,6 +74,7 @@ type LessonSummary = z.infer<typeof lessonSummary>;
 
 export const getLessons = router({
   getLesson: protectedProcedure
+    .use(defaultCaching)
     .meta({
       openapi: {
         method: 'GET',
@@ -151,14 +156,18 @@ export const getLessons = router({
       }),
     )
     .output(lessonSummary)
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
+      const { res: response } = ctx;
       const slug = decodeURIComponent(input.lesson);
 
       const client = getClient();
 
+      timing.start('blockLessonForCopyrightText');
       const blocked = await blockLessonForCopyrightText(client, slug);
+      timing.end('blockLessonForCopyrightText');
 
       if (blocked) {
+        response.setHeader('Server-Timing', timing.toHeader(response));
         throw new TRPCError({
           message: 'Unit not available for this query',
           code: 'NOT_FOUND',
@@ -189,12 +198,15 @@ export const getLessons = router({
         }
       `;
 
+      timing.start('getLesson graphql');
       const res: LessonView = await client.request(query, {
         slug,
       });
+      timing.end('getLesson graphql');
 
       const data = res[lessonView];
 
+      response.setHeader('Server-Timing', timing.toHeader(response));
       if (data.length === 0) {
         throw new TRPCError({
           message: 'Lesson not found',

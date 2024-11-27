@@ -11,6 +11,9 @@ import {
 } from 'lib/owaClient';
 import { z } from 'zod';
 import { blockUnitForCopyrightText } from '../queryGate';
+import Timing from '../serverTimings';
+
+const timing = new Timing();
 
 export const unitSchema = z.object({
   unitSlug: z.string(),
@@ -111,13 +114,17 @@ export const getUnits = router({
     })
     .output(unitSchema)
     .input(z.object({ unit: z.string({ description: 'The unit slug' }) }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
+      const { res: response } = ctx;
       const { unit: slug } = input;
       const client = getClient();
 
+      timing.start('blockUnitForCopyrightText');
       const blocked = await blockUnitForCopyrightText(client, slug);
+      timing.end('blockUnitForCopyrightText');
 
       if (blocked) {
+        response.setHeader('Server-Timing', timing.toHeader(response));
         throw new TRPCError({
           message: 'Unit not available for this query',
           code: 'NOT_FOUND',
@@ -155,10 +162,13 @@ export const getUnits = router({
         }
       `;
 
+      timing.start('getUnit graphql query');
       const res: UnitCurriculumView & UnitVariantLessonsView =
         await client.request(query, { slug });
+      timing.end('getUnit graphql query');
 
       if (res[unitCurriculumView].length === 0) {
+        response.setHeader('Server-Timing', timing.toHeader(response));
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
       }
 
@@ -166,8 +176,6 @@ export const getUnits = router({
 
       const orderData = res[unitVariantLessonsView];
       const additionalUnitData = orderData[0];
-
-      console.log({ additionalUnitData });
 
       const reply: UnitSchema = {
         unitSlug: root.unitSlug,
