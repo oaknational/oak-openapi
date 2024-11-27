@@ -1,15 +1,9 @@
 const stale_while_revalidate_seconds = 60 * 3; // 3 minutes
 const s_maxage_seconds = 60 * 60 * 24; // 1 day
 
-import type { Context } from '~/lib/context';
+import { t } from '~/lib/trpc';
 
-export function defaultCaching({
-  ctx,
-  next,
-}: {
-  ctx: Context;
-  next: () => Promise<unknown>;
-}) {
+export const defaultCaching = t.middleware(({ ctx, next }) => {
   if (!ctx.res || typeof ctx.res.setHeader !== 'function') {
     throw new Error('Response object does not support setting headers');
   }
@@ -18,4 +12,4 @@ export function defaultCaching({
 
   ctx.res.setHeader('Cache-Control', cacheControl);
   return next();
-}
+});
