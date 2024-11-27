@@ -29,7 +29,7 @@ const lessonSearchResult = z.object({
       examBoardTitle: z.string().or(z.null()),
       keyStageSlug: z.string(),
       subjectSlug: z.string(),
-    })
+    }),
   ),
 });
 
@@ -44,11 +44,11 @@ const lessonSummary = z.object({
   keyStageSlug: z.string(),
   keyStageTitle: z.string(),
   lessonKeywords: z.array(
-    z.object({ keyword: z.string(), description: z.string() })
+    z.object({ keyword: z.string(), description: z.string() }),
   ),
   keyLearningPoints: z.array(z.object({ keyLearningPoint: z.string() })),
   misconceptionsAndCommonMistakes: z.array(
-    z.object({ misconception: z.string(), response: z.string() })
+    z.object({ misconception: z.string(), response: z.string() }),
   ),
   pupilLessonOutcome: z.string().optional(),
   teacherTips: z.array(z.object({ teacherTip: z.string() })),
@@ -59,7 +59,7 @@ const lessonSummary = z.object({
         supervisionlevel_id: z.number(),
         contentGuidanceLabel: z.string(),
         contentGuidanceDescription: z.string(),
-      })
+      }),
     )
     .or(z.null()),
   supervisionLevel: z.string().or(z.null()),
@@ -148,7 +148,7 @@ export const getLessons = router({
     .input(
       z.object({
         lesson: z.string({ description: 'The slug of the lesson' }),
-      })
+      }),
     )
     .output(lessonSummary)
     .query(async ({ input }) => {
@@ -273,7 +273,7 @@ export const getLessons = router({
             description: 'Optional unit slug to additionally filter by',
           })
           .optional(),
-      })
+      }),
     )
     .output(z.array(lessonSearchResult))
     .query(async ({ input }) => {
@@ -302,12 +302,13 @@ export const getLessons = router({
       const result = await querySQL(sql).then((res) => res.json());
 
       const slugs = result.result.slice(1).map(([slug]: [string]) => slug);
-      const similarity = result.result
-        .slice(1)
-        .reduce((acc: { [x: string]: number }, [slug, _]: [string, string]) => {
+      const similarity = result.result.slice(1).reduce(
+        (acc: { [x: string]: number }, [slug, _]: [string, string]) => {
           acc[slug] = parseFloat(_);
           return acc;
-        }, {} as Record<string, number>);
+        },
+        {} as Record<string, number>,
+      );
 
       const client = getClient();
 
@@ -376,7 +377,7 @@ export const getLessons = router({
       }
 
       const groupedByLesson = Object.values(
-        Object.groupBy(res[lessonView], ({ lessonSlug }) => lessonSlug)
+        Object.groupBy(res[lessonView], ({ lessonSlug }) => lessonSlug),
       );
 
       return groupedByLesson

@@ -33,15 +33,15 @@ export const getAllKeyStageAndSubjectUnits = router({
           description:
             "Subject slug to search by, e.g. 'science' - note that casing is important here (always lowercase)",
         }),
-      })
+      }),
     )
     .output(
       z.array(
         z.object({
           unitTitle: z.string({ description: 'Unit title' }),
           unitSlug: z.string({ description: 'Unit slug' }),
-        })
-      )
+        }),
+      ),
     )
     .query(async ({ input }) => {
       const keyStage = decodeURIComponent(input.keyStage);

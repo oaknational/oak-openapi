@@ -39,7 +39,7 @@ export const unitSchema = z.object({
       lessonSlug: z.string(),
       lessonTitle: z.string(),
       lessonOrder: z.number().optional(),
-    })
+    }),
   ),
 });
 

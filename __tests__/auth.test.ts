@@ -5,7 +5,7 @@ test('without auth', async () => {
   const caller = makeCaller();
 
   await expect(
-    async () => await caller.subjects.getAllSubjects()
+    async () => await caller.subjects.getAllSubjects(),
   ).rejects.toThrow('API token not provided');
 });
 

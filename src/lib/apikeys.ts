@@ -99,7 +99,7 @@ async function manageUser({
 
 export async function findUserByKey(
   key: string,
-  log: boolean = true
+  log: boolean = true,
 ): Promise<User | null> {
   const user: User | null = await redis.hgetall(`user:${key}`);
 

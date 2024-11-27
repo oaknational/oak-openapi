@@ -11,7 +11,7 @@ let storage;
 // Check if GOOGLE_APPLICATION_CREDENTIALS_JSON is set
 if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
   const credentials = JSON.parse(
-    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
+    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
   );
 
   // Initialize storage client with credentials
@@ -47,7 +47,7 @@ export const getLessonTranscript = router({
     .input(
       z.object({
         lesson: z.string({ description: 'The slug of the lesson' }),
-      })
+      }),
     )
     .output(z.object({ transcript: z.string(), vtt: z.string() }))
     .query(async ({ input }) => {
