@@ -42,7 +42,7 @@ export const rateLimiter = (rateLimit: RateLimit): RateLimiter => {
       if (!apiKey) {
         // should never happen
         throw new Error(
-          'authenticated user is required for userBasedRateLimiter'
+          'authenticated user is required for userBasedRateLimiter',
         );
       }
 

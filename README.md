@@ -1,6 +1,6 @@
 # Oak open api front end
 
-## Adding new API keys
+## Managing API keys
 
 Currently this is handled manually:
 
@@ -52,7 +52,7 @@ Required dependencies:
 
 1. [Artillery](https://www.artillery.io/docs/get-started/get-artillery) installed globally
 
-How to run: 
+How to run:
 
 1. Set env vars for target URL and auth token.
 2. `pnpm load-test`
