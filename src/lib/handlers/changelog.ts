@@ -54,8 +54,8 @@ export const changelog = router({
           version: z.string(),
           date: z.string(),
           changes: z.array(z.string()),
-        })
-      )
+        }),
+      ),
     )
     .input(z.undefined())
     .query(async () => {
@@ -77,7 +77,7 @@ export const changelog = router({
         version: z.string(),
         date: z.string(),
         changes: z.array(z.string()),
-      })
+      }),
     )
     .input(z.undefined())
     .query(async () => {

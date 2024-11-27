@@ -26,8 +26,8 @@ export const getKeyStages = router({
         z.object({
           slug: z.string(),
           title: z.string(),
-        })
-      )
+        }),
+      ),
     )
     .query(() => keyStages),
   getKeyStageSubjects: protectedProcedure
@@ -58,10 +58,10 @@ export const getKeyStages = router({
           description:
             "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
         }),
-      })
+      }),
     )
     .output(
-      z.array(z.object({ subjectSlug: z.string(), subjectTitle: z.string() }))
+      z.array(z.object({ subjectSlug: z.string(), subjectTitle: z.string() })),
     )
     .query(({ input }) => {
       const key = decodeURIComponent(input.keyStage);

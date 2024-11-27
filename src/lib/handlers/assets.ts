@@ -39,7 +39,7 @@ export const downloadTypeEnum = z.enum(
   {
     description:
       'Use the this type and the lesson slug in conjunction to get a signed download URL to the asset type from the /api/download endpoint',
-  }
+  },
 );
 
 const assetType = z.object({
@@ -58,7 +58,7 @@ export const lessonsAssetsType = z.array(
     lessonTitle: z.string(),
     attribution: z.array(z.string()).optional(),
     assets: z.array(assetType),
-  })
+  }),
 );
 
 export type DownloadTypeEnum = z.infer<typeof downloadTypeEnum>;
@@ -68,7 +68,7 @@ const graphqlClient = getClient();
 function assetDownloads(
   lessonSlug: string,
   downloads: Download[],
-  filter?: DownloadTypeEnum
+  filter?: DownloadTypeEnum,
 ) {
   const allTypes: DownloadTypeEnum[] = downloadTypeEnum.options;
 
@@ -191,7 +191,7 @@ export const getAssets = router({
           .lte(100)
           .optional()
           .default(10),
-      })
+      }),
     )
     .output(z.any()) //lessonsAssetsType
     .query(async ({ input, ctx }) => {
@@ -311,7 +311,7 @@ export const getAssets = router({
         downloadsQuery,
         {
           lessonSlugs,
-        }
+        },
       );
 
       const downloads = downloadsViewResult[downloadView];
@@ -427,7 +427,7 @@ export const getAssets = router({
           description: 'The lesson slug',
         }),
         type: downloadTypeEnum.optional(),
-      })
+      }),
     )
     .output(z.any()) //lessonAssetsType
     .query(async ({ input }) => {
@@ -436,7 +436,7 @@ export const getAssets = router({
       // FIXME - gate with a query to check if the lesson is in maths
       const supported = await checkLessonAllowedAsset(
         graphqlClient,
-        lessonSlug
+        lessonSlug,
       );
 
       if (!supported) {
@@ -476,7 +476,7 @@ export const getAssets = router({
 
       const downloadsViewResult: DownloadView = await graphqlClient.request(
         queryDownloads,
-        variables
+        variables,
       );
 
       const res = downloadsViewResult[downloadView];
