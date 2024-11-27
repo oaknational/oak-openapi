@@ -23,6 +23,6 @@ test('get questions from hasura and check structure', async () => {
 
   expect(Array.isArray(resLessons)).toBe(true);
   expect(Object.keys(resLessons[0])).toEqual(
-    expect.arrayContaining(['starterQuiz', 'exitQuiz'])
+    expect.arrayContaining(['starterQuiz', 'exitQuiz']),
   );
 });

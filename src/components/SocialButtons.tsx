@@ -91,7 +91,8 @@ const SocialButtons: FC<SocialButtonsProps> = (props) => {
       $gap={'all-spacing-4'}
       $alignItems={'center'}
       $justifyContent={'center'}
-      {...flexProps}>
+      {...flexProps}
+    >
       {socialsToShow.map((network) => {
         const { label, icon } = SOCIAL_BUTTON_CONFIGS[network];
         const profile = props[network];

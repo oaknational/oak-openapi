@@ -54,7 +54,7 @@ export const getDownloads = router({
           description: 'The lesson slug',
         }),
         type: downloadTypeEnum, // FIXME this should be an array but the openapi generator doesn't support it
-      })
+      }),
     )
     .output(
       z.array(
@@ -75,8 +75,8 @@ export const getDownloads = router({
             })
             .optional(),
           type: downloadTypeEnum,
-        })
-      )
+        }),
+      ),
     )
     .query(async ({ input, ctx }) => {
       const { slug, type } = input;
@@ -134,7 +134,7 @@ export const getDownloads = router({
 
       const downloadsQuery: DownloadView = await graphqlClient.request(
         queryDownloads,
-        variables
+        variables,
       );
 
       const res = downloadsQuery[downloadView];
@@ -167,8 +167,8 @@ export const getDownloads = router({
             if (downloads[type].bucket_name) {
               const json = await fetch(
                 `https://downloads-api.thenational.academy/api/lesson/${slug}/download?selection=${downloadMappingToOWA.get(
-                  type
-                )}&openapi_key=${user.id}`
+                  type,
+                )}&openapi_key=${user.id}`,
               ).then((res) => res.json());
 
               result.push({
