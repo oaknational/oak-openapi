@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 if [ -z "$API_KEY" ]; then
   echo "Error: API_KEY is not set in the environment."
   exit 1
