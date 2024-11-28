@@ -167,8 +167,9 @@ export const getUnits = router({
         await client.request(query, { slug });
       timing.end('getUnit graphql query');
 
+      response.setHeader('Server-Timing', timing.toHeader(response));
+
       if (res[unitCurriculumView].length === 0) {
-        response.setHeader('Server-Timing', timing.toHeader(response));
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
       }
 
