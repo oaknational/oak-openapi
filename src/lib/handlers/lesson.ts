@@ -175,7 +175,7 @@ export const getLessons = router({
       }
 
       const query = gql`
-        query ($slug: String!) {
+        query ($slug: String!) @cached(ttl: 300) {
           ${lessonView}(
             where: { lessonSlug: { _eq: $slug }, isLegacy: { _eq: false } }
           ) {

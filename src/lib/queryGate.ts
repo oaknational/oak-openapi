@@ -349,7 +349,7 @@ export async function getSubjectAndUnitForLesson(
   slug: string,
 ): Promise<{ subjectSlug: string; unitSlug: string } | false> {
   const query = gql`
-  query ($slug: String!) {
+  query ($slug: String!) @cached(ttl: 300) {
     ${lessonView}(
       where: { lessonSlug: { _eq: $slug }, isLegacy: { _eq: false } }
     ) {
@@ -377,7 +377,7 @@ async function getSubjectForUnit(
   slug: string,
 ): Promise<{ subjectSlug: string } | false> {
   const query = gql`
-  query ($slug: String!) {
+  query ($slug: String!) @cached(ttl: 300) {
     ${lessonView}(
       where: { unitSlug: { _eq: $slug }, isLegacy: { _eq: false } }
       limit: 1
