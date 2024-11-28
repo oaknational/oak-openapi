@@ -12,6 +12,7 @@ import {
 import { z } from 'zod';
 import { blockUnitForCopyrightText } from '../queryGate';
 import Timing from '../serverTimings';
+import { defaultCaching } from '../networkCache';
 
 const timing = new Timing();
 
@@ -50,6 +51,7 @@ type UnitSchema = z.infer<typeof unitSchema>;
 
 export const getUnits = router({
   getUnit: protectedProcedure
+    .use(defaultCaching)
     .meta({
       openapi: {
         method: 'GET',
