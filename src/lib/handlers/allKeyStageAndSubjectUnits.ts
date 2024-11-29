@@ -10,7 +10,7 @@ export const getAllKeyStageAndSubjectUnits = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['lists'],
+        tags: ['lists', 'units'],
         path: '/key-stages/{keyStage}/subject/{subject}/units',
         description:
           'This endpoint returns all the units (titles and slugs) that are currently available on Oak for a given subject and key stage',
@@ -40,6 +40,7 @@ export const getAllKeyStageAndSubjectUnits = router({
         z.object({
           unitTitle: z.string({ description: 'Unit title' }),
           unitSlug: z.string({ description: 'Unit slug' }),
+          // unitOrder: z.number(), // removed for the moment
         }),
       ),
     )
@@ -60,9 +61,11 @@ export const getAllKeyStageAndSubjectUnits = router({
               subjectSlug: { _eq: $subject }
               isLegacy: { _eq: false }
             }
+            order_by: { unitOrder: asc }
           ) {
             unitSlug
             unitTitle
+            unitOrder
           }
         }
       `;
@@ -81,16 +84,17 @@ export const getAllKeyStageAndSubjectUnits = router({
 
       const uniqueUnits = new Map<
         string,
-        { unitSlug: string; unitTitle: string }
+        { unitSlug: string; unitTitle: string; unitOrder: number }
       >();
 
-      res[lessonView].forEach(({ unitSlug, unitTitle }) => {
-        if (!unitSlug || !unitTitle) {
+      res[lessonView].forEach(({ unitSlug, unitTitle, unitOrder }) => {
+        if (!unitSlug || !unitTitle || unitOrder === undefined) {
           return;
         }
         uniqueUnits.set(unitSlug, {
           unitSlug,
           unitTitle,
+          unitOrder,
         });
       });
 
