@@ -140,12 +140,15 @@ export const getAllKeyStageAndSubjectUnits = router({
         >,
       );
 
-      const keys = Object.keys(result);
+      // sort first by the year slug, then by the unit order
+      const sorted = [];
+      const keys = Object.keys(result).sort();
       for (const key of keys) {
         const year = result[key];
         year.units.sort((a, b) => a.unitOrder - b.unitOrder);
+        sorted.push(year);
       }
 
-      return Object.values(result);
+      return sorted;
     }),
 });
