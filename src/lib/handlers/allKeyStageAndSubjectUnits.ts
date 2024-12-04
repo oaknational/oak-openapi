@@ -10,15 +10,27 @@ export const getAllKeyStageAndSubjectUnits = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['lists'],
+        tags: ['lists', 'units'],
         path: '/key-stages/{keyStage}/subject/{subject}/units',
         description:
           'This endpoint returns all the units (titles and slugs) that are currently available on Oak for a given subject and key stage',
         example: {
           response: [
             {
-              unitTitle: 'Simple, compound and adverbial complex sentences',
-              unitSlug: 'simple-compound-and-adverbial-complex-sentences',
+              yearSlug: 'year-1',
+              yearTitle: 'Year 1',
+              units: [
+                {
+                  unitSlug: 'word-class',
+                  unitTitle: 'Word class ',
+                  unitOrder: 1,
+                },
+                {
+                  unitSlug: 'simple-sentences',
+                  unitTitle: 'Simple sentences',
+                  unitOrder: 2,
+                },
+              ],
             },
           ],
         },
@@ -38,8 +50,15 @@ export const getAllKeyStageAndSubjectUnits = router({
     .output(
       z.array(
         z.object({
-          unitTitle: z.string({ description: 'Unit title' }),
-          unitSlug: z.string({ description: 'Unit slug' }),
+          yearSlug: z.string({ description: 'Year group slug' }),
+          yearTitle: z.string({ description: 'Year group title' }),
+          units: z.array(
+            z.object({
+              unitSlug: z.string({ description: 'Unit slug' }),
+              unitTitle: z.string({ description: 'Unit title' }),
+              unitOrder: z.number({ description: 'Unit order' }),
+            }),
+          ),
         }),
       ),
     )
@@ -60,9 +79,13 @@ export const getAllKeyStageAndSubjectUnits = router({
               subjectSlug: { _eq: $subject }
               isLegacy: { _eq: false }
             }
+            distinct_on: unitSlug
           ) {
             unitSlug
             unitTitle
+            unitOrder
+            yearSlug
+            yearTitle
           }
         }
       `;
@@ -79,21 +102,53 @@ export const getAllKeyStageAndSubjectUnits = router({
         return []; // unlikely, but sure.
       }
 
-      const uniqueUnits = new Map<
-        string,
-        { unitSlug: string; unitTitle: string }
-      >();
+      type Unit = {
+        unitSlug: string;
+        unitTitle: string;
+        unitOrder: number;
+      };
 
-      res[lessonView].forEach(({ unitSlug, unitTitle }) => {
-        if (!unitSlug || !unitTitle) {
-          return;
-        }
-        uniqueUnits.set(unitSlug, {
-          unitSlug,
-          unitTitle,
-        });
-      });
+      type UnitRecord = Unit & {
+        yearSlug: string;
+        yearTitle: string;
+      };
+      const units = res[lessonView] as UnitRecord[];
 
-      return Array.from(uniqueUnits.values());
+      const result = units.reduce(
+        (acc, unit) => {
+          if (!acc[unit.yearSlug]) {
+            acc[unit.yearSlug] = {
+              yearSlug: unit.yearSlug,
+              yearTitle: unit.yearTitle,
+              units: [],
+            };
+          }
+
+          const { unitSlug, unitTitle, unitOrder } = unit;
+
+          acc[unit.yearSlug].units.push({
+            unitSlug,
+            unitTitle,
+            unitOrder,
+          });
+
+          return acc;
+        },
+        {} as Record<
+          string,
+          { yearSlug: string; yearTitle: string; units: Unit[] }
+        >,
+      );
+
+      // sort first by the year slug, then by the unit order
+      const sorted = [];
+      const keys = Object.keys(result).sort();
+      for (const key of keys) {
+        const year = result[key];
+        year.units.sort((a, b) => a.unitOrder - b.unitOrder);
+        sorted.push(year);
+      }
+
+      return sorted;
     }),
 });

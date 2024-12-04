@@ -1,0 +1,15 @@
+ROOT=http://localhost:2727/api/v0
+
+URL=$1
+
+if [[ $1 == "prod" ]]; then
+  ROOT=https://open-api.thenational.academy/api/v0
+  URL=$2
+fi
+
+if [[ $URL == "" ]]; then
+  echo "Usage: $0 <endpoint>"
+  exit 1
+fi
+
+curl -s -X 'GET' "$ROOT$1" -H 'accept: application/json' -H "Authorization: Bearer $API_KEY"
