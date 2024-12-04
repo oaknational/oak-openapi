@@ -57,6 +57,11 @@ export const getAllKeyStageAndSubjectUnits = router({
               unitSlug: z.string({ description: 'Unit slug' }),
               unitTitle: z.string({ description: 'Unit title' }),
               unitOrder: z.number({ description: 'Unit order' }),
+              unitOptionParentSlug: z
+                .string({
+                  description: 'Parent slug for optional unit variants',
+                })
+                .optional(),
             }),
           ),
         }),
@@ -86,6 +91,8 @@ export const getAllKeyStageAndSubjectUnits = router({
             unitOrder
             yearSlug
             yearTitle
+            unitVariantId
+            nullUnitVariantId
           }
         }
       `;
@@ -106,13 +113,18 @@ export const getAllKeyStageAndSubjectUnits = router({
         unitSlug: string;
         unitTitle: string;
         unitOrder: number;
+        unitOptionParentSlug?: string;
       };
 
       type UnitRecord = Unit & {
         yearSlug: string;
         yearTitle: string;
+        nullUnitVariantId: number;
+        unitVariantId: number;
       };
       const units = res[lessonView] as UnitRecord[];
+
+      const optionalUnitParents: Set<string> = new Set();
 
       const result = units.reduce(
         (acc, unit) => {
@@ -124,13 +136,32 @@ export const getAllKeyStageAndSubjectUnits = router({
             };
           }
 
-          const { unitSlug, unitTitle, unitOrder } = unit;
-
-          acc[unit.yearSlug].units.push({
+          const {
             unitSlug,
             unitTitle,
             unitOrder,
-          });
+            unitVariantId,
+            nullUnitVariantId,
+          } = unit;
+
+          const res: Unit = {
+            unitSlug,
+            unitTitle,
+            unitOrder,
+          };
+
+          if (unitVariantId !== nullUnitVariantId) {
+            // then we have an optional variant, so we need to add the parent slug
+            res.unitOptionParentSlug = units.find(
+              (u) => u.unitVariantId === nullUnitVariantId,
+            )?.unitSlug;
+
+            if (res.unitOptionParentSlug) {
+              optionalUnitParents.add(res.unitOptionParentSlug);
+            }
+          }
+
+          acc[unit.yearSlug].units.push(res);
 
           return acc;
         },
@@ -145,7 +176,15 @@ export const getAllKeyStageAndSubjectUnits = router({
       const keys = Object.keys(result).sort();
       for (const key of keys) {
         const year = result[key];
-        year.units.sort((a, b) => a.unitOrder - b.unitOrder);
+        year.units = year.units
+          .sort((a, b) => a.unitOrder - b.unitOrder)
+          .filter((u) => {
+            if (optionalUnitParents.has(u.unitSlug)) {
+              return false;
+            }
+
+            return true;
+          });
         sorted.push(year);
       }
 

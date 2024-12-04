@@ -112,7 +112,7 @@ export const getUnits = router({
     .output(unitSchema)
     .input(z.object({ unit: z.string({ description: 'The unit slug' }) }))
     .query(async ({ input }) => {
-      const { unit: slug } = input;
+      let { unit: slug } = input;
       const client = getClient();
 
       const blocked = await blockUnitForCopyrightText(client, slug);
@@ -124,8 +124,14 @@ export const getUnits = router({
         });
       }
 
+      const variantSlug = slug;
+
+      if (/\-\d+$/.test(slug)) {
+        slug = slug.replace(/-\d+$/, '');
+      }
+
       const query = gql`
-        query getUnit($slug: String!) {
+        query getUnit($slug: String!, $variantSlug: String!) {
           ${unitCurriculumView}(where: { unitSlug: { _eq: $slug } }) {
             unitSlug
             unitTitle
@@ -142,11 +148,12 @@ export const getUnits = router({
           }
 
           ${unitVariantLessonsView}(
-            where: { unit_slug: { _eq: $slug } }
+            where: { unit_slug: { _eq: $variantSlug } }
           ) {
             lesson_slug
             lesson_title:lesson_data(path:"title")
             supplementary_data
+            optionality:programme_fields(path:"optionality")
             year_slug:programme_fields(path:"year_slug")
             phase_slug:programme_fields(path:"phase_slug")
             subject_slug:programme_fields(path:"subject_slug")
@@ -156,10 +163,18 @@ export const getUnits = router({
       `;
 
       const res: UnitCurriculumView & UnitVariantLessonsView =
-        await client.request(query, { slug });
+        await client.request(query, { slug, variantSlug });
 
       if (res[unitCurriculumView].length === 0) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
+      }
+
+      if (res[unitVariantLessonsView].length === 0) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message:
+            'Unit requested is a parent unit with multiple unit options, please use the unit option slug instead.',
+        });
       }
 
       const root = res[unitCurriculumView][0];
@@ -170,9 +185,11 @@ export const getUnits = router({
       console.log({ additionalUnitData });
 
       const reply: UnitSchema = {
-        unitSlug: root.unitSlug,
-        unitTitle: root.unitTitle,
-        unitOrder: additionalUnitData.supplementary_data.unit_order,
+        unitSlug: variantSlug,
+        unitTitle: additionalUnitData.optionality
+          ? additionalUnitData.optionality
+          : root.unitTitle,
+        unitOrder: additionalUnitData?.supplementary_data.unit_order,
         unitLessons: (orderData || []).map((lesson) => ({
           lessonSlug: lesson.lesson_slug,
           lessonTitle: lesson.lesson_title || '',
@@ -197,10 +214,10 @@ export const getUnits = router({
             unitTitle: unit.title,
           })),
         },
-        yearSlug: additionalUnitData.year_slug,
-        phaseSlug: additionalUnitData.phase_slug,
-        subjectSlug: additionalUnitData.subject_slug,
-        keyStageSlug: additionalUnitData.keystage_slug,
+        yearSlug: additionalUnitData?.year_slug,
+        phaseSlug: additionalUnitData?.phase_slug,
+        subjectSlug: additionalUnitData?.subject_slug,
+        keyStageSlug: additionalUnitData?.keystage_slug,
       };
 
       return reply;
