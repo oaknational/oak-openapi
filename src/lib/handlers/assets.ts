@@ -23,10 +23,6 @@ import {
   modifySubject,
 } from '~/lib/queryGate';
 
-function camelCase(str: string) {
-  return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
-}
-
 export const downloadTypeEnum = z.enum(
   [
     'slideDeck',
@@ -46,8 +42,7 @@ export const downloadTypeEnum = z.enum(
 );
 
 const assetType = z.object({
-  assetType: downloadTypeEnum,
-  type: z.string(),
+  type: downloadTypeEnum,
   label: z.string(),
   url: z.string(),
 });
@@ -72,32 +67,31 @@ const graphqlClient = getClient();
 
 function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
   const baseUrl = 'https://storage.cloud.google.com/ingested-assets-production';
+  const baseVideoUrl = 'https://stream.video.thenational.academy';
 
   const assetUrls = [];
 
   if (downloads.slidedeck && downloads.slidedeck.bucket_path) {
     assetUrls.push({
-      type: camelCase(downloads.slidedeck.type),
+      // type: camelCase(downloads.slidedeck.type),
       label: downloads.slidedeck.label,
-      assetType: 'slideDeck',
+      type: 'slideDeck',
       url: `${baseUrl}/${downloads.slidedeck.bucket_path}`,
     });
   }
 
   if (downloads.worksheet && downloads.worksheet.bucket_path) {
     assetUrls.push({
-      type: camelCase(downloads.worksheet.type),
       label: downloads.worksheet.label,
-      assetType: 'worksheet',
+      type: 'worksheet',
       url: `${baseUrl}/${downloads.worksheet.bucket_path}`,
     });
   }
 
   if (downloads.worksheetAnswers && downloads.worksheetAnswers.bucket_path) {
     assetUrls.push({
-      type: camelCase(downloads.worksheetAnswers.type),
       label: downloads.worksheetAnswers.label,
-      assetType: 'worksheetAnswers',
+      type: 'worksheetAnswers',
       url: `${baseUrl}/${downloads.worksheetAnswers.bucket_path}`,
     });
   }
@@ -107,18 +101,16 @@ function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
     downloads.supplementaryResource.bucket_path
   ) {
     assetUrls.push({
-      type: camelCase(downloads.supplementaryResource.type),
       label: downloads.supplementaryResource.label,
-      assetType: 'supplementaryResource',
+      type: 'supplementaryResource',
       url: `${baseUrl}/${downloads.supplementaryResource.bucket_path}`,
     });
   }
 
   if (downloads.starterQuiz && downloads.starterQuiz.bucket_path) {
     assetUrls.push({
-      type: 'worksheet',
       label: downloads.starterQuiz.label,
-      assetType: 'starterQuiz',
+      type: 'starterQuiz',
       url: `${baseUrl}/${downloads.starterQuiz.bucket_path}`,
     });
   }
@@ -128,37 +120,36 @@ function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
     downloads.starterQuizAnswers.bucket_path
   ) {
     assetUrls.push({
-      type: 'worksheetAnswers',
       label: downloads.starterQuizAnswers.label,
-      assetType: 'starterQuizAnswers',
+      type: 'starterQuizAnswers',
       url: `${baseUrl}/${downloads.starterQuizAnswers.bucket_path}`,
     });
   }
 
   if (downloads.exitQuiz && downloads.exitQuiz.bucket_path) {
     assetUrls.push({
-      type: 'worksheet',
       label: downloads.exitQuiz.label,
-      assetType: 'exitQuiz',
+      type: 'exitQuiz',
       url: `${baseUrl}/${downloads.exitQuiz.bucket_path}`,
     });
   }
 
   if (downloads.exitQuizAnswers && downloads.exitQuizAnswers.bucket_path) {
     assetUrls.push({
-      type: 'worksheetAnswers',
       label: downloads.exitQuizAnswers.label,
-      assetType: 'exitQuizAnswers',
+      type: 'exitQuizAnswers',
       url: `${baseUrl}/${downloads.exitQuizAnswers.bucket_path}`,
     });
   }
 
   if (downloads.video && (downloads.video.download || downloads.video.stream)) {
     assetUrls.push({
-      type: camelCase(downloads.video.type),
       label: downloads.video.label,
-      assetType: 'video',
-      url: downloads.video.download || downloads.video.stream,
+      type: 'video',
+      url:
+        baseVideoUrl +
+        new URL(downloads.video.download || downloads.video.stream).pathname,
+      // downloads.video.download || downloads.video.stream,
     });
   }
 
