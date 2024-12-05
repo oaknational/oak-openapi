@@ -12,8 +12,10 @@ import { getAssets } from './handlers/assets';
 import { getDownloads } from './handlers/download';
 import { searchTranscripts } from './handlers/searchTranscripts';
 import { getLessonTranscript } from './handlers/transcript';
+import { getPhases } from './handlers/phases';
 
 export default router({
+  getPhases,
   getLessonTranscript,
   searchTranscripts,
   getDownloads,

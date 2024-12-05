@@ -167,8 +167,6 @@ export const getUnits = router({
       const orderData = res[unitVariantLessonsView];
       const additionalUnitData = orderData[0];
 
-      console.log({ additionalUnitData });
-
       const reply: UnitSchema = {
         unitSlug: root.unitSlug,
         unitTitle: root.unitTitle,
