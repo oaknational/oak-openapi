@@ -5,7 +5,8 @@ export default function Tick() {
       width="12"
       height="12"
       fill="none"
-      aria-hidden="true">
+      aria-hidden="true"
+    >
       <path
         fill="#287C34"
         fillRule="evenodd"

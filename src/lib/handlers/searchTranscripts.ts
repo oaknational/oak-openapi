@@ -49,7 +49,7 @@ export const searchTranscripts = router({
           description:
             'A snippet of text to search for in the lesson video transcripts',
         }),
-      })
+      }),
     )
     .output(
       z.array(
@@ -57,8 +57,8 @@ export const searchTranscripts = router({
           lessonTitle: z.string(),
           lessonSlug: z.string(),
           transcriptSnippet: z.string().optional(),
-        })
-      )
+        }),
+      ),
     )
     .query(async ({ input }) => {
       const { q } = input;
@@ -74,7 +74,7 @@ export const searchTranscripts = router({
         await prisma.$queryRaw`SELECT lesson_id, source_content FROM snippets WHERE to_tsvector('english', source_content) @@ to_tsquery(${q
           .split(' ')
           .join(
-            ' & '
+            ' & ',
           )}) ORDER BY similarity(source_content, ${q}) DESC limit 5`;
 
       // console.timeEnd('snippet search');

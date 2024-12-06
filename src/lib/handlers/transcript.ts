@@ -29,7 +29,7 @@ export const getLessonTranscript = router({
     .input(
       z.object({
         lesson: z.string({ description: 'The slug of the lesson' }),
-      })
+      }),
     )
     .output(z.object({ transcript: z.string(), vtt: z.string() }))
     .query(async ({ input }) => {

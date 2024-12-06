@@ -178,6 +178,7 @@ export type Lesson = {
   transcriptSentences?: string;
   unitSlug?: string;
   unitTitle?: string;
+  unitOrder?: number;
   unitVariantId?: number;
   videoTitle?: string;
   video_object?: any;
