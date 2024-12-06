@@ -12,26 +12,32 @@ export const subjectSlugs = Array.from(
     source().reduce(
       (acc: string[], { subjects }) =>
         acc.concat(subjects.map(({ slug }) => slug)),
-      []
-    )
-  )
+      [],
+    ),
+  ),
 );
 
 export const subjectsWithKeyStages = () => {
-  const obj = source().reduce((acc, { slug: keyStageSlug, subjects }) => {
-    subjects.forEach(({ slug: subjectSlug, title }) => {
-      if (!acc[subjectSlug]) {
-        acc[subjectSlug] = {
-          subjectTitle: title,
-          subjectSlug,
-          keyStages: new Set(),
-        };
-      }
-      acc[subjectSlug].keyStages.add(keyStageSlug);
-    });
+  const obj = source().reduce(
+    (acc, { slug: keyStageSlug, subjects }) => {
+      subjects.forEach(({ slug: subjectSlug, title }) => {
+        if (!acc[subjectSlug]) {
+          acc[subjectSlug] = {
+            subjectTitle: title,
+            subjectSlug,
+            keyStages: new Set(),
+          };
+        }
+        acc[subjectSlug].keyStages.add(keyStageSlug);
+      });
 
-    return acc;
-  }, {} as Record<string, { keyStages: Set<string>; subjectTitle: string; subjectSlug: string }>);
+      return acc;
+    },
+    {} as Record<
+      string,
+      { keyStages: Set<string>; subjectTitle: string; subjectSlug: string }
+    >,
+  );
 
   return Object.values(obj).map(({ keyStages, subjectTitle, subjectSlug }) => ({
     subjectTitle,
@@ -45,8 +51,8 @@ export const subjects = Array.from(
     source()
       .map((_) => _.subjects)
       .flat()
-      .map(({ title }) => title)
-  )
+      .map(({ title }) => title),
+  ),
 );
 
 // note that these are pre-filtered by "new" lessons

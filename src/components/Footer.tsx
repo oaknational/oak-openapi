@@ -80,7 +80,8 @@ export default function Footer() {
             $ph="inner-padding-l"
             $ma={'auto'}
             $position={'relative'}
-            $width={'100%'}>
+            $width={'100%'}
+          >
             <OakGrid>
               <OakGridArea $colSpan={[12, 3]}>
                 <FooterSectionLinks
@@ -104,11 +105,13 @@ export default function Footer() {
               <OakGridArea $colSpan={[12, 3]}>
                 <OakFlex
                   $justifyContent={['left', 'right']}
-                  $mt={['space-between-m2', 'space-between-none']}>
+                  $mt={['space-between-m2', 'space-between-none']}
+                >
                   <OakBox $ml={'space-between-none'} $display={['block']}>
                     <OakLinkLogo
                       aria-label="Oak National Academy"
-                      href="https://www.thenational.academy/">
+                      href="https://www.thenational.academy/"
+                    >
                       <Logo height="66" width="150" />
                     </OakLinkLogo>
                   </OakBox>
@@ -122,7 +125,8 @@ export default function Footer() {
               $justifyContent={['flex-start', 'space-between']}
               $flexDirection={['column', 'row']}
               $alignItems={['flex-start', 'center']}
-              $pt={['inner-padding-s', 'inner-padding-none']}>
+              $pt={['inner-padding-s', 'inner-padding-none']}
+            >
               <SocialButtons
                 $display={['flex']}
                 for="Oak National Academy"
@@ -131,7 +135,8 @@ export default function Footer() {
 
               <OakFlex
                 $mt={['space-between-m2', 'space-between-none']}
-                $flexDirection={'column'}>
+                $flexDirection={'column'}
+              >
                 <OakP $font={'body-3-bold'}>
                   © Oak National Academy Limited, No 14174888
                 </OakP>
@@ -164,12 +169,14 @@ const FooterSectionLinks = ({ title, links }: FooterSectionLinksProps) => {
   return (
     <OakFlex
       $flexDirection="column"
-      $mt={['space-between-m2', 'space-between-none']}>
+      $mt={['space-between-m2', 'space-between-none']}
+    >
       <OakHeading
         $mb="space-between-ssx"
         $font="heading-7"
         $color="black"
-        tag="h2">
+        tag="h2"
+      >
         {title}
       </OakHeading>
       <OakTypography $color={'black'} $font={'body-2'}>
@@ -191,7 +198,8 @@ const FooterLink = ({ text, href, ariaLabel, icon }: FooterLink) => {
       <FooterOakLink
         target={icon ? '_blank' : null}
         href={href}
-        {...{ 'aria-label': ariaLabel ?? undefined }}>
+        {...{ 'aria-label': ariaLabel ?? undefined }}
+      >
         {text}
       </FooterOakLink>
       {icon && <OakIcon iconName={icon} />}
