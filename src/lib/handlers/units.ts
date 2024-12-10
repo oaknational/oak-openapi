@@ -118,7 +118,7 @@ export const getUnits = router({
     .input(z.object({ unit: z.string({ description: 'The unit slug' }) }))
     .query(async ({ input, ctx }) => {
       const { res: response } = ctx;
-      const { unit: slug } = input;
+      let { unit: slug } = input;
       const client = getClient();
 
       timing.start('blockUnitForCopyrightText');
@@ -131,6 +131,12 @@ export const getUnits = router({
           message: 'Unit not available for this query',
           code: 'NOT_FOUND',
         });
+      }
+
+      const variantSlug = slug;
+
+      if (/\-\d+$/.test(slug)) {
+        slug = slug.replace(/-\d+$/, '');
       }
 
       // 300 is the max: https://hasura.io/docs/2.0/caching/caching-config/#controlling-cache-lifetime
@@ -152,11 +158,12 @@ export const getUnits = router({
           }
 
           ${unitVariantLessonsView}(
-            where: { unit_slug: { _eq: $slug } }
+            where: { unit_slug: { _eq: $variantSlug } }
           ) {
             lesson_slug
             lesson_title:lesson_data(path:"title")
             supplementary_data
+            optionality:programme_fields(path:"optionality")
             year_slug:programme_fields(path:"year_slug")
             phase_slug:programme_fields(path:"phase_slug")
             subject_slug:programme_fields(path:"subject_slug")
@@ -167,7 +174,7 @@ export const getUnits = router({
 
       timing.start('getUnit graphql query');
       const res: UnitCurriculumView & UnitVariantLessonsView =
-        await client.request(query, { slug });
+        await client.request(query, { slug, variantSlug });
       timing.end('getUnit graphql query');
 
       response.setHeader('Server-Timing', timing.toHeader(response));
@@ -176,15 +183,25 @@ export const getUnits = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
       }
 
+      if (res[unitVariantLessonsView].length === 0) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message:
+            'Unit requested is a parent unit with multiple unit options, please use the unit option slug instead.',
+        });
+      }
+
       const root = res[unitCurriculumView][0];
 
       const orderData = res[unitVariantLessonsView];
       const additionalUnitData = orderData[0];
 
       const reply: UnitSchema = {
-        unitSlug: root.unitSlug,
-        unitTitle: root.unitTitle,
-        unitOrder: additionalUnitData.supplementary_data.unit_order,
+        unitSlug: variantSlug,
+        unitTitle: additionalUnitData.optionality
+          ? additionalUnitData.optionality
+          : root.unitTitle,
+        unitOrder: additionalUnitData?.supplementary_data.unit_order,
         unitLessons: (orderData || []).map((lesson) => ({
           lessonSlug: lesson.lesson_slug,
           lessonTitle: lesson.lesson_title || '',
@@ -209,10 +226,10 @@ export const getUnits = router({
             unitTitle: unit.title,
           })),
         },
-        yearSlug: additionalUnitData.year_slug,
-        phaseSlug: additionalUnitData.phase_slug,
-        subjectSlug: additionalUnitData.subject_slug,
-        keyStageSlug: additionalUnitData.keystage_slug,
+        yearSlug: additionalUnitData?.year_slug,
+        phaseSlug: additionalUnitData?.phase_slug,
+        subjectSlug: additionalUnitData?.subject_slug,
+        keyStageSlug: additionalUnitData?.keystage_slug,
       };
 
       return reply;

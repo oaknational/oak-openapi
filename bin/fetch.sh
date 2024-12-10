@@ -93,6 +93,9 @@ get "/search/lessons?q=run&keyStage=ks1&subject=english" '.code? | not'
 
 get "/lessons/theatre-trips/assets" '.code == "NOT_FOUND"'
 
-get "/key-stages/ks3/subject/maths/assets?unit=victorian-childhood-non-fiction-reading-and-writing&offset=0&limit=10" '.exitQuiz | map(select(.questionImage)) | length > 0'
+get "/units/life-in-a-capital-city-london-cardiff/summary" '.code == "NOT_FOUND"'
+get "/units/life-in-a-capital-city-london-cardiff-776/summary" '.unitTitle == "What is life like in Cardiff?"'
+
+get "/key-stages/ks3/subject/english/assets?unit=victorian-childhood-non-fiction-reading-and-writing&offset=0&limit=10" '.exitQuiz | map(select(.questionImage)) | length > 0'
 
 title "FIN $TESTS tests run"
