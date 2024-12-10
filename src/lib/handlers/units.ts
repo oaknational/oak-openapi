@@ -11,6 +11,10 @@ import {
 } from 'lib/owaClient';
 import { z } from 'zod';
 import { blockUnitForCopyrightText } from '../queryGate';
+import Timing from '../serverTimings';
+import { defaultCaching } from '../networkCache';
+
+const timing = new Timing();
 
 export const unitSchema = z.object({
   unitSlug: z.string(),
@@ -47,6 +51,7 @@ type UnitSchema = z.infer<typeof unitSchema>;
 
 export const getUnits = router({
   getUnit: protectedProcedure
+    .use(defaultCaching)
     .meta({
       openapi: {
         method: 'GET',
@@ -111,21 +116,26 @@ export const getUnits = router({
     })
     .output(unitSchema)
     .input(z.object({ unit: z.string({ description: 'The unit slug' }) }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
+      const { res: response } = ctx;
       const { unit: slug } = input;
       const client = getClient();
 
+      timing.start('blockUnitForCopyrightText');
       const blocked = await blockUnitForCopyrightText(client, slug);
+      timing.end('blockUnitForCopyrightText');
 
       if (blocked) {
+        response.setHeader('Server-Timing', timing.toHeader(response));
         throw new TRPCError({
           message: 'Unit not available for this query',
           code: 'NOT_FOUND',
         });
       }
 
+      // 300 is the max: https://hasura.io/docs/2.0/caching/caching-config/#controlling-cache-lifetime
       const query = gql`
-        query getUnit($slug: String!) {
+        query getUnit($slug: String!) @cached(ttl: 300) {
           ${unitCurriculumView}(where: { unitSlug: { _eq: $slug } }) {
             unitSlug
             unitTitle
@@ -155,8 +165,12 @@ export const getUnits = router({
         }
       `;
 
+      timing.start('getUnit graphql query');
       const res: UnitCurriculumView & UnitVariantLessonsView =
         await client.request(query, { slug });
+      timing.end('getUnit graphql query');
+
+      response.setHeader('Server-Timing', timing.toHeader(response));
 
       if (res[unitCurriculumView].length === 0) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
@@ -166,8 +180,6 @@ export const getUnits = router({
 
       const orderData = res[unitVariantLessonsView];
       const additionalUnitData = orderData[0];
-
-      console.log({ additionalUnitData });
 
       const reply: UnitSchema = {
         unitSlug: root.unitSlug,

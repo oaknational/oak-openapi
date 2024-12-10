@@ -2,21 +2,18 @@ import { redis } from '~/lib/redis';
 import { defaultRateLimit } from './rateLimit';
 import { v4 as uuid } from 'uuid';
 
-export type User = {
-  id: number;
-  key: string;
-  name?: string | null;
-  email?: string | null;
-  rateLimit?: number;
-  requests?: number;
-};
-
 type UserUpdate = {
   email?: null | string;
   name?: null | string;
   company?: null | string;
   rateLimit?: number;
   key?: string;
+  requests?: number;
+};
+
+export type User = UserUpdate & {
+  key: string; // enforced
+  id: number;
 };
 
 export async function updateUser(opts: {
@@ -43,11 +40,13 @@ export function addUser(opts: UserUpdate = {}) {
   return manageUser(opts);
 }
 
-async function manageUser({
+// generally internal method
+export async function manageUser({
   email = null,
   name = null,
   company = null,
   rateLimit = defaultRateLimit,
+  requests = 0,
   key = uuid(),
 }: UserUpdate = {}): Promise<string> {
   const userExists = await redis.exists(`user:${key}`);
@@ -83,7 +82,7 @@ async function manageUser({
       name,
       company,
       rateLimit,
-      requests: 0,
+      requests,
     };
 
     // Store the user in Redis using key as the lookup identifier
