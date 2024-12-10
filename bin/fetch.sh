@@ -4,9 +4,14 @@ if [[ $1 == "prod" ]]; then
   ROOT=https://open-api.thenational.academy/api/v0
 fi
 
-TESTS=0
+if [[ $API_KEY == "" ]]; then
+  echo "Please set the API_KEY environment variable"
+  exit 1
+fi
 
-FILTER="/key-stages/ks3/subject/maths/assets?unit=victorian-childhood-non-fiction-reading-and-writing&offset=0&limit=10"
+# FILTER="/key-stages/ks1/subject/maths/assets"
+
+TESTS=0 # counter
 
 title() {
   if [[ $FILTER == "" ]]; then
@@ -25,8 +30,16 @@ get() {
 
   Q=${2:-"."}
   ((TESTS++))
-  OUT=$(curl -s -X 'GET' "$ROOT$1" -H 'accept: application/json' \
-    -H "Authorization: Bearer $API_KEY" | jq "$Q" 2>&1)
+
+  RES=$(curl -s -X 'GET' "$ROOT$1" -H 'accept: application/json' \
+    -H "Authorization: Bearer $API_KEY")
+
+  if [[ $RES == "" ]]; then
+    echo "\033[31mDown\033[0m $URL"
+    exit 1
+  fi
+
+  OUT=$(echo $RES | jq "$Q" 2>&1)
 
   if [[ $Q == "." ]]; then
     echo $OUT | jq
@@ -38,6 +51,7 @@ get() {
     echo "\033[31mFail\033[0m $URL"
     return
   fi
+
   if [ $status -ne 0 ]; then
     echo "\033[31mFail\033[0m $URL"
     return
