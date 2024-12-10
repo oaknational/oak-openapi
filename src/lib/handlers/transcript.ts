@@ -4,24 +4,6 @@ import { TRPCError } from '@trpc/server';
 import { getClient, gql } from 'lib/owaClient';
 import { z } from 'zod';
 import { checkLessonAllowedAsset } from '../queryGate';
-import { Storage } from '@google-cloud/storage';
-
-let storage;
-
-// Check if GOOGLE_APPLICATION_CREDENTIALS_JSON is set
-if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-  const credentials = JSON.parse(
-    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
-  );
-
-  // Initialize storage client with credentials
-  storage = new Storage({ credentials });
-} else {
-  // Use default method, which relies on GOOGLE_APPLICATION_CREDENTIALS path
-  storage = new Storage();
-}
-
-const transcriptBucket = 'oak-captions-2023-production';
 
 export const getLessonTranscript = router({
   getLessonTranscript: protectedProcedure
@@ -64,59 +46,33 @@ export const getLessonTranscript = router({
         });
       }
 
+      const view = 'published_mv_lesson_content_published_5_0_0';
+
       const query = gql`
         query ($slug: String!) {
-          lessons(
-            where: { slug: { _eq: $slug }, _state: { _eq: "published" } }
+          ${view}(
+            where: { lesson_slug: { _eq: $slug } }
           ) {
-            lesson_uid
-            slug
+            transcript_sentences
+            transcript_vtt
           }
         }
       `;
 
-      type LessonResponse = {
-        lessons: {
-          lesson_uid: string;
-          slug: string;
+      type TranscriptResponse = {
+        [view]: {
+          transcript_sentences: string;
+          transcript_vtt: string;
         }[];
       };
 
-      const res: LessonResponse = await client.request(query, {
+      const res: TranscriptResponse = await client.request(query, {
         slug,
       });
 
-      const lesson = res.lessons[0];
+      const transcript = res[view][0]?.transcript_sentences;
+      const vtt = res[view][0]?.transcript_vtt;
 
-      if (!lesson) {
-        throw new TRPCError({
-          message: 'No lessons found',
-          code: 'NOT_FOUND',
-        });
-      }
-
-      const { lesson_uid: uid, slug: lessonSlug } = lesson;
-
-      const prefix = `${uid}-${lessonSlug}`;
-
-      const [files] = await storage.bucket(transcriptBucket).getFiles({
-        prefix,
-      });
-
-      const [file] = files;
-
-      const [contents] = await file.download(); // Download the file contents
-
-      const vtt = contents.toString().replace(/\r/g, ''); // Remove carriage returns
-
-      // convert vtt to "plain text" transcript
-      const transcript = vtt
-        .replace(/<\/?[^>]+(>|$)/g, '') // strip tags
-        .split('\n\n')
-        .slice(1)
-        .map((_: string) => _.split('\n').pop())
-        .join(' ');
-
-      return { vtt, transcript };
+      return { vtt: vtt.replace(/\r/g, ''), transcript };
     }),
 });
