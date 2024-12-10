@@ -1,5 +1,6 @@
 import { publicProcedure, router } from '~/lib/trpc';
 import { z } from 'zod';
+import { defaultCaching } from '../networkCache';
 
 export const versions = [
   {
@@ -45,6 +46,7 @@ export const getLatestMajorVersion = () => {
 
 export const changelog = router({
   changelog: publicProcedure
+    .use(defaultCaching)
     .meta({
       openapi: { method: 'GET', path: '/changelog', tags: ['changelog'] },
     })
@@ -62,6 +64,7 @@ export const changelog = router({
       return versions;
     }),
   latest: publicProcedure
+    .use(defaultCaching)
     .meta({
       openapi: {
         method: 'GET',
