@@ -173,7 +173,15 @@ export const getAllKeyStageAndSubjectUnits = router({
 
       // sort first by the year slug, then by the unit order
       const sorted = [];
-      const keys = Object.keys(result).sort();
+
+      // sort by year which appear as "year-3", "year-10"
+      // though year-10 never appears with any years lower due to the fact
+      // ks4 has year 10 + 11
+      const keys = Object.keys(result).sort((a, b) => {
+        const aYear = parseInt(a.split('-')[1], 10);
+        const bYear = parseInt(b.split('-')[1], 10);
+        return aYear - bYear;
+      });
       for (const key of keys) {
         const year = result[key];
         year.units = year.units
