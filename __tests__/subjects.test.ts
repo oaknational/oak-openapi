@@ -34,7 +34,7 @@ test('years endpoint', async () => {
 test('subject with sequences and additional data', async () => {
   const caller = auth();
 
-  const res = await caller.subjects.getAllSubject({ subject: 'maths' });
+  const res = await caller.subjects.getSubject({ subject: 'maths' });
   expect(Array.isArray(res)).toBeFalsy();
   expect(res).toHaveProperty('subjectTitle');
   expect(res).toHaveProperty('subjectSlug');
@@ -44,4 +44,12 @@ test('subject with sequences and additional data', async () => {
     keyStageSlug: 'ks1',
     keyStageTitle: 'Key Stage 1',
   });
+});
+
+test('cannot access RSHE', async () => {
+  const caller = auth();
+
+  await expect(
+    async () => await caller.subjects.getSubject({ subject: 'rshe-pshe' }),
+  ).rejects.toThrowError();
 });
