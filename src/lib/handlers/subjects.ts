@@ -86,6 +86,13 @@ function yearsFromKeyStages(
 }
 
 async function getSubjectPhase(subject: string): Promise<SubjectPhase> {
+  if (blockedSubjects.includes(subject)) {
+    throw new TRPCError({
+      message: 'Subject not available',
+      code: 'NOT_FOUND',
+    });
+  }
+
   const client = getClient();
   const query = gql`
   query ($subject: String!, $currentCycle: String!) @cached(ttl: 300) {
@@ -192,6 +199,7 @@ export const subjects = router({
             cycle: { _eq: $currentCycle }
             slug: { _nin: $blocked }
           }
+          order_by: { display_order: asc }
         ) {
           title
           slug
@@ -231,7 +239,7 @@ export const subjects = router({
 
       return reply;
     }),
-  getAllSubject: protectedProcedure
+  getSubject: protectedProcedure
     .meta({
       openapi: {
         tags: ['lists'],
