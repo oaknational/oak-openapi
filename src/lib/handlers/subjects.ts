@@ -1,7 +1,83 @@
 import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 import { z } from 'zod';
-import { subjectsWithKeyStages } from '../keyStageAndSubjects';
+import {
+  currentCycle,
+  getClient,
+  gql,
+  SubjectPhase,
+  SubjectPhaseView,
+  subjectPhaseView,
+} from '../owaClient';
+import { blockedSubjects } from '../blockedContent';
+import { TRPCError } from '@trpc/server';
+
+function phaseToSequences(subject: SubjectPhase) {
+  return subject.phases.reduce((acc: string[], { slug }) => {
+    if (
+      slug === 'secondary' &&
+      subject.ks4_options &&
+      subject.ks4_options.length
+    ) {
+      acc.push(
+        ...subject.ks4_options.map(
+          (examBoard) => `${subject.slug}-${slug}-${examBoard.slug}`,
+        ),
+      );
+    } else {
+      acc.push(`${subject.slug}-${slug}`);
+    }
+
+    return acc;
+  }, []);
+}
+
+function phaseToKeyStages(subject: SubjectPhase) {
+  return subject.keystages.map(({ slug, title }) => {
+    return { keyStageSlug: slug, keyStageTitle: title };
+  });
+}
+
+async function getSubjectPhase(subject: string): Promise<SubjectPhase> {
+  const client = getClient();
+  const query = gql`
+  query ($subject: String!, $currentCycle: String!) @cached(ttl: 300) {
+    ${subjectPhaseView}(
+      where: {
+        cycle: { _eq: $currentCycle }
+        slug: { _eq: $subject }
+      }
+    ) {
+      title
+      slug
+      keystages
+      phases
+      ks4_options
+      display_order
+    }
+  }`;
+
+  const res: SubjectPhaseView = await client.request(query, {
+    currentCycle,
+    subject,
+  });
+
+  if (!res || !Array.isArray(res[subjectPhaseView])) {
+    throw new TRPCError({
+      message: 'Subject not found',
+      code: 'NOT_FOUND',
+    });
+  }
+
+  if (res[subjectPhaseView].length !== 1) {
+    throw new TRPCError({
+      message: `There was a problem requesting ${subject}, more than one result was returned`,
+      code: 'INTERNAL_SERVER_ERROR',
+    });
+  }
+
+  return res[subjectPhaseView][0];
+}
 
 export const subjects = router({
   getAllSubjects: protectedProcedure
@@ -15,14 +91,30 @@ export const subjects = router({
         example: {
           response: [
             {
-              subjectTitle: 'English',
-              subjectSlug: 'english',
-              keyStages: ['ks1', 'ks2', 'ks3', 'ks4'],
-            },
-            {
-              subjectTitle: 'Geography',
-              subjectSlug: 'geography',
-              keyStages: ['ks1', 'ks2'],
+              subjectTitle: 'Design and technology',
+              subjectSlug: 'design-technology',
+              sequenceSlugs: [
+                'design-technology-primary',
+                'design-technology-secondary',
+              ],
+              keyStages: [
+                {
+                  keyStageSlug: 'ks1',
+                  keyStageTitle: 'Key Stage 1',
+                },
+                {
+                  keyStageSlug: 'ks2',
+                  keyStageTitle: 'Key Stage 2',
+                },
+                {
+                  keyStageSlug: 'ks3',
+                  keyStageTitle: 'Key Stage 3',
+                },
+                {
+                  keyStageSlug: 'ks4',
+                  keyStageTitle: 'Key Stage 4',
+                },
+              ],
             },
           ],
         },
@@ -30,7 +122,106 @@ export const subjects = router({
     })
     .input(z.void()) // required by trpc-openapi
     .output(z.any())
-    .query(() => {
-      return subjectsWithKeyStages();
+    .query(async () => {
+      const client = getClient();
+      const query = gql`
+      query ($blocked: [String!]!, $currentCycle: String!) @cached(ttl: 300) {
+        ${subjectPhaseView}(
+          where: {
+            cycle: { _eq: $currentCycle }
+            slug: { _nin: $blocked }
+          }
+        ) {
+          title
+          slug
+          keystages
+          phases
+          ks4_options
+          display_order
+        }
+      }`;
+
+      const res: SubjectPhaseView = await client.request(query, {
+        currentCycle,
+        blocked: blockedSubjects,
+      });
+
+      if (
+        !res ||
+        !Array.isArray(res[subjectPhaseView]) ||
+        res[subjectPhaseView].length === 0
+      ) {
+        throw new TRPCError({
+          message: `There was a problem requesting the subjects and associated data`,
+          code: 'INTERNAL_SERVER_ERROR',
+        });
+      }
+
+      const reply = res[subjectPhaseView].map((subject) => {
+        return {
+          subjectTitle: subject.title,
+          subjectSlug: subject.slug,
+          sequenceSlugs: phaseToSequences(subject),
+          keyStages: phaseToKeyStages(subject),
+        };
+      });
+
+      return reply;
+    }),
+  getSubjectSequence: protectedProcedure
+    .meta({
+      openapi: {
+        tags: ['lists'],
+        method: 'GET',
+        path: '/subjects/{subject}/sequences',
+      },
+    })
+    .input(
+      z.object({
+        subject: z.string(),
+      }),
+    )
+    .output(z.array(z.string()))
+    .query(async ({ input }) => {
+      return phaseToSequences(await getSubjectPhase(input.subject));
+    }),
+  getSubjectKeyStages: protectedProcedure
+    .meta({
+      openapi: {
+        tags: ['lists'],
+        method: 'GET',
+        path: '/subjects/{subject}/key-stages',
+      },
+    })
+    .input(
+      z.object({
+        subject: z.string(),
+      }),
+    )
+    .output(
+      z.array(
+        z.object({ keyStageTitle: z.string(), keyStageSlug: z.string() }),
+      ),
+    )
+    .query(async ({ input }) => {
+      return phaseToKeyStages(await getSubjectPhase(input.subject));
+    }),
+  getSubjectYears: protectedProcedure
+    .meta({
+      openapi: {
+        tags: ['lists'],
+        method: 'GET',
+        path: '/subjects/{subject}/years',
+      },
+    })
+    .input(
+      z.object({
+        subject: z.string(),
+      }),
+    )
+    .output(z.array(z.string()))
+    .query(async ({ input }) => {
+      const res = await getSubjectPhase(input.subject);
+      return [res.cycle];
     }),
 });
