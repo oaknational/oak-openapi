@@ -25,6 +25,7 @@
   "private": true,
   "dependencies": {
     "@oaknational/oak-components": "^1.41.0",
+    "@oaknational/oak-curriculum-schema": "^1.39.0",
     "@prisma/client": "^5.21.1",
     "@prisma/extension-accelerate": "^1.1.0",
     "@trpc/server": "^10.45.2",
