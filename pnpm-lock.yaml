@@ -8,6 +8,9 @@ dependencies:
   '@oaknational/oak-components':
     specifier: ^1.41.0
     version: 1.41.0(next-cloudinary@5.20.0)(next@14.2.4)(react-dom@18.3.1)(react@18.3.1)(styled-components@6.1.12)
+  '@oaknational/oak-curriculum-schema':
+    specifier: ^1.39.0
+    version: 1.39.0(zod@3.23.8)
   '@prisma/client':
     specifier: ^5.21.1
     version: 5.21.1(prisma@5.21.1)
@@ -881,6 +884,14 @@ packages:
       styled-components: 6.1.12(react-dom@18.3.1)(react@18.3.1)
     dev: false
 
+  /@oaknational/oak-curriculum-schema@1.39.0(zod@3.23.8):
+    resolution: {integrity: sha512-1ATtfSd2Fk1mM1yDG1T4Rxw2v79qjiUlw3C2d86hcK1+e1OINIdHQ9fcbQuepAn42o5tHPydgBrwmw9KcS+YnA==}
+    peerDependencies:
+      zod: ^3.22.4
+    dependencies:
+      zod: 3.23.8
+    dev: false
+
   /@pkgjs/parseargs@0.11.0:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
@@ -1742,7 +1753,7 @@ packages:
       '@typescript-eslint/types': 7.14.1
       '@typescript-eslint/typescript-estree': 7.14.1(typescript@5.5.2)
       '@typescript-eslint/visitor-keys': 7.14.1
-      debug: 4.3.5
+      debug: 4.3.7
       eslint: 8.57.0
       typescript: 5.5.2
     transitivePeerDependencies:

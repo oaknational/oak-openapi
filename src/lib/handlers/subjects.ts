@@ -133,7 +133,7 @@ async function getSubjectPhase(subject: string): Promise<SubjectPhase> {
   return res[subjectPhaseView][0];
 }
 
-export const subjects = router({
+export const getSubjects = router({
   getAllSubjects: protectedProcedure
     .meta({
       openapi: {
