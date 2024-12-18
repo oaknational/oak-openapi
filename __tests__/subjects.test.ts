@@ -13,7 +13,7 @@ function auth() {
 test('years endpoint', async () => {
   const caller = auth();
 
-  const res = await caller.subjects.getSubjectYears({ subject: 'maths' });
+  const res = await caller.getSubjects.getSubjectYears({ subject: 'maths' });
   expect(Array.isArray(res)).toBeTruthy();
   expect(res.length).toBeGreaterThan(0);
   expect(res).toStrictEqual([
@@ -34,7 +34,7 @@ test('years endpoint', async () => {
 test('subject with sequences and additional data', async () => {
   const caller = auth();
 
-  const res = await caller.subjects.getSubject({ subject: 'maths' });
+  const res = await caller.getSubjects.getSubject({ subject: 'maths' });
   expect(Array.isArray(res)).toBeFalsy();
   expect(res).toHaveProperty('subjectTitle');
   expect(res).toHaveProperty('subjectSlug');
@@ -50,6 +50,6 @@ test('cannot access RSHE', async () => {
   const caller = auth();
 
   await expect(
-    async () => await caller.subjects.getSubject({ subject: 'rshe-pshe' }),
+    async () => await caller.getSubjects.getSubject({ subject: 'rshe-pshe' }),
   ).rejects.toThrowError();
 });
