@@ -16,9 +16,35 @@ import { examBoards } from '../oakConsts';
 
 toSorted.shim();
 
+type UnitFromDb = {
+  title: string;
+  slug: string;
+  order: number;
+};
+
+type Unit = {
+  unitTitle: string;
+  unitSlug: string;
+  order: number;
+};
+
 const input = z.object({
   sequence: z.string(),
 });
+
+function pushUnit(unit: UnitFromDb): Unit {
+  const { title, slug, order } = unit;
+
+  return {
+    unitTitle: title.trim(),
+    unitSlug: slug.trim(),
+    order,
+  };
+}
+
+function fixOrder(units: Unit[]) {
+  return units.map((unit, index) => ({ ...unit, order: index + 1 }));
+}
 
 export const getSequences = router({
   getSequenceUnits: protectedProcedure
@@ -138,25 +164,6 @@ export const getSequences = router({
 
       const result = [];
 
-      interface TierUnit {
-        tier: string;
-        units: ReturnType<typeof pushUnit>[];
-      }
-
-      const pushUnit = (unit: {
-        title: string;
-        slug: string;
-        order: number;
-      }) => {
-        const { title, slug, order } = unit;
-
-        return {
-          unitTitle: title,
-          unitSlug: slug,
-          order,
-        };
-      };
-
       for (const year of years) {
         // reduce down to only the units for this particular year
         const byYear = rawData.filter(
@@ -173,31 +180,36 @@ export const getSequences = router({
         const subjects = new Set(
           byYear
             .filter((unit) => unit.subjectcategories.length > 0)
-            .map((unit) => unit.subjectcategories[0].title.toLowerCase()),
+            .map((unit) => {
+              if (unit.subject_parent) {
+                return unit.subject_slug;
+              }
+              return unit.subjectcategories[0].title.toLowerCase();
+            }),
         );
 
         if (subjects.size === 0) {
           // when there's no subjects for the year, we first check
           // to see if there's tiers (such as maths-secondary), and if so,
           // then we drop into the tiers and group by _that_.
-          const tiers = byYear.filter((unit) => unit.tier !== null);
-          if (tiers.length > 0) {
+
+          const tiers = new Set(
+            byYear.map((_) => _.tier_slug).filter((_) => _ !== null),
+          );
+
+          if (tiers.size > 0) {
+            const tierData = Array.from(tiers).map((tier) => {
+              return {
+                tier,
+                units: fixOrder(
+                  byYear.filter((_) => _.tier_slug === tier).map(pushUnit),
+                ),
+              };
+            });
+
             result.push({
               year,
-              tiers: tiers.reduce<TierUnit[]>((acc, unit) => {
-                const { tier_slug } = unit;
-
-                let index = acc.findIndex((block) => block.tier === tier_slug);
-
-                if (index === -1) {
-                  acc.push({ tier: tier_slug, units: [] });
-                  index = 0;
-                }
-
-                acc[index].units.push(pushUnit(unit));
-
-                return acc;
-              }, []),
+              tiers: tierData, // contains tier + units
             });
           } else {
             // otherwise it's a simple and direct line to the units.
@@ -207,11 +219,16 @@ export const getSequences = router({
           // otherwise we need to start collecting all the subjects
           const res = [];
           for (const subject of subjects) {
-            const units = byYear.filter(
-              (unit) =>
+            const units = byYear.filter((unit) => {
+              if (unit.subject_parent) {
+                return unit.subject_slug === subject;
+              }
+
+              return (
                 unit.subjectcategories.length > 0 &&
-                unit.subjectcategories[0].title.toLowerCase() === subject,
-            );
+                unit.subjectcategories[0].title.toLowerCase() === subject
+              );
+            });
 
             const tiers = new Set(
               units.map((_) => _.tier_slug).filter((_) => _ !== null),
@@ -221,9 +238,9 @@ export const getSequences = router({
               const tierData = Array.from(tiers).map((tier) => {
                 return {
                   tier,
-                  units: units
-                    .filter((_) => _.tier_slug === tier)
-                    .map(pushUnit),
+                  units: fixOrder(
+                    units.filter((_) => _.tier_slug === tier).map(pushUnit),
+                  ),
                 };
               });
 
@@ -234,7 +251,7 @@ export const getSequences = router({
             } else {
               res.push({
                 subject,
-                units: units.map(pushUnit),
+                units: fixOrder(units.map(pushUnit)),
               });
             }
           }

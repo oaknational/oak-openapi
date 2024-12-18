@@ -1,17 +1,8 @@
 import { expect, test } from 'vitest';
-import { makeCaller } from './helper';
-
-function auth() {
-  return makeCaller({
-    user: 1,
-    res: {
-      setHeader() {},
-    },
-  });
-}
+import { authedCaller } from './helper';
 
 test('years endpoint', async () => {
-  const caller = auth();
+  const caller = authedCaller();
 
   const res = await caller.getSubjects.getSubjectYears({ subject: 'maths' });
   expect(Array.isArray(res)).toBeTruthy();
@@ -32,7 +23,7 @@ test('years endpoint', async () => {
 });
 
 test('subject with sequences and additional data', async () => {
-  const caller = auth();
+  const caller = authedCaller();
 
   const res = await caller.getSubjects.getSubject({ subject: 'maths' });
   expect(Array.isArray(res)).toBeFalsy();
@@ -47,7 +38,7 @@ test('subject with sequences and additional data', async () => {
 });
 
 test('cannot access RSHE', async () => {
-  const caller = auth();
+  const caller = authedCaller();
 
   await expect(
     async () => await caller.getSubjects.getSubject({ subject: 'rshe-pshe' }),
