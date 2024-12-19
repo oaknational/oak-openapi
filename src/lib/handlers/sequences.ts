@@ -33,6 +33,53 @@ const input = z.object({
   year: z.number().optional(),
 });
 
+const unitSchema = z.object({
+  unitTitle: z.string(),
+  unitSlug: z.string(),
+  order: z.number(),
+});
+
+const nonSubjectSchema = z.object({
+  year: z.number(),
+  units: z.array(unitSchema),
+});
+
+const subjectSchema = z.object({
+  subjectSlug: z.string(),
+  subjectTitle: z.string(),
+  units: z.array(unitSchema),
+});
+
+const tierSchema = z.object({
+  tier: z.string(),
+  units: z.array(unitSchema),
+});
+
+const subjectTiersSchema = z.object({
+  subjectSlug: z.string(),
+  subjectTitle: z.string(),
+  tiers: z.array(tierSchema),
+});
+
+const subjectsSchema = z.object({
+  year: z.number(),
+  subjects: z.array(z.union([subjectSchema, subjectTiersSchema])),
+});
+
+const tiersSchema = z.object({
+  year: z.number(),
+  tiers: z.array(tierSchema),
+});
+
+const output = z.array(
+  z.union([nonSubjectSchema, subjectsSchema, tiersSchema]),
+);
+
+type NonSubjectSchema = z.infer<typeof nonSubjectSchema>;
+type SubjectSchema = z.infer<typeof subjectSchema>;
+type SubjectTiersSchema = z.infer<typeof subjectTiersSchema>;
+type TiersSchema = z.infer<typeof tiersSchema>;
+
 function pushUnit(unit: UnitFromDb): Unit {
   const { title, slug, order } = unit;
 
@@ -64,7 +111,7 @@ export const getSequences = router({
       },
     })
     .input(input)
-    .output(z.any())
+    .output(output)
     .query(async ({ input }) => {
       const client = getClient();
 
@@ -209,22 +256,25 @@ export const getSequences = router({
           );
 
           if (tiers.size > 0) {
-            const tierData = Array.from(tiers).map((tier) => {
-              return {
-                tier,
-                units: fixOrder(
-                  byYear.filter((_) => _.tier_slug === tier).map(pushUnit),
-                ),
-              };
-            });
-
-            result.push({
+            const tierData: TiersSchema = {
               year,
-              tiers: tierData, // contains tier + units
-            });
+              tiers: Array.from(tiers).map((tier) => {
+                return {
+                  tier,
+                  units: fixOrder(
+                    byYear.filter((_) => _.tier_slug === tier).map(pushUnit),
+                  ),
+                };
+              }),
+            };
+
+            result.push(tierData);
           } else {
             // otherwise it's a simple and direct line to the units.
-            result.push({ year, units: byYear.map(pushUnit) });
+            result.push({
+              year,
+              units: byYear.map(pushUnit),
+            } as NonSubjectSchema);
           }
         } else {
           // otherwise we need to start collecting all the subjects
@@ -261,16 +311,15 @@ export const getSequences = router({
                   : subject,
                 subjectSlug: useSlugMap ? subject : subject.toLowerCase(),
                 tiers: tierData, // contains tier + units
-              });
+              } as SubjectTiersSchema);
             } else {
               res.push({
                 subjectTitle: useSlugMap
                   ? subjectSlugToTitle.get(subject)
                   : subject,
                 subjectSlug: useSlugMap ? subject : subject.toLowerCase(),
-
                 units: fixOrder(units.map(pushUnit)),
-              });
+              } as SubjectSchema);
             }
           }
           result.push({ year, subjects: res });
