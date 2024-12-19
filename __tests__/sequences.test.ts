@@ -10,16 +10,20 @@ test('sequence with subjects', async () => {
   expect(res.map((_) => _.year)).toStrictEqual([1, 2, 3, 4, 5, 6]);
 
   expect(res[0]).toHaveProperty('subjects');
-  expect(res[0].subjects?.length).toBeGreaterThan(1);
 
-  if (!res[0].subjects) {
+  if (!('subjects' in res[0])) {
     throw new Error('No subjects found');
   }
+  expect(res[0].subjects.length).toBeGreaterThan(1);
   const subject = res[0].subjects[1];
 
   expect(subject).toHaveProperty('units');
 
-  expect(subject.units?.map((_) => _.order).slice(0, 3)).toStrictEqual([
+  if (!('units' in subject)) {
+    throw new Error('No subjects found');
+  }
+
+  expect(subject.units.map((_) => _.order).slice(0, 3)).toStrictEqual([
     1, 2, 3,
   ]);
 
@@ -39,7 +43,7 @@ test('sequence with subjects & tiers', async () => {
 
   expect(res[index]).toHaveProperty('subjects');
 
-  if (!res[index].subjects) {
+  if (!('subjects' in res[index])) {
     throw new Error('No subjects found');
   }
   expect(res[index].subjects.map((_) => _.subjectSlug)).toContain('biology');
@@ -53,6 +57,10 @@ test('sequence with subjects & tiers', async () => {
     'Combined science',
   );
   expect(res[index].subjects[0]).toHaveProperty('tiers');
+
+  if (!('tiers' in res[index].subjects[0])) {
+    throw new Error('No subjects found');
+  }
 
   const tier = res[index].subjects[0].tiers?.[0];
 
@@ -75,6 +83,10 @@ test('sequence with tiers', async () => {
 
   const subject = res[index];
   expect(subject).toHaveProperty('tiers');
+
+  if (!('tiers' in subject)) {
+    throw new Error('No subjects found');
+  }
 
   if (!subject.tiers) {
     // this is entirely for TS and red snakes, because if the code got here,
