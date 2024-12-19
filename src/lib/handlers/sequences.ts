@@ -30,6 +30,7 @@ type Unit = {
 
 const input = z.object({
   sequence: z.string(),
+  year: z.number().optional(),
 });
 
 function pushUnit(unit: UnitFromDb): Unit {
@@ -66,6 +67,8 @@ export const getSequences = router({
     .output(z.any())
     .query(async ({ input }) => {
       const client = getClient();
+
+      const yearFilter = input.year || 0;
 
       const { phaseSlug, subjectSlug, ks4OptionSlug } = parseSubjectPhaseSlug(
         input.sequence,
@@ -142,11 +145,13 @@ export const getSequences = router({
           pathway
           pathway_slug
           phase
+          subject
           subjectcategories
           subject_parent
           subject_slug
           tier
           tier_slug
+          unit_options
           year
         }
       }`;
@@ -161,6 +166,10 @@ export const getSequences = router({
           new Set(),
         ),
       ).sort((a, b) => a - b);
+
+      const subjectSlugToTitle = new Map<string, string>(
+        rawData.map((_) => [_.subject_slug, _.subject]),
+      );
 
       const result = [];
 
@@ -177,6 +186,7 @@ export const getSequences = router({
         // this isn't ideal, because the subjectcategories field is an array
         // that I'm assuming has a length of 1 (brittle) and then I'm attempting
         // to slugify the title.
+        let useSlugMap = true;
         const subjects = new Set(
           byYear
             .filter((unit) => unit.subjectcategories.length > 0)
@@ -184,7 +194,8 @@ export const getSequences = router({
               if (unit.subject_parent) {
                 return unit.subject_slug;
               }
-              return unit.subjectcategories[0].title.toLowerCase();
+              useSlugMap = false;
+              return unit.subjectcategories[0].title;
             }),
         );
 
@@ -226,7 +237,7 @@ export const getSequences = router({
 
               return (
                 unit.subjectcategories.length > 0 &&
-                unit.subjectcategories[0].title.toLowerCase() === subject
+                unit.subjectcategories[0].title === subject
               );
             });
 
@@ -245,18 +256,29 @@ export const getSequences = router({
               });
 
               res.push({
-                subject,
+                subjectTitle: useSlugMap
+                  ? subjectSlugToTitle.get(subject)
+                  : subject,
+                subjectSlug: useSlugMap ? subject : subject.toLowerCase(),
                 tiers: tierData, // contains tier + units
               });
             } else {
               res.push({
-                subject,
+                subjectTitle: useSlugMap
+                  ? subjectSlugToTitle.get(subject)
+                  : subject,
+                subjectSlug: useSlugMap ? subject : subject.toLowerCase(),
+
                 units: fixOrder(units.map(pushUnit)),
               });
             }
           }
           result.push({ year, subjects: res });
         }
+      }
+
+      if (yearFilter) {
+        return result.filter((_) => _.year === yearFilter);
       }
 
       return result;

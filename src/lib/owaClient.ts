@@ -14,9 +14,9 @@ export const lessonViewTable = 'published.mv_lesson_openapi_1_2_1';
 
 export const subjectPhaseView = 'published_mv_subject_phase_options_0_11';
 
-export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_6';
+export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_9';
 export const sequenceViewWhereInput =
-  'published_mv_curriculum_sequence_b_13_0_6_bool_exp';
+  'published_mv_curriculum_sequence_b_13_0_9_bool_exp';
 
 export function querySQL(sql: string) {
   return fetch(`${process.env.OAK_GRAPHQL_HOST}/v1/query`, {
@@ -58,7 +58,7 @@ export type SubjectPhase = {
 };
 
 export type SequenceView = {
-  published_mv_curriculum_sequence_b_13_0_6: Sequence[];
+  published_mv_curriculum_sequence_b_13_0_9: Sequence[];
 };
 
 export type UnitVariantLessonsView = {
@@ -76,6 +76,7 @@ export type Sequence = TitleSlug & {
   pathway: string;
   pathway_slug: string;
   phase: string;
+  subject: string;
   subject_parent: string;
   subject_slug: string;
   subjectcategories: { id: number; title: string }[];
