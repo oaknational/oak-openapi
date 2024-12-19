@@ -42,11 +42,15 @@ test('sequence with subjects & tiers', async () => {
   if (!res[index].subjects) {
     throw new Error('No subjects found');
   }
-  expect(res[index].subjects.map((_) => _.subject)).toContain('biology');
-  expect(res[index].subjects.map((_) => _.subject)).toContain('physics');
-  expect(res[index].subjects.map((_) => _.subject)).toContain('chemistry');
-  expect(res[index].subjects.map((_) => _.subject)).toContain(
+  expect(res[index].subjects.map((_) => _.subjectSlug)).toContain('biology');
+  expect(res[index].subjects.map((_) => _.subjectSlug)).toContain('physics');
+  expect(res[index].subjects.map((_) => _.subjectSlug)).toContain('chemistry');
+  expect(res[index].subjects.map((_) => _.subjectSlug)).toContain(
     'combined-science',
+  );
+
+  expect(res[index].subjects.map((_) => _.subjectTitle)).toContain(
+    'Combined science',
   );
   expect(res[index].subjects[0]).toHaveProperty('tiers');
 
