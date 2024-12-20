@@ -1,6 +1,7 @@
 {
   "cSpell.words": [
     "apikeys",
+    "commitlint",
     "hasura",
     "hgetall",
     "hincrby",
@@ -9,6 +10,7 @@
     "langchain",
     "Lexend",
     "llms",
+    "maxage",
     "nocheck",
     "oaknational",
     "openai",

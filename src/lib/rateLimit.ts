@@ -42,7 +42,7 @@ export const rateLimiter = (rateLimit: RateLimit): RateLimiter => {
       if (!apiKey) {
         // should never happen
         throw new Error(
-          'authenticated user is required for userBasedRateLimiter'
+          'authenticated user is required for userBasedRateLimiter',
         );
       }
 
@@ -64,17 +64,14 @@ export const rateLimiter = (rateLimit: RateLimit): RateLimiter => {
 };
 
 async function isUnlimited(user: User): Promise<boolean> {
-  // remove rate limit for hackathon
-  return !!user;
+  const oakAuthToken = process.env.OAK_API_AUTH_TOKEN;
+  if (!oakAuthToken) {
+    return false;
+  }
 
-  // const oakAuthToken = process.env.OAK_API_AUTH_TOKEN;
-  // if (!oakAuthToken) {
-  //   return false;
-  // }
+  if (user.rateLimit === 0) {
+    return true;
+  }
 
-  // if (user.rateLimit === 0) {
-  //   return true;
-  // }
-
-  // return user.key === oakAuthToken;
+  return user.key === oakAuthToken;
 }

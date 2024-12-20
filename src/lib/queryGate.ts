@@ -245,7 +245,7 @@ export function modifyQueryWithSubject(query: string, vars: KV) {
 
 export async function blockLessonForCopyrightText(
   client: GraphQLClient,
-  lessonSlug: string
+  lessonSlug: string,
 ) {
   const res = await getSubjectAndUnitForLesson(client, lessonSlug);
 
@@ -278,7 +278,7 @@ export function isBlockedUnitOrSubject({
 
 export async function blockUnitForCopyrightText(
   client: GraphQLClient,
-  unitSlug: string
+  unitSlug: string,
 ) {
   if (allowedUnits.includes(unitSlug)) {
     // not copyright
@@ -312,14 +312,14 @@ export function modifySubject(subject: string) {
 
 export function checkQueryAllowedAssets(
   subject: string = '',
-  unit: string = ''
+  unit: string = '',
 ) {
   return isSubjectSupported(subject) || isUnitSupported(unit);
 }
 
 export async function checkLessonAllowedAsset(
   client: GraphQLClient,
-  slug: string
+  slug: string,
 ) {
   const res = await getSubjectAndUnitForLesson(client, slug);
 
@@ -346,10 +346,10 @@ export function isUnitSupported(unit: string) {
 
 export async function getSubjectAndUnitForLesson(
   client: GraphQLClient,
-  slug: string
+  slug: string,
 ): Promise<{ subjectSlug: string; unitSlug: string } | false> {
   const query = gql`
-  query ($slug: String!) {
+  query ($slug: String!) @cached(ttl: 300) {
     ${lessonView}(
       where: { lessonSlug: { _eq: $slug }, isLegacy: { _eq: false } }
     ) {
@@ -374,10 +374,10 @@ export async function getSubjectAndUnitForLesson(
 
 async function getSubjectForUnit(
   client: GraphQLClient,
-  slug: string
+  slug: string,
 ): Promise<{ subjectSlug: string } | false> {
   const query = gql`
-  query ($slug: String!) {
+  query ($slug: String!) @cached(ttl: 300) {
     ${lessonView}(
       where: { unitSlug: { _eq: $slug }, isLegacy: { _eq: false } }
       limit: 1
