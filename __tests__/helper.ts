@@ -17,14 +17,24 @@ vi.mock('~/lib/rateLimit', async (importOriginal: () => Promise<object>) => {
   };
 });
 
-export function makeCaller(opts = {}) {
+export function makeRes() {
+  return {
+    setHeader: vitest.fn(),
+    getHeader: vitest.fn(),
+    pipe: vitest.fn(),
+    on: vitest.fn(),
+    once: vitest.fn(),
+    emit: vitest.fn(),
+    write: vitest.fn(),
+    end: vitest.fn(),
+  };
+}
+
+export function makeCaller(opts = {}, res = makeRes()) {
   const createCaller = createCallerFactory(router);
   const callerOptions = {
     req: {} as NextApiRequest,
-    res: {
-      setHeader: vitest.fn() as unknown as NextApiResponse['setHeader'],
-      getHeader: vitest.fn() as unknown as NextApiResponse['getHeader'],
-    } as NextApiResponse,
+    res: res as unknown as NextApiResponse,
     rateLimit: undefined,
     user: null,
     ...opts,

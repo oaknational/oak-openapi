@@ -10,8 +10,6 @@ export const unitVariantLessonsView =
   'published_mv_synthetic_unitvariant_lessons_by_year_12_0_0';
 export const lessonViewTable = 'published.mv_lesson_openapi_1_2_1';
 
-export const lessonDetailView = 'published_mv_lesson_content_published_3_0_0';
-
 export function querySQL(sql: string) {
   return fetch(`${process.env.OAK_GRAPHQL_HOST}/v1/query`, {
     method: 'POST',
@@ -36,10 +34,6 @@ export function getClient() {
     },
   });
 }
-
-export type LessonDetailView = {
-  published_mv_lesson_content_published_3_0_0: LessonDetail[];
-};
 
 export type LessonDetail = {
   has_slide_deck_asset_object: boolean;
@@ -75,7 +69,7 @@ export interface Download {
   exitQuizAnswers: SignedAsset;
   lessonSlug: string;
   lessonTitle: string;
-  slidedeck: SignedAsset;
+  slideDeck: SignedAsset;
   starterQuizAnswers: SignedAsset;
   starterQuiz: SignedAsset; // note: this is starter_quiz in the graphql response
   supplementaryResource: SignedAsset;
@@ -92,7 +86,7 @@ export interface SignedAsset {
   bucket_path: string;
 }
 
-interface Video {
+export interface Video {
   ext: string;
   type: string;
   label: string;
