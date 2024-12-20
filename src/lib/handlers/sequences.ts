@@ -7,12 +7,14 @@ import { z } from 'zod';
 import {
   getClient,
   gql,
+  Sequence,
   SequenceView,
   sequenceView,
   sequenceViewWhereInput,
 } from '../owaClient';
 import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
 import { examBoards } from '../oakConsts';
+import slugify from 'slugify';
 
 toSorted.shim();
 
@@ -25,7 +27,8 @@ type UnitFromDb = {
 type Unit = {
   unitTitle: string;
   unitSlug: string;
-  order: number;
+  unitOrder: number;
+  unitOptionParentSlug?: string;
 };
 
 const input = z.object({
@@ -36,7 +39,8 @@ const input = z.object({
 const unitSchema = z.object({
   unitTitle: z.string(),
   unitSlug: z.string(),
-  order: z.number(),
+  unitOrder: z.number(),
+  unitOptionParentSlug: z.string().optional(),
 });
 
 const nonSubjectSchema = z.object({
@@ -86,12 +90,47 @@ function pushUnit(unit: UnitFromDb): Unit {
   return {
     unitTitle: title.trim(),
     unitSlug: slug.trim(),
-    order,
+    unitOrder: order,
   };
 }
 
+function mapUnits(units: Sequence[]) {
+  return units.reduce<Unit[]>((acc, curr) => {
+    const slug = curr.slug;
+    if (curr.unit_options.length > 0) {
+      const otherUnits = curr.unit_options.filter((unit) => unit.slug !== slug);
+      const unitOptionParentSlug = slug.replace(/-\d+$/, '');
+      acc.push({ ...pushUnit(curr as UnitFromDb), unitOptionParentSlug });
+      acc.push(
+        ...otherUnits.map((unit) => {
+          return {
+            ...pushUnit({ ...unit, order: curr.order } as UnitFromDb),
+            unitOptionParentSlug,
+          };
+        }),
+      );
+    } else {
+      acc.push(pushUnit(curr as UnitFromDb));
+    }
+
+    return acc;
+  }, []);
+}
+
 function fixOrder(units: Unit[]) {
-  return units.map((unit, index) => ({ ...unit, order: index + 1 }));
+  // if the unit has a `unitOptionParentSlug` property, apply the same
+  // unitOrder value, and then make sure to capture an offset to adjust by
+  // as the number wouldn't have incremented in the same linear way.
+  let offset = 0;
+  const seen = new Set<string>();
+  return units.map((unit, index) => {
+    const unitOrder = index + offset + 1;
+    if (unit.unitOptionParentSlug && !seen.has(unit.unitOptionParentSlug)) {
+      offset--;
+      seen.add(unit.unitOptionParentSlug);
+    }
+    return { ...unit, unitOrder };
+  });
 }
 
 export const getSequences = router({
@@ -106,7 +145,36 @@ export const getSequences = router({
           request: {
             sequence: 'science-secondary-edexcel',
           },
-          response: [],
+          response: [
+            {
+              year: 3,
+              subjects: [
+                {
+                  subjectSlug: 'grammar',
+                  subjectTitle: 'Grammar',
+                  units: [
+                    {
+                      unitTitle:
+                        'Simple, compound and adverbial complex sentences',
+                      unitSlug:
+                        'simple-compound-and-adverbial-complex-sentences',
+                      order: 1,
+                    },
+                    {
+                      unitTitle: 'Tense forms: simple, progressive and perfect',
+                      unitSlug: 'tense-forms-simple-progressive-and-perfect',
+                      order: 2,
+                    },
+                    {
+                      unitTitle: 'Speech first punctuation and apostrophes',
+                      unitSlug: 'speech-first-punctuation-and-apostrophes',
+                      order: 3,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
         },
       },
     })
@@ -262,7 +330,7 @@ export const getSequences = router({
                 return {
                   tier,
                   units: fixOrder(
-                    byYear.filter((_) => _.tier_slug === tier).map(pushUnit),
+                    mapUnits(byYear.filter((_) => _.tier_slug === tier)),
                   ),
                 };
               }),
@@ -273,11 +341,21 @@ export const getSequences = router({
             // otherwise it's a simple and direct line to the units.
             result.push({
               year,
-              units: byYear.map(pushUnit),
+              units: mapUnits(byYear),
             } as NonSubjectSchema);
           }
         } else {
           // otherwise we need to start collecting all the subjects
+
+          const subjectData = (subject: string) => ({
+            subjectTitle: useSlugMap
+              ? subjectSlugToTitle.get(subject)
+              : subject,
+            subjectSlug: useSlugMap
+              ? subject
+              : slugify(subject).toLocaleLowerCase(),
+          });
+
           const res = [];
           for (const subject of subjects) {
             const units = byYear.filter((unit) => {
@@ -300,25 +378,19 @@ export const getSequences = router({
                 return {
                   tier,
                   units: fixOrder(
-                    units.filter((_) => _.tier_slug === tier).map(pushUnit),
+                    mapUnits(units.filter((_) => _.tier_slug === tier)),
                   ),
                 };
               });
 
               res.push({
-                subjectTitle: useSlugMap
-                  ? subjectSlugToTitle.get(subject)
-                  : subject,
-                subjectSlug: useSlugMap ? subject : subject.toLowerCase(),
+                ...subjectData(subject),
                 tiers: tierData, // contains tier + units
               } as SubjectTiersSchema);
             } else {
               res.push({
-                subjectTitle: useSlugMap
-                  ? subjectSlugToTitle.get(subject)
-                  : subject,
-                subjectSlug: useSlugMap ? subject : subject.toLowerCase(),
-                units: fixOrder(units.map(pushUnit)),
+                ...subjectData(subject),
+                units: fixOrder(mapUnits(units)),
               } as SubjectSchema);
             }
           }

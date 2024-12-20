@@ -23,7 +23,7 @@ test('sequence with subjects', async () => {
     throw new Error('No subjects found');
   }
 
-  expect(subject.units.map((_) => _.order).slice(0, 3)).toStrictEqual([
+  expect(subject.units.map((_) => _.unitOrder).slice(0, 3)).toStrictEqual([
     1, 2, 3,
   ]);
 
@@ -68,7 +68,9 @@ test('sequence with subjects & tiers', async () => {
     throw new Error('No tier found');
   }
 
-  expect(tier.units.map((_) => _.order).slice(0, 3)).toStrictEqual([1, 2, 3]);
+  expect(tier.units.map((_) => _.unitOrder).slice(0, 3)).toStrictEqual([
+    1, 2, 3,
+  ]);
 
   const slugs = new Set(tier.units.map((_) => _.unitSlug));
   expect(slugs.size).toBe(tier.units.length);
@@ -94,10 +96,40 @@ test('sequence with tiers', async () => {
     throw new Error('No tiers found');
   }
 
-  expect(subject.tiers[0].units?.map((_) => _.order).slice(0, 3)).toStrictEqual(
-    [1, 2, 3],
-  );
+  expect(
+    subject.tiers[0].units?.map((_) => _.unitOrder).slice(0, 3),
+  ).toStrictEqual([1, 2, 3]);
 
   const slugs = new Set(subject.tiers[0].units.map((_) => _.unitSlug));
   expect(slugs.size).toBe(subject.tiers[0].units.length);
+});
+
+test('sequence with unit optionality', async () => {
+  const caller = authedCaller();
+  const slug = 'english-primary';
+  const res = await caller.getSequences.getSequenceUnits({
+    sequence: slug,
+    year: 3,
+  });
+
+  if (!('subjects' in res[0])) {
+    throw new Error('No subjects found');
+  }
+
+  const subject = res[0].subjects.find(
+    (_) => _.subjectSlug === 'reading-writing-and-oracy',
+  );
+
+  expect(subject).toBeTruthy();
+
+  // this is more nonsense from typescript otherwise I get red snakes
+  if (!subject || !('units' in subject)) {
+    throw new Error('No subjects found');
+  }
+
+  const units = subject.units;
+  const optionals = units.filter((_) => _.unitOrder === 17);
+
+  expect(optionals.length).toBe(2);
+  expect(optionals[0]).toHaveProperty('unitOptionParentSlug');
 });
