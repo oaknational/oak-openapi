@@ -15,39 +15,79 @@ import { TRPCError } from '@trpc/server';
 const input = z.object({
   subject: z.string(),
 });
-const stringArrayResult = z.array(z.string());
+
+const numberArrayResult = z.array(z.number());
 const keyStagesResult = z.array(
   z.object({ keyStageTitle: z.string(), keyStageSlug: z.string() }),
 );
 
+const sequenceResult = z.object({
+  sequenceSlug: z.string(),
+  years: numberArrayResult,
+  keyStages: keyStagesResult,
+  phaseSlug: z.string(),
+  phaseTitle: z.string(),
+  ks4Options: z
+    .object({
+      title: z.string(),
+      slug: z.string(),
+    })
+    .nullable(),
+});
+
+type SequenceResult = z.infer<typeof sequenceResult>;
+
 const subjectResult = z.object({
   subjectTitle: z.string(),
   subjectSlug: z.string(),
-  sequenceSlugs: stringArrayResult,
-  years: stringArrayResult,
+  sequenceSlugs: z.array(sequenceResult),
+  years: numberArrayResult,
   keyStages: keyStagesResult,
 });
 
 const subjectsResult = z.array(subjectResult);
 
-function phaseToSequences(subject: SubjectPhase) {
-  return subject.phases.reduce((acc: string[], { slug }) => {
-    if (
-      slug === 'secondary' &&
-      subject.ks4_options &&
-      subject.ks4_options.length
-    ) {
-      acc.push(
-        ...subject.ks4_options.map(
-          (examBoard) => `${subject.slug}-${slug}-${examBoard.slug}`,
-        ),
-      );
-    } else {
-      acc.push(`${subject.slug}-${slug}`);
-    }
+function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
+  const sequences = subject.phases.reduce(
+    (acc: SequenceResult[], { slug, title }) => {
+      if (
+        slug === 'secondary' &&
+        subject.ks4_options &&
+        subject.ks4_options.length
+      ) {
+        const keyStages = phaseToKeyStages(subject).filter((_) =>
+          ['ks3', 'ks4'].includes(_.keyStageSlug),
+        );
+        acc.push(
+          ...subject.ks4_options.map((examBoard) => ({
+            sequenceSlug: `${subject.slug}-${slug}-${examBoard.slug}`,
+            years: yearsFromKeyStages(keyStages),
+            keyStages,
+            phaseSlug: slug,
+            phaseTitle: title,
+            ks4Options: examBoard,
+          })),
+        );
+      } else {
+        const keyStages = phaseToKeyStages(subject).filter((_) =>
+          ['ks1', 'ks2'].includes(_.keyStageSlug),
+        );
+        acc.push({
+          sequenceSlug: `${subject.slug}-${slug}`,
+          years: yearsFromKeyStages(keyStages),
+          keyStages,
+          phaseSlug: slug,
+          phaseTitle: title,
+          ks4Options: null,
+        });
+      }
 
-    return acc;
-  }, []);
+      return acc;
+    },
+    [] as SequenceResult[],
+  );
+
+  return sequences;
 }
 
 function phaseToKeyStages(subject: SubjectPhase) {
@@ -59,19 +99,19 @@ function phaseToKeyStages(subject: SubjectPhase) {
 function yearsFromKeyStages(
   keyStages: { keyStageSlug: string; keyStageTitle: string }[],
 ) {
-  const years = keyStages.reduce((acc: string[], { keyStageSlug }) => {
+  const years = keyStages.reduce((acc: number[], { keyStageSlug }) => {
     switch (keyStageSlug) {
       case 'ks1':
-        acc.push('1', '2');
+        acc.push(1, 2);
         break;
       case 'ks2':
-        acc.push('3', '4', '5', '6');
+        acc.push(3, 4, 5, 6);
         break;
       case 'ks3':
-        acc.push('7', '8', '9');
+        acc.push(7, 8, 9);
         break;
       case 'ks4':
-        acc.push('10', '11');
+        acc.push(10, 11);
         break;
     }
     return acc;
@@ -151,20 +191,7 @@ export const getSubjects = router({
                 'design-technology-primary',
                 'design-technology-secondary',
               ],
-              years: [
-                '1',
-                '2',
-                '3',
-                '4',
-                '5',
-                '6',
-                '7',
-                '8',
-                '9',
-                '10',
-                '11',
-                'all-years',
-              ],
+              years: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
               keyStages: [
                 {
                   keyStageSlug: 'ks1',
@@ -255,20 +282,7 @@ export const getSubjects = router({
               'design-technology-primary',
               'design-technology-secondary',
             ],
-            years: [
-              '1',
-              '2',
-              '3',
-              '4',
-              '5',
-              '6',
-              '7',
-              '8',
-              '9',
-              '10',
-              '11',
-              'all-years',
-            ],
+            years: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
             keyStages: [
               {
                 keyStageSlug: 'ks1',
@@ -318,7 +332,7 @@ export const getSubjects = router({
         subject: z.string(),
       }),
     )
-    .output(stringArrayResult)
+    .output(z.array(sequenceResult))
     .query(async ({ input }) => {
       return phaseToSequences(await getSubjectPhase(input.subject));
     }),
@@ -344,7 +358,7 @@ export const getSubjects = router({
       },
     })
     .input(input)
-    .output(stringArrayResult)
+    .output(numberArrayResult)
     .query(async ({ input }) => {
       return yearsFromKeyStages(
         phaseToKeyStages(await getSubjectPhase(input.subject)),
