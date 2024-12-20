@@ -103,7 +103,7 @@ const questionZod = z
         {
           description:
             'Multiple choice answer allows for one or more than one answer to be correct as defined by the distractor field being set to false',
-        }
+        },
       ),
       z.object(
         {
@@ -113,7 +113,7 @@ const questionZod = z
         {
           description:
             'Short answers allow students to enter a free text answer, and the answers array contains a list of acceptable answers',
-        }
+        },
       ),
       z.object(
         {
@@ -123,7 +123,7 @@ const questionZod = z
         {
           description:
             'The student is offered a list from the `match_option` field in the answers array, and must correctly match them to the `correct_choice` value',
-        }
+        },
       ),
       z.object(
         {
@@ -133,9 +133,9 @@ const questionZod = z
         {
           description:
             'The student is offered a list of items to order, and must correctly order them according to the `order` field. When presenting the answer options to the student, you should randomise the order of the items',
-        }
+        },
       ),
-    ])
+    ]),
   );
 
 type Question = z.infer<typeof questionZod>;
@@ -170,7 +170,7 @@ export function formatMatchAnswer(answer: DBMatch): MatchAnswer {
   // sample slug: the-theme-of-family-in-grandads-island
   const matchOption = answer.match_option.filter((_) => _.type === 'text')[0];
   const correctChoice = answer.correct_choice.filter(
-    (_) => _.type === 'text'
+    (_) => _.type === 'text',
   )[0];
 
   return {
@@ -197,7 +197,7 @@ export function formatOrderAnswer(answer: DBOrder): OrderAnswer {
 }
 
 function formatMultipleChoiceAnswer(
-  answer: DBMultipleChoiceAnswer
+  answer: DBMultipleChoiceAnswer,
 ): MultipleChoiceAnswer {
   // sample slug: solving-equations-with-surds
 
@@ -257,7 +257,7 @@ function formatImage(image: ImageStem, text: null | { text: string } = null) {
 
 function formatQuestion(
   question: DBQuestion,
-  imagesAllowed: boolean = false
+  imagesAllowed: boolean = false,
 ): Question | undefined {
   // FIXME this is losing the image
   /*
@@ -295,7 +295,7 @@ function formatQuestion(
       questionType: QuestionTypeEnum.MultipleChoice,
       questionImage,
       answers: question.answers[QuestionTypeEnum.MultipleChoice].map(
-        formatMultipleChoiceAnswer
+        formatMultipleChoiceAnswer,
       ),
     };
   }
@@ -330,7 +330,7 @@ function formatQuestion(
 
 function questionsForQuiz(
   lesson: Lesson,
-  imagesAllowed: boolean = false
+  imagesAllowed: boolean = false,
 ): { [key in QuizKey]: Question[] } {
   const result = emptyQuizResults();
   for (const quiz of ['starterQuiz', 'exitQuiz'] as QuizKey[]) {
@@ -357,7 +357,7 @@ function questionsForQuiz(
       if (question.questionType === QuestionTypeEnum.MultipleChoice) {
         // images only appear in multiple choice questions (validated by checking db)
         const hasImageAnswer = question.answers[question.questionType].some(
-          (answer) => answer.answer.some((a) => a.type === 'image')
+          (answer) => answer.answer.some((a) => a.type === 'image'),
         );
 
         if (hasImageAnswer && imagesAllowed === false) {
@@ -420,13 +420,13 @@ export const getQuestions = router({
     .input(
       z.object({
         lesson: z.string(),
-      })
+      }),
     )
     .output(
       z.object({
         starterQuiz: z.array(questionZod),
         exitQuiz: z.array(questionZod),
-      })
+      }),
     )
     .query(async ({ input }) => {
       const slug = decodeURIComponent(input.lesson);
@@ -488,7 +488,7 @@ export const getQuestions = router({
 
       const imagesAllowed = supportsImages(
         subjectUnit.subjectSlug,
-        subjectUnit.unitSlug
+        subjectUnit.unitSlug,
       );
 
       return questionsForQuiz(lesson, imagesAllowed);
@@ -552,7 +552,7 @@ export const getQuestions = router({
           .lte(100)
           .optional()
           .default(10),
-      })
+      }),
     )
     .output(
       z.array(
@@ -562,8 +562,8 @@ export const getQuestions = router({
           // unitSlug: z.string(),
           starterQuiz: z.array(questionZod),
           exitQuiz: z.array(questionZod),
-        })
-      )
+        }),
+      ),
     )
     .query(async ({ input, ctx }) => {
       const keyStage = decodeURIComponent(input.keyStage);
@@ -673,7 +673,7 @@ export const getQuestions = router({
 
         const results = questionsForQuiz(
           { exitQuiz, starterQuiz },
-          imagesAllowed
+          imagesAllowed,
         );
 
         lessons.push({

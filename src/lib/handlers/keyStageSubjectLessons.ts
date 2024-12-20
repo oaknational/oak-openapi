@@ -64,7 +64,7 @@ export const getKeyStageSubjectLessons = router({
           .lte(100)
           .optional()
           .default(10),
-      })
+      }),
     )
     .output(
       z.array(
@@ -75,10 +75,10 @@ export const getKeyStageSubjectLessons = router({
             z.object({
               lessonSlug: z.string({ description: 'Lesson slug' }),
               lessonTitle: z.string({ description: 'Lesson title' }),
-            })
+            }),
           ),
-        })
-      )
+        }),
+      ),
     )
     .query(async ({ input, ctx }) => {
       const keyStage = decodeURIComponent(input.keyStage);
@@ -206,7 +206,7 @@ export const getKeyStageSubjectLessons = router({
           unitSlug: string;
           unitTitle: string;
           lessons: { lessonSlug: string; lessonTitle: string }[];
-        }[]
+        }[],
       );
 
       return units;

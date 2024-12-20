@@ -59,6 +59,7 @@ export type UnitVariantLesson = {
   phase_slug: string;
   keystage_slug: string;
   subject_slug: string;
+  optionality?: string;
   supplementary_data: {
     unit_order: number;
     order_in_unit: number;
@@ -191,6 +192,7 @@ export type Lesson = {
   transcriptSentences?: string;
   unitSlug?: string;
   unitTitle?: string;
+  unitOrder?: number;
   unitVariantId?: number;
   videoTitle?: string;
   video_object?: any;

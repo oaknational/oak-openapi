@@ -15,7 +15,7 @@ import {
   unitVariantLessonsView,
 } from '../owaClient';
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
-import { baseUrl } from '../baseUrl';
+import { assetBaseVideoUrl, baseUrl } from '../baseUrl';
 
 import {
   checkLessonAllowedAsset,
@@ -38,7 +38,7 @@ export const downloadTypeEnum = z.enum(
   {
     description:
       'Use the this type and the lesson slug in conjunction to get a signed download URL to the asset type from the /api/download endpoint',
-  }
+  },
 );
 
 const assetType = z.object({
@@ -58,97 +58,97 @@ export const lessonsAssetsType = z.array(
     lessonTitle: z.string(),
     attribution: z.array(z.string()).optional(),
     assets: z.array(assetType),
-  })
+  }),
 );
 
 export type DownloadTypeEnum = z.infer<typeof downloadTypeEnum>;
 
 const graphqlClient = getClient();
 
-function assetDownloads(downloads: Download, filter?: DownloadTypeEnum) {
-  const baseUrl = 'https://storage.cloud.google.com/ingested-assets-production';
-  const baseVideoUrl = 'https://stream.video.thenational.academy';
-
+function assetDownloads(
+  lessonSlug: string,
+  downloads: Download[],
+  filter?: DownloadTypeEnum,
+) {
+  // const allTypes: DownloadTypeEnum[] = downloadTypeEnum.options;
+  const download = downloads[0];
   const assetUrls = [];
 
-  if (downloads.slidedeck && downloads.slidedeck.bucket_path) {
+  if (download.slidedeck && download.slidedeck.bucket_path) {
     assetUrls.push({
       // type: camelCase(downloads.slidedeck.type),
-      label: downloads.slidedeck.label,
+      label: download.slidedeck.label,
       type: 'slideDeck',
-      url: `${baseUrl}/${downloads.slidedeck.bucket_path}`,
+      url: `${baseUrl}/${download.slidedeck.bucket_path}`,
     });
   }
 
-  if (downloads.worksheet && downloads.worksheet.bucket_path) {
+  if (download.worksheet && download.worksheet.bucket_path) {
     assetUrls.push({
-      label: downloads.worksheet.label,
+      label: download.worksheet.label,
       type: 'worksheet',
-      url: `${baseUrl}/${downloads.worksheet.bucket_path}`,
+      url: `${baseUrl}/${download.worksheet.bucket_path}`,
     });
   }
 
-  if (downloads.worksheetAnswers && downloads.worksheetAnswers.bucket_path) {
+  if (download.worksheetAnswers && download.worksheetAnswers.bucket_path) {
     assetUrls.push({
-      label: downloads.worksheetAnswers.label,
+      label: download.worksheetAnswers.label,
       type: 'worksheetAnswers',
-      url: `${baseUrl}/${downloads.worksheetAnswers.bucket_path}`,
+      url: `${baseUrl}/${download.worksheetAnswers.bucket_path}`,
     });
   }
 
   if (
-    downloads.supplementaryResource &&
-    downloads.supplementaryResource.bucket_path
+    download.supplementaryResource &&
+    download.supplementaryResource.bucket_path
   ) {
     assetUrls.push({
-      label: downloads.supplementaryResource.label,
+      label: download.supplementaryResource.label,
       type: 'supplementaryResource',
-      url: `${baseUrl}/${downloads.supplementaryResource.bucket_path}`,
+      url: `${baseUrl}/${download.supplementaryResource.bucket_path}`,
     });
   }
 
-  if (downloads.starterQuiz && downloads.starterQuiz.bucket_path) {
+  if (download.starterQuiz && download.starterQuiz.bucket_path) {
     assetUrls.push({
-      label: downloads.starterQuiz.label,
+      label: download.starterQuiz.label,
       type: 'starterQuiz',
-      url: `${baseUrl}/${downloads.starterQuiz.bucket_path}`,
+      url: `${baseUrl}/${download.starterQuiz.bucket_path}`,
     });
   }
 
-  if (
-    downloads.starterQuizAnswers &&
-    downloads.starterQuizAnswers.bucket_path
-  ) {
+  if (download.starterQuizAnswers && download.starterQuizAnswers.bucket_path) {
     assetUrls.push({
-      label: downloads.starterQuizAnswers.label,
+      label: download.starterQuizAnswers.label,
       type: 'starterQuizAnswers',
-      url: `${baseUrl}/${downloads.starterQuizAnswers.bucket_path}`,
+      url: `${baseUrl}/${download.starterQuizAnswers.bucket_path}`,
     });
   }
 
-  if (downloads.exitQuiz && downloads.exitQuiz.bucket_path) {
+  if (download.exitQuiz && download.exitQuiz.bucket_path) {
     assetUrls.push({
-      label: downloads.exitQuiz.label,
+      label: download.exitQuiz.label,
       type: 'exitQuiz',
-      url: `${baseUrl}/${downloads.exitQuiz.bucket_path}`,
+      url: `${baseUrl}/${download.exitQuiz.bucket_path}`,
     });
   }
 
-  if (downloads.exitQuizAnswers && downloads.exitQuizAnswers.bucket_path) {
+  if (download.exitQuizAnswers && download.exitQuizAnswers.bucket_path) {
     assetUrls.push({
-      label: downloads.exitQuizAnswers.label,
+      label: download.exitQuizAnswers.label,
       type: 'exitQuizAnswers',
-      url: `${baseUrl}/${downloads.exitQuizAnswers.bucket_path}`,
+      url: `${baseUrl}/${download.exitQuizAnswers.bucket_path}`,
     });
   }
 
-  if (downloads.video && (downloads.video.download || downloads.video.stream)) {
+  if (download.video && (download.video.download || download.video.stream)) {
     assetUrls.push({
-      label: downloads.video.label,
+      label: download.video.label,
       type: 'video',
       url:
-        baseVideoUrl +
-        new URL(downloads.video.download || downloads.video.stream).pathname,
+        assetBaseVideoUrl +
+        new URL(download.video.download || download.video.stream).pathname,
       // downloads.video.download || downloads.video.stream,
     });
   }
@@ -242,7 +242,7 @@ export const getAssets = router({
           .lte(100)
           .optional()
           .default(10),
-      })
+      }),
     )
     .output(z.any()) //lessonsAssetsType
     .query(async ({ input, ctx }) => {
@@ -362,7 +362,7 @@ export const getAssets = router({
         downloadsQuery,
         {
           lessonSlugs,
-        }
+        },
       );
 
       const downloads = downloadsViewResult[downloadView];
@@ -411,7 +411,7 @@ export const getAssets = router({
           lessonSlug,
           lessonTitle: d.lessonTitle,
           attribution: mappedAttribution.length ? mappedAttribution : undefined,
-          assets: assetDownloads(d, typeFilter),
+          assets: assetDownloads(lessonSlug, [d], typeFilter),
         };
       });
 
@@ -478,7 +478,7 @@ export const getAssets = router({
           description: 'The lesson slug',
         }),
         type: downloadTypeEnum.optional(),
-      })
+      }),
     )
     .output(z.any()) //lessonAssetsType
     .query(async ({ input }) => {
@@ -487,7 +487,7 @@ export const getAssets = router({
       // FIXME - gate with a query to check if the lesson is in maths
       const supported = await checkLessonAllowedAsset(
         graphqlClient,
-        lessonSlug
+        lessonSlug,
       );
 
       if (!supported) {
@@ -544,7 +544,7 @@ export const getAssets = router({
 
       const lessonDetailViewResult: DownloadView = await graphqlClient.request(
         queryDownloads,
-        variables
+        variables,
       );
 
       const res = lessonDetailViewResult[downloadView];
@@ -587,7 +587,7 @@ export const getAssets = router({
 
       return {
         attribution: mappedAttribution.length ? mappedAttribution : undefined,
-        assets: assetDownloads(res[0], type),
+        assets: assetDownloads(lessonSlug, res, type),
       };
     }),
 });
