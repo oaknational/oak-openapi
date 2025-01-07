@@ -2,6 +2,8 @@ import { GraphQLClient } from 'graphql-request';
 
 export { gql } from 'graphql-request';
 
+export const currentCycle = '2';
+
 export const unitCurriculumView =
   'published_mv_openapi_unit_curriculum_content_1_0_2';
 export const lessonView = 'published_mv_lesson_openapi_1_2_1';
@@ -9,6 +11,12 @@ export const downloadView = 'published_mv_openapi_downloads_1_0_0';
 export const unitVariantLessonsView =
   'published_mv_synthetic_unitvariant_lessons_by_year_12_0_0';
 export const lessonViewTable = 'published.mv_lesson_openapi_1_2_1';
+
+export const subjectPhaseView = 'published_mv_subject_phase_options_0_11';
+
+// FIXME might not need subjectView + types
+export const subjectView =
+  'published_mv_subject_phase_options_including_new_0_0_1';
 
 export function querySQL(sql: string) {
   return fetch(`${process.env.OAK_GRAPHQL_HOST}/v1/query`, {
@@ -40,6 +48,24 @@ export type LessonDetail = {
   has_worksheet_asset_object: boolean;
   has_worksheet_answers_asset_object: boolean;
   has_supplementary_asset_object: boolean;
+};
+
+export type SubjectPhaseView = {
+  published_mv_subject_phase_options_0_11: SubjectPhase[];
+};
+
+export type SubjectPhase = {
+  cycle: string;
+  title: string;
+  slug: string;
+  keystages: TitleSlug[];
+  phases: TitleSlug[];
+  ks4_options: TitleSlug[];
+  display_order: number;
+};
+
+export type SubjectView = {
+  published_mv_subject_phase_options_including_new_0_0_1: TitleSlug[];
 };
 
 export type UnitVariantLessonsView = {
@@ -120,6 +146,11 @@ export interface UnitTag {
 }
 
 export interface UnitLesson {
+  title: string;
+  slug: string;
+}
+
+export interface TitleSlug {
   title: string;
   slug: string;
 }
