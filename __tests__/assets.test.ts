@@ -1,5 +1,28 @@
-import { expect, test } from 'vitest';
+import { vi, expect, test } from 'vitest';
 import { makeCaller, makeRes } from './helper';
+import { EventEmitter } from 'events';
+
+class Stream extends EventEmitter {
+  pipe(res: { write: (data: Buffer) => void }) {
+    setTimeout(() => this.emit('end'), 0);
+    res.write(Buffer.from('%PDF-'));
+    return vi.fn();
+  }
+}
+
+vi.mock('@google-cloud/storage', () => {
+  return {
+    Storage: vi.fn().mockImplementation(() => {
+      return {
+        bucket: vi.fn().mockReturnThis(),
+        file: vi.fn().mockReturnThis(),
+        createReadStream() {
+          return new Stream();
+        },
+      };
+    }),
+  };
+});
 
 test('get asset urls for maths lesson', async () => {
   const caller = makeCaller({
