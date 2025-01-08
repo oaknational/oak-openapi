@@ -2,6 +2,8 @@
   "cSpell.words": [
     "apikeys",
     "commitlint",
+    "Consts",
+    "examboard",
     "hasura",
     "hgetall",
     "hincrby",
@@ -23,6 +25,7 @@
     "rshe",
     "slidedeck",
     "slidedecks",
+    "subjectcategories",
     "superjson",
     "trpc",
     "tsquery",

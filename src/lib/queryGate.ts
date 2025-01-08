@@ -280,6 +280,14 @@ export async function blockUnitForCopyrightText(
   client: GraphQLClient,
   unitSlug: string,
 ) {
+  // it's possible we're dealing with an unit optional, which always end in a
+  // number, so we'll remove that for the moment, and then check
+  if (/\-\d+$/.test(unitSlug)) {
+    if (allowedUnits.includes(unitSlug.replace(/-\d+$/, ''))) {
+      return false;
+    }
+  }
+
   if (allowedUnits.includes(unitSlug)) {
     // not copyright
     return false;
