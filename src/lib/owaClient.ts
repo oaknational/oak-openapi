@@ -14,9 +14,9 @@ export const lessonViewTable = 'published.mv_lesson_openapi_1_2_1';
 
 export const subjectPhaseView = 'published_mv_subject_phase_options_0_11';
 
-// FIXME might not need subjectView + types
-export const subjectView =
-  'published_mv_subject_phase_options_including_new_0_0_1';
+export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_9';
+export const sequenceViewWhereInput =
+  'published_mv_curriculum_sequence_b_13_0_9_bool_exp';
 
 export function querySQL(sql: string) {
   return fetch(`${process.env.OAK_GRAPHQL_HOST}/v1/query`, {
@@ -57,12 +57,32 @@ export type SubjectPhase = {
   display_order: number;
 };
 
-export type SubjectView = {
-  published_mv_subject_phase_options_including_new_0_0_1: TitleSlug[];
+export type SequenceView = {
+  published_mv_curriculum_sequence_b_13_0_9: Sequence[];
 };
 
 export type UnitVariantLessonsView = {
   published_mv_synthetic_unitvariant_lessons_by_year_12_0_0: UnitVariantLesson[];
+};
+
+export type Sequence = TitleSlug & {
+  unit_options: TitleSlug[];
+  title: string;
+  slug: string;
+  domain: string;
+  examboard_slug: string;
+  keystage_slug: string;
+  order: number;
+  pathway: string;
+  pathway_slug: string;
+  phase: string;
+  subject: string;
+  subject_parent: string;
+  subject_slug: string;
+  subjectcategories: { id: number; title: string }[];
+  tier: string;
+  tier_slug: string;
+  year: string;
 };
 
 export type UnitVariantLesson = {

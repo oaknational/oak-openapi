@@ -32,3 +32,12 @@ export function makeCaller(opts = {}) {
 
   return createCaller(callerOptions);
 }
+
+export function authedCaller(user = 1) {
+  return makeCaller({
+    user,
+    res: {
+      setHeader() {},
+    },
+  });
+}

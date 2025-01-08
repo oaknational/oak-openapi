@@ -22,6 +22,7 @@ export const unitSchema = z.object({
   tags: z.array(z.string()),
   unitOrder: z.number().optional(),
   yearSlug: z.string(),
+  year: z.number(),
   phaseSlug: z.string(),
   subjectSlug: z.string(),
   keyStageSlug: z.string(),
@@ -141,7 +142,7 @@ export const getUnits = router({
 
       // 300 is the max: https://hasura.io/docs/2.0/caching/caching-config/#controlling-cache-lifetime
       const query = gql`
-        query getUnit($slug: String!) @cached(ttl: 300) {
+        query getUnit($slug: String!, $variantSlug: String!) @cached(ttl: 300) {
           ${unitCurriculumView}(where: { unitSlug: { _eq: $slug } }) {
             unitSlug
             unitTitle
@@ -171,6 +172,9 @@ export const getUnits = router({
           }
         }
       `;
+
+      console.log(query);
+      console.log({ slug, variantSlug });
 
       timing.start('getUnit graphql query');
       const res: UnitCurriculumView & UnitVariantLessonsView =
@@ -227,6 +231,7 @@ export const getUnits = router({
           })),
         },
         yearSlug: additionalUnitData?.year_slug,
+        year: parseInt(additionalUnitData?.year_slug.split('-')[1]),
         phaseSlug: additionalUnitData?.phase_slug,
         subjectSlug: additionalUnitData?.subject_slug,
         keyStageSlug: additionalUnitData?.keystage_slug,
