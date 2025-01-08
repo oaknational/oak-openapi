@@ -33,7 +33,7 @@
     "@upstash/redis": "^1.30.0",
     "cors": "^2.8.5",
     "graphql-request": "^6.1.0",
-    "next": "^14.2.1",
+    "next": "^14.2.21",
     "object.groupby": "^1.0.3",
     "openapi-types": "^12.1.3",
     "posthog-js": "^1.172.0",
