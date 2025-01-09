@@ -9,6 +9,7 @@ import {
   DownloadView,
   LessonView,
   SignedAsset,
+  Video,
   UnitVariantLessonsView,
   downloadView,
   getClient,
@@ -16,7 +17,22 @@ import {
   unitVariantLessonsView,
 } from '../owaClient';
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
-import { baseUrl } from '../baseUrl';
+import { assetBaseVideoUrl, baseUrl } from '../baseUrl';
+
+import { Storage } from '@google-cloud/storage';
+let storage;
+
+// Check if GOOGLE_APPLICATION_CREDENTIALS_JSON is set
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  const credentials = JSON.parse(
+    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
+  );
+  // Initialize storage client with credentials
+  storage = new Storage({ credentials });
+} else {
+  // Use default method, which relies on GOOGLE_APPLICATION_CREDENTIALS path
+  storage = new Storage();
+}
 
 import {
   checkLessonAllowedAsset,
@@ -26,7 +42,7 @@ import {
 
 export const downloadTypeEnum = z.enum(
   [
-    'slidedeck',
+    'slideDeck',
     'exitQuiz',
     'exitQuizAnswers',
     'starterQuiz', // note: graphql key is (currently) starter_quiz
@@ -44,6 +60,7 @@ export const downloadTypeEnum = z.enum(
 
 const assetType = z.object({
   type: downloadTypeEnum,
+  label: z.string(),
   url: z.string(),
 });
 
@@ -51,6 +68,8 @@ export const lessonAssetsType = z.object({
   attribution: z.array(z.string()).optional(),
   assets: z.array(assetType).optional(),
 });
+
+type LessonAssetsType = z.infer<typeof lessonAssetsType>;
 
 export const lessonsAssetsType = z.array(
   z.object({
@@ -65,44 +84,180 @@ export type DownloadTypeEnum = z.infer<typeof downloadTypeEnum>;
 
 const graphqlClient = getClient();
 
+async function assetsForLesson(lessonSlug: string) {
+  // FIXME - gate with a query to check if the lesson is in maths
+  const supported = await checkLessonAllowedAsset(graphqlClient, lessonSlug);
+
+  if (!supported) {
+    throw new TRPCError({
+      message: 'Lesson not available',
+      code: 'NOT_FOUND',
+    });
+  }
+
+  const queryDownloads = gql`
+        query GetDownloads($lessonSlug: String!) {
+          ${downloadView}(
+            where: {
+              lessonSlug: { _eq: $lessonSlug }
+            }
+          ) {
+            lessonSlug
+            lessonTitle
+            exitQuiz
+            exitQuizAnswers
+            slideDeck:slidedeck
+            starterQuizAnswers
+            starterQuiz: starter_quiz
+            supplementaryResource
+            video: videos
+            worksheet
+            worksheetAnswers
+          }
+        }
+      `;
+
+  const variables = {
+    lessonSlug,
+  };
+
+  const lessonDetailViewResult: DownloadView = await graphqlClient.request(
+    queryDownloads,
+    variables,
+  );
+
+  const res = lessonDetailViewResult[downloadView];
+
+  if (!res || res.length === 0 || !res[0]) {
+    throw new TRPCError({
+      message: 'No lessons found',
+      code: 'NOT_FOUND',
+    });
+  }
+
+  const tpcQuery = gql`
+        query GetTPC($lessonSlug: String!) {
+          ${lessonView}(
+            where: {
+              lessonSlug: { _eq: $lessonSlug }
+            }
+          ) {
+            lessonSlug
+            tpcWorks
+            tpcMedia
+          }
+        }
+      `;
+
+  const tpcViewResult: LessonView = await graphqlClient.request(tpcQuery, {
+    lessonSlug,
+  });
+
+  const attribution = tpcViewResult[lessonView][0];
+
+  let mappedAttribution: (string | undefined)[] = [];
+
+  if (attribution) {
+    mappedAttribution = [
+      ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
+      ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
+    ].filter(Boolean);
+  }
+
+  return {
+    attribution: mappedAttribution.length ? mappedAttribution : undefined,
+    assets: res[0],
+  };
+}
+
 function assetDownloads(
   lessonSlug: string,
-  downloads: Download[],
+  download: Download,
   filter?: DownloadTypeEnum,
 ) {
-  const allTypes: DownloadTypeEnum[] = downloadTypeEnum.options;
+  // const allTypes: DownloadTypeEnum[] = downloadTypeEnum.options;
+  const assetUrls = [];
 
-  return downloads
-    .map((d) => {
-      if (filter) {
-        const item = filter in d ? d[filter] : null;
+  if (download.slideDeck && download.slideDeck.bucket_path) {
+    assetUrls.push({
+      // type: camelCase(downloads.slideDeck.type),
+      label: download.slideDeck.label,
+      type: 'slideDeck',
+      url: `${baseUrl}/${download.slideDeck.bucket_path}`,
+    });
+  }
 
-        if (!item) return null;
+  if (download.worksheet && download.worksheet.bucket_path) {
+    assetUrls.push({
+      label: download.worksheet.label,
+      type: 'worksheet',
+      url: `${baseUrl}/${download.worksheet.bucket_path}`,
+    });
+  }
 
-        return {
-          type: item.type,
-          url: `${baseUrl}/download/${lessonSlug}/type/${item.type}`,
-        };
-      }
+  if (download.worksheetAnswers && download.worksheetAnswers.bucket_path) {
+    assetUrls.push({
+      label: download.worksheetAnswers.label,
+      type: 'worksheetAnswers',
+      url: `${baseUrl}/${download.worksheetAnswers.bucket_path}`,
+    });
+  }
 
-      return allTypes.map((type) => {
-        if (type === 'video') {
-          return {
-            type,
-            url: `${baseUrl}/download/${lessonSlug}/type/${type}`,
-          };
-        }
+  if (
+    download.supplementaryResource &&
+    download.supplementaryResource.bucket_path
+  ) {
+    assetUrls.push({
+      label: download.supplementaryResource.label,
+      type: 'supplementaryResource',
+      url: `${baseUrl}/${download.supplementaryResource.bucket_path}`,
+    });
+  }
 
-        if ((d[type] as SignedAsset).bucket_name !== null) {
-          return {
-            type,
-            url: `${baseUrl}/download/${lessonSlug}/type/${type}`,
-          };
-        }
-      });
-    })
-    .flat()
-    .filter(Boolean);
+  if (download.starterQuiz && download.starterQuiz.bucket_path) {
+    assetUrls.push({
+      label: download.starterQuiz.label,
+      type: 'starterQuiz',
+      url: `${baseUrl}/${download.starterQuiz.bucket_path}`,
+    });
+  }
+
+  if (download.starterQuizAnswers && download.starterQuizAnswers.bucket_path) {
+    assetUrls.push({
+      label: download.starterQuizAnswers.label,
+      type: 'starterQuizAnswers',
+      url: `${baseUrl}/${download.starterQuizAnswers.bucket_path}`,
+    });
+  }
+
+  if (download.exitQuiz && download.exitQuiz.bucket_path) {
+    assetUrls.push({
+      label: download.exitQuiz.label,
+      type: 'exitQuiz',
+      url: `${baseUrl}/${download.exitQuiz.bucket_path}`,
+    });
+  }
+
+  if (download.exitQuizAnswers && download.exitQuizAnswers.bucket_path) {
+    assetUrls.push({
+      label: download.exitQuizAnswers.label,
+      type: 'exitQuizAnswers',
+      url: `${baseUrl}/${download.exitQuizAnswers.bucket_path}`,
+    });
+  }
+
+  if (download.video && (download.video.download || download.video.stream)) {
+    assetUrls.push({
+      label: download.video.label,
+      type: 'video',
+      url:
+        assetBaseVideoUrl +
+        new URL(download.video.download || download.video.stream).pathname,
+      // downloads.video.download || downloads.video.stream,
+    });
+  }
+
+  return assetUrls.filter((asset) => !filter || asset.type === filter);
 }
 
 export const getAssets = router({
@@ -125,7 +280,7 @@ export const getAssets = router({
               ],
               assets: [
                 {
-                  type: 'slidedeck',
+                  type: 'slideDeck',
                   url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/slidedeck'`,
                 },
                 {
@@ -360,7 +515,7 @@ export const getAssets = router({
           lessonSlug,
           lessonTitle: d.lessonTitle,
           attribution: mappedAttribution.length ? mappedAttribution : undefined,
-          assets: assetDownloads(lessonSlug, [d], typeFilter),
+          assets: assetDownloads(lessonSlug, d, typeFilter),
         };
       });
 
@@ -385,7 +540,7 @@ export const getAssets = router({
             ],
             assets: [
               {
-                type: 'slidedeck',
+                type: 'slideDeck',
                 url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/slidedeck'`,
               },
               {
@@ -433,93 +588,126 @@ export const getAssets = router({
     .query(async ({ input }) => {
       const { lesson: lessonSlug, type } = input;
 
-      // FIXME - gate with a query to check if the lesson is in maths
-      const supported = await checkLessonAllowedAsset(
-        graphqlClient,
-        lessonSlug,
-      );
-
-      if (!supported) {
-        throw new TRPCError({
-          message: 'Lesson not available',
-          code: 'NOT_FOUND',
-        });
-      }
-
-      const queryDownloads = gql`
-        query GetDownloads($lessonSlug: String!) {
-          ${downloadView}(
-            where: {
-              lessonSlug: { _eq: $lessonSlug }
-            }
-          ) {
-            lessonSlug
-            lessonTitle
-            exitQuiz
-            exitQuizAnswers
-            lessonSlug
-            lessonTitle
-            slidedeck
-            starterQuizAnswers
-            starterQuiz: starter_quiz
-            supplementaryResource
-            video: videos
-            worksheet
-            worksheetAnswers
-          }
-        }
-      `;
-
-      const variables = {
-        lessonSlug,
-      };
-
-      const downloadsViewResult: DownloadView = await graphqlClient.request(
-        queryDownloads,
-        variables,
-      );
-
-      const res = downloadsViewResult[downloadView];
-
-      if (!res || res.length === 0 || !res[0]) {
-        throw new TRPCError({
-          message: 'No lessons found',
-          code: 'NOT_FOUND',
-        });
-      }
-
-      const tpcQuery = gql`
-        query GetTPC($lessonSlug: String!) {
-          ${lessonView}(
-            where: {
-              lessonSlug: { _eq: $lessonSlug }
-            }
-          ) {
-            lessonSlug
-            tpcWorks
-            tpcMedia
-          }
-        }
-      `;
-
-      const tpcViewResult: LessonView = await graphqlClient.request(tpcQuery, {
-        lessonSlug,
-      });
-
-      const attribution = tpcViewResult[lessonView][0];
-
-      let mappedAttribution: (string | undefined)[] = [];
-
-      if (attribution) {
-        mappedAttribution = [
-          ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
-          ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
-        ].filter(Boolean);
-      }
+      const { assets, attribution } = await assetsForLesson(lessonSlug);
 
       return {
-        attribution: mappedAttribution.length ? mappedAttribution : undefined,
-        assets: assetDownloads(lessonSlug, res, type),
-      };
+        attribution,
+        assets: assetDownloads(lessonSlug, assets, type),
+      } as LessonAssetsType;
+    }),
+  getLessonAsset: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        tags: ['assets', 'lessons'],
+        path: '/lessons/{lesson}/assets/{type}',
+        description:
+          'This endpoint will stream the downloadable asset for the given lesson and type',
+        contentTypes: ['application/octet-stream'],
+        example: {
+          request: {
+            lesson: 'child-workers-in-the-victorian-era',
+            type: 'slideDeck',
+          },
+          // I don't like this, but there's no way in the library to say
+          // "this is a stream of bytes"
+          response: { 200: 'application/octet-stream' },
+        },
+      },
+    })
+    .input(
+      z.object({
+        lesson: z.string({
+          description: 'The lesson slug',
+        }),
+        type: downloadTypeEnum,
+      }),
+    )
+    .output(z.any()) //lessonAssetsType
+    .query(async ({ input, ctx }) => {
+      const { lesson, type } = input;
+
+      const { assets } = await assetsForLesson(lesson);
+
+      const asset = assets[type];
+
+      if (type !== 'video') {
+        const { bucket_path, bucket_name } = asset as SignedAsset;
+
+        const ext = bucket_path.split('/').pop()?.split('.').pop();
+        const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext}`;
+
+        ctx.res.setHeader('Content-Type', 'application/octet-stream');
+        ctx.res.setHeader(
+          'Content-Disposition',
+          `attachment; filename="${filename}"`,
+        );
+
+        return new Promise((resolve, reject) => {
+          storage
+            .bucket(bucket_name)
+            .file(bucket_path)
+            .createReadStream()
+            .on('error', (err) => reject(err))
+            .on('end', () => resolve(undefined))
+            .pipe(ctx.res); // Pipe the stream to the HTTP response
+        });
+      } else {
+        const { stream, download } = asset as Video;
+        const response = await fetch(download || stream);
+
+        const url = new URL(download || stream);
+        const ext = url.pathname.split('.').pop();
+
+        if (ext === 'm3u8') {
+          // redirect to the video stream
+          url.hostname = new URL(assetBaseVideoUrl).hostname;
+          ctx.res.setHeader('Location', url.toString());
+          ctx.res.statusCode = 302;
+          return undefined;
+        }
+
+        const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext}`;
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch: ${response.status} ${response.statusText}`,
+          );
+        }
+
+        // Set headers for streaming the file to the client
+        ctx.res.setHeader(
+          'Content-Type',
+          response.headers.get('content-type') || 'application/octet-stream',
+        );
+        ctx.res.setHeader(
+          'Content-Disposition',
+          `attachment; filename="${filename}"`,
+        );
+
+        if (response.body === null) {
+          throw new TRPCError({
+            message: 'Video could not be streamed',
+            code: 'INTERNAL_SERVER_ERROR',
+          });
+        }
+
+        // Stream the response body to the client's response
+        const reader = response.body.getReader();
+        const writer = ctx.res;
+
+        const pump = async () => {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            writer.write(value);
+          }
+          writer.end(); // End the response stream
+        };
+
+        await pump();
+
+        return undefined; // No JSON response
+      }
     }),
 });

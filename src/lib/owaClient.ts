@@ -43,6 +43,13 @@ export function getClient() {
   });
 }
 
+export type LessonDetail = {
+  has_slide_deck_asset_object: boolean;
+  has_worksheet_asset_object: boolean;
+  has_worksheet_answers_asset_object: boolean;
+  has_supplementary_asset_object: boolean;
+};
+
 export type SubjectPhaseView = {
   published_mv_subject_phase_options_0_11: SubjectPhase[];
 };
@@ -108,7 +115,7 @@ export interface Download {
   exitQuizAnswers: SignedAsset;
   lessonSlug: string;
   lessonTitle: string;
-  slidedeck: SignedAsset;
+  slideDeck: SignedAsset;
   starterQuizAnswers: SignedAsset;
   starterQuiz: SignedAsset; // note: this is starter_quiz in the graphql response
   supplementaryResource: SignedAsset;
@@ -125,7 +132,7 @@ export interface SignedAsset {
   bucket_path: string;
 }
 
-interface Video {
+export interface Video {
   ext: string;
   type: string;
   label: string;

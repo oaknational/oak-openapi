@@ -98,4 +98,5 @@ get "/units/life-in-a-capital-city-london-cardiff-776/summary" '.unitTitle == "W
 
 get "/key-stages/ks3/subject/english/assets?unit=victorian-childhood-non-fiction-reading-and-writing&offset=0&limit=10" '.exitQuiz | map(select(.questionImage)) | length > 0'
 
+get $FILTER
 title "FIN $TESTS tests run"

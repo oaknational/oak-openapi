@@ -11,3 +11,8 @@ if (process.env.VERCEL_ENV === 'production' && process.env.PRODUCTION_API_URL) {
 }
 
 export const baseUrl = `${domain}/api/v${getLatestMajorVersion()}`;
+export const assetBaseUrl =
+  process.env.ASSET_URL ||
+  'https://storage.cloud.google.com/ingested-assets-production';
+export const assetBaseVideoUrl =
+  process.env.VIDEO_URL || 'https://stream.video.thenational.academy';
