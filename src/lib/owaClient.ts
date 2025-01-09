@@ -11,10 +11,18 @@ export const downloadView = 'published_mv_openapi_downloads_1_0_0';
 export const unitVariantLessonsView =
   'published_mv_synthetic_unitvariant_lessons_by_year_12_0_0';
 export const lessonViewTable = 'published.mv_lesson_openapi_1_2_1';
-
 export const subjectPhaseView = 'published_mv_subject_phase_options_0_11';
-
 export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_9';
+
+export const views = [
+  unitCurriculumView,
+  lessonView,
+  downloadView,
+  unitVariantLessonsView,
+  subjectPhaseView,
+  sequenceView,
+];
+
 export const sequenceViewWhereInput =
   'published_mv_curriculum_sequence_b_13_0_9_bool_exp';
 
