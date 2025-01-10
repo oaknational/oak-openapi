@@ -75,14 +75,14 @@ get "/key-stages/ks1/subject/english/assets" '.code == "NOT_FOUND"'
 get "/key-stages/ks1/subject/maths/assets" '.code? != "NOT_FOUND"'
 get "/key-stages/ks3/subject/english/assets" '.code? | not'
 
-title "# DOWNLOADS"
+# title "# DOWNLOADS"
 
-get "/download/exploring-titles-in-unseen-poetry/type/video" '.code == "NOT_FOUND"'
-get "/download/child-workers-in-the-victorian-era/type/video" '.code? | not'
-get "/download/imagining-you-are-the-characters-the-three-billy-goats-gruff/type/video" ".code? | not"
+# get "/lessons/exploring-titles-in-unseen-poetry/assets/video" '.code == "NOT_FOUND"'
+# get "/lessons/child-workers-in-the-victorian-era/assets/video" '.code? | not'
+# get "/lessons/imagining-you-are-the-characters-the-three-billy-goats-gruff/assets/video" ".code? | not"
 
 
-get "/download/the-power-of-rhetoric-in-writing/type/video" '.code? | not'
+# get "/lessons/the-power-of-rhetoric-in-writing/assets/video" '.code? | not'
 
 get "/units/writing-rhetoric-1e51/summary" '.code == "NOT_FOUND"'
 get "/lessons/writing-an-effective-speech-using-rhetoric-6xj32r/summary" '.code == "NOT_FOUND"'
