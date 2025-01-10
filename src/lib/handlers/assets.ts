@@ -54,7 +54,7 @@ export const downloadTypeEnum = z.enum(
   ],
   {
     description:
-      'Use the this type and the lesson slug in conjunction to get a signed download URL to the asset type from the /api/download endpoint',
+      'Use the this type and the lesson slug in conjunction to get a signed download URL to the asset type from the /api/lessons/{slug}/asset/{type} endpoint',
   },
 );
 
@@ -96,26 +96,26 @@ async function assetsForLesson(lessonSlug: string) {
   }
 
   const queryDownloads = gql`
-        query GetDownloads($lessonSlug: String!) {
-          ${downloadView}(
-            where: {
-              lessonSlug: { _eq: $lessonSlug }
-            }
-          ) {
-            lessonSlug
-            lessonTitle
-            exitQuiz
-            exitQuizAnswers
-            slideDeck:slidedeck
-            starterQuizAnswers
-            starterQuiz: starter_quiz
-            supplementaryResource
-            video: videos
-            worksheet
-            worksheetAnswers
-          }
+    query GetDownloads($lessonSlug: String!) {
+      ${downloadView}(
+        where: {
+          lessonSlug: { _eq: $lessonSlug }
         }
-      `;
+      ) {
+        lessonSlug
+        lessonTitle
+        exitQuiz
+        exitQuizAnswers
+        slideDeck:slidedeck
+        starterQuizAnswers
+        starterQuiz: starter_quiz
+        supplementaryResource
+        video: videos
+        worksheet
+        worksheetAnswers
+      }
+    }
+  `;
 
   const variables = {
     lessonSlug,
@@ -136,18 +136,18 @@ async function assetsForLesson(lessonSlug: string) {
   }
 
   const tpcQuery = gql`
-        query GetTPC($lessonSlug: String!) {
-          ${lessonView}(
-            where: {
-              lessonSlug: { _eq: $lessonSlug }
-            }
-          ) {
-            lessonSlug
-            tpcWorks
-            tpcMedia
-          }
+    query GetTPC($lessonSlug: String!) {
+      ${lessonView}(
+        where: {
+          lessonSlug: { _eq: $lessonSlug }
         }
-      `;
+      ) {
+        lessonSlug
+        tpcWorks
+        tpcMedia
+      }
+    }
+  `;
 
   const tpcViewResult: LessonView = await graphqlClient.request(tpcQuery, {
     lessonSlug,
@@ -175,31 +175,29 @@ function assetDownloads(
   download: Download,
   filter?: DownloadTypeEnum,
 ) {
-  // const allTypes: DownloadTypeEnum[] = downloadTypeEnum.options;
   const assetUrls = [];
 
   if (download.slideDeck && download.slideDeck.bucket_path) {
     assetUrls.push({
-      // type: camelCase(downloads.slideDeck.type),
       label: download.slideDeck.label,
-      type: 'slideDeck',
-      url: `${baseUrl}/${download.slideDeck.bucket_path}`,
+      type: downloadTypeEnum.enum.slideDeck,
+      url: `${baseUrl}/lessons/${lessonSlug}/assets/slideDeck`,
     });
   }
 
   if (download.worksheet && download.worksheet.bucket_path) {
     assetUrls.push({
       label: download.worksheet.label,
-      type: 'worksheet',
-      url: `${baseUrl}/${download.worksheet.bucket_path}`,
+      type: downloadTypeEnum.enum.worksheet,
+      url: `${baseUrl}/lessons/${lessonSlug}/assets/worksheet`,
     });
   }
 
   if (download.worksheetAnswers && download.worksheetAnswers.bucket_path) {
     assetUrls.push({
       label: download.worksheetAnswers.label,
-      type: 'worksheetAnswers',
-      url: `${baseUrl}/${download.worksheetAnswers.bucket_path}`,
+      type: downloadTypeEnum.enum.worksheetAnswers,
+      url: `${baseUrl}/lessons/${lessonSlug}/assets/worksheetAnswers`,
     });
   }
 
@@ -209,51 +207,48 @@ function assetDownloads(
   ) {
     assetUrls.push({
       label: download.supplementaryResource.label,
-      type: 'supplementaryResource',
-      url: `${baseUrl}/${download.supplementaryResource.bucket_path}`,
+      type: downloadTypeEnum.enum.supplementaryResource,
+      url: `${baseUrl}/lessons/${lessonSlug}/assets/supplementaryResource`,
     });
   }
 
   if (download.starterQuiz && download.starterQuiz.bucket_path) {
     assetUrls.push({
       label: download.starterQuiz.label,
-      type: 'starterQuiz',
-      url: `${baseUrl}/${download.starterQuiz.bucket_path}`,
+      type: downloadTypeEnum.enum.starterQuiz,
+      url: `${baseUrl}/lessons/${lessonSlug}/assets/starterQuiz`,
     });
   }
 
   if (download.starterQuizAnswers && download.starterQuizAnswers.bucket_path) {
     assetUrls.push({
       label: download.starterQuizAnswers.label,
-      type: 'starterQuizAnswers',
-      url: `${baseUrl}/${download.starterQuizAnswers.bucket_path}`,
+      type: downloadTypeEnum.enum.starterQuizAnswers,
+      url: `${baseUrl}/lessons/${lessonSlug}/assets/starterQuizAnswers`,
     });
   }
 
   if (download.exitQuiz && download.exitQuiz.bucket_path) {
     assetUrls.push({
       label: download.exitQuiz.label,
-      type: 'exitQuiz',
-      url: `${baseUrl}/${download.exitQuiz.bucket_path}`,
+      type: downloadTypeEnum.enum.exitQuiz,
+      url: `${baseUrl}/lessons/${lessonSlug}/assets/exitQuiz`,
     });
   }
 
   if (download.exitQuizAnswers && download.exitQuizAnswers.bucket_path) {
     assetUrls.push({
       label: download.exitQuizAnswers.label,
-      type: 'exitQuizAnswers',
-      url: `${baseUrl}/${download.exitQuizAnswers.bucket_path}`,
+      type: downloadTypeEnum.enum.exitQuizAnswers,
+      url: `${baseUrl}/lessons/${lessonSlug}/assets/exitQuizAnswers`,
     });
   }
 
   if (download.video && (download.video.download || download.video.stream)) {
     assetUrls.push({
       label: download.video.label,
-      type: 'video',
-      url:
-        assetBaseVideoUrl +
-        new URL(download.video.download || download.video.stream).pathname,
-      // downloads.video.download || downloads.video.stream,
+      type: downloadTypeEnum.enum.video,
+      url: `${baseUrl}/lessons/${lessonSlug}/assets/video`,
     });
   }
 
@@ -272,44 +267,23 @@ export const getAssets = router({
         example: {
           response: [
             {
-              lessonSlug: 'nouns-singular-and-plural',
-              lessonTitle: 'Nouns: singular and plural',
-              attribution: [
-                'Copyright XYZ Authors',
-                'Creative Commons Attribution Example 4.0',
-              ],
+              lessonSlug: 'using-numerals',
+              lessonTitle: 'Using numerals',
               assets: [
                 {
-                  type: 'slideDeck',
-                  url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/slidedeck'`,
-                },
-                {
-                  type: 'exitQuiz',
-                  url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuiz'`,
-                },
-                {
-                  type: 'exitQuizAnswers',
-                  url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuizAnswers'`,
-                },
-                {
-                  type: 'starterQuiz',
-                  url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuiz'`,
-                },
-                {
-                  type: 'starterQuizAnswers',
-                  url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuizAnswers'`,
-                },
-                {
-                  type: 'video',
-                  url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/video'`,
-                },
-                {
+                  label: 'Worksheet',
                   type: 'worksheet',
-                  url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheet'`,
+                  url: `${baseUrl}/lessons/using-numerals/assets/worksheet`,
                 },
                 {
+                  label: 'Worksheet Answers',
                   type: 'worksheetAnswers',
-                  url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheetAnswers'`,
+                  url: `${baseUrl}/lessons/using-numerals/assets/worksheetAnswers`,
+                },
+                {
+                  label: 'Video',
+                  type: 'video',
+                  url: `${baseUrl}/lessons/using-numerals/assets/video`,
                 },
               ],
             },
@@ -348,7 +322,7 @@ export const getAssets = router({
           .default(10),
       }),
     )
-    .output(z.any()) //lessonsAssetsType
+    .output(lessonsAssetsType)
     .query(async ({ input, ctx }) => {
       const keyStage = input.keyStage;
       const subject = input.subject;
@@ -502,13 +476,13 @@ export const getAssets = router({
         const lessonSlug = d.lessonSlug;
 
         const attribution = tpc.find((l) => l.lessonSlug === lessonSlug);
-        let mappedAttribution: (string | undefined)[] = [];
+        let mappedAttribution: string[] = [];
 
         if (attribution) {
           mappedAttribution = [
             ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
             ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
-          ].filter(Boolean);
+          ].filter((string) => string !== undefined);
         }
 
         return {
@@ -540,36 +514,19 @@ export const getAssets = router({
             ],
             assets: [
               {
-                type: 'slideDeck',
-                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/slidedeck'`,
-              },
-              {
-                type: 'exitQuiz',
-                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuiz'`,
-              },
-              {
-                type: 'exitQuizAnswers',
-                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/exitQuizAnswers'`,
-              },
-              {
-                type: 'starterQuiz',
-                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuiz'`,
-              },
-              {
-                type: 'starterQuizAnswers',
-                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/starterQuizAnswers'`,
-              },
-              {
-                type: 'video',
-                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/video'`,
-              },
-              {
+                label: 'Worksheet',
                 type: 'worksheet',
-                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheet'`,
+                url: `${baseUrl}/lessons/using-numerals/assets/worksheet`,
               },
               {
+                label: 'Worksheet Answers',
                 type: 'worksheetAnswers',
-                url: `${baseUrl}/api/v0/download/nouns-singular-and-plural/type/worksheetAnswers'`,
+                url: `${baseUrl}/lessons/using-numerals/assets/worksheetAnswers`,
+              },
+              {
+                label: 'Video',
+                type: 'video',
+                url: `${baseUrl}/lessons/using-numerals/assets/video`,
               },
             ],
           },
@@ -584,7 +541,7 @@ export const getAssets = router({
         type: downloadTypeEnum.optional(),
       }),
     )
-    .output(z.any()) //lessonAssetsType
+    .output(lessonAssetsType)
     .query(async ({ input }) => {
       const { lesson: lessonSlug, type } = input;
 
@@ -623,7 +580,7 @@ export const getAssets = router({
         type: downloadTypeEnum,
       }),
     )
-    .output(z.any()) //lessonAssetsType
+    .output(z.undefined()) // no output, but file is streamed to the request
     .query(async ({ input, ctx }) => {
       const { lesson, type } = input;
 
