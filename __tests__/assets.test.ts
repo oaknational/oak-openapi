@@ -1,6 +1,7 @@
 import { vi, expect, test } from 'vitest';
 import { makeCaller, makeRes } from './helper';
 import { EventEmitter } from 'events';
+import { downloadTypeEnum } from '~/lib/handlers/assets';
 
 class Stream extends EventEmitter {
   pipe(res: { write: (data: Buffer) => void }) {
@@ -84,4 +85,60 @@ test('read a video redirect', async () => {
   const call = request.setHeader.mock.calls[0];
   expect(call[0]).toBe('Location');
   expect(call[1]).toMatch(/^https:\/\/stream\.video\.thenational\.academy/);
+});
+
+test('sequence assets and paging', async () => {
+  const request = makeRes();
+  const caller = makeCaller(
+    {
+      user: 1,
+    },
+    request,
+  );
+
+  let res = await caller.getAssets.getSequenceAssets({
+    sequence: 'maths-secondary',
+    type: 'slideDeck',
+    year: 10,
+    limit: 2,
+    offset: 0,
+  });
+
+  expect(res.length).toBe(2);
+
+  const first = res[0];
+
+  expect(first).toHaveProperty('lessonSlug');
+  expect(first).toHaveProperty('assets');
+  expect(first.assets.length).toBeGreaterThan(0);
+  expect(first.assets[0]).toHaveProperty('type');
+  expect(first.assets[0].type).toBe('slideDeck');
+
+  res = await caller.getAssets.getSequenceAssets({
+    sequence: 'maths-secondary',
+    type: 'slideDeck',
+    year: 10,
+    limit: 2,
+    offset: 2,
+  });
+
+  expect(res.length).toBe(2);
+  expect(res.map((r) => r.lessonSlug)).not.toContain(first.lessonSlug);
+
+  // check the other types - but ignore supplementaryResource as it's not always there
+  const types = Object.values(downloadTypeEnum.enum).filter(
+    (_) => _ !== 'slideDeck' && _ !== 'supplementaryResource',
+  );
+
+  for (const type of types) {
+    res = await caller.getAssets.getSequenceAssets({
+      sequence: 'maths-secondary',
+      type,
+      year: 10,
+      limit: 2,
+      offset: 2,
+    });
+    expect(res.length).toBe(2);
+    expect(res[0].assets.length, `${type} has zero assets`).toBeGreaterThan(0);
+  }
 });
