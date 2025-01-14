@@ -110,7 +110,7 @@ async function assetsForLesson(lessonSlug: string) {
         lessonTitle
         exitQuiz
         exitQuizAnswers
-        slideDeck:slidedeck
+        slideDeck: slidedeck
         starterQuizAnswers
         starterQuiz: starter_quiz
         supplementaryResource
@@ -256,7 +256,9 @@ function assetDownloads(
     });
   }
 
-  return assetUrls.filter((asset) => !filter || asset.type === filter);
+  const result = assetUrls.filter((asset) => !filter || asset.type === filter);
+
+  return result;
 }
 
 export const getAssets = router({
@@ -356,7 +358,7 @@ export const getAssets = router({
             exitQuizAnswers
             lessonSlug
             lessonTitle
-            slidedeck
+            slideDeck: slidedeck
             starterQuizAnswers
             starterQuiz: starter_quiz
             supplementaryResource
@@ -446,27 +448,27 @@ export const getAssets = router({
 
       return result;
     }),
-  getUnitAssets: protectedProcedure
-    .meta({
-      openapi: {
-        method: 'GET',
-        tags: ['assets'],
-        path: '/units/{unit}/assets',
-        description:
-          'This endpoint returns signed download URLs and types for the assets currently available on Oak for a given sequence',
-        example: {
-          request: {
-            sequence: 'perimeter-and-area',
-          },
-        },
-      },
-    })
-    .input(z.object({ unit: z.string() }))
-    .output(z.any()) // lessonsAssetsType
-    .query(async ({ input }) => {
-      const { unit } = input;
-      return { unit };
-    }),
+  // getUnitAssets: protectedProcedure
+  //   .meta({
+  //     openapi: {
+  //       method: 'GET',
+  //       tags: ['assets'],
+  //       path: '/units/{unit}/assets',
+  //       description:
+  //         'This endpoint returns signed download URLs and types for the assets currently available on Oak for a given unit',
+  //       example: {
+  //         request: {
+  //           sequence: 'perimeter-and-area',
+  //         },
+  //       },
+  //     },
+  //   })
+  //   .input(z.object({ unit: z.string() }))
+  //   .output(z.any()) // lessonsAssetsType
+  //   .query(async ({ input }) => {
+  //     const { unit } = input;
+  //     return { unit };
+  //   }),
   getSubjectAssets: protectedProcedure
     .meta({
       openapi: {
@@ -634,7 +636,7 @@ export const getAssets = router({
             exitQuizAnswers
             lessonSlug
             lessonTitle
-            slidedeck
+            slideDeck: slidedeck
             starterQuizAnswers
             starterQuiz: starter_quiz
             supplementaryResource
