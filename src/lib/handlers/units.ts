@@ -2,10 +2,12 @@ import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 import { TRPCError } from '@trpc/server';
 import {
+  SequenceView,
   UnitCurriculumView,
   UnitVariantLessonsView,
   getClient,
   gql,
+  sequenceView,
   unitCurriculumView,
   unitVariantLessonsView,
 } from 'lib/owaClient';
@@ -20,25 +22,26 @@ export const unitSchema = z.object({
   unitSlug: z.string(),
   unitTitle: z.string(),
   tags: z.array(z.string()),
-  unitOrder: z.number().optional(),
+  // unitOrder: z.number().optional(),
   yearSlug: z.string(),
   year: z.number(),
   phaseSlug: z.string(),
   subjectSlug: z.string(),
   keyStageSlug: z.string(),
   // notes: z.string(),
-  // description: z.string(),
+  description: z.string().optional(),
   // plannedNumberOfLessons: z.number(),
   priorKnowledgeRequirements: z.array(z.string()),
   nationalCurriculumContent: z.array(z.string()),
-  priorUnit: z.object({
-    description: z.string(),
-    units: z.array(z.object({ unitSlug: z.string(), unitTitle: z.string() })),
-  }),
-  futureUnit: z.object({
-    description: z.string(),
-    units: z.array(z.object({ unitSlug: z.string(), unitTitle: z.string() })),
-  }),
+  whyThisWhyNow: z.string().optional(),
+  // priorUnit: z.object({
+  //   description: z.string(),
+  //   units: z.array(z.object({ unitSlug: z.string(), unitTitle: z.string() })),
+  // }),
+  // futureUnit: z.object({
+  //   description: z.string(),
+  //   units: z.array(z.object({ unitSlug: z.string(), unitTitle: z.string() })),
+  // }),
   unitLessons: z.array(
     z.object({
       lessonSlug: z.string(),
@@ -158,6 +161,18 @@ export const getUnits = router({
             unitLessons
           }
 
+          ${sequenceView}(where: { slug: { _eq: $slug } }) {
+            title
+            description
+            keystage_slug
+            lessons
+            phase_slug
+            subject_slug
+            unit_options
+            why_this_why_now
+            year
+          }
+
           ${unitVariantLessonsView}(
             where: { unit_slug: { _eq: $variantSlug } }
           ) {
@@ -173,11 +188,8 @@ export const getUnits = router({
         }
       `;
 
-      console.log(query);
-      console.log({ slug, variantSlug });
-
       timing.start('getUnit graphql query');
-      const res: UnitCurriculumView & UnitVariantLessonsView =
+      const res: UnitCurriculumView & UnitVariantLessonsView & SequenceView =
         await client.request(query, { slug, variantSlug });
       timing.end('getUnit graphql query');
 
@@ -187,7 +199,11 @@ export const getUnits = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
       }
 
-      if (res[unitVariantLessonsView].length === 0) {
+      if (
+        res[unitVariantLessonsView].length === 0 &&
+        res[sequenceView].length === 0
+      ) {
+        // FIXME this also seems to include all of cycle2 / cohort '25
         throw new TRPCError({
           code: 'NOT_FOUND',
           message:
@@ -196,45 +212,76 @@ export const getUnits = router({
       }
 
       const root = res[unitCurriculumView][0];
-
       const orderData = res[unitVariantLessonsView];
       const additionalUnitData = orderData[0];
 
+      const sequenceData = res[sequenceView][0];
+
+      type Metadata = {
+        unitTitle: string;
+        year: number;
+        yearSlug: string;
+        phaseSlug: string;
+        subjectSlug: string;
+        keyStageSlug: string;
+        unitLessons: {
+          lessonSlug: string;
+          lessonTitle: string;
+          lessonOrder: number;
+        }[];
+
+        // cycle 2
+        whyThisWhyNow?: string;
+        description?: string;
+      };
+
+      // TS: allow me to declare it empty first
+      const metadata = {} as Metadata;
+
+      if (additionalUnitData) {
+        (metadata.unitTitle = additionalUnitData.optionality
+          ? additionalUnitData.optionality
+          : root.unitTitle),
+          (metadata.yearSlug = additionalUnitData.year_slug);
+        metadata.year = parseInt(additionalUnitData?.year_slug.split('-')[1]);
+        metadata.phaseSlug = additionalUnitData?.phase_slug;
+        metadata.subjectSlug = additionalUnitData?.subject_slug;
+        metadata.keyStageSlug = additionalUnitData?.keystage_slug;
+        metadata.unitLessons = orderData
+          .map((lesson) => ({
+            lessonSlug: lesson.lesson_slug,
+            lessonTitle: lesson.lesson_title,
+            lessonOrder: lesson.supplementary_data?.order_in_unit,
+          }))
+          .sort((a, b) => (a.lessonOrder || 0) - (b.lessonOrder || 0));
+      } else if (sequenceData) {
+        // FIXME need to test optionality in cycle 2
+        metadata.unitTitle = sequenceData.title;
+        metadata.description = sequenceData.description;
+        metadata.yearSlug = `year-${sequenceData.year}`;
+        metadata.year = parseInt(sequenceData.year, 10);
+        metadata.phaseSlug = sequenceData.phase_slug;
+        metadata.subjectSlug = sequenceData.subject_slug;
+        metadata.keyStageSlug = sequenceData.keystage_slug;
+        metadata.whyThisWhyNow = sequenceData.why_this_why_now;
+        metadata.unitLessons = sequenceData.lessons
+          .map((lesson) => ({
+            lessonSlug: lesson.slug,
+            lessonTitle: lesson.title,
+            lessonOrder: lesson.order,
+          }))
+          .sort((a, b) => (a.lessonOrder || 0) - (b.lessonOrder || 0));
+      }
+
       const reply: UnitSchema = {
         unitSlug: variantSlug,
-        unitTitle: additionalUnitData.optionality
-          ? additionalUnitData.optionality
-          : root.unitTitle,
-        unitOrder: additionalUnitData?.supplementary_data.unit_order,
-        unitLessons: (orderData || []).map((lesson) => ({
-          lessonSlug: lesson.lesson_slug,
-          lessonTitle: lesson.lesson_title || '',
-          lessonOrder: lesson.supplementary_data?.order_in_unit,
-        })),
+        // unitOrder: additionalUnitData?.supplementary_data.unit_order,
         tags: (root.unitTags || []).map((tag) => tag.title),
         priorKnowledgeRequirements: root.priorKnowledgeRequirements || [],
         nationalCurriculumContent: (
           root.unitNationalCurriculumContent || []
         ).map((content) => content.title),
-        priorUnit: {
-          description: root.priorUnitDescription || '',
-          units: (root.priorUnit || []).map((unit) => ({
-            unitSlug: unit.slug,
-            unitTitle: unit.title,
-          })),
-        },
-        futureUnit: {
-          description: root.futureUnitDescription || '',
-          units: (root.futureUnit || []).map((unit) => ({
-            unitSlug: unit.slug,
-            unitTitle: unit.title,
-          })),
-        },
-        yearSlug: additionalUnitData?.year_slug,
-        year: parseInt(additionalUnitData?.year_slug.split('-')[1]),
-        phaseSlug: additionalUnitData?.phase_slug,
-        subjectSlug: additionalUnitData?.subject_slug,
-        keyStageSlug: additionalUnitData?.keystage_slug,
+        ...metadata,
       };
 
       return reply;
