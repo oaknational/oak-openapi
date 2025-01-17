@@ -19,6 +19,7 @@ vi.mock('~/lib/rateLimit', async (importOriginal: () => Promise<object>) => {
 
 export function makeRes() {
   return {
+    writeHead: vitest.fn(),
     setHeader: vitest.fn(),
     getHeader: vitest.fn(),
     pipe: vitest.fn(),
