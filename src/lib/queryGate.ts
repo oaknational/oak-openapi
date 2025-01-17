@@ -10,7 +10,12 @@ allow access to the following lessons:
 */
 
 import { gql, GraphQLClient } from 'graphql-request';
-import { LessonView, lessonView } from './owaClient';
+import {
+  LessonView,
+  lessonView,
+  SequenceView,
+  sequenceView,
+} from './owaClient';
 
 const supportedSubjects = ['maths'];
 const supportedUnits: string[] = [
@@ -282,6 +287,7 @@ export async function blockUnitForCopyrightText(
 ) {
   // it's possible we're dealing with an unit optional, which always end in a
   // number, so we'll remove that for the moment, and then check
+
   if (/\-\d+$/.test(unitSlug)) {
     if (allowedUnits.includes(unitSlug.replace(/-\d+$/, ''))) {
       return false;
@@ -386,24 +392,24 @@ async function getSubjectForUnit(
 ): Promise<{ subjectSlug: string } | false> {
   const query = gql`
   query ($slug: String!) @cached(ttl: 300) {
-    ${lessonView}(
-      where: { unitSlug: { _eq: $slug }, isLegacy: { _eq: false } }
+    ${sequenceView}(
+      where: { slug: { _eq: $slug } }
       limit: 1
     ) {
-      subjectSlug
+      subject_slug
     }
   }
   `;
 
-  const res: LessonView = await client.request(query, {
+  const res: SequenceView = await client.request(query, {
     slug,
   });
 
-  if (!res[lessonView].length) {
+  if (!res[sequenceView].length) {
     return false;
   }
 
-  const { subjectSlug = '' } = res[lessonView][0];
+  const { subject_slug: subjectSlug = '' } = res[sequenceView][0];
 
   return { subjectSlug };
 }
