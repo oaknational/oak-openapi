@@ -85,7 +85,6 @@ export type DownloadTypeEnum = z.infer<typeof downloadTypeEnum>;
 const graphqlClient = getClient();
 
 async function assetsForLesson(lessonSlug: string) {
-  // FIXME - gate with a query to check if the lesson is in maths
   const supported = await checkLessonAllowedAsset(graphqlClient, lessonSlug);
 
   if (!supported) {
