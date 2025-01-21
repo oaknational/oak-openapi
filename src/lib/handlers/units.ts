@@ -203,7 +203,6 @@ export const getUnits = router({
         res[unitVariantLessonsView].length === 0 &&
         res[sequenceView].length === 0
       ) {
-        // FIXME this also seems to include all of cycle2 / cohort '25
         throw new TRPCError({
           code: 'NOT_FOUND',
           message:

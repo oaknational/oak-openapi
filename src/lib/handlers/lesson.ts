@@ -220,7 +220,6 @@ export const getLessons = router({
     }),
   searchByTextSimilarity: protectedProcedure
     .meta({
-      // FIXME what is this exactly?
       openapi: {
         method: 'GET',
         tags: ['lessons', 'search'],
