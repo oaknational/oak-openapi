@@ -161,7 +161,7 @@ export const getUnits = router({
             unitLessons
           }
 
-          ${sequenceView}(where: { slug: { _eq: $slug } }) {
+          ${sequenceView}(where: { slug: { _eq: $variantSlug } }) {
             title
             description
             keystage_slug
