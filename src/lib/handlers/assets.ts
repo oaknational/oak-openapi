@@ -619,8 +619,8 @@ export const getAssets = router({
         if (ext === 'm3u8') {
           // redirect to the video stream
           url.hostname = new URL(assetBaseVideoUrl).hostname;
-          ctx.res.setHeader('Location', url.toString());
-          ctx.res.statusCode = 302;
+          ctx.res.writeHead(302, { Location: url.toString() });
+          ctx.res.end();
           return undefined;
         }
 
