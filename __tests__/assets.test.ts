@@ -80,8 +80,14 @@ test('read a video redirect', async () => {
 
   expect(typeof res).toBe('undefined');
 
-  expect(request.setHeader).toHaveBeenCalled();
-  const call = request.setHeader.mock.calls[0];
-  expect(call[0]).toBe('Location');
-  expect(call[1]).toMatch(/^https:\/\/stream\.video\.thenational\.academy/);
+  expect(request.writeHead).toHaveBeenCalled();
+  const call = request.writeHead.mock.calls[0];
+
+  expect(call[0]).toBe(302);
+  let key = 'Location';
+  if (!call[1].hasOwnProperty(key)) {
+    key = 'location';
+  }
+  expect(call[1]).toHaveProperty(key);
+  expect(call[1][key]).toMatch(/https:\/\/stream\.video\.thenational\.academy/);
 });
