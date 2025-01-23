@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
 import { authedCaller } from './helper';
+import { UnitNoOptions, UnitOptions } from '~/lib/handlers/sequences';
 
 test('sequence with subjects', async () => {
   const caller = authedCaller();
@@ -15,19 +16,23 @@ test('sequence with subjects', async () => {
     throw new Error('No subjects found');
   }
   expect(res[0].subjects.length).toBeGreaterThan(1);
-  const subject = res[0].subjects[1];
+  const subject = res[0].subjects.find((_) => {
+    return _.subjectSlug === 'handwriting';
+  });
 
   expect(subject).toHaveProperty('units');
 
-  if (!('units' in subject)) {
+  if (!subject || !('units' in subject)) {
     throw new Error('No subjects found');
   }
 
   expect(subject.units.map((_) => _.unitOrder).slice(0, 3)).toStrictEqual([
-    1, 2, 3,
+    3, 4, 5,
   ]);
 
-  const slugs = new Set(subject.units?.map((_) => _.unitSlug));
+  const slugs = new Set(
+    subject.units?.map((_) => (_ as UnitNoOptions).unitSlug),
+  );
   expect(slugs.size).toBe(subject.units?.length);
 });
 
@@ -72,7 +77,9 @@ test('sequence with subjects & tiers', async () => {
     1, 2, 3,
   ]);
 
-  const slugs = new Set(tier.units.map((_) => _.unitSlug));
+  const slugs = new Set(
+    tier.units.map((_): string => (_ as UnitNoOptions).unitSlug),
+  );
   expect(slugs.size).toBe(tier.units.length);
 });
 
@@ -100,7 +107,9 @@ test('sequence with tiers', async () => {
     subject.tiers[0].units?.map((_) => _.unitOrder).slice(0, 3),
   ).toStrictEqual([1, 2, 3]);
 
-  const slugs = new Set(subject.tiers[0].units.map((_) => _.unitSlug));
+  const slugs = new Set(
+    subject.tiers[0].units.map((_) => (_ as UnitNoOptions).unitSlug),
+  );
   expect(slugs.size).toBe(subject.tiers[0].units.length);
 });
 
@@ -128,8 +137,19 @@ test('sequence with unit optionality', async () => {
   }
 
   const units = subject.units;
-  const optionals = units.filter((_) => _.unitOrder === 17);
+  const optional = units.find((unit) => {
+    if ('unitOptions' in unit) {
+      return true;
+    }
+  }) as UnitOptions | undefined;
 
-  expect(optionals.length).toBe(2);
-  expect(optionals[0]).toHaveProperty('unitOptionParentSlug');
+  if (!optional) {
+    expect.fail('No optional units found');
+  }
+
+  // we're using King Tut in this example, it kinda breaks if not
+  expect(optional.unitTitle).toContain('King Tut');
+
+  expect(optional).toHaveProperty('unitOptions');
+  expect(optional.unitOptions.length).toBe(2);
 });

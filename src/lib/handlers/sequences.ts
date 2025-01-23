@@ -24,24 +24,36 @@ type UnitFromDb = {
   order: number;
 };
 
-type Unit = {
-  unitTitle: string;
-  unitSlug: string;
-  unitOrder: number;
-  unitOptionParentSlug?: string;
-};
-
 const input = z.object({
   sequence: z.string(),
   year: z.number().optional(),
 });
 
-const unitSchema = z.object({
+const unitEntity = z.object({
   unitTitle: z.string(),
   unitSlug: z.string(),
-  unitOrder: z.number(),
-  unitOptionParentSlug: z.string().optional(),
 });
+
+// unitNoOptions combines unitParent and unitEntity but not as a union
+const unitNoOptions = z.object({
+  unitSlug: z.string(),
+  unitTitle: z.string(),
+  unitOrder: z.number(),
+});
+
+// unitOptions is unitParent + unitEntity[] (as unitOption property)
+const unitOptions = z.object({
+  unitTitle: z.string(),
+  unitOrder: z.number(),
+  unitOptions: z.array(unitEntity),
+});
+
+// unitSchema is unitNoOptions or unitOptions
+export const unitSchema = z.union([unitNoOptions, unitOptions]);
+
+export type UnitNoOptions = z.infer<typeof unitNoOptions>;
+export type UnitOptions = z.infer<typeof unitOptions>;
+export type Unit = z.infer<typeof unitSchema>;
 
 const nonSubjectSchema = z.object({
   year: z.number(),
@@ -96,41 +108,22 @@ function pushUnit(unit: UnitFromDb): Unit {
 
 function mapUnits(units: Sequence[]) {
   return units.reduce<Unit[]>((acc, curr) => {
-    const slug = curr.slug;
     if (curr.unit_options.length > 0) {
-      const otherUnits = curr.unit_options.filter((unit) => unit.slug !== slug);
-      const unitOptionParentSlug = slug.replace(/-\d+$/, '');
-      acc.push({ ...pushUnit(curr as UnitFromDb), unitOptionParentSlug });
-      acc.push(
-        ...otherUnits.map((unit) => {
-          return {
-            ...pushUnit({ ...unit, order: curr.order } as UnitFromDb),
-            unitOptionParentSlug,
-          };
-        }),
-      );
+      const unitOptions = curr.unit_options.map(({ slug, title }) => ({
+        unitSlug: slug,
+        unitTitle: title,
+      }));
+      acc.push({
+        unitTitle: curr.title,
+        unitOrder: curr.order,
+        unitOptions,
+      });
     } else {
       acc.push(pushUnit(curr as UnitFromDb));
     }
 
     return acc;
   }, []);
-}
-
-function fixOrder(units: Unit[]) {
-  // if the unit has a `unitOptionParentSlug` property, apply the same
-  // unitOrder value, and then make sure to capture an offset to adjust by
-  // as the number wouldn't have incremented in the same linear way.
-  let offset = 0;
-  const seen = new Set<string>();
-  return units.map((unit, index) => {
-    const unitOrder = index + offset + 1;
-    if (unit.unitOptionParentSlug && !seen.has(unit.unitOptionParentSlug)) {
-      offset--;
-      seen.add(unit.unitOptionParentSlug);
-    }
-    return { ...unit, unitOrder };
-  });
 }
 
 export const getSequences = router({
@@ -329,9 +322,7 @@ export const getSequences = router({
               tiers: Array.from(tiers).map((tier) => {
                 return {
                   tier,
-                  units: fixOrder(
-                    mapUnits(byYear.filter((_) => _.tier_slug === tier)),
-                  ),
+                  units: mapUnits(byYear.filter((_) => _.tier_slug === tier)),
                 };
               }),
             };
@@ -377,9 +368,7 @@ export const getSequences = router({
               const tierData = Array.from(tiers).map((tier) => {
                 return {
                   tier,
-                  units: fixOrder(
-                    mapUnits(units.filter((_) => _.tier_slug === tier)),
-                  ),
+                  units: mapUnits(units.filter((_) => _.tier_slug === tier)),
                 };
               });
 
@@ -390,7 +379,7 @@ export const getSequences = router({
             } else {
               res.push({
                 ...subjectData(subject),
-                units: fixOrder(mapUnits(units)),
+                units: mapUnits(units),
               } as SubjectSchema);
             }
           }
