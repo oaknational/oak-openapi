@@ -172,7 +172,10 @@ export function formatShortAnswer(answer: DBShortAnswer): TextAnswer {
     };
   }
 
-  throw new Error('Unexpected answer type');
+  throw new TRPCError({
+    message: 'Unexpected answer type',
+    code: 'INTERNAL_SERVER_ERROR',
+  });
 }
 
 export function formatMatchAnswer(answer: DBMatch): MatchAnswer {
@@ -248,7 +251,10 @@ function formatMultipleChoiceAnswer(
     return res;
   }
 
-  throw new Error('Unexpected answer type');
+  throw new TRPCError({
+    message: 'Unexpected answer type',
+    code: 'INTERNAL_SERVER_ERROR',
+  });
 }
 
 function formatImage(image: ImageStem, text: null | { text: string } = null) {

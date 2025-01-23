@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
 import { authedCaller, makeCaller } from './helper';
+import type { TRPCError } from '@trpc/server';
 
 test('get questions from hasura and check structure', async () => {
   const caller = makeCaller({
@@ -62,6 +63,22 @@ test('get questions for a sequence and test paging', async () => {
 
   expect(res2.length).toBe(2);
   expect(res[0].lessonSlug).not.toBe(res2[0].lessonSlug);
+});
+
+test('errors cleanly if invalid parts', async () => {
+  const { caller } = authedCaller();
+
+  try {
+    await caller.getQuestions.getQuestionsForSequence({
+      sequence: 'science-secondary-osc', // incorrect exam board
+      year: 10,
+    });
+    expect.fail('should have thrown');
+  } catch (e) {
+    const error = e as TRPCError;
+    expect(error.message).toContain('Invalid exam board');
+    expect(error.code).toBe('BAD_REQUEST');
+  }
 });
 
 test('expect unique lessons for questions from sequence', async () => {
