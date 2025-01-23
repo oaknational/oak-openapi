@@ -840,9 +840,10 @@ export const getAssets = router({
         const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext}`;
 
         if (!response.ok) {
-          throw new Error(
-            `Failed to fetch: ${response.status} ${response.statusText}`,
-          );
+          throw new TRPCError({
+            message: `Failed to fetch: ${response.status} ${response.statusText}`,
+            code: 'INTERNAL_SERVER_ERROR',
+          });
         }
 
         // Set headers for streaming the file to the client
