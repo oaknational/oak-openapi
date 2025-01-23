@@ -569,6 +569,7 @@ export const getQuestions = router({
               lessonSlug: { _in: $lessonSlugs }
               isLegacy: { _eq: false }
             }
+            distinct_on:lessonSlug
             offset: $offset
             limit: $limit
           ) {

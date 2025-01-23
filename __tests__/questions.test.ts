@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { makeCaller } from './helper';
+import { authedCaller, makeCaller } from './helper';
 
 test('get questions from hasura and check structure', async () => {
   const caller = makeCaller({
@@ -62,4 +62,18 @@ test('get questions for a sequence and test paging', async () => {
 
   expect(res2.length).toBe(2);
   expect(res[0].lessonSlug).not.toBe(res2[0].lessonSlug);
+});
+
+test('expect unique lessons for questions from sequence', async () => {
+  const { caller } = authedCaller();
+
+  const res = await caller.getQuestions.getQuestionsForSequence({
+    sequence: 'science-secondary-ocr',
+    year: 10,
+  });
+
+  const lessons = res.map((_) => _.lessonSlug);
+  const uniqueLessons = Array.from(new Set(lessons));
+
+  expect(lessons).toEqual(uniqueLessons);
 });
