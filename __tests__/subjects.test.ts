@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
 import { authedCaller } from './helper';
+import * as subjectConsts from '~/lib/keyStageAndSubjects';
 
 test('subject with sequences and additional data', async () => {
   const caller = authedCaller();
@@ -59,4 +60,25 @@ test('sequence array has full metadata', async () => {
     'ks3',
     'ks4',
   ]);
+});
+
+test('subject constants structures', async () => {
+  const { keyStageSlugs, subjectsByKeyStage, subjectSlugs, subjects } =
+    subjectConsts;
+
+  expect(keyStageSlugs).toStrictEqual(['ks1', 'ks2', 'ks3', 'ks4']);
+
+  const ks1 = subjectsByKeyStage();
+  expect(Array.isArray(ks1)).toBeTruthy();
+  expect(ks1.length).toBeGreaterThan(0);
+  expect(Object.keys(ks1[0])).toStrictEqual(['slug', 'title']);
+  expect(Array.isArray(subjectSlugs)).toBeTruthy();
+  expect(subjectSlugs.length).toBeGreaterThan(0);
+  expect(subjectSlugs[0]).toBeTypeOf('string');
+  expect(subjectSlugs).includes('english');
+
+  expect(Array.isArray(subjects)).toBeTruthy();
+  expect(subjects.length).toBeGreaterThan(0);
+  expect(subjects[0]).toBeTypeOf('string');
+  expect(subjects).includes('English');
 });

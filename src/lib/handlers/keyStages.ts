@@ -1,11 +1,6 @@
 import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
-import { TRPCError } from '@trpc/server';
-import {
-  keyStages,
-  keyStageSlugs,
-  subjectsByKeyStage,
-} from '~/lib/keyStageAndSubjects';
+import { keyStages } from '~/lib/keyStageAndSubjects';
 import { z } from 'zod';
 
 export const getKeyStages = router({
@@ -30,51 +25,53 @@ export const getKeyStages = router({
       ),
     )
     .query(() => keyStages),
-  getKeyStageSubjects: protectedProcedure
-    .meta({
-      openapi: {
-        method: 'GET',
-        tags: ['lists'],
-        path: '/key-stages/{keyStage}/subjects',
-        description:
-          'This endpoint returns all the subjects (titles and slugs) that are currently available on Oak for a given key stage',
-        example: {
-          response: [
-            {
-              subjectSlug: 'english',
-              subjectTitle: 'English',
-            },
-            {
-              subjectSlug: 'geography',
-              subjectTitle: 'Geography',
-            },
-          ],
-        },
-      },
-    })
-    .input(
-      z.object({
-        keyStage: z.enum(keyStageSlugs as [string], {
-          description:
-            "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
-        }),
-      }),
-    )
-    .output(
-      z.array(z.object({ subjectSlug: z.string(), subjectTitle: z.string() })),
-    )
-    .query(({ input }) => {
-      const key = decodeURIComponent(input.keyStage);
-      const res = subjectsByKeyStage(key);
-      if (!res) {
-        throw new TRPCError({
-          message: 'Invalid key stage',
-          code: 'BAD_REQUEST',
-        });
-      }
 
-      return res.map(({ slug, title }) => {
-        return { subjectSlug: slug, subjectTitle: title };
-      });
-    }),
+  // 2025-01-24 disabling this endpoint, not sure it's useful
+  // getKeyStageSubjects: protectedProcedure
+  //   .meta({
+  //     openapi: {
+  //       method: 'GET',
+  //       tags: ['lists'],
+  //       path: '/key-stages/{keyStage}/subjects',
+  //       description:
+  //         'This endpoint returns all the subjects (titles and slugs) that are currently available on Oak for a given key stage',
+  //       example: {
+  //         response: [
+  //           {
+  //             subjectSlug: 'english',
+  //             subjectTitle: 'English',
+  //           },
+  //           {
+  //             subjectSlug: 'geography',
+  //             subjectTitle: 'Geography',
+  //           },
+  //         ],
+  //       },
+  //     },
+  //   })
+  //   .input(
+  //     z.object({
+  //       keyStage: z.enum(keyStageSlugs as [string], {
+  //         description:
+  //           "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
+  //       }),
+  //     }),
+  //   )
+  //   .output(
+  //     z.array(z.object({ subjectSlug: z.string(), subjectTitle: z.string() })),
+  //   )
+  //   .query(() => {
+  //     // const key = decodeURIComponent(input.keyStage);
+  //     const res = subjectsByKeyStage();
+  //     if (!res) {
+  //       throw new TRPCError({
+  //         message: 'Invalid key stage',
+  //         code: 'BAD_REQUEST',
+  //       });
+  //     }
+
+  //     return res.map(({ slug, title }) => {
+  //       return { subjectSlug: slug, subjectTitle: title };
+  //     });
+  //   }),
 });
