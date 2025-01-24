@@ -237,7 +237,28 @@ export const getUnits = router({
       // TS: allow me to declare it empty first
       const metadata = {} as Metadata;
 
-      if (sequenceData) {
+      if (additionalUnitData) {
+        (metadata.unitTitle = additionalUnitData.optionality
+          ? additionalUnitData.optionality
+          : root.unitTitle),
+          (metadata.yearSlug = additionalUnitData.year_slug);
+        metadata.year = parseInt(additionalUnitData?.year_slug.split('-')[1]);
+        metadata.phaseSlug = additionalUnitData?.phase_slug;
+        metadata.subjectSlug = additionalUnitData?.subject_slug;
+        metadata.keyStageSlug = additionalUnitData?.keystage_slug;
+        metadata.unitLessons = orderData
+          .map((lesson) => ({
+            lessonSlug: lesson.lesson_slug,
+            lessonTitle: lesson.lesson_title,
+            lessonOrder: lesson.supplementary_data?.order_in_unit,
+          }))
+          .sort((a, b) => (a.lessonOrder || 0) - (b.lessonOrder || 0));
+
+        if (sequenceData) {
+          metadata.description = sequenceData.description;
+          metadata.whyThisWhyNow = sequenceData.why_this_why_now;
+        }
+      } else if (sequenceData) {
         // FIXME need to test optionality in cycle 2
         metadata.unitTitle = sequenceData.title;
         metadata.description = sequenceData.description;
@@ -252,22 +273,6 @@ export const getUnits = router({
             lessonSlug: lesson.slug,
             lessonTitle: lesson.title,
             lessonOrder: lesson.order,
-          }))
-          .sort((a, b) => (a.lessonOrder || 0) - (b.lessonOrder || 0));
-      } else if (additionalUnitData) {
-        (metadata.unitTitle = additionalUnitData.optionality
-          ? additionalUnitData.optionality
-          : root.unitTitle),
-          (metadata.yearSlug = additionalUnitData.year_slug);
-        metadata.year = parseInt(additionalUnitData?.year_slug.split('-')[1]);
-        metadata.phaseSlug = additionalUnitData?.phase_slug;
-        metadata.subjectSlug = additionalUnitData?.subject_slug;
-        metadata.keyStageSlug = additionalUnitData?.keystage_slug;
-        metadata.unitLessons = orderData
-          .map((lesson) => ({
-            lessonSlug: lesson.lesson_slug,
-            lessonTitle: lesson.lesson_title,
-            lessonOrder: lesson.supplementary_data?.order_in_unit,
           }))
           .sort((a, b) => (a.lessonOrder || 0) - (b.lessonOrder || 0));
       }

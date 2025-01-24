@@ -91,8 +91,9 @@ const output = z.array(
   z.union([nonSubjectSchema, subjectsSchema, tiersSchema]),
 );
 
-type NonSubjectSchema = z.infer<typeof nonSubjectSchema>;
-type SubjectSchema = z.infer<typeof subjectSchema>;
+export type SequenceUnits = z.infer<typeof output>;
+export type NonSubjectSchema = z.infer<typeof nonSubjectSchema>;
+export type SubjectSchema = z.infer<typeof subjectSchema>;
 type SubjectTiersSchema = z.infer<typeof subjectTiersSchema>;
 type TiersSchema = z.infer<typeof tiersSchema>;
 
