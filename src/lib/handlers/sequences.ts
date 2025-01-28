@@ -79,10 +79,87 @@ const output = z.array(
   z.union([nonSubjectSchema, subjectsSchema, tiersSchema]),
 );
 
-type NonSubjectSchema = z.infer<typeof nonSubjectSchema>;
+export type NonSubjectSchema = z.infer<typeof nonSubjectSchema>;
 type SubjectSchema = z.infer<typeof subjectSchema>;
 type SubjectTiersSchema = z.infer<typeof subjectTiersSchema>;
 type TiersSchema = z.infer<typeof tiersSchema>;
+
+type WhereCondition = {
+  _and: Array<{
+    _or?: Array<{
+      subject_slug?: { _eq: string };
+      subject_parent_slug?: { _eq: string };
+    }>;
+    phase_slug?: { _eq: string };
+    state?: { _eq: string };
+    year?: { _eq: string };
+  }>;
+};
+
+export function sequenceWhere(sequence: string, year?: string) {
+  const { phaseSlug, subjectSlug, ks4OptionSlug } =
+    parseSubjectPhaseSlug(sequence);
+
+  const baseWhere: WhereCondition = {
+    _and: [
+      {
+        _or: [
+          { subject_slug: { _eq: subjectSlug } },
+          { subject_parent_slug: { _eq: subjectSlug } },
+        ],
+      },
+      { phase_slug: { _eq: phaseSlug } },
+      { state: { _eq: 'published' } },
+    ],
+  };
+
+  if (year) {
+    baseWhere._and.push({ year: { _eq: year } });
+  }
+
+  const isExamboard = ks4OptionSlug
+    ? examBoards.includes(ks4OptionSlug)
+    : false;
+
+  const examboardSlug = isExamboard ? ks4OptionSlug : null;
+  const pathwaySlug = !isExamboard ? ks4OptionSlug : null;
+
+  const examboardCondition = examboardSlug
+    ? {
+        _or: [
+          { examboard_slug: { _eq: examboardSlug } },
+          {
+            _and: [
+              { examboard_slug: { _is_null: true } },
+              {
+                _or: [
+                  { pathway_slug: { _neq: 'core' } },
+                  { pathway_slug: { _is_null: true } },
+                ],
+              },
+            ],
+          },
+        ],
+      }
+    : { examboard_slug: { _is_null: true } };
+
+  const pathwayCondition = pathwaySlug
+    ? {
+        _or: [
+          { pathway_slug: { _eq: pathwaySlug } },
+          { pathway_slug: { _is_null: true } },
+        ],
+      }
+    : { pathway_slug: { _is_null: true } };
+
+  return {
+    ...baseWhere,
+    _and: [
+      ...baseWhere._and,
+      isExamboard ? examboardCondition : pathwayCondition,
+    ],
+  };
+}
 
 function pushUnit(unit: UnitFromDb): Unit {
   const { title, slug, order } = unit;
@@ -185,65 +262,7 @@ export const getSequences = router({
 
       const yearFilter = input.year || 0;
 
-      const { phaseSlug, subjectSlug, ks4OptionSlug } = parseSubjectPhaseSlug(
-        input.sequence,
-      );
-
-      const baseWhere = {
-        _and: [
-          {
-            _or: [
-              { subject_slug: { _eq: subjectSlug } },
-              { subject_parent_slug: { _eq: subjectSlug } },
-            ],
-          },
-          { phase_slug: { _eq: phaseSlug } },
-          { state: { _eq: 'published' } },
-        ],
-      };
-
-      const isExamboard = ks4OptionSlug
-        ? examBoards.includes(ks4OptionSlug)
-        : false;
-
-      const examboardSlug = isExamboard ? ks4OptionSlug : null;
-      const pathwaySlug = !isExamboard ? ks4OptionSlug : null;
-
-      const examboardCondition = examboardSlug
-        ? {
-            _or: [
-              { examboard_slug: { _eq: examboardSlug } },
-              {
-                _and: [
-                  { examboard_slug: { _is_null: true } },
-                  {
-                    _or: [
-                      { pathway_slug: { _neq: 'core' } },
-                      { pathway_slug: { _is_null: true } },
-                    ],
-                  },
-                ],
-              },
-            ],
-          }
-        : { examboard_slug: { _is_null: true } };
-
-      const pathwayCondition = pathwaySlug
-        ? {
-            _or: [
-              { pathway_slug: { _eq: pathwaySlug } },
-              { pathway_slug: { _is_null: true } },
-            ],
-          }
-        : { pathway_slug: { _is_null: true } };
-
-      const where = {
-        ...baseWhere,
-        _and: [
-          ...baseWhere._and,
-          isExamboard ? examboardCondition : pathwayCondition,
-        ],
-      };
+      const where = sequenceWhere(input.sequence);
 
       const query = gql`
       query ($where: ${sequenceViewWhereInput}!) {

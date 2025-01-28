@@ -1,7 +1,14 @@
 import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
-import { QuestionTypeEnum, getClient, gql, lessonView } from 'lib/owaClient';
+import {
+  QuestionTypeEnum,
+  getClient,
+  gql,
+  lessonView,
+  sequenceView,
+  sequenceViewWhereInput,
+} from 'lib/owaClient';
 import type {
   LessonView,
   Lesson,
@@ -12,6 +19,7 @@ import type {
   OrderAnswer as DBOrder,
   ShortAnswer as DBShortAnswer,
   MultipleChoiceAnswer as DBMultipleChoiceAnswer,
+  SequenceView,
 } from 'lib/owaClient';
 import { z } from 'zod';
 import { baseUrl } from '../baseUrl';
@@ -23,6 +31,7 @@ import {
   supportsImages,
 } from '../queryGate';
 import { TRPCError } from '@trpc/server';
+import { sequenceWhere } from './sequences';
 
 const multipleChoiceLit = z.literal('multiple-choice');
 const shortAnswerLit = z.literal('short-answer');
@@ -163,7 +172,10 @@ export function formatShortAnswer(answer: DBShortAnswer): TextAnswer {
     };
   }
 
-  throw new Error('Unexpected answer type');
+  throw new TRPCError({
+    message: 'Unexpected answer type',
+    code: 'INTERNAL_SERVER_ERROR',
+  });
 }
 
 export function formatMatchAnswer(answer: DBMatch): MatchAnswer {
@@ -239,7 +251,10 @@ function formatMultipleChoiceAnswer(
     return res;
   }
 
-  throw new Error('Unexpected answer type');
+  throw new TRPCError({
+    message: 'Unexpected answer type',
+    code: 'INTERNAL_SERVER_ERROR',
+  });
 }
 
 function formatImage(image: ImageStem, text: null | { text: string } = null) {
@@ -492,6 +507,141 @@ export const getQuestions = router({
       );
 
       return questionsForQuiz(lesson, imagesAllowed);
+    }),
+  getQuestionsForSequence: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        tags: ['questions'],
+        path: '/sequences/{sequence}/questions',
+        description:
+          'This endpoint returns the quiz questions and answers (and indicates which answers are correct and which are distractors) for a given sequence',
+        example: {
+          request: {
+            sequence: 'maths-secondary',
+          },
+        },
+      },
+    })
+    .input(
+      z.object({
+        sequence: z.string(),
+        year: z.number().optional(),
+
+        offset: z.number().optional().default(0),
+        limit: z
+          .number({
+            description: 'Limit the number of results returned, max 100',
+          })
+          .lte(100)
+          .optional()
+          .default(10),
+      }),
+    )
+    .output(z.any())
+    .query(async ({ input, ctx }) => {
+      const { limit, offset, sequence, year } = input;
+      const client = getClient();
+      const where = sequenceWhere(sequence, year?.toString());
+
+      const query = gql`
+      query ($where: ${sequenceViewWhereInput}!) {
+        ${sequenceView}(
+          where: $where
+          order_by: { order: asc }
+        ) {
+          lessons
+        }
+      }`;
+
+      const sequenceResult: SequenceView = await client.request(query, {
+        where,
+      });
+      const rawData = sequenceResult[sequenceView];
+
+      // unique lesson slugs
+      const lessonSlugs = new Set(
+        rawData
+          .map((unit) => {
+            return unit.lessons.map((lesson) => lesson.slug);
+          })
+          .flat(),
+      );
+
+      const questionQuery = gql`
+        query getQuestions($lessonSlugs: [String!]!, $limit: Int!, $offset: Int!) {
+          ${lessonView}(
+            where: {
+              lessonSlug: { _in: $lessonSlugs }
+              isLegacy: { _eq: false }
+            }
+            distinct_on:lessonSlug
+            offset: $offset
+            limit: $limit
+          ) {
+            lessonTitle
+            lessonSlug
+            unitSlug
+            exitQuiz
+            starterQuiz
+          }
+        }
+      `;
+
+      const res: LessonView = await client.request(questionQuery, {
+        lessonSlugs: Array.from(lessonSlugs),
+        offset,
+        limit,
+      });
+
+      const data = res[lessonView];
+
+      if (data.length === 0) {
+        return [];
+      }
+
+      let next = null;
+      if (data.length === limit) {
+        next = `${baseUrl}${ctx.req.url}?offset=${
+          offset + limit
+        }&limit=${limit}`;
+        ctx.res.setHeader('link', `<${next}>; rel="next"`);
+      }
+
+      const lessons = [];
+
+      for (const {
+        exitQuiz,
+        starterQuiz,
+        lessonSlug,
+        lessonTitle,
+        unitSlug,
+        subjectSlug,
+      } of data) {
+        if (!lessonSlug || !lessonTitle) {
+          continue;
+        }
+
+        if (!exitQuiz && !starterQuiz) {
+          continue;
+        }
+
+        const imagesAllowed = supportsImages(subjectSlug || '', unitSlug || '');
+
+        const results = questionsForQuiz(
+          { exitQuiz, starterQuiz },
+          imagesAllowed,
+        );
+
+        lessons.push({
+          lessonTitle,
+          lessonSlug,
+          // unitSlug,
+          ...results,
+        });
+      }
+
+      return lessons;
     }),
   getQuestionsForKeyStageAndSubject: protectedProcedure
     .meta({
