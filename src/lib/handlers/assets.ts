@@ -433,8 +433,8 @@ export const getAssets = router({
             ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
             ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
           ]
-            .filter((string) => string !== '')
-            .filter((string) => string !== undefined);
+            .filter((string) => string !== undefined)
+            .filter((string) => string !== '');
         }
 
         return {
@@ -694,7 +694,9 @@ export const getAssets = router({
           mappedAttribution = [
             ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
             ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
-          ].filter((string) => string !== undefined);
+          ]
+            .filter((string) => string !== undefined)
+            .filter((string) => string !== '');
         }
 
         return {

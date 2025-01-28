@@ -12,6 +12,7 @@ test('get cycle 2 (2024-2025) unit', async () => {
   });
 
   expect(Array.isArray(res)).toBe(false);
+  expect(res).toHaveProperty('unitSlug');
 });
 
 async function getUnitOptionsForSequence(sequence: string, year: number) {
