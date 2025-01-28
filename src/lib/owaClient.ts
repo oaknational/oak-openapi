@@ -12,7 +12,7 @@ export const unitVariantLessonsView =
   'published_mv_synthetic_unitvariant_lessons_by_year_12_0_0';
 export const lessonViewTable = 'published.mv_lesson_openapi_1_2_1';
 export const subjectPhaseView = 'published_mv_subject_phase_options_0_11';
-export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_9';
+export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_12';
 
 export const views = [
   unitCurriculumView,
@@ -24,7 +24,7 @@ export const views = [
 ];
 
 export const sequenceViewWhereInput =
-  'published_mv_curriculum_sequence_b_13_0_9_bool_exp';
+  'published_mv_curriculum_sequence_b_13_0_12_bool_exp';
 
 export function querySQL(sql: string) {
   return fetch(`${process.env.OAK_GRAPHQL_HOST}/v1/query`, {
@@ -73,7 +73,7 @@ export type SubjectPhase = {
 };
 
 export type SequenceView = {
-  published_mv_curriculum_sequence_b_13_0_9: Sequence[];
+  published_mv_curriculum_sequence_b_13_0_12: Sequence[];
 };
 
 export type UnitVariantLessonsView = {
@@ -89,16 +89,19 @@ export type Sequence = TitleSlug & {
   domain: string;
   examboard_slug: string;
   keystage_slug: string;
-  lessons: TitleSlug[];
+  notes: string;
+  national_curriculum_content: { id: string; title: string }[];
   order: number;
   pathway: string;
   pathway_slug: string;
   phase: string;
   phase_slug: string;
+  prior_knowledge_requirements: { id: string; title: string }[];
   subject: string;
   subject_parent: string;
   subject_slug: string;
   subjectcategories: { id: number; title: string }[];
+  tags: string[];
   tier: string;
   tier_slug: string;
   why_this_why_now: string;
