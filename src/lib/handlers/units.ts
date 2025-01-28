@@ -1,21 +1,10 @@
 import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 import { TRPCError } from '@trpc/server';
-import {
-  SequenceView,
-  UnitCurriculumView,
-  UnitVariantLessonsView,
-  getClient,
-  gql,
-  sequenceView,
-  unitVariantLessonsView,
-} from 'lib/owaClient';
+import { SequenceView, getClient, gql, sequenceView } from 'lib/owaClient';
 import { z } from 'zod';
 import { blockUnitForCopyrightText } from '../queryGate';
-import Timing from '../serverTimings';
 import { defaultCaching } from '../networkCache';
-
-const timing = new Timing();
 
 export const unitSchema = z.object({
   unitSlug: z.string(),
@@ -100,17 +89,13 @@ export const getUnits = router({
     })
     .output(unitSchema)
     .input(z.object({ unit: z.string({ description: 'The unit slug' }) }))
-    .query(async ({ input, ctx }) => {
-      const { res: response } = ctx;
+    .query(async ({ input }) => {
       let { unit: slug } = input;
       const client = getClient();
 
-      timing.start('blockUnitForCopyrightText');
       const blocked = await blockUnitForCopyrightText(client, slug);
-      timing.end('blockUnitForCopyrightText');
 
       if (blocked) {
-        response.setHeader('Server-Timing', timing.toHeader(response));
         throw new TRPCError({
           message: 'Unit not available for this query',
           code: 'NOT_FOUND',
@@ -138,39 +123,12 @@ export const getUnits = router({
             why_this_why_now
             year
           }
-
-          ${unitVariantLessonsView}(
-            where: { unit_slug: { _eq: $variantSlug } }
-          ) {
-            lesson_slug
-            lesson_title:lesson_data(path:"title")
-            supplementary_data
-            optionality:programme_fields(path:"optionality")
-            year_slug:programme_fields(path:"year_slug")
-            phase_slug:programme_fields(path:"phase_slug")
-            subject_slug:programme_fields(path:"subject_slug")
-            keystage_slug:programme_fields(path:"keystage_slug")
-          }
         }
       `;
 
-      timing.start('getUnit graphql query');
-      const res: UnitCurriculumView & UnitVariantLessonsView & SequenceView =
-        await client.request(query, { variantSlug });
-      timing.end('getUnit graphql query');
-
-      response.setHeader('Server-Timing', timing.toHeader(response));
-
+      const res: SequenceView = await client.request(query, { variantSlug });
       if (res[sequenceView].length === 0) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
-      }
-
-      if (res[unitVariantLessonsView].length === 0) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message:
-            'Unit requested is a parent unit with multiple unit options, please use the unit option slug instead.',
-        });
       }
 
       type RootUnitData = {
@@ -181,8 +139,6 @@ export const getUnits = router({
         nationalCurriculumContent: string[];
       };
 
-      const orderData = res[unitVariantLessonsView];
-      const additionalUnitData = orderData[0];
       const sequenceData = res[sequenceView][0];
 
       // we populate from the sequence view
@@ -219,54 +175,28 @@ export const getUnits = router({
       // TS: allow me to declare it empty first
       const metadata = {} as Metadata;
 
-      if (additionalUnitData) {
-        metadata.yearSlug = additionalUnitData.year_slug;
-        metadata.year = parseInt(additionalUnitData?.year_slug.split('-')[1]);
-        metadata.phaseSlug = additionalUnitData?.phase_slug;
-        metadata.subjectSlug = additionalUnitData?.subject_slug;
-        metadata.keyStageSlug = additionalUnitData?.keystage_slug;
-        metadata.unitLessons = orderData
-          .map((lesson) => ({
-            lessonSlug: lesson.lesson_slug,
-            lessonTitle: lesson.lesson_title,
-            lessonOrder: lesson.supplementary_data?.order_in_unit,
-          }))
-          .sort((a, b) => (a.lessonOrder || 0) - (b.lessonOrder || 0));
-
-        if (sequenceData) {
-          metadata.description = sequenceData.description;
-          metadata.whyThisWhyNow = sequenceData.why_this_why_now;
-        }
-      } else if (sequenceData) {
-        // FIXME need to test optionality in cycle 2
-        metadata.unitTitle = sequenceData.title;
-        metadata.description = sequenceData.description;
-        metadata.yearSlug = `year-${sequenceData.year}`;
-        metadata.year = parseInt(sequenceData.year, 10);
-        metadata.phaseSlug = sequenceData.phase_slug;
-        metadata.subjectSlug = sequenceData.subject_slug;
-        metadata.keyStageSlug = sequenceData.keystage_slug;
-        metadata.whyThisWhyNow = sequenceData.why_this_why_now;
-        metadata.unitLessons = sequenceData.lessons
-          .map((lesson) => ({
-            lessonSlug: lesson.slug,
-            lessonTitle: lesson.title,
-            lessonOrder: lesson.order,
-          }))
-          .sort((a, b) => (a.lessonOrder || 0) - (b.lessonOrder || 0));
-      }
+      metadata.unitTitle = sequenceData.title;
+      metadata.description = sequenceData.description;
+      metadata.yearSlug = `year-${sequenceData.year}`;
+      metadata.year = parseInt(sequenceData.year, 10);
+      metadata.phaseSlug = sequenceData.phase_slug;
+      metadata.subjectSlug = sequenceData.subject_slug;
+      metadata.keyStageSlug = sequenceData.keystage_slug;
+      metadata.whyThisWhyNow = sequenceData.why_this_why_now;
+      metadata.unitLessons = sequenceData.lessons
+        .map((lesson) => ({
+          lessonSlug: lesson.slug,
+          lessonTitle: lesson.title,
+          lessonOrder: lesson.order,
+        }))
+        .sort((a, b) => (a.lessonOrder || 0) - (b.lessonOrder || 0));
 
       if (!metadata.whyThisWhyNow) {
         delete metadata.whyThisWhyNow;
       }
 
-      if (additionalUnitData && additionalUnitData.optionality) {
-        metadata.unitTitle = additionalUnitData.optionality;
-      }
-
       const reply: UnitSchema = {
         unitSlug: variantSlug,
-        // unitOrder: additionalUnitData?.supplementary_data.unit_order,
         ...root,
         ...metadata,
       };
