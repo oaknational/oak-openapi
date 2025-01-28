@@ -8,7 +8,6 @@ import {
   getClient,
   gql,
   sequenceView,
-  unitCurriculumView,
   unitVariantLessonsView,
 } from 'lib/owaClient';
 import { z } from 'zod';
@@ -28,7 +27,7 @@ export const unitSchema = z.object({
   phaseSlug: z.string(),
   subjectSlug: z.string(),
   keyStageSlug: z.string(),
-  // notes: z.string(),
+  notes: z.string().optional(),
   description: z.string().optional(),
   // plannedNumberOfLessons: z.number(),
   priorKnowledgeRequirements: z.array(z.string()),
@@ -81,26 +80,7 @@ export const getUnits = router({
               'Articulate and justify answers, arguments and opinions',
               'Speak audibly and fluently with an increasing command of Standard English',
             ],
-            priorUnit: {
-              description:
-                "In 'Adverbial complex sentences', pupils built on from co-ordination to how to stretch a simple sentence with subordination and a second idea. In this unit, pupils will learn that the position of the subordinate clause in an adverbial complex sentence can vary.",
-              units: [
-                {
-                  unitSlug: 'adverbial-complex-sentences',
-                  unitTitle: 'Adverbial complex sentences',
-                },
-              ],
-            },
-            futureUnit: {
-              description:
-                "In this unit, pupils learn that the position of the subordinate clause in an adverbial complex sentence can vary. In 'Simple and progressive tense forms', pupils will write a variety of sentence structures in different tenses.",
-              units: [
-                {
-                  unitSlug: 'tense-forms-simple-progressive-and-perfect',
-                  unitTitle: 'Tense forms: simple, progressive and perfect',
-                },
-              ],
-            },
+
             unitLessons: [
               {
                 lessonSlug:
@@ -145,24 +125,10 @@ export const getUnits = router({
 
       // 300 is the max: https://hasura.io/docs/2.0/caching/caching-config/#controlling-cache-lifetime
       const query = gql`
-        query getUnit($slug: String!, $variantSlug: String!) @cached(ttl: 300) {
-          ${unitCurriculumView}(where: { unitSlug: { _eq: $slug } }) {
-            unitSlug
-            unitTitle
-            unitTags
-            unitNotes
-            unitDescription
-            priorKnowledgeRequirements
-            unitNationalCurriculumContent
-            priorUnit
-            futureUnit
-            futureUnitDescription
-            priorUnitDescription
-            unitLessons
-          }
-
+        query getUnit($variantSlug: String!) @cached(ttl: 300) {
           ${sequenceView}(where: { slug: { _eq: $variantSlug } }) {
             title
+            slug
             description
             keystage_slug
             lessons
@@ -190,19 +156,16 @@ export const getUnits = router({
 
       timing.start('getUnit graphql query');
       const res: UnitCurriculumView & UnitVariantLessonsView & SequenceView =
-        await client.request(query, { slug, variantSlug });
+        await client.request(query, { variantSlug });
       timing.end('getUnit graphql query');
 
       response.setHeader('Server-Timing', timing.toHeader(response));
 
-      if (res[unitCurriculumView].length === 0) {
+      if (res[sequenceView].length === 0) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
       }
 
-      if (
-        res[unitVariantLessonsView].length === 0 &&
-        res[sequenceView].length === 0
-      ) {
+      if (res[unitVariantLessonsView].length === 0) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message:
@@ -210,11 +173,30 @@ export const getUnits = router({
         });
       }
 
-      const root = res[unitCurriculumView][0];
+      type RootUnitData = {
+        unitTitle: string;
+        tags: string[];
+        notes: string;
+        priorKnowledgeRequirements: string[];
+        nationalCurriculumContent: string[];
+      };
+
       const orderData = res[unitVariantLessonsView];
       const additionalUnitData = orderData[0];
-
       const sequenceData = res[sequenceView][0];
+
+      // we populate from the sequence view
+      const root: RootUnitData = {
+        unitTitle: sequenceData.title,
+        tags: sequenceData.tags || [],
+        notes: sequenceData.notes,
+        priorKnowledgeRequirements: (
+          sequenceData.prior_knowledge_requirements || []
+        ).map(({ title }) => title),
+        nationalCurriculumContent: (
+          sequenceData.national_curriculum_content || []
+        ).map(({ title }) => title),
+      };
 
       type Metadata = {
         unitTitle: string;
@@ -238,10 +220,7 @@ export const getUnits = router({
       const metadata = {} as Metadata;
 
       if (additionalUnitData) {
-        (metadata.unitTitle = additionalUnitData.optionality
-          ? additionalUnitData.optionality
-          : root.unitTitle),
-          (metadata.yearSlug = additionalUnitData.year_slug);
+        metadata.yearSlug = additionalUnitData.year_slug;
         metadata.year = parseInt(additionalUnitData?.year_slug.split('-')[1]);
         metadata.phaseSlug = additionalUnitData?.phase_slug;
         metadata.subjectSlug = additionalUnitData?.subject_slug;
@@ -277,14 +256,18 @@ export const getUnits = router({
           .sort((a, b) => (a.lessonOrder || 0) - (b.lessonOrder || 0));
       }
 
+      if (!metadata.whyThisWhyNow) {
+        delete metadata.whyThisWhyNow;
+      }
+
+      if (additionalUnitData && additionalUnitData.optionality) {
+        metadata.unitTitle = additionalUnitData.optionality;
+      }
+
       const reply: UnitSchema = {
         unitSlug: variantSlug,
         // unitOrder: additionalUnitData?.supplementary_data.unit_order,
-        tags: (root.unitTags || []).map((tag) => tag.title),
-        priorKnowledgeRequirements: root.priorKnowledgeRequirements || [],
-        nationalCurriculumContent: (
-          root.unitNationalCurriculumContent || []
-        ).map((content) => content.title),
+        ...root,
         ...metadata,
       };
 
