@@ -36,6 +36,32 @@ Development server should be running on http://localhost:2727
 
 An API key is required to call RESTful endpoint.
 
+### Errors
+
+As a note, throwing errors using vanilla JavaScript should _only_ be used for development errors (specifically when they'll be caught and handled), as they include the stack and get sent back to the user.
+
+In nearly all cases, the `TRPCError` should be thrown with the appropriate HTTP code.
+
+For example, an internal error would throw as such:
+
+```ts
+throw new TRPCError({
+ message: 'Unexpected answer type',
+ code: 'INTERNAL_SERVER_ERROR',
+});
+```
+
+A user error (such as an unknown subject is requested) is:
+
+```ts
+throw new TRPCError({
+   message: `Invalid subject: ${res.subjectSlug}`,
+   code: 'BAD_REQUEST',
+ });
+```
+
+
+
 ## Infrastructure
 
 - TypeScript across nearly all code (exceptions being eslint config and next config)

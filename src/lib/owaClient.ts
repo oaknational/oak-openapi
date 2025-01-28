@@ -89,6 +89,7 @@ export type Sequence = TitleSlug & {
   domain: string;
   examboard_slug: string;
   keystage_slug: string;
+  lessons: TitleSlug[];
   order: number;
   pathway: string;
   pathway_slug: string;
