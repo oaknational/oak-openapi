@@ -1,3 +1,4 @@
+import { TRPCError } from '@trpc/server';
 import { ks4Options, phases, subjects } from './oakConsts';
 
 export type CurriculumSelectionSlugs = {
@@ -15,7 +16,10 @@ export const parseSubjectPhaseSlug = (
   const phaseIndex = parts.findIndex((part) => phases.includes(part));
 
   if (phaseIndex === -1) {
-    throw new Error("Invalid slug, must include 'primary' or 'secondary'");
+    throw new TRPCError({
+      message: "Invalid slug, must include 'primary' or 'secondary'",
+      code: 'BAD_REQUEST',
+    });
   }
 
   const res = {
@@ -26,11 +30,17 @@ export const parseSubjectPhaseSlug = (
 
   // validate the subject and ks4 options
   if (!subjects.includes(res.subjectSlug)) {
-    throw new Error(`Invalid subject: ${res.subjectSlug}`);
+    throw new TRPCError({
+      message: `Invalid subject: ${res.subjectSlug}`,
+      code: 'BAD_REQUEST',
+    });
   }
 
   if (res.ks4OptionSlug && !ks4Options.includes(res.ks4OptionSlug)) {
-    throw new Error(`Invalid exam board: ${res.ks4OptionSlug}`);
+    throw new TRPCError({
+      message: `Invalid exam board: ${res.ks4OptionSlug}`,
+      code: 'BAD_REQUEST',
+    });
   }
 
   return res;

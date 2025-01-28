@@ -19,6 +19,7 @@ vi.mock('~/lib/rateLimit', async (importOriginal: () => Promise<object>) => {
 
 export function makeRes() {
   return {
+    writeHead: vitest.fn(),
     setHeader: vitest.fn(),
     getHeader: vitest.fn(),
     pipe: vitest.fn(),
@@ -44,10 +45,12 @@ export function makeCaller(opts = {}, res = makeRes()) {
 }
 
 export function authedCaller(user = 1) {
-  return makeCaller({
-    user,
-    res: {
-      setHeader() {},
-    },
-  });
+  const res = makeRes();
+  return {
+    caller: makeCaller({
+      user,
+      res,
+    }),
+    request: res,
+  };
 }
