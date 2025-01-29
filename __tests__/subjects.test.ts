@@ -68,7 +68,7 @@ test('subject constants structures', async () => {
 
   expect(keyStageSlugs).toStrictEqual(['ks1', 'ks2', 'ks3', 'ks4']);
 
-  const ks1 = subjectsByKeyStage();
+  const ks1 = subjectsByKeyStage('ks1');
   expect(Array.isArray(ks1)).toBeTruthy();
   expect(ks1.length).toBeGreaterThan(0);
   expect(Object.keys(ks1[0])).toStrictEqual(['slug', 'title']);

@@ -1,0 +1,254 @@
+[
+  {
+    "slug": "ks1",
+    "title": "Key Stage 1",
+    "subjects": [
+      {
+        "slug": "art",
+        "title": "Art and design"
+      },
+      {
+        "slug": "computing",
+        "title": "Computing"
+      },
+      {
+        "slug": "cooking-nutrition",
+        "title": "Cooking and nutrition"
+      },
+      {
+        "slug": "design-technology",
+        "title": "Design and technology"
+      },
+      {
+        "slug": "english",
+        "title": "English"
+      },
+      {
+        "slug": "geography",
+        "title": "Geography"
+      },
+      {
+        "slug": "history",
+        "title": "History"
+      },
+      {
+        "slug": "maths",
+        "title": "Maths"
+      },
+      {
+        "slug": "music",
+        "title": "Music"
+      },
+      {
+        "slug": "physical-education",
+        "title": "Physical education"
+      },
+      {
+        "slug": "religious-education",
+        "title": "Religious education"
+      },
+      {
+        "slug": "science",
+        "title": "Science"
+      }
+    ]
+  },
+  {
+    "slug": "ks2",
+    "title": "Key Stage 2",
+    "subjects": [
+      {
+        "slug": "art",
+        "title": "Art and design"
+      },
+      {
+        "slug": "computing",
+        "title": "Computing"
+      },
+      {
+        "slug": "cooking-nutrition",
+        "title": "Cooking and nutrition"
+      },
+      {
+        "slug": "design-technology",
+        "title": "Design and technology"
+      },
+      {
+        "slug": "english",
+        "title": "English"
+      },
+      {
+        "slug": "french",
+        "title": "French"
+      },
+      {
+        "slug": "geography",
+        "title": "Geography"
+      },
+      {
+        "slug": "history",
+        "title": "History"
+      },
+      {
+        "slug": "maths",
+        "title": "Maths"
+      },
+      {
+        "slug": "music",
+        "title": "Music"
+      },
+      {
+        "slug": "physical-education",
+        "title": "Physical education"
+      },
+      {
+        "slug": "religious-education",
+        "title": "Religious education"
+      },
+      {
+        "slug": "science",
+        "title": "Science"
+      },
+      {
+        "slug": "spanish",
+        "title": "Spanish"
+      }
+    ]
+  },
+  {
+    "slug": "ks3",
+    "title": "Key Stage 3",
+    "subjects": [
+      {
+        "slug": "art",
+        "title": "Art and design"
+      },
+      {
+        "slug": "citizenship",
+        "title": "Citizenship"
+      },
+      {
+        "slug": "computing",
+        "title": "Computing"
+      },
+      {
+        "slug": "cooking-nutrition",
+        "title": "Cooking and nutrition"
+      },
+      {
+        "slug": "design-technology",
+        "title": "Design and technology"
+      },
+      {
+        "slug": "english",
+        "title": "English"
+      },
+      {
+        "slug": "french",
+        "title": "French"
+      },
+      {
+        "slug": "geography",
+        "title": "Geography"
+      },
+      {
+        "slug": "german",
+        "title": "German"
+      },
+      {
+        "slug": "history",
+        "title": "History"
+      },
+      {
+        "slug": "maths",
+        "title": "Maths"
+      },
+      {
+        "slug": "music",
+        "title": "Music"
+      },
+      {
+        "slug": "physical-education",
+        "title": "Physical education"
+      },
+      {
+        "slug": "religious-education",
+        "title": "Religious education"
+      },
+      {
+        "slug": "science",
+        "title": "Science"
+      },
+      {
+        "slug": "spanish",
+        "title": "Spanish"
+      }
+    ]
+  },
+  {
+    "slug": "ks4",
+    "title": "Key Stage 4",
+    "subjects": [
+      {
+        "slug": "art",
+        "title": "Art and design"
+      },
+      {
+        "slug": "citizenship",
+        "title": "Citizenship"
+      },
+      {
+        "slug": "computing",
+        "title": "Computing"
+      },
+      {
+        "slug": "design-technology",
+        "title": "Design and technology"
+      },
+      {
+        "slug": "english",
+        "title": "English"
+      },
+      {
+        "slug": "french",
+        "title": "French"
+      },
+      {
+        "slug": "geography",
+        "title": "Geography"
+      },
+      {
+        "slug": "german",
+        "title": "German"
+      },
+      {
+        "slug": "history",
+        "title": "History"
+      },
+      {
+        "slug": "maths",
+        "title": "Maths"
+      },
+      {
+        "slug": "music",
+        "title": "Music"
+      },
+      {
+        "slug": "physical-education",
+        "title": "Physical education"
+      },
+      {
+        "slug": "religious-education",
+        "title": "Religious education"
+      },
+      {
+        "slug": "science",
+        "title": "Science"
+      },
+      {
+        "slug": "spanish",
+        "title": "Spanish"
+      }
+    ]
+  }
+]
