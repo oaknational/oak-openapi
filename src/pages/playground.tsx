@@ -1,4 +1,5 @@
 import dynamic from 'next/dynamic';
+import Head from 'next/head';
 import { SwaggerUIProps } from 'swagger-ui-react';
 import 'swagger-ui-react/swagger-ui.css';
 
@@ -9,6 +10,9 @@ const SwaggerUI = dynamic<SwaggerUIProps>(() => import('swagger-ui-react'), {
 export default function Page() {
   return (
     <>
+      <Head>
+        <title>Oak API Playground</title>
+      </Head>
       <style global jsx>{`
         .swagger-ui .model {
           font-size: 14px;
