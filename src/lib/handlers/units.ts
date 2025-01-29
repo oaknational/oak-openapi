@@ -108,8 +108,10 @@ export const getUnits = router({
         });
       }
 
+      const isUnitVariant = /-\d+$/.test(slug);
+
       let where;
-      if (/-\d+$/.test(slug)) {
+      if (isUnitVariant) {
         where = { slug: { _like: `${slug.replace(/-\d+$/, '-')}%` } };
       } else {
         where = { slug: { _eq: slug } };
@@ -147,7 +149,7 @@ export const getUnits = router({
 
       const sequenceData = res[sequenceView][0];
 
-      if (sequenceData.slug !== slug) {
+      if (isUnitVariant) {
         // RADAR this is a hack that we hope to remove when
         // published_mv_curriculum_sequence_b_13_0_12 is live
         // until then, we need to do the unit option dance
@@ -159,7 +161,7 @@ export const getUnits = router({
         if (unitOption) {
           sequenceData.slug = unitOption.slug;
           sequenceData.title = unitOption.title;
-          sequenceData.lessons = sequenceData.lessons;
+          sequenceData.lessons = unitOption.lessons;
           sequenceData.why_this_why_now = unitOption.why_this_why_now;
           sequenceData.description = unitOption.description;
         }
