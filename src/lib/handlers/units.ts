@@ -3,20 +3,14 @@ import { router } from '~/lib/trpc';
 import { TRPCError } from '@trpc/server';
 import {
   SequenceView,
-  UnitCurriculumView,
-  UnitVariantLessonsView,
   getClient,
   gql,
   sequenceView,
-  unitCurriculumView,
-  unitVariantLessonsView,
+  sequenceViewWhereInput,
 } from 'lib/owaClient';
 import { z } from 'zod';
 import { blockUnitForCopyrightText } from '../queryGate';
-import Timing from '../serverTimings';
 import { defaultCaching } from '../networkCache';
-
-const timing = new Timing();
 
 export const unitSchema = z.object({
   unitSlug: z.string(),
@@ -28,7 +22,7 @@ export const unitSchema = z.object({
   phaseSlug: z.string(),
   subjectSlug: z.string(),
   keyStageSlug: z.string(),
-  // notes: z.string(),
+  notes: z.string().optional(),
   description: z.string().optional(),
   // plannedNumberOfLessons: z.number(),
   priorKnowledgeRequirements: z.array(z.string()),
@@ -81,26 +75,7 @@ export const getUnits = router({
               'Articulate and justify answers, arguments and opinions',
               'Speak audibly and fluently with an increasing command of Standard English',
             ],
-            priorUnit: {
-              description:
-                "In 'Adverbial complex sentences', pupils built on from co-ordination to how to stretch a simple sentence with subordination and a second idea. In this unit, pupils will learn that the position of the subordinate clause in an adverbial complex sentence can vary.",
-              units: [
-                {
-                  unitSlug: 'adverbial-complex-sentences',
-                  unitTitle: 'Adverbial complex sentences',
-                },
-              ],
-            },
-            futureUnit: {
-              description:
-                "In this unit, pupils learn that the position of the subordinate clause in an adverbial complex sentence can vary. In 'Simple and progressive tense forms', pupils will write a variety of sentence structures in different tenses.",
-              units: [
-                {
-                  unitSlug: 'tense-forms-simple-progressive-and-perfect',
-                  unitTitle: 'Tense forms: simple, progressive and perfect',
-                },
-              ],
-            },
+
             unitLessons: [
               {
                 lessonSlug:
@@ -120,49 +95,31 @@ export const getUnits = router({
     })
     .output(unitSchema)
     .input(z.object({ unit: z.string({ description: 'The unit slug' }) }))
-    .query(async ({ input, ctx }) => {
-      const { res: response } = ctx;
-      let { unit: slug } = input;
+    .query(async ({ input }) => {
+      const { unit: slug } = input;
       const client = getClient();
 
-      timing.start('blockUnitForCopyrightText');
       const blocked = await blockUnitForCopyrightText(client, slug);
-      timing.end('blockUnitForCopyrightText');
 
       if (blocked) {
-        response.setHeader('Server-Timing', timing.toHeader(response));
         throw new TRPCError({
-          message: 'Unit not available for this query',
+          message: 'Unit not available for this query (blocked copyright text)',
           code: 'NOT_FOUND',
         });
       }
 
-      const variantSlug = slug;
-
-      if (/\-\d+$/.test(slug)) {
-        slug = slug.replace(/-\d+$/, '');
+      let where;
+      if (/-\d+$/.test(slug)) {
+        where = { slug: { _like: `${slug.replace(/-\d+$/, '-')}%` } };
+      } else {
+        where = { slug: { _eq: slug } };
       }
 
-      // 300 is the max: https://hasura.io/docs/2.0/caching/caching-config/#controlling-cache-lifetime
       const query = gql`
-        query getUnit($slug: String!, $variantSlug: String!) @cached(ttl: 300) {
-          ${unitCurriculumView}(where: { unitSlug: { _eq: $slug } }) {
-            unitSlug
-            unitTitle
-            unitTags
-            unitNotes
-            unitDescription
-            priorKnowledgeRequirements
-            unitNationalCurriculumContent
-            priorUnit
-            futureUnit
-            futureUnitDescription
-            priorUnitDescription
-            unitLessons
-          }
-
-          ${sequenceView}(where: { slug: { _eq: $variantSlug } }) {
+        query getUnit($where: ${sequenceViewWhereInput}) @cached(ttl: 300) {
+          ${sequenceView}(where: $where) {
             title
+            slug
             description
             keystage_slug
             lessons
@@ -172,49 +129,54 @@ export const getUnits = router({
             why_this_why_now
             year
           }
-
-          ${unitVariantLessonsView}(
-            where: { unit_slug: { _eq: $variantSlug } }
-          ) {
-            lesson_slug
-            lesson_title:lesson_data(path:"title")
-            supplementary_data
-            optionality:programme_fields(path:"optionality")
-            year_slug:programme_fields(path:"year_slug")
-            phase_slug:programme_fields(path:"phase_slug")
-            subject_slug:programme_fields(path:"subject_slug")
-            keystage_slug:programme_fields(path:"keystage_slug")
-          }
         }
       `;
 
-      timing.start('getUnit graphql query');
-      const res: UnitCurriculumView & UnitVariantLessonsView & SequenceView =
-        await client.request(query, { slug, variantSlug });
-      timing.end('getUnit graphql query');
-
-      response.setHeader('Server-Timing', timing.toHeader(response));
-
-      if (res[unitCurriculumView].length === 0) {
+      const res: SequenceView = await client.request(query, { where });
+      if (res[sequenceView].length === 0) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
       }
 
-      if (
-        res[unitVariantLessonsView].length === 0 &&
-        res[sequenceView].length === 0
-      ) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message:
-            'Unit requested is a parent unit with multiple unit options, please use the unit option slug instead.',
-        });
-      }
-
-      const root = res[unitCurriculumView][0];
-      const orderData = res[unitVariantLessonsView];
-      const additionalUnitData = orderData[0];
+      type RootUnitData = {
+        unitTitle: string;
+        tags: string[];
+        notes: string;
+        priorKnowledgeRequirements: string[];
+        nationalCurriculumContent: string[];
+      };
 
       const sequenceData = res[sequenceView][0];
+
+      if (sequenceData.slug !== slug) {
+        // RADAR this is a hack that we hope to remove when
+        // published_mv_curriculum_sequence_b_13_0_12 is live
+        // until then, we need to do the unit option dance
+
+        const unitOption = sequenceData.unit_options.find(
+          (unitOption) => unitOption.slug === slug,
+        );
+
+        if (unitOption) {
+          sequenceData.slug = unitOption.slug;
+          sequenceData.title = unitOption.title;
+          sequenceData.lessons = sequenceData.lessons;
+          sequenceData.why_this_why_now = unitOption.why_this_why_now;
+          sequenceData.description = unitOption.description;
+        }
+      }
+
+      // we populate from the sequence view
+      const root: RootUnitData = {
+        unitTitle: sequenceData.title,
+        tags: sequenceData.tags || [],
+        notes: sequenceData.notes,
+        priorKnowledgeRequirements: (
+          sequenceData.prior_knowledge_requirements || []
+        ).map(({ title }) => title),
+        nationalCurriculumContent: (
+          sequenceData.national_curriculum_content || []
+        ).map(({ title }) => title),
+      };
 
       type Metadata = {
         unitTitle: string;
@@ -237,54 +199,40 @@ export const getUnits = router({
       // TS: allow me to declare it empty first
       const metadata = {} as Metadata;
 
-      if (additionalUnitData) {
-        (metadata.unitTitle = additionalUnitData.optionality
-          ? additionalUnitData.optionality
-          : root.unitTitle),
-          (metadata.yearSlug = additionalUnitData.year_slug);
-        metadata.year = parseInt(additionalUnitData?.year_slug.split('-')[1]);
-        metadata.phaseSlug = additionalUnitData?.phase_slug;
-        metadata.subjectSlug = additionalUnitData?.subject_slug;
-        metadata.keyStageSlug = additionalUnitData?.keystage_slug;
-        metadata.unitLessons = orderData
-          .map((lesson) => ({
-            lessonSlug: lesson.lesson_slug,
-            lessonTitle: lesson.lesson_title,
-            lessonOrder: lesson.supplementary_data?.order_in_unit,
-          }))
-          .sort((a, b) => (a.lessonOrder || 0) - (b.lessonOrder || 0));
+      metadata.unitTitle = sequenceData.title;
+      metadata.description = sequenceData.description;
+      metadata.yearSlug = `year-${sequenceData.year}`;
+      metadata.year = parseInt(sequenceData.year, 10);
+      metadata.phaseSlug = sequenceData.phase_slug;
+      metadata.subjectSlug = sequenceData.subject_slug;
+      metadata.keyStageSlug = sequenceData.keystage_slug;
+      metadata.whyThisWhyNow = sequenceData.why_this_why_now;
+      metadata.unitLessons = sequenceData.lessons
+        .map((lesson) => ({
+          lessonSlug: lesson.slug,
+          lessonTitle: lesson.title,
+          lessonOrder: lesson.order,
+        }))
+        .sort((a, b) => (a.lessonOrder || 0) - (b.lessonOrder || 0));
 
-        if (sequenceData) {
-          metadata.description = sequenceData.description;
-          metadata.whyThisWhyNow = sequenceData.why_this_why_now;
+      if (!metadata.whyThisWhyNow) {
+        delete metadata.whyThisWhyNow;
+      }
+
+      if (sequenceData.unit_options.length > 0) {
+        // get the unitTitle from the unit_option who's slug matches the variantSlug
+        const unitOption = sequenceData.unit_options.find(
+          (unitOption) => unitOption.slug === slug,
+        );
+
+        if (unitOption) {
+          metadata.unitTitle = unitOption.title;
         }
-      } else if (sequenceData) {
-        // FIXME need to test optionality in cycle 2
-        metadata.unitTitle = sequenceData.title;
-        metadata.description = sequenceData.description;
-        metadata.yearSlug = `year-${sequenceData.year}`;
-        metadata.year = parseInt(sequenceData.year, 10);
-        metadata.phaseSlug = sequenceData.phase_slug;
-        metadata.subjectSlug = sequenceData.subject_slug;
-        metadata.keyStageSlug = sequenceData.keystage_slug;
-        metadata.whyThisWhyNow = sequenceData.why_this_why_now;
-        metadata.unitLessons = sequenceData.lessons
-          .map((lesson) => ({
-            lessonSlug: lesson.slug,
-            lessonTitle: lesson.title,
-            lessonOrder: lesson.order,
-          }))
-          .sort((a, b) => (a.lessonOrder || 0) - (b.lessonOrder || 0));
       }
 
       const reply: UnitSchema = {
-        unitSlug: variantSlug,
-        // unitOrder: additionalUnitData?.supplementary_data.unit_order,
-        tags: (root.unitTags || []).map((tag) => tag.title),
-        priorKnowledgeRequirements: root.priorKnowledgeRequirements || [],
-        nationalCurriculumContent: (
-          root.unitNationalCurriculumContent || []
-        ).map((content) => content.title),
+        unitSlug: slug,
+        ...root,
         ...metadata,
       };
 

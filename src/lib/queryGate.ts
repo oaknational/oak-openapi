@@ -15,15 +15,16 @@ import {
   lessonView,
   SequenceView,
   sequenceView,
+  sequenceViewWhereInput,
 } from './owaClient';
 
 const supportedSubjects = ['maths'];
-const supportedUnits: string[] = [
+const supportedAssetUnits: string[] = [
   'victorian-childhood-non-fiction-reading-and-writing',
 ];
 
 export const blockedSubjects = ['english'];
-export const allowedUnits = [
+export const allowedUnits = supportedAssetUnits.concat([
   'a-christmas-carol-narrative-writing-and-reading',
   'action-words',
   'ada-twist-scientist-reading-and-writing',
@@ -234,7 +235,7 @@ export const allowedUnits = [
   'writing-masters',
   'yoshi-the-stonecutter-reading',
   'zim-zam-zoom-by-james-carter-reading-poetry',
-];
+]);
 
 type KV = Record<string, string>;
 
@@ -355,7 +356,7 @@ export function isSubjectSupported(subject: string) {
 }
 
 export function isUnitSupported(unit: string) {
-  return supportedUnits.includes(unit);
+  return supportedAssetUnits.includes(unit);
 }
 
 export async function getSubjectAndUnitForLesson(
@@ -390,10 +391,18 @@ async function getSubjectForUnit(
   client: GraphQLClient,
   slug: string,
 ): Promise<{ subjectSlug: string } | false> {
+  let where;
+
+  if (/-\d+$/.test(slug)) {
+    where = { slug: { _like: `${slug.replace(/-\d+$/, '-')}%` } };
+  } else {
+    where = { slug: { _eq: slug } };
+  }
+
   const query = gql`
-  query ($slug: String!) @cached(ttl: 300) {
+  query ($where: ${sequenceViewWhereInput}) @cached(ttl: 300) {
     ${sequenceView}(
-      where: { slug: { _eq: $slug } }
+      where: $where
       limit: 1
     ) {
       subject_slug
@@ -402,7 +411,7 @@ async function getSubjectForUnit(
   `;
 
   const res: SequenceView = await client.request(query, {
-    slug,
+    where,
   });
 
   if (!res[sequenceView].length) {

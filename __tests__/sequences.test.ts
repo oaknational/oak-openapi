@@ -3,7 +3,7 @@ import { authedCaller } from './helper';
 import { UnitNoOptions, UnitOptions } from '~/lib/handlers/sequences';
 
 test('sequence with subjects', async () => {
-  const caller = authedCaller();
+  const { caller } = authedCaller();
   const slug = 'english-primary';
   const res = await caller.getSequences.getSequenceUnits({ sequence: slug });
 
@@ -37,7 +37,7 @@ test('sequence with subjects', async () => {
 });
 
 test('sequence with subjects & tiers', async () => {
-  const caller = authedCaller();
+  const { caller } = authedCaller();
   const slug = 'science-secondary-aqa';
   const res = await caller.getSequences.getSequenceUnits({ sequence: slug });
 
@@ -84,7 +84,7 @@ test('sequence with subjects & tiers', async () => {
 });
 
 test('sequence with tiers', async () => {
-  const caller = authedCaller();
+  const { caller } = authedCaller();
   const slug = 'maths-secondary';
   const res = await caller.getSequences.getSequenceUnits({ sequence: slug });
 
@@ -114,7 +114,7 @@ test('sequence with tiers', async () => {
 });
 
 test('sequence with unit optionality', async () => {
-  const caller = authedCaller();
+  const { caller } = authedCaller();
   const slug = 'english-primary';
   const res = await caller.getSequences.getSequenceUnits({
     sequence: slug,
