@@ -3,7 +3,7 @@ import { authedCaller } from './helper';
 import * as subjectConsts from '~/lib/keyStageAndSubjects';
 
 test('subject with sequences and additional data', async () => {
-  const caller = authedCaller();
+  const { caller } = authedCaller();
 
   const res = await caller.getSubjects.getSubject({ subject: 'maths' });
   expect(Array.isArray(res)).toBeFalsy();
@@ -20,7 +20,7 @@ test('subject with sequences and additional data', async () => {
 });
 
 test('years endpoint', async () => {
-  const caller = authedCaller();
+  const { caller } = authedCaller();
 
   const res = await caller.getSubjects.getSubjectYears({ subject: 'maths' });
   expect(Array.isArray(res)).toBeTruthy();
@@ -29,7 +29,7 @@ test('years endpoint', async () => {
 });
 
 test('cannot access RSHE', async () => {
-  const caller = authedCaller();
+  const { caller } = authedCaller();
 
   await expect(
     async () => await caller.getSubjects.getSubject({ subject: 'rshe-pshe' }),
@@ -37,7 +37,7 @@ test('cannot access RSHE', async () => {
 });
 
 test('sequence array has full metadata', async () => {
-  const caller = authedCaller();
+  const { caller } = authedCaller();
 
   const res = await caller.getSubjects.getSubjectSequence({
     subject: 'computing',

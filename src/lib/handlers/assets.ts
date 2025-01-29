@@ -15,6 +15,9 @@ import {
   getClient,
   lessonView,
   unitVariantLessonsView,
+  sequenceView,
+  sequenceViewWhereInput,
+  SequenceView,
 } from '../owaClient';
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
 import { assetBaseVideoUrl, baseUrl } from '../baseUrl';
@@ -39,6 +42,7 @@ import {
   checkQueryAllowedAssets,
   modifySubject,
 } from '~/lib/queryGate';
+import { sequenceWhere } from './sequences';
 
 export const downloadTypeEnum = z.enum(
   [
@@ -105,7 +109,7 @@ async function assetsForLesson(lessonSlug: string) {
         lessonTitle
         exitQuiz
         exitQuizAnswers
-        slideDeck:slidedeck
+        slideDeck: slidedeck
         starterQuizAnswers
         starterQuiz: starter_quiz
         supplementaryResource
@@ -251,11 +255,220 @@ function assetDownloads(
     });
   }
 
-  return assetUrls.filter((asset) => !filter || asset.type === filter);
+  const result = assetUrls.filter((asset) => !filter || asset.type === filter);
+
+  return result;
 }
 
 export const getAssets = router({
-  getUnitAssets: protectedProcedure
+  getSequenceAssets: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        tags: ['assets'],
+        path: '/sequences/{sequence}/assets',
+        description:
+          'This endpoint returns signed download URLs and types for the assets currently available on Oak for a given sequence',
+        example: {
+          response: [
+            {
+              lessonSlug: 'using-numerals',
+              lessonTitle: 'Using numerals',
+              assets: [
+                {
+                  label: 'Worksheet',
+                  type: 'worksheet',
+                  url: `${baseUrl}/lessons/using-numerals/assets/worksheet`,
+                },
+                {
+                  label: 'Worksheet Answers',
+                  type: 'worksheetAnswers',
+                  url: `${baseUrl}/lessons/using-numerals/assets/worksheetAnswers`,
+                },
+                {
+                  label: 'Video',
+                  type: 'video',
+                  url: `${baseUrl}/lessons/using-numerals/assets/video`,
+                },
+              ],
+            },
+          ],
+          request: {
+            sequence: 'maths-secondary',
+          },
+        },
+      },
+    })
+    .input(
+      z.object({
+        sequence: z.string(),
+        year: z.number().optional(),
+        type: downloadTypeEnum.optional(),
+        offset: z.number().optional().default(0),
+        limit: z
+          .number({
+            description: 'Limit the number of results returned, max 100',
+          })
+          .lte(100)
+          .optional()
+          .default(10),
+      }),
+    )
+    .output(lessonsAssetsType)
+    .query(async ({ input, ctx }) => {
+      const { limit, offset, sequence, year, type } = input;
+      const client = getClient();
+      const where = sequenceWhere(sequence);
+
+      const query = gql`
+      query ($where: ${sequenceViewWhereInput}!) {
+        ${sequenceView}(
+          where: $where
+          order_by: { order: asc }
+        ) {
+          lessons
+        }
+      }`;
+
+      const res: SequenceView = await client.request(query, { where });
+      const rawData = res[sequenceView];
+
+      // unique lesson slugs
+      const lessonSlugs = new Set(
+        rawData
+          .map((unit) => {
+            return unit.lessons.map((lesson) => lesson.slug);
+          })
+          .flat(),
+      );
+
+      const downloadsQuery = gql`
+        query GetDownloads($lessonSlugs: [String!]!, $limit: Int!, $offset: Int!) {
+          ${downloadView}(
+            where: {
+              lessonSlug: { _in: $lessonSlugs }
+            }
+            limit: $limit
+            offset: $offset
+          ) {
+            lessonSlug
+            lessonTitle
+            exitQuiz
+            exitQuizAnswers
+            lessonSlug
+            lessonTitle
+            slideDeck: slidedeck
+            starterQuizAnswers
+            starterQuiz: starter_quiz
+            supplementaryResource
+            video: videos
+            worksheet
+            worksheetAnswers
+          }
+        }`;
+
+      const downloadsViewResult: DownloadView = await graphqlClient.request(
+        downloadsQuery,
+        {
+          lessonSlugs: Array.from(lessonSlugs),
+          limit,
+          offset,
+        },
+      );
+
+      const downloads = downloadsViewResult[downloadView];
+
+      let next = null;
+      if (downloads.length === limit) {
+        next = `${baseUrl}${ctx.req.url}?offset=${
+          offset + limit
+        }&limit=${limit}`;
+        if (sequence) {
+          next += `&sequence=${sequence}`;
+        }
+        if (year) {
+          next += `&year=${year}`;
+        }
+        if (type) {
+          next += `&type=${type}`;
+        }
+        ctx.res.setHeader('link', `<${next}>; rel="next"`);
+      }
+
+      if (!downloads || downloads.length === 0 || !downloads[0]) {
+        throw new TRPCError({
+          message: 'No lessons found',
+          code: 'NOT_FOUND',
+        });
+      }
+
+      const tpcQuery = gql`
+        query GetTPC($lessonSlugs: [String!]!) {
+          ${lessonView}(
+            where: {
+              lessonSlug: { _in: $lessonSlugs }
+            }
+          ) {
+            lessonSlug
+            tpcWorks
+            tpcMedia
+          }
+        }
+      `;
+
+      const tpcViewResult: LessonView = await graphqlClient.request(tpcQuery, {
+        lessonSlugs: downloads.map((d) => d.lessonSlug),
+      });
+
+      const tpc = tpcViewResult[lessonView];
+
+      const result = downloads.map((d) => {
+        const lessonSlug = d.lessonSlug;
+
+        const attribution = tpc.find((l) => l.lessonSlug === lessonSlug);
+        let mappedAttribution: string[] = [];
+
+        if (attribution) {
+          mappedAttribution = [
+            ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
+            ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
+          ]
+            .filter((string) => string !== undefined)
+            .filter((string) => string !== '');
+        }
+
+        return {
+          lessonSlug,
+          lessonTitle: d.lessonTitle,
+          attribution: mappedAttribution.length ? mappedAttribution : undefined,
+          assets: assetDownloads(lessonSlug, d, type),
+        };
+      });
+
+      return result;
+    }),
+  // getUnitAssets: protectedProcedure
+  //   .meta({
+  //     openapi: {
+  //       method: 'GET',
+  //       tags: ['assets'],
+  //       path: '/units/{unit}/assets',
+  //       description:
+  //         'This endpoint returns signed download URLs and types for the assets currently available on Oak for a given unit',
+  //       example: {
+  //         request: {
+  //           sequence: 'perimeter-and-area',
+  //         },
+  //       },
+  //     },
+  //   })
+  //   .input(z.object({ unit: z.string() }))
+  //   .output(z.any()) // lessonsAssetsType
+  //   .query(async ({ input }) => {
+  //     const { unit } = input;
+  //     return { unit };
+  //   }),
+  getSubjectAssets: protectedProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -422,7 +635,7 @@ export const getAssets = router({
             exitQuizAnswers
             lessonSlug
             lessonTitle
-            slidedeck
+            slideDeck: slidedeck
             starterQuizAnswers
             starterQuiz: starter_quiz
             supplementaryResource
@@ -481,7 +694,9 @@ export const getAssets = router({
           mappedAttribution = [
             ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
             ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
-          ].filter((string) => string !== undefined);
+          ]
+            .filter((string) => string !== undefined)
+            .filter((string) => string !== '');
         }
 
         return {
@@ -618,17 +833,18 @@ export const getAssets = router({
         if (ext === 'm3u8') {
           // redirect to the video stream
           url.hostname = new URL(assetBaseVideoUrl).hostname;
-          ctx.res.setHeader('Location', url.toString());
-          ctx.res.statusCode = 302;
+          ctx.res.writeHead(302, { Location: url.toString() });
+          ctx.res.end();
           return undefined;
         }
 
         const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext}`;
 
         if (!response.ok) {
-          throw new Error(
-            `Failed to fetch: ${response.status} ${response.statusText}`,
-          );
+          throw new TRPCError({
+            message: `Failed to fetch: ${response.status} ${response.statusText}`,
+            code: 'INTERNAL_SERVER_ERROR',
+          });
         }
 
         // Set headers for streaming the file to the client

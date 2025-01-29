@@ -11,7 +11,33 @@ export const t = initTRPC
   .create({
     transformer: superjson,
     errorFormatter({ shape, error }) {
-      console.error('trpc error', { shape, error });
+      if (error.code === 'INTERNAL_SERVER_ERROR') {
+        if (error.cause && Array.isArray((error.cause as ZodError).errors)) {
+          const cause = error.cause as ZodError;
+          const errors = cause.errors.map(
+            (err) => `${err.message}: ${err.path.join('.')} (${err.code})`,
+          );
+
+          console.error('ZodError', {
+            errors,
+            trpcPath: shape.data.path,
+          });
+        } else {
+          console.error('trpc error', {
+            code: error.code,
+            message: shape.message,
+            trpcPath: shape.data.path,
+            line: shape.data.stack?.split('\n')[1].trim(),
+          });
+        }
+      } else {
+        console.error('trpc error', {
+          code: error.code,
+          message: shape.message,
+          trpcPath: shape.data.path,
+          // line: shape.data.stack?.split('\n')[1].trim(),
+        });
+      }
 
       // this shouldn't happen before landing in production, but
       // by putting this ahead of the generic catch all ISE500 handler

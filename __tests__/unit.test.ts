@@ -12,6 +12,7 @@ test('get cycle 2 (2024-2025) unit', async () => {
   });
 
   expect(Array.isArray(res)).toBe(false);
+  expect(res).toHaveProperty('unitSlug');
 });
 
 async function getUnitOptionsForSequence(sequence: string, year: number) {
@@ -85,8 +86,10 @@ test('optionality unit 2024-25 cohort', async () => {
 
   const unitOptions = await getUnitOptionsForSequence('art-secondary', 10);
 
-  const unit = unitOptions[0].unitSlug;
-  const res = await caller.getUnits.getUnit({ unit });
-  expect(res).toHaveProperty('unitSlug');
-  expect(res.unitSlug).toBe(unit);
+  // check all the units
+  for (const { unitSlug: unit } of unitOptions) {
+    const res = await caller.getUnits.getUnit({ unit });
+    expect(res).toHaveProperty('unitSlug');
+    expect(res.unitSlug).toBe(unit);
+  }
 });
