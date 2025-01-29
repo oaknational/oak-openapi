@@ -81,7 +81,10 @@ export type UnitVariantLessonsView = {
 };
 
 export type Sequence = TitleSlug & {
-  unit_options: TitleSlug[];
+  unit_options: (TitleSlug & {
+    why_this_why_now: string;
+    description: string;
+  })[];
   lessons: (TitleSlug & { order: number })[];
   title: string;
   description: string;

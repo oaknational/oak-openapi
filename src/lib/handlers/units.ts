@@ -1,7 +1,13 @@
 import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 import { TRPCError } from '@trpc/server';
-import { SequenceView, getClient, gql, sequenceView } from 'lib/owaClient';
+import {
+  SequenceView,
+  getClient,
+  gql,
+  sequenceView,
+  sequenceViewWhereInput,
+} from 'lib/owaClient';
 import { z } from 'zod';
 import { blockUnitForCopyrightText } from '../queryGate';
 import { defaultCaching } from '../networkCache';
@@ -90,28 +96,28 @@ export const getUnits = router({
     .output(unitSchema)
     .input(z.object({ unit: z.string({ description: 'The unit slug' }) }))
     .query(async ({ input }) => {
-      let { unit: slug } = input;
+      const { unit: slug } = input;
       const client = getClient();
 
       const blocked = await blockUnitForCopyrightText(client, slug);
 
       if (blocked) {
         throw new TRPCError({
-          message: 'Unit not available for this query',
+          message: 'Unit not available for this query (blocked copyright text)',
           code: 'NOT_FOUND',
         });
       }
 
-      const variantSlug = slug;
-
-      if (/\-\d+$/.test(slug)) {
-        slug = slug.replace(/-\d+$/, '');
+      let where;
+      if (/-\d+$/.test(slug)) {
+        where = { slug: { _like: `${slug.replace(/-\d+$/, '-')}%` } };
+      } else {
+        where = { slug: { _eq: slug } };
       }
 
-      // 300 is the max: https://hasura.io/docs/2.0/caching/caching-config/#controlling-cache-lifetime
       const query = gql`
-        query getUnit($variantSlug: String!) @cached(ttl: 300) {
-          ${sequenceView}(where: { slug: { _eq: $variantSlug } }) {
+        query getUnit($where: ${sequenceViewWhereInput}) @cached(ttl: 300) {
+          ${sequenceView}(where: $where) {
             title
             slug
             description
@@ -126,7 +132,7 @@ export const getUnits = router({
         }
       `;
 
-      const res: SequenceView = await client.request(query, { variantSlug });
+      const res: SequenceView = await client.request(query, { where });
       if (res[sequenceView].length === 0) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
       }
@@ -140,6 +146,24 @@ export const getUnits = router({
       };
 
       const sequenceData = res[sequenceView][0];
+
+      if (sequenceData.slug !== slug) {
+        // RADAR this is a hack that we hope to remove when
+        // published_mv_curriculum_sequence_b_13_0_12 is live
+        // until then, we need to do the unit option dance
+
+        const unitOption = sequenceData.unit_options.find(
+          (unitOption) => unitOption.slug === slug,
+        );
+
+        if (unitOption) {
+          sequenceData.slug = unitOption.slug;
+          sequenceData.title = unitOption.title;
+          sequenceData.lessons = sequenceData.lessons;
+          sequenceData.why_this_why_now = unitOption.why_this_why_now;
+          sequenceData.description = unitOption.description;
+        }
+      }
 
       // we populate from the sequence view
       const root: RootUnitData = {
@@ -198,7 +222,7 @@ export const getUnits = router({
       if (sequenceData.unit_options.length > 0) {
         // get the unitTitle from the unit_option who's slug matches the variantSlug
         const unitOption = sequenceData.unit_options.find(
-          (unitOption) => unitOption.slug === variantSlug,
+          (unitOption) => unitOption.slug === slug,
         );
 
         if (unitOption) {
@@ -207,7 +231,7 @@ export const getUnits = router({
       }
 
       const reply: UnitSchema = {
-        unitSlug: variantSlug,
+        unitSlug: slug,
         ...root,
         ...metadata,
       };
