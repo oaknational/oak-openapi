@@ -195,6 +195,17 @@ export const getUnits = router({
         delete metadata.whyThisWhyNow;
       }
 
+      if (sequenceData.unit_options.length > 0) {
+        // get the unitTitle from the unit_option who's slug matches the variantSlug
+        const unitOption = sequenceData.unit_options.find(
+          (unitOption) => unitOption.slug === variantSlug,
+        );
+
+        if (unitOption) {
+          metadata.unitTitle = unitOption.title;
+        }
+      }
+
       const reply: UnitSchema = {
         unitSlug: variantSlug,
         ...root,
