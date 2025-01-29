@@ -86,8 +86,10 @@ test('optionality unit 2024-25 cohort', async () => {
 
   const unitOptions = await getUnitOptionsForSequence('art-secondary', 10);
 
-  const unit = unitOptions[0].unitSlug;
-  const res = await caller.getUnits.getUnit({ unit });
-  expect(res).toHaveProperty('unitSlug');
-  expect(res.unitSlug).toBe(unit);
+  // check all the units
+  for (const { unitSlug: unit } of unitOptions) {
+    const res = await caller.getUnits.getUnit({ unit });
+    expect(res).toHaveProperty('unitSlug');
+    expect(res.unitSlug).toBe(unit);
+  }
 });
