@@ -17,7 +17,7 @@ export const subjectSlugs = Array.from(
       [],
     ),
   ),
-);
+).sort();
 
 export const subjectsWithKeyStages = () => {
   const obj = getSource().reduce(
@@ -55,7 +55,7 @@ export const subjects = Array.from(
       .flat()
       .map(({ title }) => title),
   ),
-);
+).sort((a, b) => a.localeCompare(b));
 
 export type SourceRecord = {
   slug: string;
