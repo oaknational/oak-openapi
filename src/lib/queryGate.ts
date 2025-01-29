@@ -15,6 +15,7 @@ import {
   lessonView,
   SequenceView,
   sequenceView,
+  sequenceViewWhereInput,
 } from './owaClient';
 
 const supportedSubjects = ['maths'];
@@ -390,10 +391,18 @@ async function getSubjectForUnit(
   client: GraphQLClient,
   slug: string,
 ): Promise<{ subjectSlug: string } | false> {
+  let where;
+
+  if (/-\d+$/.test(slug)) {
+    where = { slug: { _like: `${slug.replace(/-\d+$/, '-')}%` } };
+  } else {
+    where = { slug: { _eq: slug } };
+  }
+
   const query = gql`
-  query ($slug: String!) @cached(ttl: 300) {
+  query ($where: ${sequenceViewWhereInput}) @cached(ttl: 300) {
     ${sequenceView}(
-      where: { slug: { _eq: $slug } }
+      where: $where
       limit: 1
     ) {
       subject_slug
@@ -402,7 +411,7 @@ async function getSubjectForUnit(
   `;
 
   const res: SequenceView = await client.request(query, {
-    slug,
+    where,
   });
 
   if (!res[sequenceView].length) {
