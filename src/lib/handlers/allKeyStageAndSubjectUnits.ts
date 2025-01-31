@@ -2,8 +2,9 @@ import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 import { gql } from 'graphql-request';
 import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
-import { LessonView, getClient, lessonView } from 'lib/owaClient';
+import { SequenceView, getClient, sequenceView } from 'lib/owaClient';
 import { z } from 'zod';
+import { Unit, unitSchema } from './sequences';
 
 export const getAllKeyStageAndSubjectUnits = router({
   getAllKeyStageAndSubjectUnits: protectedProcedure
@@ -52,18 +53,7 @@ export const getAllKeyStageAndSubjectUnits = router({
         z.object({
           yearSlug: z.string({ description: 'Year group slug' }),
           yearTitle: z.string({ description: 'Year group title' }),
-          units: z.array(
-            z.object({
-              unitSlug: z.string({ description: 'Unit slug' }),
-              unitTitle: z.string({ description: 'Unit title' }),
-              unitOrder: z.number({ description: 'Unit order' }),
-              unitOptionParentSlug: z
-                .string({
-                  description: 'Parent slug for optional unit variants',
-                })
-                .optional(),
-            }),
-          ),
+          units: z.array(unitSchema),
         }),
       ),
     )
@@ -71,28 +61,24 @@ export const getAllKeyStageAndSubjectUnits = router({
       const keyStage = decodeURIComponent(input.keyStage);
       const subject = decodeURIComponent(input.subject);
 
-      const view = lessonView;
-
       // FIXME this query is actually getting every lesson, not every unit
       // so I do some data munging to get the unique units, moreover, it's
       // kind of wasteful to do the full query
       const query = gql`
         query ($keyStage: String!, $subject: String!) {
-          ${view}(
+          ${sequenceView}(
             where: {
-              keyStageSlug: { _eq: $keyStage }
-              subjectSlug: { _eq: $subject }
-              isLegacy: { _eq: false }
+              keystage_slug: { _eq: $keyStage }
+              subject_slug: { _eq: $subject }
+              state: { _eq: "published" }
             }
-            distinct_on: unitSlug
           ) {
-            unitSlug
-            unitTitle
-            unitOrder
-            yearSlug
-            yearTitle
-            unitVariantId
-            nullUnitVariantId
+            slug
+            title
+            order
+            year
+            unit_options
+            order
           }
         }
       `;
@@ -103,65 +89,51 @@ export const getAllKeyStageAndSubjectUnits = router({
       };
 
       const graphqlClient = getClient();
-      const res: LessonView = await graphqlClient.request(query, variables);
+      const res: SequenceView = await graphqlClient.request(query, variables);
 
-      if (res[lessonView].length === 0) {
+      if (res[sequenceView].length === 0) {
         return []; // unlikely, but sure.
       }
 
-      type Unit = {
-        unitSlug: string;
-        unitTitle: string;
-        unitOrder: number;
-        unitOptionParentSlug?: string;
-      };
-
-      type UnitRecord = Unit & {
-        yearSlug: string;
-        yearTitle: string;
-        nullUnitVariantId: number;
-        unitVariantId: number;
-      };
-      const units = res[lessonView] as UnitRecord[];
-
-      const optionalUnitParents: Set<string> = new Set();
+      const units = res[sequenceView];
 
       const result = units.reduce(
         (acc, unit) => {
-          if (!acc[unit.yearSlug]) {
-            acc[unit.yearSlug] = {
-              yearSlug: unit.yearSlug,
-              yearTitle: unit.yearTitle,
+          const yearSlug = `year-${unit.year}`;
+          const yearTitle = `Year ${unit.year}`;
+          if (!acc[yearSlug]) {
+            acc[yearSlug] = {
+              yearSlug,
+              yearTitle,
               units: [],
             };
           }
 
           const {
-            unitSlug,
-            unitTitle,
-            unitOrder,
-            unitVariantId,
-            nullUnitVariantId,
+            slug: unitSlug,
+            title: unitTitle,
+            order: unitOrder,
+            unit_options: unitOptions,
           } = unit;
 
-          const res: Unit = {
-            unitSlug,
-            unitTitle,
-            unitOrder,
-          };
-
-          if (unitVariantId !== nullUnitVariantId) {
-            // then we have an optional variant, so we need to add the parent slug
-            res.unitOptionParentSlug = units.find(
-              (u) => u.unitVariantId === nullUnitVariantId,
-            )?.unitSlug;
-
-            if (res.unitOptionParentSlug) {
-              optionalUnitParents.add(res.unitOptionParentSlug);
-            }
+          if (unitOptions && unitOptions.length > 0) {
+            acc[yearSlug].units.push({
+              unitTitle,
+              unitOrder,
+              unitOptions: unitOptions.map((unitOption) => {
+                return {
+                  unitSlug: unitOption.slug,
+                  unitTitle: unitOption.title,
+                };
+              }),
+            });
+          } else {
+            acc[yearSlug].units.push({
+              unitSlug,
+              unitTitle,
+              unitOrder,
+            });
           }
-
-          acc[unit.yearSlug].units.push(res);
 
           return acc;
         },
@@ -184,15 +156,7 @@ export const getAllKeyStageAndSubjectUnits = router({
       });
       for (const key of keys) {
         const year = result[key];
-        year.units = year.units
-          .sort((a, b) => a.unitOrder - b.unitOrder)
-          .filter((u) => {
-            if (optionalUnitParents.has(u.unitSlug)) {
-              return false;
-            }
-
-            return true;
-          });
+        year.units = year.units.sort((a, b) => a.unitOrder - b.unitOrder);
         sorted.push(year);
       }
 

@@ -10,15 +10,21 @@ allow access to the following lessons:
 */
 
 import { gql, GraphQLClient } from 'graphql-request';
-import { LessonView, lessonView } from './owaClient';
+import {
+  LessonView,
+  lessonView,
+  SequenceView,
+  sequenceView,
+  sequenceViewWhereInput,
+} from './owaClient';
 
 const supportedSubjects = ['maths'];
-const supportedUnits: string[] = [
+const supportedAssetUnits: string[] = [
   'victorian-childhood-non-fiction-reading-and-writing',
 ];
 
 export const blockedSubjects = ['english'];
-export const allowedUnits = [
+export const allowedUnits = supportedAssetUnits.concat([
   'a-christmas-carol-narrative-writing-and-reading',
   'action-words',
   'ada-twist-scientist-reading-and-writing',
@@ -229,7 +235,7 @@ export const allowedUnits = [
   'writing-masters',
   'yoshi-the-stonecutter-reading',
   'zim-zam-zoom-by-james-carter-reading-poetry',
-];
+]);
 
 type KV = Record<string, string>;
 
@@ -282,6 +288,7 @@ export async function blockUnitForCopyrightText(
 ) {
   // it's possible we're dealing with an unit optional, which always end in a
   // number, so we'll remove that for the moment, and then check
+
   if (/\-\d+$/.test(unitSlug)) {
     if (allowedUnits.includes(unitSlug.replace(/-\d+$/, ''))) {
       return false;
@@ -349,7 +356,7 @@ export function isSubjectSupported(subject: string) {
 }
 
 export function isUnitSupported(unit: string) {
-  return supportedUnits.includes(unit);
+  return supportedAssetUnits.includes(unit);
 }
 
 export async function getSubjectAndUnitForLesson(
@@ -384,26 +391,34 @@ async function getSubjectForUnit(
   client: GraphQLClient,
   slug: string,
 ): Promise<{ subjectSlug: string } | false> {
+  let where;
+
+  if (/-\d+$/.test(slug)) {
+    where = { slug: { _like: `${slug.replace(/-\d+$/, '-')}%` } };
+  } else {
+    where = { slug: { _eq: slug } };
+  }
+
   const query = gql`
-  query ($slug: String!) @cached(ttl: 300) {
-    ${lessonView}(
-      where: { unitSlug: { _eq: $slug }, isLegacy: { _eq: false } }
+  query ($where: ${sequenceViewWhereInput}) @cached(ttl: 300) {
+    ${sequenceView}(
+      where: $where
       limit: 1
     ) {
-      subjectSlug
+      subject_slug
     }
   }
   `;
 
-  const res: LessonView = await client.request(query, {
-    slug,
+  const res: SequenceView = await client.request(query, {
+    where,
   });
 
-  if (!res[lessonView].length) {
+  if (!res[sequenceView].length) {
     return false;
   }
 
-  const { subjectSlug = '' } = res[lessonView][0];
+  const { subject_slug: subjectSlug = '' } = res[sequenceView][0];
 
   return { subjectSlug };
 }

@@ -274,17 +274,6 @@ function formatQuestion(
   question: DBQuestion,
   imagesAllowed: boolean = false,
 ): Question | undefined {
-  // FIXME this is losing the image
-  /*
-  questionStem: [
-    {
-      text: 'What is the size of the largest angle in the triangle formed from these three squares?',
-      type: 'text'
-    },
-    { type: 'image', image_object: [Object] }
-  ],
-
-  */
   const questionText = question.questionStem
     .filter((_) => _.type === 'text')
     .map((_) => _.text)

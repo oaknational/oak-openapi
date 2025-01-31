@@ -1,3 +1,6 @@
+set -a
+. ./.env
+set +a
 ROOT=http://localhost:2727/api/v0
 
 URL=$1
