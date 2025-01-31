@@ -113,8 +113,10 @@ export type Sequence = TitleSlug & {
 };
 
 export type UnitVariantLesson = {
-  lesson_slug: string;
-  lesson_title: string;
+  unit_title: string; // via unit_data(path:"title")
+  unit_slug: string;
+  lesson_slug: string; // via lesson_data(path: "slug")
+  lesson_title: string; // via lesson_data(path: "title")
   year_slug: string;
   phase_slug: string;
   keystage_slug: string;

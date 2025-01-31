@@ -1,7 +1,13 @@
 import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
-import { LessonView, getClient, gql, lessonView } from 'lib/owaClient';
+import {
+  UnitVariantLessonsView,
+  getClient,
+  gql,
+  lessonView,
+  unitVariantLessonsView,
+} from 'lib/owaClient';
 import { z } from 'zod';
 import { baseUrl } from '../baseUrl';
 
@@ -91,7 +97,7 @@ export const getKeyStageSubjectLessons = router({
       const client = getClient();
 
       let query;
-      let variables: Record<string, string | number>;
+      let variables: Record<string, string | number | object>;
 
       if (unit) {
         query = gql`
@@ -129,36 +135,40 @@ export const getKeyStageSubjectLessons = router({
         };
       } else {
         query = gql`
-        query ($keyStage: String!, $subject: String!, $offset: Int!
-          $limit: Int!) {
-          ${lessonView}(
+        query ($filter: jsonb!, $offset: Int! $limit: Int!) {
+          ${unitVariantLessonsView}(
             where: {
-              keyStageSlug: { _eq: $keyStage }
-              subjectSlug: { _eq: $subject }
-              isLegacy: { _eq: false }
+              programme_fields: {
+                _contains: $filter
+              }
+              is_legacy: { _eq: false }
             },
             offset: $offset,
             limit: $limit,
-            order_by: {unitSlug: asc}
+            order_by: {unit_slug: asc}
           ) {
-            lessonSlug
-            lessonTitle
-            unitSlug,
-            unitTitle
+            lesson_slug: lesson_data(path: "slug")
+            lesson_title: lesson_data(path: "title")
+            unit_slug
+            unit_title:unit_data(path:"title")
           }
         }
       `;
 
         variables = {
-          keyStage,
-          subject,
+          filter: {
+            subject_slug: subject,
+          },
           offset,
           limit,
         };
       }
 
-      const res = (await client.request(query, variables)) as LessonView;
-      const lessons = res[lessonView];
+      const res = (await client.request(
+        query,
+        variables,
+      )) as UnitVariantLessonsView;
+      const lessons = res[unitVariantLessonsView];
 
       if (lessons.length === 0) {
         return [];
@@ -177,7 +187,15 @@ export const getKeyStageSubjectLessons = router({
 
       // transform to be an array of the units with a list of lessons
       const units = lessons.reduce(
-        (acc, { unitSlug, unitTitle, lessonSlug, lessonTitle }) => {
+        (
+          acc,
+          {
+            unit_slug: unitSlug,
+            unit_title: unitTitle,
+            lesson_slug: lessonSlug,
+            lesson_title: lessonTitle,
+          },
+        ) => {
           const unit = acc.find((u) => u.unitSlug === unitSlug);
 
           // this is never true, but keeps TypeScript quiet

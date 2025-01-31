@@ -9,7 +9,6 @@ import {
   SubjectPhaseView,
   subjectPhaseView,
 } from '../owaClient';
-import { blockedSubjects } from '../blockedContent';
 import { TRPCError } from '@trpc/server';
 
 const input = z.object({
@@ -127,12 +126,12 @@ function yearsFromKeyStages(
 }
 
 async function getSubjectPhase(subject: string): Promise<SubjectPhase> {
-  if (blockedSubjects.includes(subject)) {
-    throw new TRPCError({
-      message: 'Subject not available',
-      code: 'NOT_FOUND',
-    });
-  }
+  // if (blockedSubjects.includes(subject)) {
+  //   throw new TRPCError({
+  //     message: 'Subject not available',
+  //     code: 'NOT_FOUND',
+  //   });
+  // }
 
   const client = getClient();
   const query = gql`
@@ -220,12 +219,12 @@ export const getSubjects = router({
     .output(subjectsResult)
     .query(async () => {
       const client = getClient();
+      // slug: { _nin: $blocked }
       const query = gql`
-      query ($blocked: [String!]!, $currentCycle: String!) @cached(ttl: 300) {
+      query ($currentCycle: String!) @cached(ttl: 300) {
         ${subjectPhaseView}(
           where: {
             cycle: { _eq: $currentCycle }
-            slug: { _nin: $blocked }
           }
           order_by: { display_order: asc }
         ) {
@@ -240,7 +239,6 @@ export const getSubjects = router({
 
       const res: SubjectPhaseView = await client.request(query, {
         currentCycle,
-        blocked: blockedSubjects,
       });
 
       if (

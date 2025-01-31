@@ -15,6 +15,8 @@ import {
 import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
 import { examBoards } from '../oakConsts';
 import slugify from 'slugify';
+import { blockedSubjects } from '../blockedContent';
+import { TRPCError } from '@trpc/server';
 
 toSorted.shim();
 
@@ -255,6 +257,15 @@ export const getSequences = router({
       const client = getClient();
 
       const yearFilter = input.year || 0;
+
+      const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
+
+      if (blockedSubjects.includes(subjectSlug)) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `The subject "${subjectSlug}" is not currently available`,
+        });
+      }
 
       const where = sequenceWhere(input.sequence);
 
