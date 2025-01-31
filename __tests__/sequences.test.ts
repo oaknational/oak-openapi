@@ -153,3 +153,49 @@ test('sequence with unit optionality', async () => {
   expect(optional).toHaveProperty('unitOptions');
   expect(optional.unitOptions.length).toBe(2);
 });
+
+test('cannot access RSHE sequence contents', async () => {
+  const { caller } = authedCaller();
+
+  await expect(
+    async () =>
+      await caller.getSequences.getSequenceUnits({
+        sequence: 'rshe-pshe-primary',
+      }),
+  ).rejects.toThrowError();
+
+  await expect(
+    async () =>
+      await caller.getSequences.getSequenceUnits({
+        sequence: 'rshe-pshe-secondary',
+      }),
+  ).rejects.toThrowError();
+
+  await expect(
+    async () =>
+      await caller.getAssets.getSequenceAssets({
+        sequence: 'rshe-pshe-primary',
+      }),
+  ).rejects.toThrowError();
+
+  await expect(
+    async () =>
+      await caller.getAssets.getSequenceAssets({
+        sequence: 'rshe-pshe-secondary',
+      }),
+  ).rejects.toThrowError();
+
+  await expect(
+    async () =>
+      await caller.getQuestions.getQuestionsForSequence({
+        sequence: 'rshe-pshe-primary',
+      }),
+  ).rejects.toThrowError();
+
+  await expect(
+    async () =>
+      await caller.getQuestions.getQuestionsForSequence({
+        sequence: 'rshe-pshe-secondary',
+      }),
+  ).rejects.toThrowError();
+});

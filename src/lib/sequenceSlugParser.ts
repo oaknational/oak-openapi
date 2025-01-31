@@ -1,5 +1,6 @@
 import { TRPCError } from '@trpc/server';
-import { ks4Options, phases, subjects } from './oakConsts';
+import { ks4Options, phases } from './oakConsts';
+import { subjectSlugs } from './keyStageAndSubjects';
 
 export type CurriculumSelectionSlugs = {
   phaseSlug: string;
@@ -29,7 +30,7 @@ export const parseSubjectPhaseSlug = (
   };
 
   // validate the subject and ks4 options
-  if (!subjects.includes(res.subjectSlug)) {
+  if (!subjectSlugs.includes(res.subjectSlug)) {
     throw new TRPCError({
       message: `Invalid subject: ${res.subjectSlug}`,
       code: 'BAD_REQUEST',

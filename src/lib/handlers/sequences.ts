@@ -15,7 +15,7 @@ import {
 import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
 import { examBoards } from '../oakConsts';
 import slugify from 'slugify';
-import { blockedSubjects } from '../blockedContent';
+import { blockedSequenceSubjects } from '../blockedContent';
 import { TRPCError } from '@trpc/server';
 
 toSorted.shim();
@@ -210,7 +210,7 @@ export const getSequences = router({
   getSequenceUnits: protectedProcedure
     .meta({
       openapi: {
-        tags: ['lists', 'units'],
+        tags: ['lists', 'units', 'sequences'],
         method: 'GET',
         path: '/sequences/{sequence}/units',
         description: '',
@@ -260,7 +260,7 @@ export const getSequences = router({
 
       const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
 
-      if (blockedSubjects.includes(subjectSlug)) {
+      if (blockedSequenceSubjects.includes(subjectSlug)) {
         throw new TRPCError({
           code: 'BAD_REQUEST',
           message: `The subject "${subjectSlug}" is not currently available`,
