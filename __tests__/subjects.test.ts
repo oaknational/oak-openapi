@@ -28,14 +28,6 @@ test('years endpoint', async () => {
   expect(res).toStrictEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
 });
 
-test('cannot access RSHE', async () => {
-  const { caller } = authedCaller();
-
-  await expect(
-    async () => await caller.getSubjects.getSubject({ subject: 'rshe-pshe' }),
-  ).rejects.toThrowError();
-});
-
 test('sequence array has full metadata', async () => {
   const { caller } = authedCaller();
 

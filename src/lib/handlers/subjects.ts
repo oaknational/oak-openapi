@@ -321,7 +321,7 @@ export const getSubjects = router({
   getSubjectSequence: protectedProcedure
     .meta({
       openapi: {
-        tags: ['lists'],
+        tags: ['lists', 'sequences'],
         method: 'GET',
         path: '/subjects/{subject}/sequences',
       },

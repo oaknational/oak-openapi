@@ -44,7 +44,7 @@ import {
 } from '~/lib/queryGate';
 import { sequenceWhere } from './sequences';
 import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
-import { blockedSubjects } from '../blockedContent';
+import { blockedSequenceSubjects } from '../blockedContent';
 
 export const downloadTypeEnum = z.enum(
   [
@@ -267,7 +267,7 @@ export const getAssets = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['assets'],
+        tags: ['assets', 'sequences'],
         path: '/sequences/{sequence}/assets',
         description:
           'This endpoint returns signed download URLs and types for the assets currently available on Oak for a given sequence',
@@ -323,7 +323,7 @@ export const getAssets = router({
 
       const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
 
-      if (blockedSubjects.includes(subjectSlug)) {
+      if (blockedSequenceSubjects.includes(subjectSlug)) {
         throw new TRPCError({
           code: 'BAD_REQUEST',
           message: `The subject "${subjectSlug}" is not currently available`,
