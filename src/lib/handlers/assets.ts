@@ -43,6 +43,8 @@ import {
   modifySubject,
 } from '~/lib/queryGate';
 import { sequenceWhere } from './sequences';
+import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
+import { blockedSubjects } from '../blockedContent';
 
 export const downloadTypeEnum = z.enum(
   [
@@ -318,6 +320,16 @@ export const getAssets = router({
     .query(async ({ input, ctx }) => {
       const { limit, offset, sequence, year, type } = input;
       const client = getClient();
+
+      const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
+
+      if (blockedSubjects.includes(subjectSlug)) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `The subject "${subjectSlug}" is not currently available`,
+        });
+      }
+
       const where = sequenceWhere(sequence);
 
       const query = gql`
