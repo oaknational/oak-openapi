@@ -4,8 +4,6 @@ export { gql } from 'graphql-request';
 
 export const currentCycle = '2';
 
-export const unitCurriculumView =
-  'published_mv_openapi_unit_curriculum_content_1_0_2';
 export const lessonView = 'published_mv_lesson_openapi_1_2_1';
 export const downloadView = 'published_mv_openapi_downloads_1_0_0';
 export const unitVariantLessonsView =
@@ -15,7 +13,6 @@ export const subjectPhaseView = 'published_mv_subject_phase_options_0_11';
 export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_12';
 
 export const views = [
-  unitCurriculumView,
   lessonView,
   downloadView,
   unitVariantLessonsView,
@@ -162,54 +159,7 @@ export interface Video {
   download: string;
 }
 
-export type UnitCurriculumView = {
-  published_mv_openapi_unit_curriculum_content_1_0_2: UnitCurriculum[];
-};
-
-export type UnitCurriculum = {
-  unitSlug: string;
-  unitTitle: string;
-  unitTags?: UnitTag[];
-  unitNotes: string;
-  unitDescription: string;
-  plannedNumberOfLessons: number;
-  priorKnowledgeRequirements?: string[];
-  unitNationalCurriculumContent?: UnitNationalCurriculumContent[];
-  priorUnit?: PriorUnit[];
-  futureUnit?: FutureUnit[];
-  futureUnitDescription: string;
-  priorUnitDescription: string;
-  unitLessons?: UnitLesson[];
-};
-
-export interface UnitTag {
-  id: number;
-  title: string;
-}
-
-export interface UnitLesson {
-  title: string;
-  slug: string;
-}
-
 export interface TitleSlug {
-  title: string;
-  slug: string;
-}
-
-export interface UnitNationalCurriculumContent {
-  id: number;
-  title: string;
-}
-
-export interface PriorUnit {
-  id: number;
-  title: string;
-  slug: string;
-}
-
-export interface FutureUnit {
-  id: number;
   title: string;
   slug: string;
 }
