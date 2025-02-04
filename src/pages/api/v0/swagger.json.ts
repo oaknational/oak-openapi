@@ -1,11 +1,14 @@
-import { getLatestVersion } from '~/lib/handlers/changelog';
+import {
+  getLatestVersion,
+  getLatestMajorVersion,
+} from '~/lib/handlers/changelog';
 import router from '~/lib/router';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { OpenAPIV3 } from 'openapi-types';
 import { generateOpenApiDocument } from 'trpc-openapi';
 import { baseUrl } from '~/lib/baseUrl';
 
-const version = getLatestVersion('0');
+const version = getLatestVersion(getLatestMajorVersion());
 
 const bearerAuth = {
   type: 'http',

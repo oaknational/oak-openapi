@@ -46,6 +46,7 @@ const subjectResult = z.object({
 });
 
 const subjectsResult = z.array(subjectResult);
+export type SubjectsResult = z.infer<typeof subjectsResult>;
 
 function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
   const sequences = subject.phases.reduce(

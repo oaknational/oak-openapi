@@ -7,6 +7,7 @@
   },
   "scripts": {
     "build": "next build",
+    "build-subjects": "tsx bin/build-subjects-and-key-stages.ts",
     "dev": "pnpm with-env next dev --port 2727",
     "format:check": "prettier '**/*.{j,t}{s,sx}' --check",
     "format": "prettier '**/*.{j,t}{s,sx}' --write",
@@ -74,6 +75,7 @@
     "prettier": "^3.4.1",
     "prettier-plugin-embed": "^0.4.15",
     "prisma": "^5.21.1",
+    "tsx": "^4.19.2",
     "typescript": "^5.4.5",
     "vite": "^5.2.12",
     "vite-tsconfig-paths": "^4.3.2",
