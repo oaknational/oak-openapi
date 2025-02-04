@@ -36,6 +36,21 @@ Development server should be running on http://localhost:2727
 
 An API key is required to call RESTful endpoint.
 
+## Available subjects
+
+The subjects and key stages available in the endpoints on the API are hard coded (automatically) into the project. This is generated using a build command (which can be updated locally), but the code is committed to the repository.
+
+To update the subjects list (say if there's a new cohort of lessons and subjects):
+
+1. Start the development server: `$ pnpm dev`
+2. Then run the build script in a separate terminal (as it uses the server to generate the subjects:
+
+```shell
+$ pnpm run build-subjects
+```
+
+This will update the file `~/lib/keyStageAndSubjects.json` which will need to be committed to the repo.
+
 ### Errors
 
 As a note, throwing errors using vanilla JavaScript should _only_ be used for development errors (specifically when they'll be caught and handled), as they include the stack and get sent back to the user.
@@ -59,8 +74,6 @@ throw new TRPCError({
    code: 'BAD_REQUEST',
  });
 ```
-
-
 
 ## Infrastructure
 
