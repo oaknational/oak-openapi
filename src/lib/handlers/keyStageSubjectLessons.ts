@@ -134,7 +134,6 @@ export const getKeyStageSubjectLessons = router({
       )) as UnitVariantLessonsView;
 
       const lessons = res[unitVariantLessonsView];
-      console.log({ lessons });
 
       if (lessons.length === 0) {
         return [];
