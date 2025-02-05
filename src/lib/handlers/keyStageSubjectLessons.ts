@@ -158,6 +158,7 @@ export const getKeyStageSubjectLessons = router({
         variables = {
           filter: {
             subject_slug: subject,
+            keystage_slug: keyStage,
           },
           offset,
           limit,
