@@ -326,7 +326,7 @@ export const getAssets = router({
       if (blockedSequenceSubjects.includes(subjectSlug)) {
         throw new TRPCError({
           code: 'BAD_REQUEST',
-          message: `The subject "${subjectSlug}" is not currently available`,
+          message: `The subject in "${sequence}" is not currently available`,
         });
       }
 

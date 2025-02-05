@@ -5,7 +5,6 @@ import {
   UnitVariantLessonsView,
   getClient,
   gql,
-  lessonView,
   unitVariantLessonsView,
 } from 'lib/owaClient';
 import { z } from 'zod';
@@ -96,45 +95,9 @@ export const getKeyStageSubjectLessons = router({
 
       const client = getClient();
 
-      let query;
-      let variables: Record<string, string | number | object>;
+      const unitFilter = unit ? `unit_slug: {_eq: "${unit}"}` : '';
 
-      if (unit) {
-        query = gql`
-        query (
-          $keyStage: String!,
-          $subject: String!,
-          $offset: Int!
-          $unit: String!,
-          $limit: Int!) {
-          ${lessonView}(
-            where: {
-              keyStageSlug: { _eq: $keyStage }
-              subjectSlug: { _eq: $subject }
-              unitSlug: {_eq: $unit }
-              isLegacy: { _eq: false }
-            },
-            offset: $offset,
-            limit: $limit,
-            order_by: {unitSlug: asc}
-          ) {
-            lessonSlug
-            lessonTitle
-            unitSlug,
-            unitTitle
-          }
-        }
-      `;
-
-        variables = {
-          keyStage,
-          subject,
-          offset,
-          limit,
-          unit,
-        };
-      } else {
-        query = gql`
+      const query = gql`
         query ($filter: jsonb!, $offset: Int! $limit: Int!) {
           ${unitVariantLessonsView}(
             where: {
@@ -142,6 +105,7 @@ export const getKeyStageSubjectLessons = router({
                 _contains: $filter
               }
               is_legacy: { _eq: false }
+              ${unitFilter}
             },
             offset: $offset,
             limit: $limit,
@@ -155,21 +119,22 @@ export const getKeyStageSubjectLessons = router({
         }
       `;
 
-        variables = {
-          filter: {
-            subject_slug: subject,
-            keystage_slug: keyStage,
-          },
-          offset,
-          limit,
-        };
-      }
+      const variables = {
+        filter: {
+          subject_slug: subject,
+          keystage_slug: keyStage,
+        },
+        offset,
+        limit,
+      };
 
       const res = (await client.request(
         query,
         variables,
       )) as UnitVariantLessonsView;
+
       const lessons = res[unitVariantLessonsView];
+      console.log({ lessons });
 
       if (lessons.length === 0) {
         return [];
