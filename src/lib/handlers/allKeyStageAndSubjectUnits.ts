@@ -123,8 +123,6 @@ export const getAllKeyStageAndSubjectUnits = router({
 
           const unitTitle = unit.optionality || unit.unit_title;
 
-          console.log({ unitTitle, unitSlug, yearSlug });
-
           acc[yearSlug].units.push({
             unitSlug,
             unitTitle,
