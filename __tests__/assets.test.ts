@@ -1,17 +1,16 @@
 import { vi, expect, test } from 'vitest';
 import { makeCaller, makeRes } from './helper';
-import { EventEmitter } from 'events';
 import { downloadTypeEnum } from '~/lib/handlers/assets';
 
-class Stream extends EventEmitter {
-  pipe(res: { write: (data: Buffer) => void }) {
-    setTimeout(() => this.emit('end'), 0);
-    res.write(Buffer.from('%PDF-'));
-    return vi.fn();
+vi.mock('@google-cloud/storage', async () => {
+  const { EventEmitter } = await import('events');
+  class Stream extends EventEmitter {
+    pipe(res: { write: (data: Buffer) => void }) {
+      setTimeout(() => this.emit('end'), 0);
+      res.write(Buffer.from('%PDF-'));
+      return vi.fn();
+    }
   }
-}
-
-vi.mock('@google-cloud/storage', () => {
   return {
     Storage: vi.fn().mockImplementation(() => {
       return {
