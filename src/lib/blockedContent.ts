@@ -1,1 +1,1 @@
-export const blockedSubjects = ['rshe-pshe'];
+export const blockedSequenceSubjects = ['rshe-pshe'];
