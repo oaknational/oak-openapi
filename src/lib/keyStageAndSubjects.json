@@ -48,6 +48,10 @@
         "title": "Religious education"
       },
       {
+        "slug": "rshe-pshe",
+        "title": "RSHE (PSHE)"
+      },
+      {
         "slug": "science",
         "title": "Science"
       }
@@ -104,6 +108,10 @@
       {
         "slug": "religious-education",
         "title": "Religious education"
+      },
+      {
+        "slug": "rshe-pshe",
+        "title": "RSHE (PSHE)"
       },
       {
         "slug": "science",
@@ -176,6 +184,10 @@
         "title": "Religious education"
       },
       {
+        "slug": "rshe-pshe",
+        "title": "RSHE (PSHE)"
+      },
+      {
         "slug": "science",
         "title": "Science"
       },
@@ -240,6 +252,10 @@
       {
         "slug": "religious-education",
         "title": "Religious education"
+      },
+      {
+        "slug": "rshe-pshe",
+        "title": "RSHE (PSHE)"
       },
       {
         "slug": "science",

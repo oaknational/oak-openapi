@@ -32,6 +32,8 @@ import {
 } from '../queryGate';
 import { TRPCError } from '@trpc/server';
 import { sequenceWhere } from './sequences';
+import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
+import { blockedSequenceSubjects } from '../blockedContent';
 
 const multipleChoiceLit = z.literal('multiple-choice');
 const shortAnswerLit = z.literal('short-answer');
@@ -501,7 +503,7 @@ export const getQuestions = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['questions'],
+        tags: ['questions', 'sequences'],
         path: '/sequences/{sequence}/questions',
         description:
           'This endpoint returns the quiz questions and answers (and indicates which answers are correct and which are distractors) for a given sequence',
@@ -531,6 +533,16 @@ export const getQuestions = router({
     .query(async ({ input, ctx }) => {
       const { limit, offset, sequence, year } = input;
       const client = getClient();
+
+      const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
+
+      if (blockedSequenceSubjects.includes(subjectSlug)) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `The subject "${subjectSlug}" is not currently available`,
+        });
+      }
+
       const where = sequenceWhere(sequence, year?.toString());
 
       const query = gql`

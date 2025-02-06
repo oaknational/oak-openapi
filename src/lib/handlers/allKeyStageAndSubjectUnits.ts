@@ -2,9 +2,12 @@ import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 import { gql } from 'graphql-request';
 import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
-import { SequenceView, getClient, sequenceView } from 'lib/owaClient';
+import {
+  UnitVariantLessonsView,
+  getClient,
+  unitVariantLessonsView,
+} from 'lib/owaClient';
 import { z } from 'zod';
-import { Unit, unitSchema } from './sequences';
 
 export const getAllKeyStageAndSubjectUnits = router({
   getAllKeyStageAndSubjectUnits: protectedProcedure
@@ -53,7 +56,12 @@ export const getAllKeyStageAndSubjectUnits = router({
         z.object({
           yearSlug: z.string({ description: 'Year group slug' }),
           yearTitle: z.string({ description: 'Year group title' }),
-          units: z.array(unitSchema),
+          units: z.array(
+            z.object({
+              unitSlug: z.string({ description: 'Unit slug' }),
+              unitTitle: z.string({ description: 'Unit title' }),
+            }),
+          ),
         }),
       ),
     )
@@ -61,46 +69,48 @@ export const getAllKeyStageAndSubjectUnits = router({
       const keyStage = decodeURIComponent(input.keyStage);
       const subject = decodeURIComponent(input.subject);
 
-      // FIXME this query is actually getting every lesson, not every unit
-      // so I do some data munging to get the unique units, moreover, it's
-      // kind of wasteful to do the full query
       const query = gql`
-        query ($keyStage: String!, $subject: String!) {
-          ${sequenceView}(
+        query ($blob: jsonb!) {
+          ${unitVariantLessonsView}(
             where: {
-              keystage_slug: { _eq: $keyStage }
-              subject_slug: { _eq: $subject }
-              state: { _eq: "published" }
+              programme_fields:{
+                _contains:$blob
+              }
+              is_legacy: { _eq: false }
             }
+            distinct_on: unit_slug
           ) {
-            slug
-            title
-            order
-            year
-            unit_options
-            order
+            unit_slug
+            unit_title:unit_data(path:"title")
+            year_slug: programme_fields(path: "year_slug")
+            optionality: programme_fields(path: "optionality")
           }
         }
       `;
 
       const variables = {
-        keyStage,
-        subject,
+        blob: {
+          subject_slug: subject,
+          keystage_slug: keyStage,
+        },
       };
 
       const graphqlClient = getClient();
-      const res: SequenceView = await graphqlClient.request(query, variables);
+      const res: UnitVariantLessonsView = await graphqlClient.request(
+        query,
+        variables,
+      );
 
-      if (res[sequenceView].length === 0) {
+      if (res[unitVariantLessonsView].length === 0) {
         return []; // unlikely, but sure.
       }
 
-      const units = res[sequenceView];
+      const units = res[unitVariantLessonsView];
 
       const result = units.reduce(
         (acc, unit) => {
-          const yearSlug = `year-${unit.year}`;
-          const yearTitle = `Year ${unit.year}`;
+          const yearSlug = unit.year_slug;
+          const yearTitle = `Year ${unit.year_slug.split('-')[1]}`;
           if (!acc[yearSlug]) {
             acc[yearSlug] = {
               yearSlug,
@@ -109,37 +119,24 @@ export const getAllKeyStageAndSubjectUnits = router({
             };
           }
 
-          const {
-            slug: unitSlug,
-            title: unitTitle,
-            order: unitOrder,
-            unit_options: unitOptions,
-          } = unit;
+          const { unit_slug: unitSlug } = unit;
 
-          if (unitOptions && unitOptions.length > 0) {
-            acc[yearSlug].units.push({
-              unitTitle,
-              unitOrder,
-              unitOptions: unitOptions.map((unitOption) => {
-                return {
-                  unitSlug: unitOption.slug,
-                  unitTitle: unitOption.title,
-                };
-              }),
-            });
-          } else {
-            acc[yearSlug].units.push({
-              unitSlug,
-              unitTitle,
-              unitOrder,
-            });
-          }
+          const unitTitle = unit.optionality || unit.unit_title;
+
+          acc[yearSlug].units.push({
+            unitSlug,
+            unitTitle,
+          });
 
           return acc;
         },
         {} as Record<
           string,
-          { yearSlug: string; yearTitle: string; units: Unit[] }
+          {
+            yearSlug: string;
+            yearTitle: string;
+            units: { unitSlug: string; unitTitle: string }[];
+          }
         >,
       );
 
@@ -155,9 +152,7 @@ export const getAllKeyStageAndSubjectUnits = router({
         return aYear - bYear;
       });
       for (const key of keys) {
-        const year = result[key];
-        year.units = year.units.sort((a, b) => a.unitOrder - b.unitOrder);
-        sorted.push(year);
+        sorted.push(result[key]);
       }
 
       return sorted;
