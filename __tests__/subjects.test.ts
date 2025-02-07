@@ -75,7 +75,7 @@ test('subject constants structures', async () => {
   expect(subjects).includes('English');
 });
 
-test.only('correct year sequence', async () => {
+test('correct year sequence', async () => {
   const { caller } = authedCaller();
 
   const allYears = await caller.getSubjects.getSubjectYears({
