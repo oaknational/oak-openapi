@@ -48,6 +48,10 @@ const subjectsResult = z.array(subjectResult);
 export type SubjectsResult = z.infer<typeof subjectsResult>;
 
 function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
+  const keyStageLookup: Record<string, string[]> = {
+    primary: ['ks1', 'ks2'],
+    secondary: ['ks3', 'ks4'],
+  };
   const sequences = subject.phases.reduce(
     (acc: SequenceResult[], { slug, title }) => {
       if (
@@ -56,7 +60,7 @@ function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
         subject.ks4_options.length
       ) {
         const keyStages = phaseToKeyStages(subject).filter((_) =>
-          ['ks3', 'ks4'].includes(_.keyStageSlug),
+          keyStageLookup[slug].includes(_.keyStageSlug),
         );
         acc.push(
           ...subject.ks4_options.map((examBoard) => ({
@@ -70,7 +74,7 @@ function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
         );
       } else {
         const keyStages = phaseToKeyStages(subject).filter((_) =>
-          ['ks1', 'ks2'].includes(_.keyStageSlug),
+          keyStageLookup[slug].includes(_.keyStageSlug),
         );
         acc.push({
           sequenceSlug: `${subject.slug}-${slug}`,
