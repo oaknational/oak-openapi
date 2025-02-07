@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
 import { makeCaller, makeRes } from './helper';
-import {
-  NonSubjectSchema,
+import type {
   Unit,
   UnitWithOptions,
+  YearSequence,
 } from '~/lib/handlers/sequences';
 
 test('get cycle 2 (2024-2025) unit', async () => {
@@ -27,7 +27,7 @@ async function getUnitOptionsForSequence(sequence: string, year: number) {
   const res = (await caller.getSequences.getSequenceUnits({
     sequence,
     year,
-  })) as NonSubjectSchema[];
+  })) as YearSequence[];
 
   const data = res[0];
   let units: Unit[] = data.units;

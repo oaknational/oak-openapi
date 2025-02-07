@@ -213,3 +213,14 @@ test('new structure', async () => {
   expect(unitsWithCategories.length).toBeGreaterThan(0);
   expect(unitsWithCategories).not.toContain(undefined);
 });
+
+test('new structure with options', async () => {
+  const { caller } = authedCaller();
+
+  const res = await caller.getSequences.getSequenceUnits({
+    sequence: 'english-secondary-aqa',
+    year: 11,
+  });
+
+  expect(res).toBeTruthy();
+});

@@ -2,8 +2,6 @@ import toSorted from 'array.prototype.tosorted';
 import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 import { z } from 'zod';
-// import { blockedSubjects } from '../blockedContent';
-// import { TRPCError } from '@trpc/server';
 import {
   getClient,
   gql,
@@ -92,7 +90,7 @@ const sequenceSchema = z.union([
 
 const output = z.array(sequenceSchema);
 
-type SequenceSchema = z.infer<typeof sequenceSchema>;
+export type SequenceSchema = z.infer<typeof sequenceSchema>;
 export type YearSequence = z.infer<typeof yearSequenceSchema>;
 export type ExamSubjectsWithTiers = z.infer<typeof examSubjectsSchemaWithTiers>;
 export type ExamSubjectsWithoutTiers = z.infer<
@@ -105,10 +103,7 @@ export type yearSequenceKS4WithExamSubjects = z.infer<
 >;
 export type UnitWithOptions = z.infer<typeof unitWithOptionsSchema>;
 export type UnitWithoutOptions = z.infer<typeof unitNoOptionsSchema>;
-
-// export type SequenceUnits = z.infer<typeof output>;
-// export type NonSubjectSchema = z.infer<typeof nonSubjectSchema>;
-// type TiersSchema = z.infer<typeof tiersSchema>;
+export type Unit = z.infer<typeof unitSchema>;
 
 type WhereCondition = {
   _and: Array<{
@@ -306,8 +301,8 @@ export const getSequences = router({
 
         // let's find out how many subjects there are,
         // if there's only one, then we don't break it into examSubjects
-        for (const { subject } of yearUnits) {
-          if (!seen.has(subject)) {
+        for (const { subject, subject_parent } of yearUnits) {
+          if (subject_parent && !seen.has(subject)) {
             seen.add(subject);
           }
         }
@@ -316,7 +311,7 @@ export const getSequences = router({
         const hasTiers = !!yearUnits[0].tier_slug;
         const hasExamSubjects = seen.size > 1;
 
-        if (!ks4Years.includes(year)) {
+        if (!ks4Years.includes(year) || (!hasExamSubjects && !hasTiers)) {
           const units = formatUnits(yearUnits);
 
           result.push({
@@ -326,7 +321,7 @@ export const getSequences = router({
           return; // early return
         }
 
-        if (!hasExamSubjects) {
+        if (!hasExamSubjects && hasTiers) {
           const tiers = formatUnitsForTiers(yearUnits);
 
           result.push({
