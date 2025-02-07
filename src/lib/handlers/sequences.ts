@@ -93,6 +93,18 @@ const sequenceSchema = z.union([
 const output = z.array(sequenceSchema);
 
 type SequenceSchema = z.infer<typeof sequenceSchema>;
+export type YearSequence = z.infer<typeof yearSequenceSchema>;
+export type ExamSubjectsWithTiers = z.infer<typeof examSubjectsSchemaWithTiers>;
+export type ExamSubjectsWithoutTiers = z.infer<
+  typeof examSubjectsSchemaWithoutTiers
+>;
+type Tier = z.infer<typeof tierSchema>;
+type Category = z.infer<typeof categorySchema>;
+export type yearSequenceKS4WithExamSubjects = z.infer<
+  typeof yearSequenceKS4WithExamSubjectsSchema
+>;
+export type UnitWithOptions = z.infer<typeof unitWithOptionsSchema>;
+export type UnitWithoutOptions = z.infer<typeof unitNoOptionsSchema>;
 
 // export type SequenceUnits = z.infer<typeof output>;
 // export type NonSubjectSchema = z.infer<typeof nonSubjectSchema>;
