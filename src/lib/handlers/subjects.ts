@@ -348,6 +348,8 @@ export const getSubjects = router({
         tags: ['lists', 'sequences'],
         method: 'GET',
         path: '/subjects/{subject}/sequences',
+        description:
+          'List of the sequences, including phase, key stage 4 options, years and key stages the sequence applies to for a subject.',
         example: {
           request: {
             subject: 'art',
@@ -406,6 +408,7 @@ export const getSubjects = router({
         tags: ['lists'],
         method: 'GET',
         path: '/subjects/{subject}/key-stages',
+        description: 'List of the key stages a subject is taught in.',
         example: {
           request: {
             subject: 'art',
@@ -442,6 +445,7 @@ export const getSubjects = router({
         tags: ['lists'],
         method: 'GET',
         path: '/subjects/{subject}/years',
+        description: 'List of the years a subject is taught in.',
         example: {
           request: {
             subject: 'art',
