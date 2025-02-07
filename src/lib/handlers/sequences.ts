@@ -216,32 +216,29 @@ export const getSequences = router({
         description: '',
         example: {
           request: {
-            sequence: 'science-secondary-edexcel',
+            sequence: 'english-secondary-aqa',
           },
           response: [
             {
-              year: 3,
+              year: 10,
               subjects: [
                 {
-                  subjectSlug: 'grammar',
-                  subjectTitle: 'Grammar',
+                  subjectSlug: 'literature',
+                  subjectTitle: 'Literature',
                   units: [
                     {
-                      unitTitle:
-                        'Simple, compound and adverbial complex sentences',
-                      unitSlug:
-                        'simple-compound-and-adverbial-complex-sentences',
-                      order: 1,
-                    },
-                    {
-                      unitTitle: 'Tense forms: simple, progressive and perfect',
-                      unitSlug: 'tense-forms-simple-progressive-and-perfect',
-                      order: 2,
-                    },
-                    {
-                      unitTitle: 'Speech first punctuation and apostrophes',
-                      unitSlug: 'speech-first-punctuation-and-apostrophes',
-                      order: 3,
+                      unitTitle: 'Modern text: first study',
+                      unitOrder: 1,
+                      unitOptions: [
+                        {
+                          unitTitle: 'Animal Farm: the pigs and power',
+                          unitSlug: 'modern-text-first-study-152',
+                        },
+                        {
+                          unitTitle: 'Leave Taking: a sense of belonging',
+                          unitSlug: 'modern-text-first-study-198',
+                        },
+                      ],
                     },
                   ],
                 },
