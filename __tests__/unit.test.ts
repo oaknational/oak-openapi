@@ -1,6 +1,10 @@
 import { expect, test } from 'vitest';
 import { makeCaller, makeRes } from './helper';
-import { SequenceUnits, Unit, UnitOptions } from '~/lib/handlers/sequences';
+import type {
+  Unit,
+  UnitWithOptions,
+  YearSequence,
+} from '~/lib/handlers/sequences';
 
 test('get cycle 2 (2024-2025) unit', async () => {
   const caller = makeCaller({
@@ -23,24 +27,13 @@ async function getUnitOptionsForSequence(sequence: string, year: number) {
   const res = (await caller.getSequences.getSequenceUnits({
     sequence,
     year,
-  })) as SequenceUnits;
+  })) as YearSequence[];
 
   const data = res[0];
-  let units: Unit[] = [];
+  let units: Unit[] = data.units;
 
   if (!data) {
     throw new Error(`No units found on sequence ${sequence}`);
-  }
-
-  if ('subjects' in data) {
-    units = data.subjects
-      .map((subject) => {
-        if ('units' in subject) {
-          return subject.units as Unit[];
-        }
-        return [];
-      })
-      .flat();
   }
 
   if ('units' in data) {
@@ -61,7 +54,7 @@ async function getUnitOptionsForSequence(sequence: string, year: number) {
     throw new Error(`No unit options found for sequence ${sequence}`);
   }
 
-  return (found as UnitOptions).unitOptions;
+  return (found as UnitWithOptions).unitOptions;
 }
 
 test('optionality unit 2023-24 cohort', async () => {
