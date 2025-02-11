@@ -111,7 +111,6 @@ test('sequence with unit optionality', async () => {
 
   const units = (res[0] as YearSequence).units;
 
-  // const units = subject.units;
   const optional = units.find((unit) => {
     if ('unitOptions' in unit) {
       return true;
