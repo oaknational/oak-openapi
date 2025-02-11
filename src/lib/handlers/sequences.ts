@@ -265,6 +265,8 @@ export const getSequences = router({
           subject_parent
           subject_slug
           tier
+          features
+          actions
           tier_slug
           unit_options
           year
@@ -295,21 +297,29 @@ export const getSequences = router({
 
       years.forEach((year) => {
         const yearUnits = rawData.filter((_) => Number(_.year) === year);
+        let hasExamSubjectOverride = false;
 
         // then we're going to check for examSubjects / child subjects
         const seen = new Set<string>();
 
         // let's find out how many subjects there are,
         // if there's only one, then we don't break it into examSubjects
-        for (const { subject, subject_parent } of yearUnits) {
+        for (const { subject, subject_parent, actions } of yearUnits) {
           if (subject_parent && !seen.has(subject)) {
             seen.add(subject);
+          }
+
+          // checking for programme_override_exclusions for subjects
+          if (actions?.programme_field_overrides?.subject) {
+            seen.add(actions.programme_field_overrides.subject);
+            hasExamSubjectOverride = true;
           }
         }
 
         // let's use the first unit in the year sequence
+
         const hasTiers = !!yearUnits[0].tier_slug;
-        const hasExamSubjects = seen.size > 1;
+        const hasExamSubjects = seen.size > 1 || hasExamSubjectOverride;
 
         if (!ks4Years.includes(year) || (!hasExamSubjects && !hasTiers)) {
           const units = formatUnits(yearUnits);
@@ -339,13 +349,17 @@ export const getSequences = router({
         // reset seen
         seen.clear();
 
-        for (const { subject, subject_slug } of yearUnits) {
-          if (!seen.has(subject)) {
-            seen.add(subject);
+        for (const { subject, subject_slug, actions } of yearUnits) {
+          const programmeFieldSubject =
+            actions?.programme_field_overrides?.subject;
+          const examSubjectTitle = programmeFieldSubject || subject;
+
+          if (!seen.has(examSubjectTitle)) {
+            seen.add(examSubjectTitle);
 
             if (hasTiers) {
               examSubjects.push({
-                examSubjectTitle: subject,
+                examSubjectTitle,
                 examSubjectSlug: subject_slug,
                 tiers: formatUnitsForTiers(yearUnits, subject).sort((a, b) =>
                   a.tier < b.tier ? -1 : 1,
@@ -353,7 +367,7 @@ export const getSequences = router({
               });
             } else {
               examSubjects.push({
-                examSubjectTitle: subject,
+                examSubjectTitle,
                 examSubjectSlug: subject_slug,
                 units: formatUnits(yearUnits, (_) => _.subject === subject),
               });

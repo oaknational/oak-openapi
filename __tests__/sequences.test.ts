@@ -224,3 +224,20 @@ test('new structure with options', async () => {
 
   expect(res).toBeTruthy();
 });
+
+test('that subject programme override is reflected in unit', async () => {
+  const { caller } = authedCaller();
+
+  const res = await caller.getSequences.getSequenceUnits({
+    sequence: 'computing-secondary-aqa',
+    year: 11,
+  });
+
+  const resData = res[0];
+
+  if (!resData || !('examSubjects' in resData)) {
+    throw new Error('No exam subject found');
+  }
+
+  expect(resData.examSubjects[0].examSubjectTitle).toBe('Computer Science');
+});
