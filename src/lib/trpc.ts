@@ -1,4 +1,5 @@
 import { initTRPC } from '@trpc/server';
+import util from 'node:util';
 import superjson from 'superjson';
 import { OpenApiMeta } from 'trpc-openapi';
 import { ZodError } from 'zod';
@@ -14,14 +15,20 @@ export const t = initTRPC
       if (error.code === 'INTERNAL_SERVER_ERROR') {
         if (error.cause && Array.isArray((error.cause as ZodError).errors)) {
           const cause = error.cause as ZodError;
-          const errors = cause.errors.map(
-            (err) => `${err.message}: ${err.path.join('.')} (${err.code})`,
-          );
+          // const errors = cause.errors.map(
+          //   (err) => `${err.message}: ${err.path.join('.')} (${err.code})`,
+          // );
 
-          console.error('ZodError', {
-            errors,
-            trpcPath: shape.data.path,
-          });
+          console.error(
+            util.inspect(
+              {
+                type: 'ZodError',
+                errors: cause.errors,
+                trpcPath: shape.data.path,
+              },
+              { depth: null, colors: true },
+            ),
+          );
         } else {
           console.error('trpc error', {
             code: error.code,
