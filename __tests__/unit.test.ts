@@ -86,3 +86,15 @@ test('optionality unit 2024-25 cohort', async () => {
     expect(res.unitSlug).toBe(unit);
   }
 });
+
+test('threads are present', async () => {
+  const caller = makeCaller({
+    user: 1,
+  });
+
+  const res = await caller.getUnits.getUnit({
+    unit: 'ceramics-cake-culture',
+  });
+
+  expect(res.threads?.length).toBeGreaterThan(0);
+});

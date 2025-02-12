@@ -128,6 +128,13 @@ export type UnitVariantLesson = {
   };
 };
 
+export type ThreadWithUnits = TitleSlug & {
+  thread_units: {
+    order: number;
+    unit: TitleSlug;
+  }[];
+};
+
 export type DownloadView = {
   published_mv_openapi_downloads_1_0_0: Download[];
 };
