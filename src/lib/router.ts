@@ -12,6 +12,7 @@ import { getAssets } from './handlers/assets';
 import { searchTranscripts } from './handlers/searchTranscripts';
 import { getLessonTranscript } from './handlers/transcript';
 import { getSequences } from './handlers/sequences';
+import { getThreads } from './handlers/threads';
 
 export default router({
   getSequences,
@@ -25,5 +26,6 @@ export default router({
   getQuestions,
   getLessons,
   getUnits,
+  getThreads,
   changelog,
 });

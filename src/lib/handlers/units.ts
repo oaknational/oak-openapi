@@ -12,11 +12,18 @@ import { z } from 'zod';
 import { blockUnitForCopyrightText } from '../queryGate';
 import { defaultCaching } from '../networkCache';
 
-export const unitSchema = z.object({
+const threadSchema = z.object({
+  slug: z.string(),
+  title: z.string(),
+  order: z.number(),
+});
+
+type Thread = z.infer<typeof threadSchema>;
+
+export const output = z.object({
   unitSlug: z.string(),
   unitTitle: z.string(),
   tags: z.array(z.string()),
-  // unitOrder: z.number().optional(),
   yearSlug: z.string(),
   year: z.number(),
   phaseSlug: z.string(),
@@ -24,18 +31,10 @@ export const unitSchema = z.object({
   keyStageSlug: z.string(),
   notes: z.string().optional(),
   description: z.string().optional(),
-  // plannedNumberOfLessons: z.number(),
   priorKnowledgeRequirements: z.array(z.string()),
   nationalCurriculumContent: z.array(z.string()),
   whyThisWhyNow: z.string().optional(),
-  // priorUnit: z.object({
-  //   description: z.string(),
-  //   units: z.array(z.object({ unitSlug: z.string(), unitTitle: z.string() })),
-  // }),
-  // futureUnit: z.object({
-  //   description: z.string(),
-  //   units: z.array(z.object({ unitSlug: z.string(), unitTitle: z.string() })),
-  // }),
+  threads: z.array(threadSchema).optional(),
   unitLessons: z.array(
     z.object({
       lessonSlug: z.string(),
@@ -45,7 +44,7 @@ export const unitSchema = z.object({
   ),
 });
 
-type UnitSchema = z.infer<typeof unitSchema>;
+type UnitSchema = z.infer<typeof output>;
 
 export const getUnits = router({
   getUnit: protectedProcedure
@@ -93,7 +92,7 @@ export const getUnits = router({
         },
       },
     })
-    .output(unitSchema)
+    .output(output)
     .input(z.object({ unit: z.string({ description: 'The unit slug' }) }))
     .query(async ({ input }) => {
       const { unit: slug } = input;
@@ -129,6 +128,7 @@ export const getUnits = router({
             subject_slug
             unit_options
             why_this_why_now
+            threads
             year
           }
         }
@@ -143,6 +143,7 @@ export const getUnits = router({
         unitTitle: string;
         tags: string[];
         notes: string;
+        threads: Thread[];
         priorKnowledgeRequirements: string[];
         nationalCurriculumContent: string[];
       };
@@ -172,6 +173,7 @@ export const getUnits = router({
         unitTitle: sequenceData.title,
         tags: sequenceData.tags || [],
         notes: sequenceData.notes,
+        threads: sequenceData.threads,
         priorKnowledgeRequirements: (
           sequenceData.prior_knowledge_requirements || []
         ).map(({ title }) => title),
