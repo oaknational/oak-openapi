@@ -88,6 +88,9 @@ export type Sequence = TitleSlug & {
   description: string;
   slug: string;
   domain: string;
+  threads: (TitleSlug & {
+    order: number;
+  })[];
   examboard_slug: string;
   keystage_slug: string;
   notes: string;
