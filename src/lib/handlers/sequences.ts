@@ -27,6 +27,12 @@ const categorySchema = z.object({
   categorySlug: z.string().optional(),
 });
 
+const threadSchema = z.object({
+  title: z.string(),
+  slug: z.string(),
+  order: z.number(),
+});
+
 const unitOptionSchema = z.object({
   unitTitle: z.string(),
   unitSlug: z.string(),
@@ -37,6 +43,7 @@ const unitWithOptionsSchema = z.object({
   unitOrder: z.number(),
   unitOptions: z.array(unitOptionSchema),
   categories: z.array(categorySchema).optional(),
+  threads: z.array(threadSchema).optional(),
 });
 
 const unitNoOptionsSchema = z.object({
@@ -44,6 +51,7 @@ const unitNoOptionsSchema = z.object({
   unitOrder: z.number(),
   unitSlug: z.string(),
   categories: z.array(categorySchema).optional(),
+  threads: z.array(threadSchema).optional(),
 });
 
 const unitSchema = z.union([unitWithOptionsSchema, unitNoOptionsSchema]);
@@ -252,6 +260,7 @@ export const getSequences = router({
           order_by: { order: asc }
         ) {
           title
+          threads
           slug
           domain
           examboard_slug
@@ -377,6 +386,9 @@ function formatUnits(units: Sequence[], filter: UnitFilter = () => true) {
   return units.filter(filter).map((unit) => {
     let categories: Category[] | undefined;
 
+    const threads =
+      unit.threads?.length > 0 ? Array.from(unit.threads) : undefined;
+
     if (unit.subjectcategories && unit.subjectcategories.length > 0) {
       categories = unit.subjectcategories.map((cat) => ({
         categoryTitle: cat.title,
@@ -391,6 +403,7 @@ function formatUnits(units: Sequence[], filter: UnitFilter = () => true) {
           unitSlug: option.slug,
           unitTitle: option.title,
         })),
+        threads,
         categories,
       };
     } else {
@@ -398,6 +411,7 @@ function formatUnits(units: Sequence[], filter: UnitFilter = () => true) {
         unitSlug: unit.slug,
         unitTitle: unit.title,
         unitOrder: unit.order,
+        threads,
         categories,
       };
     }
