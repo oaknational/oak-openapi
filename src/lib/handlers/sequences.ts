@@ -17,9 +17,25 @@ import { TRPCError } from '@trpc/server';
 
 toSorted.shim();
 
+const years = [
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11',
+  'all-years',
+];
+
 const input = z.object({
   sequence: z.string(),
-  year: z.number().optional(),
+
+  year: z.enum(years as [string]).optional(),
 });
 
 const categorySchema = z.object({
@@ -78,7 +94,7 @@ const yearSequenceKS4WithoutExamSubjectsSchema = z.object({
 });
 
 const yearSequenceSchema = z.object({
-  year: z.number(),
+  year: z.union([z.number(), z.literal('all-years')]),
   units: z.array(unitSchema),
 });
 
@@ -232,7 +248,13 @@ export const getSequences = router({
     .query(async ({ input }) => {
       const client = getClient();
 
-      const yearFilter = input.year || 0;
+      let yearFilter = 0;
+
+      if (input.year === 'all-years') {
+        yearFilter = 0;
+      } else if (input.year) {
+        yearFilter = parseInt(input.year, 10);
+      }
 
       const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
 
@@ -295,9 +317,41 @@ export const getSequences = router({
 
       const ks4Years = years.filter((year) => year >= 10);
 
+      // this is (currently) _only_ used in PE (for swimming)
+      const exclusionYearUnits: YearSequence = {
+        year: 'all-years',
+        units: [],
+      };
+
+      const applyExclusion =
+        yearFilter === 0 && subjectSlug === 'physical-education';
+
       years.forEach((year) => {
-        const yearUnits = rawData.filter((_) => Number(_.year) === year);
+        const yearUnits = rawData
+          .filter((_) => Number(_.year) === year)
+          .filter((_) => {
+            if (!applyExclusion) {
+              // early return - we don't need to split the units
+              return true;
+            }
+
+            if (!_.features?.pe_swimming) {
+              return true;
+            }
+
+            exclusionYearUnits.units.push(formatUnit(_));
+
+            // then remove the swimming unit from the normal year list
+            return false;
+          });
+
         let hasExamSubjectOverride = false;
+
+        /**
+         * if years is 0 (i.e. all) _AND_ the subject is PE then
+         * 1. we need to _ignore_ any swimming units from the "normal" results
+         * 2. we need to separate out the swimming units into their own "magic" year
+         */
 
         // then we're going to check for examSubjects / child subjects
         const seen = new Set<string>();
@@ -381,41 +435,47 @@ export const getSequences = router({
         });
       });
 
+      if (applyExclusion && exclusionYearUnits.units.length > 0) {
+        result.unshift(exclusionYearUnits);
+      }
+
       return result;
     }),
 });
 
+function formatUnit(unit: Sequence) {
+  let categories: Category[] | undefined;
+
+  if (unit.subjectcategories && unit.subjectcategories.length > 0) {
+    categories = unit.subjectcategories.map((cat) => ({
+      categoryTitle: cat.title,
+    }));
+  }
+
+  if (unit.unit_options && unit.unit_options.length > 0) {
+    return {
+      unitTitle: unit.title,
+      unitOrder: unit.order,
+      unitOptions: unit.unit_options.map((option) => ({
+        unitSlug: option.slug,
+        unitTitle: option.title,
+      })),
+      categories,
+    };
+  } else {
+    return {
+      unitSlug: unit.slug,
+      unitTitle: unit.title,
+      unitOrder: unit.order,
+      categories,
+    };
+  }
+}
+
 type UnitFilter = (unit: Sequence) => boolean;
 
 function formatUnits(units: Sequence[], filter: UnitFilter = () => true) {
-  return units.filter(filter).map((unit) => {
-    let categories: Category[] | undefined;
-
-    if (unit.subjectcategories && unit.subjectcategories.length > 0) {
-      categories = unit.subjectcategories.map((cat) => ({
-        categoryTitle: cat.title,
-      }));
-    }
-
-    if (unit.unit_options && unit.unit_options.length > 0) {
-      return {
-        unitTitle: unit.title,
-        unitOrder: unit.order,
-        unitOptions: unit.unit_options.map((option) => ({
-          unitSlug: option.slug,
-          unitTitle: option.title,
-        })),
-        categories,
-      };
-    } else {
-      return {
-        unitSlug: unit.slug,
-        unitTitle: unit.title,
-        unitOrder: unit.order,
-        categories,
-      };
-    }
-  });
+  return units.filter(filter).map(formatUnit);
 }
 
 function formatUnitsForTiers(
