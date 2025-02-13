@@ -88,6 +88,9 @@ export type Sequence = TitleSlug & {
   description: string;
   slug: string;
   domain: string;
+  threads: (TitleSlug & {
+    order: number;
+  })[];
   examboard_slug: string;
   keystage_slug: string;
   notes: string;
@@ -130,6 +133,13 @@ export type UnitVariantLesson = {
     unit_order: number;
     order_in_unit: number;
   };
+};
+
+export type ThreadWithUnits = TitleSlug & {
+  thread_units: {
+    order: number;
+    unit: TitleSlug;
+  }[];
 };
 
 export type DownloadView = {

@@ -21,6 +21,8 @@ test('sequence with subjects', async () => {
     throw new Error('No year 1 found');
   }
 
+  expect(year1.units[0].threads?.length).toBeGreaterThan(0);
+
   const subjects1 = new Set(
     year1.units
       ?.map((_) => {
