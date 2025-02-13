@@ -107,6 +107,13 @@ export type Sequence = TitleSlug & {
   tier_slug: string;
   why_this_why_now: string;
   year: string;
+  features: { pe_swimming: boolean }[];
+  actions: {
+    opt_out: string[];
+    programme_field_overrides: {
+      subject: string;
+    };
+  };
 };
 
 export type UnitVariantLesson = {
