@@ -26,7 +26,7 @@ async function getUnitOptionsForSequence(sequence: string, year: number) {
 
   const res = (await caller.getSequences.getSequenceUnits({
     sequence,
-    year,
+    year: year.toString(),
   })) as YearSequence[];
 
   const data = res[0];

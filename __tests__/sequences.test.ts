@@ -108,7 +108,7 @@ test('sequence with unit optionality', async () => {
   const slug = 'english-primary';
   const res = await caller.getSequences.getSequenceUnits({
     sequence: slug,
-    year: 3,
+    year: '3',
   });
 
   const units = (res[0] as YearSequence).units;
@@ -220,8 +220,50 @@ test('new structure with options', async () => {
 
   const res = await caller.getSequences.getSequenceUnits({
     sequence: 'english-secondary-aqa',
-    year: 11,
+    year: '11',
   });
 
   expect(res).toBeTruthy();
+});
+
+test('that subject programme override is reflected in unit', async () => {
+  const { caller } = authedCaller();
+
+  const res = await caller.getSequences.getSequenceUnits({
+    sequence: 'computing-secondary-aqa',
+    year: '11',
+  });
+
+  const resData = res[0];
+
+  if (!resData || !('examSubjects' in resData)) {
+    throw new Error('No exam subject found');
+  }
+
+  expect(resData.examSubjects[0].examSubjectTitle).toBe('Computer Science');
+});
+
+test(`swimming is "all-years" in PE`, async () => {
+  const { caller } = authedCaller();
+
+  const res = await caller.getSequences.getSequenceUnits({
+    sequence: 'physical-education-primary',
+  });
+
+  const first = res[0] as YearSequence;
+
+  expect(first.year).toBe('all-years');
+  expect(first.units.length).toBeGreaterThan(0);
+});
+
+test(`there is not "all-years" in PE secondary`, async () => {
+  const { caller } = authedCaller();
+
+  const res = await caller.getSequences.getSequenceUnits({
+    sequence: 'physical-education-secondary',
+  });
+
+  const first = res[0];
+
+  expect(first.year).not.toBe('all-years');
 });

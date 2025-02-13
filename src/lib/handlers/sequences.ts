@@ -17,9 +17,25 @@ import { TRPCError } from '@trpc/server';
 
 toSorted.shim();
 
+const years = [
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11',
+  'all-years',
+];
+
 const input = z.object({
   sequence: z.string(),
-  year: z.number().optional(),
+
+  year: z.enum(years as [string]).optional(),
 });
 
 const categorySchema = z.object({
@@ -86,7 +102,7 @@ const yearSequenceKS4WithoutExamSubjectsSchema = z.object({
 });
 
 const yearSequenceSchema = z.object({
-  year: z.number(),
+  year: z.union([z.number(), z.literal('all-years')]),
   units: z.array(unitSchema),
 });
 
@@ -240,7 +256,13 @@ export const getSequences = router({
     .query(async ({ input }) => {
       const client = getClient();
 
-      const yearFilter = input.year || 0;
+      let yearFilter = 0;
+
+      if (input.year === 'all-years') {
+        yearFilter = 0;
+      } else if (input.year) {
+        yearFilter = parseInt(input.year, 10);
+      }
 
       const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
 
@@ -274,6 +296,8 @@ export const getSequences = router({
           subject_parent
           subject_slug
           tier
+          features
+          actions
           tier_slug
           unit_options
           year
@@ -302,23 +326,63 @@ export const getSequences = router({
 
       const ks4Years = years.filter((year) => year >= 10);
 
+      // this is (currently) _only_ used in PE (for swimming)
+      const exclusionYearUnits: YearSequence = {
+        year: 'all-years',
+        units: [],
+      };
+
+      const applyExclusion =
+        yearFilter === 0 && subjectSlug === 'physical-education';
+
       years.forEach((year) => {
-        const yearUnits = rawData.filter((_) => Number(_.year) === year);
+        const yearUnits = rawData
+          .filter((_) => Number(_.year) === year)
+          .filter((_) => {
+            if (!applyExclusion) {
+              // early return - we don't need to split the units
+              return true;
+            }
+
+            if (!_.features?.pe_swimming) {
+              return true;
+            }
+
+            exclusionYearUnits.units.push(formatUnit(_));
+
+            // then remove the swimming unit from the normal year list
+            return false;
+          });
+
+        let hasExamSubjectOverride = false;
+
+        /**
+         * if years is 0 (i.e. all) _AND_ the subject is PE then
+         * 1. we need to _ignore_ any swimming units from the "normal" results
+         * 2. we need to separate out the swimming units into their own "magic" year
+         */
 
         // then we're going to check for examSubjects / child subjects
         const seen = new Set<string>();
 
         // let's find out how many subjects there are,
         // if there's only one, then we don't break it into examSubjects
-        for (const { subject, subject_parent } of yearUnits) {
+        for (const { subject, subject_parent, actions } of yearUnits) {
           if (subject_parent && !seen.has(subject)) {
             seen.add(subject);
+          }
+
+          // checking for programme_override_exclusions for subjects
+          if (actions?.programme_field_overrides?.subject) {
+            seen.add(actions.programme_field_overrides.subject);
+            hasExamSubjectOverride = true;
           }
         }
 
         // let's use the first unit in the year sequence
+
         const hasTiers = !!yearUnits[0].tier_slug;
-        const hasExamSubjects = seen.size > 1;
+        const hasExamSubjects = seen.size > 1 || hasExamSubjectOverride;
 
         if (!ks4Years.includes(year) || (!hasExamSubjects && !hasTiers)) {
           const units = formatUnits(yearUnits);
@@ -348,13 +412,17 @@ export const getSequences = router({
         // reset seen
         seen.clear();
 
-        for (const { subject, subject_slug } of yearUnits) {
-          if (!seen.has(subject)) {
-            seen.add(subject);
+        for (const { subject, subject_slug, actions } of yearUnits) {
+          const programmeFieldSubject =
+            actions?.programme_field_overrides?.subject;
+          const examSubjectTitle = programmeFieldSubject || subject;
+
+          if (!seen.has(examSubjectTitle)) {
+            seen.add(examSubjectTitle);
 
             if (hasTiers) {
               examSubjects.push({
-                examSubjectTitle: subject,
+                examSubjectTitle,
                 examSubjectSlug: subject_slug,
                 tiers: formatUnitsForTiers(yearUnits, subject).sort((a, b) =>
                   a.tier < b.tier ? -1 : 1,
@@ -362,7 +430,7 @@ export const getSequences = router({
               });
             } else {
               examSubjects.push({
-                examSubjectTitle: subject,
+                examSubjectTitle,
                 examSubjectSlug: subject_slug,
                 units: formatUnits(yearUnits, (_) => _.subject === subject),
               });
@@ -376,52 +444,58 @@ export const getSequences = router({
         });
       });
 
+      if (applyExclusion && exclusionYearUnits.units.length > 0) {
+        result.unshift(exclusionYearUnits);
+      }
+
       return result;
     }),
 });
 
+function formatUnit(unit: Sequence) {
+  let categories: Category[] | undefined;
+
+  const threads =
+    unit.threads?.length > 0
+      ? Array.from(unit.threads).map(({ title, slug, order }) => ({
+          threadTitle: title,
+          threadSlug: slug,
+          order,
+        }))
+      : undefined;
+
+  if (unit.subjectcategories && unit.subjectcategories.length > 0) {
+    categories = unit.subjectcategories.map((cat) => ({
+      categoryTitle: cat.title,
+    }));
+  }
+
+  if (unit.unit_options && unit.unit_options.length > 0) {
+    return {
+      unitTitle: unit.title,
+      unitOrder: unit.order,
+      unitOptions: unit.unit_options.map((option) => ({
+        unitSlug: option.slug,
+        unitTitle: option.title,
+      })),
+      threads,
+      categories,
+    };
+  } else {
+    return {
+      unitSlug: unit.slug,
+      unitTitle: unit.title,
+      unitOrder: unit.order,
+      threads,
+      categories,
+    };
+  }
+}
+
 type UnitFilter = (unit: Sequence) => boolean;
 
 function formatUnits(units: Sequence[], filter: UnitFilter = () => true) {
-  return units.filter(filter).map((unit) => {
-    let categories: Category[] | undefined;
-
-    const threads =
-      unit.threads?.length > 0
-        ? Array.from(unit.threads).map(({ title, slug, order }) => ({
-            threadTitle: title,
-            threadSlug: slug,
-            order,
-          }))
-        : undefined;
-
-    if (unit.subjectcategories && unit.subjectcategories.length > 0) {
-      categories = unit.subjectcategories.map((cat) => ({
-        categoryTitle: cat.title,
-      }));
-    }
-
-    if (unit.unit_options && unit.unit_options.length > 0) {
-      return {
-        unitTitle: unit.title,
-        unitOrder: unit.order,
-        unitOptions: unit.unit_options.map((option) => ({
-          unitSlug: option.slug,
-          unitTitle: option.title,
-        })),
-        threads,
-        categories,
-      };
-    } else {
-      return {
-        unitSlug: unit.slug,
-        unitTitle: unit.title,
-        unitOrder: unit.order,
-        threads,
-        categories,
-      };
-    }
-  });
+  return units.filter(filter).map(formatUnit);
 }
 
 function formatUnitsForTiers(
