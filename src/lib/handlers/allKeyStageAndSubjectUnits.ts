@@ -109,7 +109,6 @@ export const getAllKeyStageAndSubjectUnits = router({
 
           const { slug: unitSlug } = unit;
 
-          // FIXME this doesn't support optionality
           const unitTitle = unit.title;
 
           acc[yearSlug].units.push({
