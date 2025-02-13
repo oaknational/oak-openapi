@@ -2,11 +2,7 @@ import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 import { gql } from 'graphql-request';
 import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
-import {
-  UnitVariantLessonsView,
-  getClient,
-  unitVariantLessonsView,
-} from 'lib/owaClient';
+import { SequenceView, getClient, sequenceView } from 'lib/owaClient';
 import { z } from 'zod';
 
 export const getAllKeyStageAndSubjectUnits = router({
@@ -70,47 +66,39 @@ export const getAllKeyStageAndSubjectUnits = router({
       const subject = decodeURIComponent(input.subject);
 
       const query = gql`
-        query ($blob: jsonb!) {
-          ${unitVariantLessonsView}(
+        query ($keyStage: String!, $subject: String!) {
+          ${sequenceView}(
             where: {
-              programme_fields:{
-                _contains:$blob
-              }
-              is_legacy: { _eq: false }
+              keystage_slug:{_eq:$keyStage},
+              subject_slug:{_eq:$subject}
             }
-            distinct_on: unit_slug
           ) {
-            unit_slug
-            unit_title:unit_data(path:"title")
-            year_slug: programme_fields(path: "year_slug")
-            optionality: programme_fields(path: "optionality")
+            slug
+            title
+            year
+            unit_options
           }
         }
       `;
 
       const variables = {
-        blob: {
-          subject_slug: subject,
-          keystage_slug: keyStage,
-        },
+        subject,
+        keyStage,
       };
 
       const graphqlClient = getClient();
-      const res: UnitVariantLessonsView = await graphqlClient.request(
-        query,
-        variables,
-      );
+      const res: SequenceView = await graphqlClient.request(query, variables);
 
-      if (res[unitVariantLessonsView].length === 0) {
+      if (res[sequenceView].length === 0) {
         return []; // unlikely, but sure.
       }
 
-      const units = res[unitVariantLessonsView];
+      const units = res[sequenceView];
 
       const result = units.reduce(
         (acc, unit) => {
-          const yearSlug = unit.year_slug;
-          const yearTitle = `Year ${unit.year_slug.split('-')[1]}`;
+          const yearSlug = `year-${unit.year}`;
+          const yearTitle = `Year ${unit.year}`;
           if (!acc[yearSlug]) {
             acc[yearSlug] = {
               yearSlug,
@@ -119,9 +107,9 @@ export const getAllKeyStageAndSubjectUnits = router({
             };
           }
 
-          const { unit_slug: unitSlug } = unit;
+          const { slug: unitSlug } = unit;
 
-          const unitTitle = unit.optionality || unit.unit_title;
+          const unitTitle = unit.title;
 
           acc[yearSlug].units.push({
             unitSlug,
