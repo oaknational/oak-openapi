@@ -352,9 +352,6 @@ export const getSequences = router({
         yearFilter === 0 && subjectSlug === 'physical-education';
 
       years.forEach((year) => {
-        // populated if actions.group_units_as is set
-        let title: string | undefined;
-
         const yearUnits = rawData
           .filter((_) => Number(_.year) === year)
           .filter((_) => {
