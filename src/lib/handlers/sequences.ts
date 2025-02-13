@@ -28,8 +28,8 @@ const categorySchema = z.object({
 });
 
 const threadSchema = z.object({
-  title: z.string(),
-  slug: z.string(),
+  threadTitle: z.string(),
+  threadSlug: z.string(),
   order: z.number(),
 });
 
@@ -387,7 +387,13 @@ function formatUnits(units: Sequence[], filter: UnitFilter = () => true) {
     let categories: Category[] | undefined;
 
     const threads =
-      unit.threads?.length > 0 ? Array.from(unit.threads) : undefined;
+      unit.threads?.length > 0
+        ? Array.from(unit.threads).map(({ title, slug, order }) => ({
+            threadTitle: title,
+            threadSlug: slug,
+            order,
+          }))
+        : undefined;
 
     if (unit.subjectcategories && unit.subjectcategories.length > 0) {
       categories = unit.subjectcategories.map((cat) => ({
