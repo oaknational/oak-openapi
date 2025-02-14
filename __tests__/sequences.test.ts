@@ -253,6 +253,7 @@ test(`swimming is "all-years" in PE`, async () => {
   const first = res[0] as YearSequence;
 
   expect(first.year).toBe('all-years');
+  expect(first).toHaveProperty('title');
   expect(first.units.length).toBeGreaterThan(0);
 });
 
