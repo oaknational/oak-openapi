@@ -73,7 +73,8 @@ const unitNoOptionsSchema = z.object({
 const unitSchema = z.union([unitWithOptionsSchema, unitNoOptionsSchema]);
 
 const tierSchema = z.object({
-  tier: z.string(),
+  tierTitle: z.string(),
+  tierSlug: z.string(),
   units: z.array(unitSchema),
 });
 
@@ -425,7 +426,7 @@ export const getSequences = router({
                 examSubjectTitle,
                 examSubjectSlug: subject_slug,
                 tiers: formatUnitsForTiers(yearUnits, subject).sort((a, b) =>
-                  a.tier < b.tier ? -1 : 1,
+                  a.tierSlug < b.tierSlug ? -1 : 1,
                 ),
               });
             } else {
@@ -503,17 +504,19 @@ function formatUnitsForTiers(
   subject?: string | undefined,
 ): Tier[] {
   const tiers = units.reduce<Tier[]>((acc, curr) => {
-    const { tier_slug: tier } = curr;
+    const { tier_slug: tierSlug, tier: tierTitle } = curr;
 
-    const existing = acc.find((_) => _.tier === tier);
+    const existing = acc.find((_) => _.tierSlug === tierSlug);
 
     if (!existing) {
       acc.push({
-        tier,
+        tierSlug,
+        tierTitle,
         units: formatUnits(
           units,
           (_: Sequence) =>
-            _.tier_slug === tier && (subject ? _.subject === subject : true),
+            _.tier_slug === tierSlug &&
+            (subject ? _.subject === subject : true),
         ),
       });
     }
