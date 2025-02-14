@@ -92,6 +92,11 @@ const examSubjectsSchemaWithoutTiers = z.object({
 
 const yearSequenceKS4WithExamSubjectsSchema = z.object({
   year: z.number(),
+  title: z
+    .string({
+      description: 'Optional alternative title for the year sequence',
+    })
+    .optional(),
   examSubjects: z.array(
     z.union([examSubjectsSchemaWithTiers, examSubjectsSchemaWithoutTiers]),
   ),
@@ -99,11 +104,21 @@ const yearSequenceKS4WithExamSubjectsSchema = z.object({
 
 const yearSequenceKS4WithoutExamSubjectsSchema = z.object({
   year: z.number(),
+  title: z
+    .string({
+      description: 'Optional alternative title for the year sequence',
+    })
+    .optional(),
   tiers: z.array(tierSchema),
 });
 
 const yearSequenceSchema = z.object({
   year: z.union([z.number(), z.literal('all-years')]),
+  title: z
+    .string({
+      description: 'Optional alternative title for the year sequence',
+    })
+    .optional(),
   units: z.array(unitSchema),
 });
 
@@ -330,6 +345,7 @@ export const getSequences = router({
       // this is (currently) _only_ used in PE (for swimming)
       const exclusionYearUnits: YearSequence = {
         year: 'all-years',
+        title: undefined,
         units: [],
       };
 
@@ -340,6 +356,10 @@ export const getSequences = router({
         const yearUnits = rawData
           .filter((_) => Number(_.year) === year)
           .filter((_) => {
+            if (_.actions?.group_units_as) {
+              exclusionYearUnits.title = _.actions.group_units_as;
+            }
+
             if (!applyExclusion) {
               // early return - we don't need to split the units
               return true;

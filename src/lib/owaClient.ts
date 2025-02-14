@@ -113,6 +113,7 @@ export type Sequence = TitleSlug & {
   features: { pe_swimming: boolean };
   actions: {
     opt_out: string[];
+    group_units_as: string;
     programme_field_overrides: {
       subject: string;
     };
