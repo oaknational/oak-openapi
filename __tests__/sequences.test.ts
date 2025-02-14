@@ -67,7 +67,7 @@ test('sequence with exam subjects & tiers', async () => {
     year11.examSubjects
       .map((subject) => {
         if ('tiers' in subject) {
-          return subject.tiers.map((tier) => tier.tier);
+          return subject.tiers.map((tier) => tier.tierSlug);
         }
       })
       .flat(Infinity),
@@ -199,7 +199,7 @@ test('new structure', async () => {
   }
 
   const tiers = examSubjects[0].tiers[0];
-  expect(tiers.tier).toBe('foundation');
+  expect(tiers.tierSlug).toBe('foundation');
 
   const unitsWithCategories = tiers.units
     .map((unit) => {
