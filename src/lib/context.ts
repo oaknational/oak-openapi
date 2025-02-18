@@ -8,6 +8,16 @@ export type Context = inferAsyncReturnType<typeof createContext>;
 
 const createContextWithUser = async (opts: CreateNextContextOptions) => {
   const user = await withUser(opts.req);
+
+  // Log the request which is forwarded to datadog
+  console.info(
+    JSON.stringify({
+      userId: user?.id,
+      url: opts.req.url,
+      query: opts.req.query,
+    }),
+  );
+
   return {
     req: opts.req,
     res: opts.res,
