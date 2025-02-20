@@ -88,6 +88,9 @@ export type Sequence = TitleSlug & {
   description: string;
   slug: string;
   domain: string;
+  threads: (TitleSlug & {
+    order: number;
+  })[];
   examboard_slug: string;
   keystage_slug: string;
   notes: string;
@@ -107,6 +110,14 @@ export type Sequence = TitleSlug & {
   tier_slug: string;
   why_this_why_now: string;
   year: string;
+  features: { pe_swimming: boolean };
+  actions: {
+    opt_out: string[];
+    group_units_as: string;
+    programme_field_overrides: {
+      subject: string;
+    };
+  };
 };
 
 export type UnitVariantLesson = {
@@ -123,6 +134,13 @@ export type UnitVariantLesson = {
     unit_order: number;
     order_in_unit: number;
   };
+};
+
+export type ThreadWithUnits = TitleSlug & {
+  thread_units: {
+    order: number;
+    unit: TitleSlug;
+  }[];
 };
 
 export type DownloadView = {
