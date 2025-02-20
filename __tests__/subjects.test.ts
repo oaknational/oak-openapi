@@ -74,3 +74,17 @@ test('subject constants structures', async () => {
   expect(subjects[0]).toBeTypeOf('string');
   expect(subjects).includes('English');
 });
+
+test('correct year sequence', async () => {
+  const { caller } = authedCaller();
+
+  const allYears = await caller.getSubjects.getSubjectYears({
+    subject: 'maths',
+  });
+  expect(allYears).toStrictEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+
+  const res = await caller.getSubjects.getSubject({ subject: 'maths' });
+  expect(res.years).toStrictEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+  expect(res.sequenceSlugs[0].years).toStrictEqual([1, 2, 3, 4, 5, 6]);
+  expect(res.sequenceSlugs[1].years).toStrictEqual([7, 8, 9, 10, 11]);
+});

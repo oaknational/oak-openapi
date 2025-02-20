@@ -7,7 +7,8 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
 
   test: {
-    /* for example, use global to avoid globals imports (describe, test, expect): */
-    // globals: true,
+    // 10 seconds - in CI, sometimes the asset and sequence
+    //  tests take 5-7s (assume a connectivity latency issue)
+    testTimeout: 10000,
   },
 });

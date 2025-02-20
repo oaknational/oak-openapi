@@ -2,8 +2,6 @@ import toSorted from 'array.prototype.tosorted';
 import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 import { z } from 'zod';
-// import { blockedSubjects } from '../blockedContent';
-// import { TRPCError } from '@trpc/server';
 import {
   getClient,
   gql,
@@ -14,90 +12,138 @@ import {
 } from '../owaClient';
 import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
 import { examBoards } from '../oakConsts';
-import slugify from 'slugify';
 import { blockedSequenceSubjects } from '../blockedContent';
 import { TRPCError } from '@trpc/server';
 
 toSorted.shim();
 
-type UnitFromDb = {
-  title: string;
-  slug: string;
-  order: number;
-};
+const years = [
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11',
+  'all-years',
+];
 
 const input = z.object({
   sequence: z.string(),
-  year: z.number().optional(),
+
+  year: z.enum(years as [string]).optional(),
 });
 
-const unitEntity = z.object({
+const categorySchema = z.object({
+  categoryTitle: z.string(),
+  categorySlug: z.string().optional(),
+});
+
+const threadSchema = z.object({
+  threadTitle: z.string(),
+  threadSlug: z.string(),
+  order: z.number(),
+});
+
+const unitOptionSchema = z.object({
   unitTitle: z.string(),
   unitSlug: z.string(),
 });
 
-// unitNoOptions combines unitParent and unitEntity but not as a union
-const unitNoOptions = z.object({
+const unitWithOptionsSchema = z.object({
+  unitTitle: z.string(),
+  unitOrder: z.number(),
+  unitOptions: z.array(unitOptionSchema),
+  categories: z.array(categorySchema).optional(),
+  threads: z.array(threadSchema).optional(),
+});
+
+const unitNoOptionsSchema = z.object({
+  unitTitle: z.string(),
+  unitOrder: z.number(),
   unitSlug: z.string(),
-  unitTitle: z.string(),
-  unitOrder: z.number(),
+  categories: z.array(categorySchema).optional(),
+  threads: z.array(threadSchema).optional(),
 });
 
-// unitOptions is unitParent + unitEntity[] (as unitOption property)
-const unitOptions = z.object({
-  unitTitle: z.string(),
-  unitOrder: z.number(),
-  unitOptions: z.array(unitEntity),
-});
-
-// unitSchema is unitNoOptions or unitOptions
-export const unitSchema = z.union([unitNoOptions, unitOptions]);
-
-export type UnitNoOptions = z.infer<typeof unitNoOptions>;
-export type UnitOptions = z.infer<typeof unitOptions>;
-export type Unit = z.infer<typeof unitSchema>;
-
-const nonSubjectSchema = z.object({
-  year: z.number(),
-  units: z.array(unitSchema),
-});
-
-const subjectSchema = z.object({
-  subjectSlug: z.string(),
-  subjectTitle: z.string(),
-  units: z.array(unitSchema),
-});
+const unitSchema = z.union([unitWithOptionsSchema, unitNoOptionsSchema]);
 
 const tierSchema = z.object({
-  tier: z.string(),
+  tierTitle: z.string(),
+  tierSlug: z.string(),
   units: z.array(unitSchema),
 });
 
-const subjectTiersSchema = z.object({
-  subjectSlug: z.string(),
-  subjectTitle: z.string(),
+const examSubjectsSchemaWithTiers = z.object({
+  examSubjectTitle: z.string(),
+  examSubjectSlug: z.string().optional(),
   tiers: z.array(tierSchema),
 });
 
-const subjectsSchema = z.object({
-  year: z.number(),
-  subjects: z.array(z.union([subjectSchema, subjectTiersSchema])),
+const examSubjectsSchemaWithoutTiers = z.object({
+  examSubjectTitle: z.string(),
+  examSubjectSlug: z.string().optional(),
+  units: z.array(unitSchema),
 });
 
-const tiersSchema = z.object({
+const yearSequenceKS4WithExamSubjectsSchema = z.object({
   year: z.number(),
+  title: z
+    .string({
+      description: 'Optional alternative title for the year sequence',
+    })
+    .optional(),
+  examSubjects: z.array(
+    z.union([examSubjectsSchemaWithTiers, examSubjectsSchemaWithoutTiers]),
+  ),
+});
+
+const yearSequenceKS4WithoutExamSubjectsSchema = z.object({
+  year: z.number(),
+  title: z
+    .string({
+      description: 'Optional alternative title for the year sequence',
+    })
+    .optional(),
   tiers: z.array(tierSchema),
 });
 
-const output = z.array(
-  z.union([nonSubjectSchema, subjectsSchema, tiersSchema]),
-);
+const yearSequenceSchema = z.object({
+  year: z.union([z.number(), z.literal('all-years')]),
+  title: z
+    .string({
+      description: 'Optional alternative title for the year sequence',
+    })
+    .optional(),
+  units: z.array(unitSchema),
+});
 
-export type SequenceUnits = z.infer<typeof output>;
-export type NonSubjectSchema = z.infer<typeof nonSubjectSchema>;
-export type SubjectSchema = z.infer<typeof subjectSchema>;
-type SubjectTiersSchema = z.infer<typeof subjectTiersSchema>;
-type TiersSchema = z.infer<typeof tiersSchema>;
+const sequenceSchema = z.union([
+  yearSequenceSchema,
+  yearSequenceKS4WithExamSubjectsSchema,
+  yearSequenceKS4WithoutExamSubjectsSchema,
+]);
+
+const output = z.array(sequenceSchema);
+
+export type SequenceSchema = z.infer<typeof sequenceSchema>;
+export type YearSequence = z.infer<typeof yearSequenceSchema>;
+export type ExamSubjectsWithTiers = z.infer<typeof examSubjectsSchemaWithTiers>;
+export type ExamSubjectsWithoutTiers = z.infer<
+  typeof examSubjectsSchemaWithoutTiers
+>;
+type Tier = z.infer<typeof tierSchema>;
+type Category = z.infer<typeof categorySchema>;
+export type yearSequenceKS4WithExamSubjects = z.infer<
+  typeof yearSequenceKS4WithExamSubjectsSchema
+>;
+export type UnitWithOptions = z.infer<typeof unitWithOptionsSchema>;
+export type UnitWithoutOptions = z.infer<typeof unitNoOptionsSchema>;
+export type Unit = z.infer<typeof unitSchema>;
 
 type WhereCondition = {
   _and: Array<{
@@ -176,36 +222,6 @@ export function sequenceWhere(sequence: string, year?: string) {
   };
 }
 
-function pushUnit(unit: UnitFromDb): Unit {
-  const { title, slug, order } = unit;
-
-  return {
-    unitTitle: title.trim(),
-    unitSlug: slug.trim(),
-    unitOrder: order,
-  };
-}
-
-function mapUnits(units: Sequence[]) {
-  return units.reduce<Unit[]>((acc, curr) => {
-    if (curr.unit_options.length > 0) {
-      const unitOptions = curr.unit_options.map(({ slug, title }) => ({
-        unitSlug: slug,
-        unitTitle: title,
-      }));
-      acc.push({
-        unitTitle: curr.title,
-        unitOrder: curr.order,
-        unitOptions,
-      });
-    } else {
-      acc.push(pushUnit(curr as UnitFromDb));
-    }
-
-    return acc;
-  }, []);
-}
-
 export const getSequences = router({
   getSequenceUnits: protectedProcedure
     .meta({
@@ -253,7 +269,13 @@ export const getSequences = router({
     .query(async ({ input }) => {
       const client = getClient();
 
-      const yearFilter = input.year || 0;
+      let yearFilter = 0;
+
+      if (input.year === 'all-years') {
+        yearFilter = 0;
+      } else if (input.year) {
+        yearFilter = parseInt(input.year, 10);
+      }
 
       const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
 
@@ -273,6 +295,7 @@ export const getSequences = router({
           order_by: { order: asc }
         ) {
           title
+          threads
           slug
           domain
           examboard_slug
@@ -286,6 +309,8 @@ export const getSequences = router({
           subject_parent
           subject_slug
           tier
+          features
+          actions
           tier_slug
           unit_options
           year
@@ -301,124 +326,220 @@ export const getSequences = router({
           (acc, curr) => acc.add(Number(curr.year)),
           new Set(),
         ),
-      ).sort((a, b) => a - b);
-
-      const subjectSlugToTitle = new Map<string, string>(
-        rawData.map((_) => [_.subject_slug, _.subject]),
-      );
-
-      const result = [];
-
-      for (const year of years) {
-        // reduce down to only the units for this particular year
-        const byYear = rawData.filter(
-          (unit) => parseInt(unit.year, 10) === year,
-        );
-
-        // now check if there's any subject categories
-        // if there are, we need to start grouping by subject, and then
-        // check for tiers.
-
-        // this isn't ideal, because the subjectcategories field is an array
-        // that I'm assuming has a length of 1 (brittle) and then I'm attempting
-        // to slugify the title.
-        let useSlugMap = true;
-        const subjects = new Set(
-          byYear
-            .filter((unit) => unit.subjectcategories.length > 0)
-            .map((unit) => {
-              if (unit.subject_parent) {
-                return unit.subject_slug;
-              }
-              useSlugMap = false;
-              return unit.subjectcategories[0].title;
-            }),
-        );
-
-        if (subjects.size === 0) {
-          // when there's no subjects for the year, we first check
-          // to see if there's tiers (such as maths-secondary), and if so,
-          // then we drop into the tiers and group by _that_.
-
-          const tiers = new Set(
-            byYear.map((_) => _.tier_slug).filter((_) => _ !== null),
-          );
-
-          if (tiers.size > 0) {
-            const tierData: TiersSchema = {
-              year,
-              tiers: Array.from(tiers).map((tier) => {
-                return {
-                  tier,
-                  units: mapUnits(byYear.filter((_) => _.tier_slug === tier)),
-                };
-              }),
-            };
-
-            result.push(tierData);
-          } else {
-            // otherwise it's a simple and direct line to the units.
-            result.push({
-              year,
-              units: mapUnits(byYear),
-            } as NonSubjectSchema);
+      )
+        .sort((a, b) => a - b)
+        .filter((year) => {
+          if (yearFilter) {
+            return year === yearFilter;
           }
-        } else {
-          // otherwise we need to start collecting all the subjects
+          return true;
+        });
 
-          const subjectData = (subject: string) => ({
-            subjectTitle: useSlugMap
-              ? subjectSlugToTitle.get(subject)
-              : subject,
-            subjectSlug: useSlugMap
-              ? subject
-              : slugify(subject).toLocaleLowerCase(),
+      const result: SequenceSchema[] = [];
+
+      const ks4Years = years.filter((year) => year >= 10);
+
+      // this is (currently) _only_ used in PE (for swimming)
+      const exclusionYearUnits: YearSequence = {
+        year: 'all-years',
+        title: undefined,
+        units: [],
+      };
+
+      const applyExclusion =
+        yearFilter === 0 && subjectSlug === 'physical-education';
+
+      years.forEach((year) => {
+        const yearUnits = rawData
+          .filter((_) => Number(_.year) === year)
+          .filter((_) => {
+            if (_.actions?.group_units_as) {
+              exclusionYearUnits.title = _.actions.group_units_as;
+            }
+
+            if (!applyExclusion) {
+              // early return - we don't need to split the units
+              return true;
+            }
+
+            if (!_.features?.pe_swimming) {
+              return true;
+            }
+
+            exclusionYearUnits.units.push(formatUnit(_));
+
+            // then remove the swimming unit from the normal year list
+            return false;
           });
 
-          const res = [];
-          for (const subject of subjects) {
-            const units = byYear.filter((unit) => {
-              if (unit.subject_parent) {
-                return unit.subject_slug === subject;
-              }
+        let hasExamSubjectOverride = false;
 
-              return (
-                unit.subjectcategories.length > 0 &&
-                unit.subjectcategories[0].title === subject
-              );
-            });
+        /**
+         * if years is 0 (i.e. all) _AND_ the subject is PE then
+         * 1. we need to _ignore_ any swimming units from the "normal" results
+         * 2. we need to separate out the swimming units into their own "magic" year
+         */
 
-            const tiers = new Set(
-              units.map((_) => _.tier_slug).filter((_) => _ !== null),
-            );
+        // then we're going to check for examSubjects / child subjects
+        const seen = new Set<string>();
 
-            if (tiers.size > 0) {
-              const tierData = Array.from(tiers).map((tier) => {
-                return {
-                  tier,
-                  units: mapUnits(units.filter((_) => _.tier_slug === tier)),
-                };
+        // let's find out how many subjects there are,
+        // if there's only one, then we don't break it into examSubjects
+        for (const { subject, subject_parent, actions } of yearUnits) {
+          if (subject_parent && !seen.has(subject)) {
+            seen.add(subject);
+          }
+
+          // checking for programme_override_exclusions for subjects
+          if (actions?.programme_field_overrides?.subject) {
+            seen.add(actions.programme_field_overrides.subject);
+            hasExamSubjectOverride = true;
+          }
+        }
+
+        // let's use the first unit in the year sequence
+
+        const hasTiers = !!yearUnits[0].tier_slug;
+        const hasExamSubjects = seen.size > 1 || hasExamSubjectOverride;
+
+        if (!ks4Years.includes(year) || (!hasExamSubjects && !hasTiers)) {
+          const units = formatUnits(yearUnits);
+
+          result.push({
+            year,
+            units,
+          });
+          return; // early return
+        }
+
+        if (!hasExamSubjects && hasTiers) {
+          const tiers = formatUnitsForTiers(yearUnits);
+
+          result.push({
+            year,
+            tiers,
+          });
+          return;
+        }
+
+        const examSubjects: (
+          | ExamSubjectsWithTiers
+          | ExamSubjectsWithoutTiers
+        )[] = [];
+
+        // reset seen
+        seen.clear();
+
+        for (const { subject, subject_slug, actions } of yearUnits) {
+          const programmeFieldSubject =
+            actions?.programme_field_overrides?.subject;
+          const examSubjectTitle = programmeFieldSubject || subject;
+
+          if (!seen.has(examSubjectTitle)) {
+            seen.add(examSubjectTitle);
+
+            if (hasTiers) {
+              examSubjects.push({
+                examSubjectTitle,
+                examSubjectSlug: subject_slug,
+                tiers: formatUnitsForTiers(yearUnits, subject).sort((a, b) =>
+                  a.tierSlug < b.tierSlug ? -1 : 1,
+                ),
               });
-
-              res.push({
-                ...subjectData(subject),
-                tiers: tierData, // contains tier + units
-              } as SubjectTiersSchema);
             } else {
-              res.push({
-                ...subjectData(subject),
-                units: mapUnits(units),
-              } as SubjectSchema);
+              examSubjects.push({
+                examSubjectTitle,
+                examSubjectSlug: subject_slug,
+                units: formatUnits(yearUnits, (_) => _.subject === subject),
+              });
             }
           }
-          result.push({ year, subjects: res });
         }
-      }
 
-      if (yearFilter) {
-        return result.filter((_) => _.year === yearFilter);
+        result.push({
+          year,
+          examSubjects,
+        });
+      });
+
+      if (applyExclusion && exclusionYearUnits.units.length > 0) {
+        result.unshift(exclusionYearUnits);
       }
 
       return result;
     }),
 });
+
+function formatUnit(unit: Sequence) {
+  let categories: Category[] | undefined;
+
+  const threads =
+    unit.threads?.length > 0
+      ? Array.from(unit.threads).map(({ title, slug, order }) => ({
+          threadTitle: title,
+          threadSlug: slug,
+          order,
+        }))
+      : undefined;
+
+  if (unit.subjectcategories && unit.subjectcategories.length > 0) {
+    categories = unit.subjectcategories.map((cat) => ({
+      categoryTitle: cat.title,
+    }));
+  }
+
+  if (unit.unit_options && unit.unit_options.length > 0) {
+    return {
+      unitTitle: unit.title,
+      unitOrder: unit.order,
+      unitOptions: unit.unit_options.map((option) => ({
+        unitSlug: option.slug,
+        unitTitle: option.title,
+      })),
+      threads,
+      categories,
+    };
+  } else {
+    return {
+      unitSlug: unit.slug,
+      unitTitle: unit.title,
+      unitOrder: unit.order,
+      threads,
+      categories,
+    };
+  }
+}
+
+type UnitFilter = (unit: Sequence) => boolean;
+
+function formatUnits(units: Sequence[], filter: UnitFilter = () => true) {
+  return units.filter(filter).map(formatUnit);
+}
+
+function formatUnitsForTiers(
+  units: Sequence[],
+  subject?: string | undefined,
+): Tier[] {
+  const tiers = units.reduce<Tier[]>((acc, curr) => {
+    const { tier_slug: tierSlug, tier: tierTitle } = curr;
+
+    const existing = acc.find((_) => _.tierSlug === tierSlug);
+
+    if (!existing) {
+      acc.push({
+        tierSlug,
+        tierTitle,
+        units: formatUnits(
+          units,
+          (_: Sequence) =>
+            _.tier_slug === tierSlug &&
+            (subject ? _.subject === subject : true),
+        ),
+      });
+    }
+
+    return acc;
+  }, []);
+
+  return tiers;
+}
