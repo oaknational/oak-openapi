@@ -107,6 +107,7 @@ export async function findUserByKey(
     // or idle users)
     if (log) {
       await redis.hincrby(`user:${key}`, 'requests', 1);
+      await redis.hset(`user:${key}`, { lastRequest: new Date().toJSON() });
     }
 
     if (user.rateLimit === undefined) {
