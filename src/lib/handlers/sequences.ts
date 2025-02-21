@@ -232,29 +232,26 @@ export const getSequences = router({
         description: '',
         example: {
           request: {
-            sequence: 'english-secondary-aqa',
+            sequence: 'english-primary',
           },
           response: [
             {
-              year: 10,
-              subjects: [
+              year: 1,
+              units: [
                 {
-                  subjectSlug: 'literature',
-                  subjectTitle: 'Literature',
-                  units: [
+                  unitTitle: 'Speaking and Listening',
+                  unitOrder: 1,
+                  unitSlug: 'speaking-and-listening',
+                  categories: [
                     {
-                      unitTitle: 'Modern text: first study',
-                      unitOrder: 1,
-                      unitOptions: [
-                        {
-                          unitTitle: 'Animal Farm: the pigs and power',
-                          unitSlug: 'modern-text-first-study-152',
-                        },
-                        {
-                          unitTitle: 'Leave Taking: a sense of belonging',
-                          unitSlug: 'modern-text-first-study-198',
-                        },
-                      ],
+                      categoryTitle: 'Reading, writing & oracy',
+                    },
+                  ],
+                  threads: [
+                    {
+                      threadTitle: 'Developing spoken language',
+                      threadSlug: 'developing-spoken-language',
+                      order: 8,
                     },
                   ],
                 },

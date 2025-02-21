@@ -1,4 +1,6 @@
 import { protectedProcedure } from '~/lib/protect';
+// import { zodToJsonSchema } from 'zod-to-json-schema';
+
 import { router } from '~/lib/trpc';
 import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
 import {
@@ -105,7 +107,7 @@ const questionZod = z
     questionImage: imageContent.optional(),
   })
   .and(
-    z.union([
+    z.discriminatedUnion('questionType', [
       z.object(
         {
           questionType: multipleChoiceLit,
@@ -148,6 +150,16 @@ const questionZod = z
       ),
     ]),
   );
+
+const questionsSchema = z.array(
+  z.object({
+    lessonSlug: z.string(),
+    lessonTitle: z.string(),
+    // unitSlug: z.string(),
+    starterQuiz: z.array(questionZod),
+    exitQuiz: z.array(questionZod),
+  }),
+);
 
 type Question = z.infer<typeof questionZod>;
 type QuizKey = 'exitQuiz' | 'starterQuiz';
@@ -395,31 +407,64 @@ export const getQuestions = router({
           request: {
             lesson: 'joining-using-and',
           },
-          response: [
-            {
-              question: 'What is a main clause?',
-              questionType: 'multiple-choice',
-              answers: [
-                {
-                  answer: 'a list of nouns',
-                  distractor: true,
-                },
-                {
-                  answer:
-                    'a group of words that contains a verb and makes complete sense',
-                  distractor: false,
-                },
-                {
-                  answer: 'a word class',
-                  distractor: true,
-                },
-                {
-                  answer: 'a group of words with no verb',
-                  distractor: true,
-                },
-              ],
-            },
-          ],
+          response: {
+            starterQuiz: [
+              {
+                question: 'Tick the sentence with the correct punctuation.',
+                questionType: 'multiple-choice',
+                answers: [
+                  {
+                    distractor: true,
+                    type: 'text',
+                    content: 'the baby cried',
+                  },
+                  {
+                    distractor: true,
+                    type: 'text',
+                    content: 'The baby cried',
+                  },
+                  {
+                    distractor: false,
+                    type: 'text',
+                    content: 'The baby cried.',
+                  },
+                  {
+                    distractor: true,
+                    type: 'text',
+                    content: 'the baby cried.',
+                  },
+                ],
+              },
+            ],
+            exitQuiz: [
+              {
+                question: 'Which word is a verb?',
+                questionType: 'multiple-choice',
+                answers: [
+                  {
+                    distractor: true,
+                    type: 'text',
+                    content: 'shops',
+                  },
+                  {
+                    distractor: true,
+                    type: 'text',
+                    content: 'Jun',
+                  },
+                  {
+                    distractor: true,
+                    type: 'text',
+                    content: 'I',
+                  },
+                  {
+                    distractor: false,
+                    type: 'text',
+                    content: 'shout',
+                  },
+                ],
+              },
+            ],
+          },
         },
       },
     })
@@ -508,6 +553,64 @@ export const getQuestions = router({
         description:
           'This endpoint returns the quiz questions and answers (and indicates which answers are correct and which are distractors) for a given sequence',
         example: {
+          response: [
+            {
+              lessonTitle: '3D shapes can be composed from 2D nets',
+              lessonSlug: '3d-shapes-can-be-composed-from-2d-nets',
+              starterQuiz: [
+                {
+                  question:
+                    'Select all of the names of shapes that are polygons.',
+                  questionType: 'multiple-choice',
+                  answers: [
+                    {
+                      type: 'text',
+                      content: 'Cube ',
+                      distractor: true,
+                    },
+                    {
+                      type: 'text',
+                      content: ' Square',
+                      distractor: false,
+                    },
+                    {
+                      type: 'text',
+                      content: 'Triangle',
+                      distractor: false,
+                    },
+                    {
+                      type: 'text',
+                      content: 'Semi-circle',
+                      distractor: true,
+                    },
+                  ],
+                },
+              ],
+              exitQuiz: [
+                {
+                  question: 'What is a net?',
+                  questionType: 'multiple-choice',
+                  answers: [
+                    {
+                      type: 'text',
+                      content: 'A 3D shape made of 2D shapes folded together. ',
+                      distractor: false,
+                    },
+                    {
+                      type: 'text',
+                      content: 'A 2D shape made of 3D shapes folded togehther.',
+                      distractor: true,
+                    },
+                    {
+                      type: 'text',
+                      content: 'A type of cube.',
+                      distractor: true,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
           request: {
             sequence: 'maths-secondary',
           },
@@ -655,27 +758,121 @@ export const getQuestions = router({
         example: {
           response: [
             {
-              lessonSlug: 'joining-using-and',
-              lessonTitle: "Joining using 'and'",
-              questions: [
+              lessonSlug: 'predicting-the-size-of-a-product',
+              lessonTitle: 'Predicting the size of a product',
+              starterQuiz: [
                 {
-                  question: 'Which word is a verb?',
+                  question: 'Match the number to its written representation.',
+                  questionType: 'match',
                   answers: [
                     {
-                      answer: 'shops',
-                      distractor: true,
+                      matchOption: {
+                        type: 'text',
+                        content: 'seven tenths',
+                      },
+                      correctChoice: {
+                        type: 'text',
+                        content: '0.7',
+                      },
                     },
                     {
-                      answer: 'Jun',
-                      distractor: true,
+                      matchOption: {
+                        type: 'text',
+                        content: 'nine tenths',
+                      },
+                      correctChoice: {
+                        type: 'text',
+                        content: '0.9',
+                      },
                     },
                     {
-                      answer: 'I',
-                      distractor: true,
+                      matchOption: {
+                        type: 'text',
+                        content: 'seven ones',
+                      },
+                      correctChoice: {
+                        type: 'text',
+                        content: '7',
+                      },
                     },
                     {
-                      answer: 'shout',
-                      distractor: false,
+                      matchOption: {
+                        type: 'text',
+                        content: 'seven hundredths',
+                      },
+                      correctChoice: {
+                        type: 'text',
+                        content: '0.07',
+                      },
+                    },
+                    {
+                      matchOption: {
+                        type: 'text',
+                        content: 'nine hundredths',
+                      },
+                      correctChoice: {
+                        type: 'text',
+                        content: '0.09',
+                      },
+                    },
+                  ],
+                },
+              ],
+              exitQuiz: [
+                {
+                  question:
+                    'Use the fact that 9 × 8 = 72, to match the expressions to their product.',
+                  questionType: 'match',
+                  answers: [
+                    {
+                      matchOption: {
+                        type: 'text',
+                        content: '9 × 80',
+                      },
+                      correctChoice: {
+                        type: 'text',
+                        content: '720',
+                      },
+                    },
+                    {
+                      matchOption: {
+                        type: 'text',
+                        content: '9 × 800 ',
+                      },
+                      correctChoice: {
+                        type: 'text',
+                        content: '7,200',
+                      },
+                    },
+                    {
+                      matchOption: {
+                        type: 'text',
+                        content: '9 × 0.8',
+                      },
+                      correctChoice: {
+                        type: 'text',
+                        content: '7.2',
+                      },
+                    },
+                    {
+                      matchOption: {
+                        type: 'text',
+                        content: '9 × 0',
+                      },
+                      correctChoice: {
+                        type: 'text',
+                        content: '0',
+                      },
+                    },
+                    {
+                      matchOption: {
+                        type: 'text',
+                        content: '9 × 0.08',
+                      },
+                      correctChoice: {
+                        type: 'text',
+                        content: '0.72',
+                      },
                     },
                   ],
                 },
@@ -705,17 +902,7 @@ export const getQuestions = router({
           .default(10),
       }),
     )
-    .output(
-      z.array(
-        z.object({
-          lessonSlug: z.string(),
-          lessonTitle: z.string(),
-          // unitSlug: z.string(),
-          starterQuiz: z.array(questionZod),
-          exitQuiz: z.array(questionZod),
-        }),
-      ),
-    )
+    .output(questionsSchema)
     .query(async ({ input, ctx }) => {
       const keyStage = decodeURIComponent(input.keyStage);
       const subject = decodeURIComponent(input.subject);
