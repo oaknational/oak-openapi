@@ -11,10 +11,34 @@ export const getRateLimit = router({
   getRateLimit: protectedProcedure
     .use(defaultCaching)
     .meta({
-      openapi: { method: 'GET', path: '/rate-limit', tags: ['internal'] },
+      openapi: {
+        method: 'GET',
+        path: '/rate-limit',
+        tags: ['internal'],
+        description:
+          'Check your current rate limit status (note that your rate limit is also included in the headers of every response).\n\nThis specific endpoint does not cost any requests.',
+        example: {
+          response: { limit: 1000, remaining: 953, reset: 1740164400000 },
+        },
+      },
       noCost: true,
     })
-    .output(z.any())
+    .output(
+      z.object({
+        limit: z.number({
+          description:
+            'The maximum number of requests you can make in the current window.',
+        }),
+        remaining: z.number({
+          description:
+            'The number of requests remaining in the current window.',
+        }),
+        reset: z.number({
+          description:
+            'The time at which the current window resets, in milliseconds since the Unix epoch.',
+        }),
+      }),
+    )
     .input(z.undefined())
     .query(async ({ ctx }) => {
       const { user } = ctx;
@@ -35,6 +59,6 @@ export const getRateLimit = router({
         return { limit, remaining, reset };
       }
 
-      return { rate: 0, unlimited: true };
+      return { limit: 0, remaining: 0, reset: 0 };
     }),
 });
