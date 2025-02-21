@@ -228,18 +228,19 @@ export const getLessons = router({
           'This endpoint returns lessons that are similar to the search criteria, including a similarity score, and details of the unit that it is in',
         example: {
           request: {
-            q: 'chratchet',
+            q: 'gothic',
             subject: 'english',
           },
           response: [
             {
-              lessonSlug: 'gothic-characters-c8tp4d',
-              lessonTitle: 'Gothic characters',
-              similarity: 0.07692308,
+              lessonSlug: 'descriptive-writing-about-a-small-detail',
+              lessonTitle: 'Writing a gothic description',
+              similarity: 0.2413793,
               units: [
                 {
-                  unitSlug: 'gothic-literature-8196',
-                  unitTitle: 'Gothic Literature',
+                  unitSlug: 'a-monster-within-reading-gothic-fiction',
+                  unitTitle:
+                    'A monster within: reading and writing Gothic fiction',
                   examBoardTitle: null,
                   keyStageSlug: 'ks3',
                   subjectSlug: 'english',
@@ -247,13 +248,27 @@ export const getLessons = router({
               ],
             },
             {
-              lessonSlug: 'columbus-in-chains-c8ukct',
-              lessonTitle: 'Columbus in Chains',
-              similarity: 0.07692308,
+              lessonSlug: 'performing-your-chosen-gothic-poem',
+              lessonTitle: 'Performing your chosen Gothic poem',
+              similarity: 0.20588236,
               units: [
                 {
-                  unitSlug: 'annie-john-by-jamaica-kincaid-c5ab',
-                  unitTitle: 'Annie John by Jamaica Kincaid',
+                  unitSlug: 'gothic-poetry',
+                  unitTitle: 'Gothic poetry',
+                  examBoardTitle: null,
+                  keyStageSlug: 'ks3',
+                  subjectSlug: 'english',
+                },
+              ],
+            },
+            {
+              lessonSlug: 'the-twisted-tree-the-novel-as-a-gothic-text',
+              lessonTitle: "'The Twisted Tree': the novel as a Gothic text",
+              similarity: 0.19444445,
+              units: [
+                {
+                  unitSlug: 'the-twisted-tree-fiction-reading',
+                  unitTitle: "'The Twisted Tree': fiction reading",
                   examBoardTitle: null,
                   keyStageSlug: 'ks3',
                   subjectSlug: 'english',
