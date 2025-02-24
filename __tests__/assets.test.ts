@@ -14,6 +14,23 @@ vi.mock('@google-cloud/storage', async () => {
   return {
     Storage: vi.fn().mockImplementation(() => {
       return {
+        getFiles: vi.fn().mockResolvedValue([
+          [
+            {
+              name: 'LESS-ID/slidedeck/PDF.pdf',
+              metadata: {
+                contentType: 'application/pdf',
+              },
+            },
+            {
+              name: 'LESS-ID/slidedeck/PowerPoint.pptx',
+              metadata: {
+                contentType:
+                  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+              },
+            },
+          ],
+        ]),
         bucket: vi.fn().mockReturnThis(),
         file: vi.fn().mockReturnThis(),
         createReadStream() {
@@ -62,6 +79,41 @@ test('read a single asset (pdf)', async () => {
   expect(call).toBeInstanceOf(Buffer);
   const header = call.toString('ascii', 0, 5);
   expect(header).toBe('%PDF-');
+});
+
+test('request power point', async () => {
+  const request = makeRes();
+  const caller = makeCaller(
+    {
+      user: 1,
+    },
+    request,
+  );
+
+  await caller.getAssets.getLessonAsset({
+    lesson: 'checking-understanding-of-perimeter',
+    type: 'slideDeck',
+    ext: 'pptx',
+  });
+
+  // expects the content disposition to be set last (i.e. after the content type)
+  expect(request.setHeader.mock.lastCall[1].endsWith('.pptx"')).toBe(true);
+
+  await caller.getAssets.getLessonAsset({
+    lesson: 'checking-understanding-of-perimeter',
+    type: 'slideDeck',
+    ext: 'pdf',
+  });
+
+  expect(request.setHeader.mock.lastCall[1].endsWith('.pdf"')).toBe(true);
+
+  await caller.getAssets.getLessonAsset({
+    lesson: 'checking-understanding-of-perimeter',
+    type: 'slideDeck',
+    ext: 'odp',
+  });
+
+  expect(request.setHeader.mock.lastCall[1].endsWith('.odp"')).toBe(true);
 });
 
 test('read a video redirect', async () => {
