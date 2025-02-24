@@ -48,7 +48,7 @@ export const changelog = router({
   changelog: publicProcedure
     .use(defaultCaching)
     .meta({
-      openapi: { method: 'GET', path: '/changelog', tags: ['changelog'] },
+      openapi: { method: 'GET', path: '/changelog', tags: ['internal'] },
     })
     .output(
       z.array(
@@ -69,7 +69,7 @@ export const changelog = router({
       openapi: {
         method: 'GET',
         path: '/changelog/latest',
-        tags: ['changelog'],
+        tags: ['internal'],
         example: {
           response: versions[0],
         },
