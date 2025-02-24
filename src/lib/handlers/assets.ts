@@ -46,6 +46,15 @@ import { sequenceWhere } from './sequences';
 import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
 import { blockedSequenceSubjects } from '../blockedContent';
 
+const typeToMime = new Map([
+  ['pdf', 'application/pdf'],
+  [
+    'pptx',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  ],
+  ['odp', 'application/vnd.oasis.opendocument.presentation'],
+]);
+
 export const downloadTypeEnum = z.enum(
   [
     'slideDeck',
@@ -804,21 +813,50 @@ export const getAssets = router({
           description: 'The lesson slug',
         }),
         type: downloadTypeEnum,
+        ext: z
+          .enum(['pdf', 'pptx', 'odp'], {
+            description:
+              'Non video assets are available as both PDF, PowerPoint and OpenDocument Presentation files',
+          })
+          .optional()
+          .default('pdf'),
       }),
     )
     .output(z.undefined()) // no output, but file is streamed to the request
     .query(async ({ input, ctx }) => {
-      const { lesson, type } = input;
+      const { lesson, type, ext = 'pdf' } = input;
 
       const { assets } = await assetsForLesson(lesson);
 
       const asset = assets[type];
 
       if (type !== 'video') {
-        const { bucket_path, bucket_name } = asset as SignedAsset;
+        let { bucket_path } = asset as SignedAsset;
+        const { bucket_name } = asset as SignedAsset;
 
-        const ext = bucket_path.split('/').pop()?.split('.').pop();
-        const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext}`;
+        const list = await listFilesWithMimeType(
+          storage,
+          bucket_name,
+          bucket_path.split('/').slice(0, -1).join('/'),
+        );
+
+        const mime = typeToMime.get(ext.toLowerCase());
+
+        if (!mime) {
+          throw new TRPCError({
+            message: 'Unsupported file type',
+            code: 'BAD_REQUEST',
+          });
+        }
+
+        // find the file with the correct extension
+        const found = list.find((file) => file.mimeType === mime);
+
+        if (found) {
+          bucket_path = found.name;
+        }
+
+        const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext.toLowerCase()}`;
 
         ctx.res.setHeader('Content-Type', 'application/octet-stream');
         ctx.res.setHeader(
@@ -895,3 +933,23 @@ export const getAssets = router({
       }
     }),
 });
+
+async function listFilesWithMimeType(
+  storage: Storage,
+  bucketName: string,
+  prefix: string,
+) {
+  // make sure to get a listing for the directory (requires trailing slash)
+  if (!prefix.endsWith('/')) {
+    prefix += '/';
+  }
+
+  const [files] = await storage
+    .bucket(bucketName)
+    .getFiles({ prefix, delimiter: '/' });
+
+  return files.map((file) => ({
+    name: file.name,
+    mimeType: file.metadata.contentType || 'unknown',
+  }));
+}
