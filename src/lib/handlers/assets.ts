@@ -818,8 +818,7 @@ export const getAssets = router({
             description:
               'Non video assets are available as both PDF, PowerPoint and OpenDocument Presentation files',
           })
-          .optional()
-          .default('pdf'),
+          .optional(),
       }),
     )
     .output(z.undefined()) // no output, but file is streamed to the request
