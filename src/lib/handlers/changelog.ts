@@ -58,7 +58,7 @@ export const changelog = router({
       openapi: {
         method: 'GET',
         path: '/changelog',
-        tags: ['changelog'],
+        tags: ['internal'],
         description:
           'History of significant changes to the API with associated dates and versions',
         example: {
@@ -87,7 +87,7 @@ export const changelog = router({
         path: '/changelog/latest',
         description:
           'Get the latest version and latest change note for the API',
-        tags: ['changelog'],
+        tags: ['internal'],
         example: {
           response: versions[0],
         },

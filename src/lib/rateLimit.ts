@@ -8,6 +8,7 @@ export const rateLimits = {
   standard: new RateLimit({
     redis,
     prefix: 'rateLimit:standard',
+    analytics: true,
     // github is 5000/hour as an arbitrary reference
     limiter: RateLimit.slidingWindow(defaultRateLimit, '1 h'),
   }),
@@ -25,7 +26,7 @@ export type RateLimitInfo =
     };
 
 export type RateLimiter = {
-  check: (user: User) => Promise<RateLimitInfo>;
+  check: (user: User, noCost?: boolean) => Promise<RateLimitInfo>;
 };
 
 /**
@@ -37,7 +38,7 @@ export type RateLimiter = {
  */
 export const rateLimiter = (rateLimit: RateLimit): RateLimiter => {
   return {
-    check: async (user: User) => {
+    check: async (user: User, noCost = false) => {
       const apiKey = user.key;
       if (!apiKey) {
         // should never happen
@@ -50,15 +51,26 @@ export const rateLimiter = (rateLimit: RateLimit): RateLimiter => {
         return { isSubjectToRateLimiting: false };
       }
 
-      const { pending, ...rest } = await rateLimit.limit(apiKey);
+      if (noCost === false) {
+        const { pending, ...rest } = await rateLimit.limit(apiKey);
 
-      // NOTE: The upstash/ratelimit docs recommend context.waitUntil(pending) instead of awaiting upfront
-      await pending;
+        // NOTE: The upstash/ratelimit docs recommend context.waitUntil(pending) instead of awaiting upfront
+        await pending;
 
-      return {
-        isSubjectToRateLimiting: true,
-        ...rest,
-      };
+        return {
+          isSubjectToRateLimiting: true,
+          ...rest,
+        };
+      } else {
+        const res = await rateLimit.getRemaining(apiKey);
+
+        return {
+          isSubjectToRateLimiting: true,
+          limit: defaultRateLimit,
+          remaining: res.remaining,
+          reset: res.reset,
+        };
+      }
     },
   };
 };
