@@ -75,6 +75,20 @@ throw new TRPCError({
  });
 ```
 
+## Analytics / Logging
+
+Currently the following data is connected to user accounts (in upstash):
+
+1. Rate limit
+2. Total request count
+3. Last request timestamp
+
+In datadog, under the `open-api.thenational.academy` service, each request is logged and includes the following key data:
+
+1. Requesting `userId`
+2. `url` requested (this is different from `path` which is always the `[...trpc]` path)
+3. `query` which includes arguments passed (such as `year` on endpoints) and `trpc` arguments (that slot into the endpoint URL).
+
 ## Infrastructure
 
 - TypeScript across nearly all code (exceptions being eslint config and next config)
