@@ -21,20 +21,22 @@ export const getAllKeyStageAndSubjectUnits = router({
         example: {
           response: [
             {
-              yearSlug: 'year-1',
-              yearTitle: 'Year 1',
               units: [
                 {
-                  unitSlug: 'word-class',
-                  unitTitle: 'Word class ',
-                  unitOrder: 1,
+                  unitSlug:
+                    '2-4-and-8-times-tables-using-times-tables-to-solve-problems',
+                  unitTitle:
+                    '2, 4 and 8 times tables: using times tables to solve problems',
                 },
                 {
-                  unitSlug: 'simple-sentences',
-                  unitTitle: 'Simple sentences',
-                  unitOrder: 2,
+                  unitSlug:
+                    'bridging-100-counting-on-and-back-in-10s-adding-subtracting-multiples-of-10',
+                  unitTitle:
+                    'Bridging 100: counting on and back in 10s, adding/subtracting multiples of 10',
                 },
               ],
+              yearSlug: 'year-3',
+              yearTitle: 'Year 3',
             },
           ],
         },
