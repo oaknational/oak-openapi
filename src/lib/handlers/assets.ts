@@ -354,15 +354,6 @@ export const getAssets = router({
           .flat(),
       );
 
-      console.log({ lessonSlugs });
-
-      import('node:fs').then((fs) => {
-        fs.writeFileSync(
-          'lessonSlugs.json',
-          JSON.stringify(Array.from(lessonSlugs)),
-        );
-      });
-
       const downloadsQuery = gql`
         query GetDownloads($lessonSlugs: [String!]!, $limit: Int!, $offset: Int!) {
           ${downloadView}(
