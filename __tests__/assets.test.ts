@@ -64,7 +64,9 @@ test('read a single asset (pdf)', async () => {
   expect(header).toBe('%PDF-');
 });
 
-test('read a video redirect', async () => {
+// this can be stored when we have more lessons that do actually redirect
+// ideally we don't ever redirect, but I've kept this for the future
+test.skip('read a video redirect', async () => {
   const request = makeRes();
   const caller = makeCaller(
     {
