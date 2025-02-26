@@ -812,22 +812,26 @@ export const getAssets = router({
         lesson: z.string({
           description: 'The lesson slug',
         }),
-        type: downloadTypeEnum,
-        ext: z
-          .enum(['pdf', 'pptx', 'odp'], {
-            description:
-              'Non video assets are available as both PDF, PowerPoint and OpenDocument Presentation files',
-          })
-          .optional(),
+        type: z.enum([
+          'slideDeck',
+          'slideDeckPPTX',
+          ...downloadTypeEnum.options.slice(1),
+        ]),
       }),
     )
     .output(z.undefined()) // no output, but file is streamed to the request
     .query(async ({ input, ctx }) => {
-      const { lesson, type, ext = 'pdf' } = input;
+      const { lesson } = input;
+      let { type } = input;
 
       const { assets } = await assetsForLesson(lesson);
 
-      const asset = assets[type];
+      const usePPTX = type.includes('PPTX');
+      if (usePPTX) {
+        type = type.replace('PPTX', '') as DownloadTypeEnum;
+      }
+
+      const asset = assets[type as DownloadTypeEnum];
 
       if (type !== 'video') {
         let { bucket_path } = asset as SignedAsset;
@@ -838,6 +842,8 @@ export const getAssets = router({
           bucket_name,
           bucket_path.split('/').slice(0, -1).join('/'),
         );
+
+        const ext = usePPTX ? 'pptx' : bucket_path.split('.').pop() || 'pdf';
 
         const mime = typeToMime.get(ext.toLowerCase());
 
