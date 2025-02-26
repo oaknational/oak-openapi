@@ -402,7 +402,7 @@ export const getQuestions = router({
         tags: ['lessons', 'questions'],
         path: '/lessons/{lesson}/quiz',
         description:
-          'This endpoint returns the quiz questions and answers (and indicates which answers are correct and which are distractors) for a given lesson',
+          'The endpoint returns the quiz questions and answers for a given lesson. The answers data indicates which answers are correct, and which are distractors.',
         example: {
           request: {
             lesson: 'joining-using-and',
