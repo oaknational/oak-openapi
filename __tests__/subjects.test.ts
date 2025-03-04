@@ -88,3 +88,14 @@ test('correct year sequence', async () => {
   expect(res.sequenceSlugs[0].years).toStrictEqual([1, 2, 3, 4, 5, 6]);
   expect(res.sequenceSlugs[1].years).toStrictEqual([7, 8, 9, 10, 11]);
 });
+
+test('false subjects 404 and not error', async () => {
+  const { caller } = authedCaller();
+
+  await expect(
+    async () =>
+      await caller.getSubjects.getSubjectYears({
+        subject: 'maths-made-up',
+      }),
+  ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+});
