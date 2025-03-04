@@ -169,12 +169,11 @@ type OrderAnswer = z.infer<typeof orderAnswer>;
 type MultipleChoiceAnswer = z.infer<typeof multipleChoiceAnswer>;
 type ImageDataSchemaType = z.infer<typeof imageContent>;
 
-function emptyQuizResults() {
-  const result: { [key in QuizKey]: Question[] } = {
+function emptyQuizResults(): Record<QuizKey, Question[]> {
+  return {
     starterQuiz: [],
     exitQuiz: [],
   };
-  return result;
 }
 
 export function formatShortAnswer(answer: DBShortAnswer): TextAnswer {
@@ -349,7 +348,7 @@ function formatQuestion(
 function questionsForQuiz(
   lesson: Lesson,
   imagesAllowed: boolean = false,
-): { [key in QuizKey]: Question[] } {
+): Record<QuizKey, Question[]> {
   const result = emptyQuizResults();
   for (const quiz of ['starterQuiz', 'exitQuiz'] as QuizKey[]) {
     let lessonContent;
@@ -520,7 +519,7 @@ export const getQuestions = router({
         slug,
       });
 
-      const result: { [key in QuizKey]: Question[] } = {
+      const result: Record<QuizKey, Question[]> = {
         starterQuiz: [],
         exitQuiz: [],
       };
