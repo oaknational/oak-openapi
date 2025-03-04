@@ -44,7 +44,7 @@ export const output = z.object({
   ),
 });
 
-type UnitSchema = z.infer<typeof output>;
+export type UnitSchema = z.infer<typeof output>;
 
 export const getUnits = router({
   getUnit: protectedProcedure
