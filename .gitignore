@@ -4,3 +4,5 @@ node_modules/
 .swc
 tmp/
 bin/generate-key.ts
+out/
+.DS_Store
