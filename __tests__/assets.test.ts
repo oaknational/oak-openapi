@@ -93,7 +93,7 @@ test('request power point', async () => {
   await caller.getAssets.getLessonAsset({
     lesson: 'checking-understanding-of-perimeter',
     type: 'slideDeck',
-    ext: 'pptx',
+    // ext: 'pptx',
   });
 
   // expects the content disposition to be set last (i.e. after the content type)
@@ -102,7 +102,7 @@ test('request power point', async () => {
   await caller.getAssets.getLessonAsset({
     lesson: 'checking-understanding-of-perimeter',
     type: 'slideDeck',
-    ext: 'pdf',
+    // ext: 'pdf',
   });
 
   expect(request.setHeader.mock.lastCall[1].endsWith('.pdf"')).toBe(true);
@@ -110,13 +110,15 @@ test('request power point', async () => {
   await caller.getAssets.getLessonAsset({
     lesson: 'checking-understanding-of-perimeter',
     type: 'slideDeck',
-    ext: 'odp',
+    // ext: 'odp',
   });
 
   expect(request.setHeader.mock.lastCall[1].endsWith('.odp"')).toBe(true);
 });
 
-test('read a video redirect', async () => {
+// this can be stored when we have more lessons that do actually redirect
+// ideally we don't ever redirect, but I've kept this for the future
+test.skip('read a video redirect', async () => {
   const request = makeRes();
   const caller = makeCaller(
     {

@@ -879,7 +879,20 @@ export const getAssets = router({
             .pipe(ctx.res); // Pipe the stream to the HTTP response
         });
       } else {
-        const { stream, download } = asset as Video;
+        const { stream } = asset as Video;
+        let { download } = asset as Video;
+
+        if (!download) {
+          // test if the download is there as our db is often out of sync with mux
+          const url = stream.replace(/\.m3u8$/, '/high.mp4');
+          const response = await fetch(url, {
+            method: 'HEAD',
+          });
+          if (response.status === 200) {
+            download = url;
+          }
+        }
+
         const response = await fetch(download || stream);
 
         const url = new URL(download || stream);

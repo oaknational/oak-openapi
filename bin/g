@@ -15,4 +15,4 @@ if [[ $URL == "" ]]; then
   exit 1
 fi
 
-curl -s -X 'GET' "$ROOT$1" -H 'accept: application/json' -H "Authorization: Bearer $API_KEY"
+curl -s -X 'GET' "$ROOT$URL" -H 'accept: application/json' -H "Authorization: Bearer $API_KEY" -D /dev/stderr

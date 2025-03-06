@@ -232,32 +232,26 @@ export const getSequences = router({
         description: '',
         example: {
           request: {
-            sequence: 'science-secondary-edexcel',
+            sequence: 'english-primary',
           },
           response: [
             {
-              year: 3,
-              subjects: [
+              year: 1,
+              units: [
                 {
-                  subjectSlug: 'grammar',
-                  subjectTitle: 'Grammar',
-                  units: [
+                  unitTitle: 'Speaking and Listening',
+                  unitOrder: 1,
+                  unitSlug: 'speaking-and-listening',
+                  categories: [
                     {
-                      unitTitle:
-                        'Simple, compound and adverbial complex sentences',
-                      unitSlug:
-                        'simple-compound-and-adverbial-complex-sentences',
-                      order: 1,
+                      categoryTitle: 'Reading, writing & oracy',
                     },
+                  ],
+                  threads: [
                     {
-                      unitTitle: 'Tense forms: simple, progressive and perfect',
-                      unitSlug: 'tense-forms-simple-progressive-and-perfect',
-                      order: 2,
-                    },
-                    {
-                      unitTitle: 'Speech first punctuation and apostrophes',
-                      unitSlug: 'speech-first-punctuation-and-apostrophes',
-                      order: 3,
+                      threadTitle: 'Developing spoken language',
+                      threadSlug: 'developing-spoken-language',
+                      order: 8,
                     },
                   ],
                 },
