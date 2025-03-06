@@ -142,7 +142,7 @@ function Hero() {
             <OakFlex $gap={'all-spacing-4'}>
               <AlignFixButton
                 element="a"
-                href="mailto:help@thenational.academy?subject=Oak%20OpenAPI"
+                href="https://share.hsforms.com/1gQQFsrHDRf-eZUDajj6NzQbvumd"
               >
                 Request an API key
               </AlignFixButton>
@@ -251,7 +251,7 @@ function Features() {
                   <strong>Sign up</strong>
                 </OakLI>
                 <OakP $mb="space-between-s">
-                  <OakLiLink href="mailto:help@thenational.academy?subject=Oak%20OpenAPI">
+                  <OakLiLink href="https://share.hsforms.com/1gQQFsrHDRf-eZUDajj6NzQbvumd">
                     Request an API key here
                   </OakLiLink>
                   <OakSpan $ma="auto">
@@ -277,10 +277,9 @@ function Features() {
                   <strong>Support</strong>
                 </OakLI>
                 <OakP>
-                  If you need any help with your set-up or use case, please
-                  don&apos;t hesitate to{' '}
+                  If you need more help, email{' '}
                   <OakLink href="mailto:help@thenational.academy?subject=Oak%20OpenAPI">
-                    contact us
+                    help@thenational.academy
                   </OakLink>
                   . We&apos;ll be happy to support you.
                 </OakP>
@@ -498,10 +497,11 @@ function Features() {
                 </OakAccordion>
               </LeftAlignedChildButtons>
               <OakP $font="body-2">
-                If you need more help{' '}
+                If you need more help, please email us at{' '}
                 <OakLink href="mailto:help@thenational.academy?subject=Oak%20OpenAPI">
-                  contact us here
+                  help@thenational.academy
                 </OakLink>
+                .
               </OakP>
               <OakP $font="body-2">
                 When using our API key, please ensure you comply with our{' '}
