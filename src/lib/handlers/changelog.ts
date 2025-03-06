@@ -4,6 +4,15 @@ import { defaultCaching } from '../networkCache';
 
 export const versions = [
   {
+    version: '0.5.0',
+    date: '2025-03-06',
+    changes: [
+      'PPTX used for slideDeck assets',
+      'All video assets now fully downloadable in mp4 format',
+      'New /threads/* endpoints',
+    ],
+  },
+  {
     version: '0.4.0',
     date: '2025-02-07',
     changes: [
