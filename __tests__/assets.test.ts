@@ -93,7 +93,6 @@ test('request power point', async () => {
   await caller.getAssets.getLessonAsset({
     lesson: 'checking-understanding-of-perimeter',
     type: 'slideDeck',
-    // ext: 'pptx',
   });
 
   // expects the content disposition to be set last (i.e. after the content type)
@@ -101,19 +100,10 @@ test('request power point', async () => {
 
   await caller.getAssets.getLessonAsset({
     lesson: 'checking-understanding-of-perimeter',
-    type: 'slideDeck',
-    // ext: 'pdf',
+    type: 'exitQuiz',
   });
 
   expect(request.setHeader.mock.lastCall[1].endsWith('.pdf"')).toBe(true);
-
-  await caller.getAssets.getLessonAsset({
-    lesson: 'checking-understanding-of-perimeter',
-    type: 'slideDeck',
-    // ext: 'odp',
-  });
-
-  expect(request.setHeader.mock.lastCall[1].endsWith('.odp"')).toBe(true);
 });
 
 // this can be stored when we have more lessons that do actually redirect

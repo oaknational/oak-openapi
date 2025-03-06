@@ -812,11 +812,7 @@ export const getAssets = router({
         lesson: z.string({
           description: 'The lesson slug',
         }),
-        type: z.enum([
-          'slideDeck',
-          'slideDeckPPTX',
-          ...downloadTypeEnum.options.slice(1),
-        ]),
+        type: downloadTypeEnum,
       }),
     )
     .output(z.undefined()) // no output, but file is streamed to the request
@@ -826,7 +822,7 @@ export const getAssets = router({
 
       const { assets } = await assetsForLesson(lesson);
 
-      const usePPTX = type.includes('PPTX');
+      const usePPTX = type === 'slideDeck';
       if (usePPTX) {
         type = type.replace('PPTX', '') as DownloadTypeEnum;
       }
