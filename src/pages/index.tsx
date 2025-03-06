@@ -501,6 +501,7 @@ function Features() {
                 <OakLink href="mailto:help@thenational.academy?subject=Oak%20OpenAPI">
                   help@thenational.academy
                 </OakLink>
+                .
               </OakP>
               <OakP $font="body-2">
                 When using our API key, please ensure you comply with our{' '}
