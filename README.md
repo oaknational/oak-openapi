@@ -1,23 +1,6 @@
-# Oak open api front end
+# Oak National API
 
-## Managing API keys
-
-Currently this is handled manually:
-
-1. Sign into [upstash](https://console.upstash.com/login)
-2. Visit the [data browser](https://console.upstash.com/redis/8fc6603d-e796-4ef2-9c3b-d594fd8733fc?tab=data-browser)
-3. Generate and copy a [UUID v4](https://www.uuidgenerator.net/version4)
-4. Scroll to the end of the dataset, noting the last id and create a new object in the form of:
-
-```json
-{
-   "name": "$friendly_name",
-   "id": $n,
-   "key": "$uuid"
-}
-```
-
-5. Finally, ensure you hit save - the keys are loaded on demand in the openapi software.
+This repository holds the front and backend code for the API. This readme is primarily for development and for developers to know how to run the project locally and how to manage the project online (such as where data is held, caveats, etc).
 
 ## Development
 
@@ -32,9 +15,27 @@ Installation and development:
 1. `pnpm install`
 2. `pnpm dev`
 
-Development server should be running on http://localhost:2727
+Development server should be running on http://localhost:2727 and the interactive playground is at http://localhost:2727/playground
 
 An API key is required to call RESTful endpoint.
+
+If the `API_KEY` value is in your `.env` file, there is also a command line helper to run API requests:
+
+```sh
+bin/g /subject/maths
+```
+
+This can also be used to request against production:
+
+```sh
+bin/g prod /subjects/maths
+```
+
+## API keys
+
+Currently these are managed by Oak through an admin tool (found in this repo: `src/pages/admin/index.tsx`).
+
+Accounts are stored in a redis database on [upstash](https://console.upstash.com/login).
 
 ## Available subjects
 
@@ -74,6 +75,20 @@ throw new TRPCError({
    code: 'BAD_REQUEST',
  });
 ```
+
+## Analytics / Logging
+
+Currently the following data is connected to user accounts (in upstash):
+
+1. Rate limit
+2. Total request count
+3. Last request timestamp
+
+In datadog, under the `open-api.thenational.academy` service, each request is logged and includes the following key data:
+
+1. Requesting `userId`
+2. `url` requested (this is different from `path` which is always the `[...trpc]` path)
+3. `query` which includes arguments passed (such as `year` on endpoints) and `trpc` arguments (that slot into the endpoint URL).
 
 ## Infrastructure
 

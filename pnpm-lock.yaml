@@ -24,8 +24,8 @@ dependencies:
     specifier: ^10.45.2
     version: 10.45.2
   '@upstash/ratelimit':
-    specifier: ^1.2.1
-    version: 1.2.1
+    specifier: ^2.0.5
+    version: 2.0.5(@upstash/redis@1.31.6)
   '@upstash/redis':
     specifier: ^1.30.0
     version: 1.31.6
@@ -118,6 +118,12 @@ devDependencies:
   '@vitest/coverage-v8':
     specifier: ^3.0.5
     version: 3.0.5(vitest@1.6.0)
+  ajv:
+    specifier: ^8.17.1
+    version: 8.17.1
+  ajv-formats:
+    specifier: ^3.0.1
+    version: 3.0.1(ajv@8.17.1)
   array.prototype.tosorted:
     specifier: ^1.1.3
     version: 1.1.4
@@ -1793,7 +1799,7 @@ packages:
       '@babel/runtime-corejs3': 7.24.7
       '@swagger-api/apidom-core': 1.0.0-alpha.5
       '@types/ramda': 0.30.0
-      axios: 1.7.2
+      axios: 1.7.9
       minimatch: 7.4.6
       process: 0.11.10
       ramda: 0.30.1
@@ -2093,7 +2099,7 @@ packages:
       '@typescript-eslint/types': 7.14.1
       '@typescript-eslint/typescript-estree': 7.14.1(typescript@5.5.2)
       '@typescript-eslint/visitor-keys': 7.14.1
-      debug: 4.3.7
+      debug: 4.4.0
       eslint: 8.57.0
       typescript: 5.5.2
     transitivePeerDependencies:
@@ -2247,17 +2253,20 @@ packages:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
     dev: true
 
-  /@upstash/core-analytics@0.0.9:
-    resolution: {integrity: sha512-9NXXxZ5y1/A/zqKLlVT7NsAWSggJfOjB0hG6Ffx29b4jbzHOiQVWB55h5+j2clT9Ib+mNPXn0iB5zN3aWLkICw==}
+  /@upstash/core-analytics@0.0.10:
+    resolution: {integrity: sha512-7qJHGxpQgQr9/vmeS1PktEwvNAF7TI4iJDi8Pu2CFZ9YUGHZH4fOP5TfYlZ4aVxfopnELiE4BS4FBjyK7V1/xQ==}
     engines: {node: '>=16.0.0'}
     dependencies:
       '@upstash/redis': 1.31.6
     dev: false
 
-  /@upstash/ratelimit@1.2.1:
-    resolution: {integrity: sha512-o01lV1yFS5Fzj5KONZmNyVch/Qrlj785B2ob+kStUmxn8F6xXk7IHTQqVcHE+Ce3CmT/qQIwvMxDZftyJ5wYpQ==}
+  /@upstash/ratelimit@2.0.5(@upstash/redis@1.31.6):
+    resolution: {integrity: sha512-1FRv0cs3ZlBjCNOCpCmKYmt9BYGIJf0J0R3pucOPE88R21rL7jNjXG+I+rN/BVOvYJhI9niRAS/JaSNjiSICxA==}
+    peerDependencies:
+      '@upstash/redis': ^1.34.3
     dependencies:
-      '@upstash/core-analytics': 0.0.9
+      '@upstash/core-analytics': 0.0.10
+      '@upstash/redis': 1.31.6
     dev: false
 
   /@upstash/redis@1.31.6:
@@ -2517,6 +2526,17 @@ packages:
     engines: {node: '>= 14'}
     dev: false
 
+  /ajv-formats@3.0.1(ajv@8.17.1):
+    resolution: {integrity: sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ==}
+    peerDependencies:
+      ajv: ^8.0.0
+    peerDependenciesMeta:
+      ajv:
+        optional: true
+    dependencies:
+      ajv: 8.17.1
+    dev: true
+
   /ajv-keywords@3.5.2(ajv@6.12.6):
     resolution: {integrity: sha512-5p6WTN0DdTGVQk6VjcEju19IgaHudalcfabD7yhDGeA6bcQnmL+CpveLJq/3hvfwd1aof6L386Ougkx6RfyMIQ==}
     peerDependencies:
@@ -2762,8 +2782,8 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /axios@1.7.2:
-    resolution: {integrity: sha512-2A8QhOMrbomlDuiLeK9XibIBzuHeRcqqNOHp0Cyp5EoJ1IFDh+XZH3A6BkXtv0K4gFGCI0Y4BM7B1wOEi0Rmgw==}
+  /axios@1.7.9:
+    resolution: {integrity: sha512-LhLcE7Hbiryz8oMDdDptSrWowmB4Bl6RCt6sIJKpRB4XtVf0iEgewX3au/pJqm+Py1kCASkb/FFKjxQaLtxJvw==}
     dependencies:
       follow-redirects: 1.15.6
       form-data: 4.0.0
@@ -7657,7 +7677,7 @@ packages:
       node-mocks-http: 1.15.0
       openapi-types: 12.1.3
       zod: 3.23.8
-      zod-to-json-schema: 3.23.1(zod@3.23.8)
+      zod-to-json-schema: 3.24.2(zod@3.23.8)
     transitivePeerDependencies:
       - uWebSockets.js
     dev: false
@@ -8332,10 +8352,10 @@ packages:
     resolution: {integrity: sha512-jEA1znR7b4C/NnaycInCU6h/d15ZzCd1jmsruqOKnZP6WXQSMH3W2GL+OXbkruslU4h+Tzuos0HdswzRUk/Vgg==}
     dev: false
 
-  /zod-to-json-schema@3.23.1(zod@3.23.8):
-    resolution: {integrity: sha512-oT9INvydob1XV0v1d2IadrR74rLtDInLvDFfAa1CG0Pmg/vxATk7I2gSelfj271mbzeM4Da0uuDQE/Nkj3DWNw==}
+  /zod-to-json-schema@3.24.2(zod@3.23.8):
+    resolution: {integrity: sha512-pNUqrcSxuuB3/+jBbU8qKUbTbDqYUaG1vf5cXFjbhGgoUuA1amO/y4Q8lzfOhHU8HNPK6VFJ18lBDKj3OHyDsg==}
     peerDependencies:
-      zod: ^3.23.3
+      zod: ^3.24.1
     dependencies:
       zod: 3.23.8
     dev: false
