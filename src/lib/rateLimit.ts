@@ -77,12 +77,13 @@ export const rateLimiter = (rateLimit: RateLimit): RateLimiter => {
 
 async function isUnlimited(user: User): Promise<boolean> {
   const oakAuthToken = process.env.OAK_API_AUTH_TOKEN;
-  if (!oakAuthToken) {
-    return false;
-  }
 
   if (user.rateLimit === 0) {
     return true;
+  }
+
+  if (!oakAuthToken) {
+    return false;
   }
 
   return user.key === oakAuthToken;

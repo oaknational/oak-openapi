@@ -153,7 +153,11 @@ async function getSubjectPhase(subject: string): Promise<SubjectPhase> {
     subject,
   });
 
-  if (!res || !Array.isArray(res[subjectPhaseView])) {
+  if (
+    !res ||
+    !Array.isArray(res[subjectPhaseView]) ||
+    res[subjectPhaseView].length === 0
+  ) {
     throw new TRPCError({
       message: 'Subject not found',
       code: 'NOT_FOUND',
