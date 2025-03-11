@@ -40,6 +40,10 @@ export const output = z.object({
       lessonSlug: z.string(),
       lessonTitle: z.string(),
       lessonOrder: z.number().optional(),
+      state: z.enum(['published', 'new'], {
+        description:
+          "If the state is 'published' then it is also available on the /lessons/* endpoints. If the state is 'new' then it's not available yet.",
+      }),
     }),
   ),
 });
@@ -80,6 +84,7 @@ export const getUnits = router({
                 lessonSlug: 'four-types-of-simple-sentence',
                 lessonTitle: 'Four types of simple sentence',
                 lessonOrder: 1,
+                state: 'published',
               },
               {
                 lessonSlug:
@@ -87,6 +92,7 @@ export const getUnits = router({
                 lessonTitle:
                   'Three ways for co-ordination in compound sentences',
                 lessonOrder: 2,
+                state: 'new',
               },
             ],
           },
@@ -194,6 +200,7 @@ export const getUnits = router({
           lessonSlug: string;
           lessonTitle: string;
           lessonOrder: number;
+          state: 'published' | 'new';
         }[];
 
         // cycle 2
@@ -217,6 +224,7 @@ export const getUnits = router({
           lessonSlug: lesson.slug,
           lessonTitle: lesson.title,
           lessonOrder: lesson.order,
+          state: lesson._state,
         }))
         .sort((a, b) => (a.lessonOrder || 0) - (b.lessonOrder || 0));
 
