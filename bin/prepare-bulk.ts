@@ -22,47 +22,66 @@
  * }
  */
 
-import type { NextApiRequest, NextApiResponse } from 'next';
-
 import 'renvy';
-import router from '~/lib/router';
-import { createCallerFactory } from '~/lib/trpc';
-
-import { SequenceSchema } from '~/lib/handlers/sequences';
-import { SubjectsResult } from '~/lib/handlers/subjects';
-import { promises as fs } from 'node:fs';
-import lodash from 'lodash';
-
-// get __dirname
 import path from 'node:path';
+import { promises as fs, createWriteStream } from 'node:fs';
+import pg from 'pg';
+import lodash from 'lodash';
+import tar from 'tar-stream';
+import { gql } from 'graphql-request';
+import { sequenceWhere } from '~/lib/handlers/sequences';
+import {
+  phaseToKeyStages,
+  phaseToSequences,
+  SubjectsResult,
+  yearsFromKeyStages,
+} from '~/lib/handlers/subjects';
+import {
+  currentCycle,
+  getClient,
+  SequenceView,
+  sequenceView,
+  sequenceViewWhereInput,
+  subjectPhaseView,
+  SubjectPhaseView,
+} from '~/lib/owaClient';
+import { formatUnitSummary, UnitSchema } from '~/lib/handlers/units';
+
 const __dirname = path.resolve(path.dirname(''));
 
 // let requests = 0;
 const start = Date.now();
+const client = getClient();
 
-const api = makeCaller();
+const db = new pg.Client(process.env.DATABASE_URL);
+await db.connect();
 
-function makeCaller() {
-  const createCaller = createCallerFactory(router);
-  const nop = () => {};
-  const callerOptions = {
-    req: {} as NextApiRequest,
-    res: {
-      writeHead: nop,
-      setHeader: nop,
-      getHeader: nop,
-      pipe: nop,
-      on: nop,
-      once: nop,
-      emit: nop,
-      write: nop,
-      end: nop,
-    } as unknown as NextApiResponse,
-    rateLimit: undefined,
-    user: { key: '1', id: 1 },
-  };
+interface Pack {
+  entry: (header: tar.Headers) => NodeJS.WritableStream;
+}
 
-  return createCaller(callerOptions);
+async function addVideoToTar(
+  pack: Pack,
+  url: string,
+  filename: string,
+): Promise<void> {
+  const entry = pack.entry({ name: filename });
+
+  const response = await fetch(url);
+  if (!response.body) throw new Error(`Failed to fetch ${url}`);
+
+  const reader = response.body.getReader();
+  const pump = (): Promise<void> =>
+    reader.read().then(({ done, value }) => {
+      if (done) {
+        entry.end();
+        return;
+      }
+      entry.write(value);
+      return pump();
+    });
+
+  await pump();
 }
 
 function runtime() {
@@ -102,30 +121,23 @@ const deepSearchAll = (
   return results;
 };
 
-// async function get(endpoint: string, emptyValue: any) {
-//   requests++;
-//   const root = 'http://localhost:2727/api/v0';
-//   const headers = {
-//     'Content-Type': 'application/json',
-//     Authorization: `Bearer ${process.env.API_KEY}`,
-//   };
-//   console.warn(`${runtime()}/${requests}: ${endpoint}`);
-//   const res = await fetch(`${root}${endpoint}`, { headers });
-//   if (res.status !== 200) {
-//     console.warn(`🔴 ${res.status}: fetch ${endpoint}`);
-
-//     return emptyValue;
-//   }
-//   return await res.json();
-// }
-
-async function getUnitSummaries(slug: string, sequence: SequenceSchema) {
+async function getUnitSummaries(
+  slug: string,
+  sequence: UnitSchema[],
+  pack: Pack,
+) {
   // walk sequence and at the lowest level, get the units array
   const unitSlugs: string[] = deepSearchAll(sequence, 'unitSlug');
 
   for (const unitSlug of unitSlugs) {
     // const unit: UnitSchema = await get(`/units/${unitSlug}/summary`, {});
-    const unit = await api.getUnits.getUnit({ unit: unitSlug });
+    const unit = getUnit(sequence, unitSlug);
+
+    if (!unit) {
+      console.log(`🔴 ${unitSlug}`);
+      continue;
+    }
+    console.log(`🟢 ${unitSlug}`);
 
     // TODO decide whether to slim this down as it includes redundant data,
     // such as the sequence year, etc.
@@ -134,66 +146,186 @@ async function getUnitSummaries(slug: string, sequence: SequenceSchema) {
       JSON.stringify(unit),
     );
 
-    const lessonSlugs = deepSearchAll(
-      unit,
-      'lessonSlug',
-      (_: { state: string }) => {
-        return _.state === 'published';
-      },
-    );
+    const lessonData = await getAllLessonData(unitSlug);
 
-    for (const lessonSlug of lessonSlugs) {
+    for (const lesson of lessonData) {
       try {
-        const lesson = await getLessonContent(lessonSlug);
+        // TODO pack in the video
+        await addVideoToTar(
+          pack,
+          'https://example.com/video1.mp4',
+          'video1.mp4',
+        );
+
+        // delete the url from the lesson object
+
         await fs.appendFile(
           `${__dirname}/out/${slug}-lessons.jsonl`,
           JSON.stringify(lesson),
         );
-        console.log(`🟢 ${lessonSlug}`);
+
+        console.log(`🟢 ${lesson.lessonSlug}`);
       } catch (_) {}
     }
   }
 }
 
-async function getLessonContent(lesson: string) {
-  // if this throws, then we ignore this lesson
-  const summary = await api.getLessons.getLesson({ lesson });
-
-  const transcript = await api.getLessonTranscript
-    .getLessonTranscript({
-      lesson,
-    })
-    .catch(() => null);
-  const quiz = await api.getQuestions.getQuestionsForLessons({ lesson });
-  const assets = await api.getAssets
-    .getLessonAssets({ lesson })
-    .catch(() => []);
-
-  return {
-    ...summary,
-    transcript,
-    quiz,
-    assets,
-  };
+export async function getAllLessonAssets(lessonSlugs: string[]) {
+  return lessonSlugs;
 }
 
-const allSubjects: SubjectsResult = await api.getSubjects.getAllSubjects();
+async function getAllLessonData(unitSlug: string) {
+  const sql = `
+    SELECT
+      lessons."lessonTitle",
+      lessons."lessonSlug",
+      lessons."unitSlug",
+      lessons."unitTitle",
+      lessons."subjectSlug",
+      lessons."subjectTitle",
+      lessons."keyStageSlug",
+      lessons."keyStageTitle",
+      lessons."lessonKeywords",
+      lessons."keyLearningPoints",
+      lessons."misconceptionsAndCommonMistakes",
+      lessons."pupilLessonOutcome",
+      lessons."teacherTips",
+      lessons."contentGuidance",
+      lessons."hasDownloadableResources" AS downloadsAvailable,
+      lessons."supervisionLevel",
+      transcripts."transcript_sentences",
+      transcripts."transcript_vtt"
+    FROM
+      published.mv_lesson_openapi_1_2_1 AS lessons,
+      published.mv_lesson_content_published_5_0_0 AS transcripts
+    WHERE
+      lessons."lessonId" = transcripts."lesson_id"
+      AND lessons."unitSlug" = $1::text
+      AND transcripts."_state" = 'published'`;
+
+  const res = await db.query({
+    text: sql,
+    values: [unitSlug],
+    // rowMode: 'array',
+  });
+
+  return res.rows;
+}
+
+async function getAllSequenceData(sequence: string): Promise<UnitSchema[]> {
+  const where = sequenceWhere(sequence);
+  const query = gql`
+    query ($where: ${sequenceViewWhereInput}!) {
+      ${sequenceView}(
+        where: $where
+        order_by: { order: asc }
+      ) {
+        title
+        threads
+        slug
+        domain
+        examboard_slug
+        keystage_slug
+        order
+        pathway
+        pathway_slug
+        phase
+        subject
+        subjectcategories
+        subject_parent
+        subject_slug
+        tier
+        features
+        actions
+        tier_slug
+        unit_options
+        year
+
+        description
+        lessons
+        phase_slug
+        why_this_why_now
+
+      }
+  }`;
+
+  const res: SequenceView = await client.request(query, { where });
+  return res[sequenceView].map((_) => formatUnitSummary(_.slug, _));
+}
+
+async function getAllSubjects() {
+  const query = gql`
+        query ($currentCycle: String!) @cached(ttl: 300) {
+          ${subjectPhaseView}(
+            where: {
+              cycle: { _eq: $currentCycle }
+            }
+            order_by: { display_order: asc }
+          ) {
+            title
+            slug
+            keystages
+            phases
+            ks4_options
+            display_order
+          }
+        }`;
+
+  const res: SubjectPhaseView = await client.request(query, {
+    currentCycle,
+  });
+
+  const reply = res[subjectPhaseView].map((subject) => {
+    const keyStages = phaseToKeyStages(subject);
+    return {
+      subjectTitle: subject.title,
+      subjectSlug: subject.slug,
+      sequenceSlugs: phaseToSequences(subject),
+      keyStages,
+      years: yearsFromKeyStages(keyStages),
+    };
+  });
+
+  return reply;
+}
+
+function getUnit(sequence: UnitSchema[], unit: string) {
+  const found = sequence.find((_) => _.unitSlug === unit);
+
+  if (!found) {
+    console.log('not found', unit);
+    process.exit(1);
+  }
+
+  return found;
+}
+
+const allSubjects: SubjectsResult = await getAllSubjects();
 const sequences = allSubjects.map((_) => _.sequenceSlugs).flat();
 
 for (const s of sequences) {
-  const sequence = await api.getSequences.getSequenceUnits({
-    sequence: s.sequenceSlug,
-  });
+  const sequence = await getAllSequenceData(s.sequenceSlug);
 
   await fs.mkdir(`${__dirname}/../out/${s.sequenceSlug}`, { recursive: true });
+
+  const output = createWriteStream(
+    `${__dirname}/out/${s.sequenceSlug}-videos.tar`,
+  );
+  const pack = tar.pack();
+
+  pack.pipe(output);
 
   await fs.writeFile(
     `${__dirname}/out/${s.sequenceSlug}.json`,
     JSON.stringify({ ...s, sequence }),
   );
 
-  await getUnitSummaries(s.sequenceSlug, sequence as unknown as SequenceSchema);
+  await getUnitSummaries(s.sequenceSlug, sequence, pack);
+  pack.finalize();
+
   break;
 }
 
 console.log(runtime());
+
+await db.end();
