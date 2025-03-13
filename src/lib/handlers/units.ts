@@ -2,6 +2,7 @@ import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 import { TRPCError } from '@trpc/server';
 import {
+  Sequence,
   SequenceView,
   getClient,
   gql,
@@ -114,7 +115,7 @@ export const getUnits = router({
         });
       }
 
-      const isUnitVariant = /-\d+$/.test(slug);
+      const isUnitVariant = testIfUnitVariant(slug);
 
       let where;
       if (isUnitVariant) {
@@ -146,109 +147,119 @@ export const getUnits = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
       }
 
-      type RootUnitData = {
-        unitTitle: string;
-        tags: string[];
-        notes: string;
-        threads: Thread[];
-        priorKnowledgeRequirements: string[];
-        nationalCurriculumContent: string[];
-      };
-
       const sequenceData = res[sequenceView][0];
 
-      if (isUnitVariant) {
-        // RADAR this is a hack that we hope to remove when
-        // published_mv_curriculum_sequence_b_13_0_12 is live
-        // until then, we need to do the unit option dance
-
-        const unitOption = sequenceData.unit_options.find(
-          (unitOption) => unitOption.slug === slug,
-        );
-
-        if (unitOption) {
-          sequenceData.slug = unitOption.slug;
-          sequenceData.title = unitOption.title;
-          sequenceData.lessons = unitOption.lessons;
-          sequenceData.why_this_why_now = unitOption.why_this_why_now;
-          sequenceData.description = unitOption.description;
-        }
-      }
-
-      // we populate from the sequence view
-      const root: RootUnitData = {
-        unitTitle: sequenceData.title,
-        tags: sequenceData.tags || [],
-        notes: sequenceData.notes,
-        threads: sequenceData.threads,
-        priorKnowledgeRequirements: (
-          sequenceData.prior_knowledge_requirements || []
-        ).map(({ title }) => title),
-        nationalCurriculumContent: (
-          sequenceData.national_curriculum_content || []
-        ).map(({ title }) => title),
-      };
-
-      type Metadata = {
-        unitTitle: string;
-        year: number;
-        yearSlug: string;
-        phaseSlug: string;
-        subjectSlug: string;
-        keyStageSlug: string;
-        unitLessons: {
-          lessonSlug: string;
-          lessonTitle: string;
-          lessonOrder: number;
-          state: 'published' | 'new';
-        }[];
-
-        // cycle 2
-        whyThisWhyNow?: string;
-        description?: string;
-      };
-
-      // TS: allow me to declare it empty first
-      const metadata = {} as Metadata;
-
-      metadata.unitTitle = sequenceData.title;
-      metadata.description = sequenceData.description;
-      metadata.yearSlug = `year-${sequenceData.year}`;
-      metadata.year = parseInt(sequenceData.year, 10);
-      metadata.phaseSlug = sequenceData.phase_slug;
-      metadata.subjectSlug = sequenceData.subject_slug;
-      metadata.keyStageSlug = sequenceData.keystage_slug;
-      metadata.whyThisWhyNow = sequenceData.why_this_why_now;
-      metadata.unitLessons = sequenceData.lessons
-        .map((lesson) => ({
-          lessonSlug: lesson.slug,
-          lessonTitle: lesson.title,
-          lessonOrder: lesson.order,
-          state: lesson._state,
-        }))
-        .sort((a, b) => (a.lessonOrder || 0) - (b.lessonOrder || 0));
-
-      if (!metadata.whyThisWhyNow) {
-        delete metadata.whyThisWhyNow;
-      }
-
-      if (sequenceData.unit_options.length > 0) {
-        // get the unitTitle from the unit_option who's slug matches the variantSlug
-        const unitOption = sequenceData.unit_options.find(
-          (unitOption) => unitOption.slug === slug,
-        );
-
-        if (unitOption) {
-          metadata.unitTitle = unitOption.title;
-        }
-      }
-
-      const reply: UnitSchema = {
-        unitSlug: slug,
-        ...root,
-        ...metadata,
-      };
-
-      return reply;
+      return formatUnitSummary(slug, sequenceData);
     }),
 });
+
+export function testIfUnitVariant(slug: string): boolean {
+  return /-\d+$/.test(slug);
+}
+
+export function formatUnitSummary(
+  slug: string,
+  sequenceData: Sequence,
+): UnitSchema {
+  const isUnitVariant = testIfUnitVariant(slug);
+  type RootUnitData = {
+    unitTitle: string;
+    tags: string[];
+    notes: string;
+    threads: Thread[];
+    priorKnowledgeRequirements: string[];
+    nationalCurriculumContent: string[];
+  };
+
+  if (isUnitVariant) {
+    // RADAR this is a hack that we hope to remove when
+    // published_mv_curriculum_sequence_b_13_0_12 is live
+    // until then, we need to do the unit option dance
+
+    const unitOption = sequenceData.unit_options.find(
+      (unitOption) => unitOption.slug === slug,
+    );
+
+    if (unitOption) {
+      sequenceData.slug = unitOption.slug;
+      sequenceData.title = unitOption.title;
+      sequenceData.lessons = unitOption.lessons;
+      sequenceData.why_this_why_now = unitOption.why_this_why_now;
+      sequenceData.description = unitOption.description;
+    }
+  }
+
+  // we populate from the sequence view
+  const root: RootUnitData = {
+    unitTitle: sequenceData.title,
+    tags: sequenceData.tags || [],
+    notes: sequenceData.notes,
+    threads: sequenceData.threads,
+    priorKnowledgeRequirements: (
+      sequenceData.prior_knowledge_requirements || []
+    ).map(({ title }) => title),
+    nationalCurriculumContent: (
+      sequenceData.national_curriculum_content || []
+    ).map(({ title }) => title),
+  };
+
+  type Metadata = {
+    unitTitle: string;
+    year: number;
+    yearSlug: string;
+    phaseSlug: string;
+    subjectSlug: string;
+    keyStageSlug: string;
+    unitLessons: {
+      lessonSlug: string;
+      lessonTitle: string;
+      lessonOrder: number;
+      state: 'published' | 'new';
+    }[];
+
+    // cycle 2
+    whyThisWhyNow?: string;
+    description?: string;
+  };
+
+  // TS: allow me to declare it empty first
+  const metadata = {} as Metadata;
+
+  metadata.unitTitle = sequenceData.title;
+  metadata.description = sequenceData.description;
+  metadata.yearSlug = `year-${sequenceData.year}`;
+  metadata.year = parseInt(sequenceData.year, 10);
+  metadata.phaseSlug = sequenceData.phase_slug;
+  metadata.subjectSlug = sequenceData.subject_slug;
+  metadata.keyStageSlug = sequenceData.keystage_slug;
+  metadata.whyThisWhyNow = sequenceData.why_this_why_now;
+  metadata.unitLessons = sequenceData.lessons
+    .map((lesson) => ({
+      lessonSlug: lesson.slug,
+      lessonTitle: lesson.title,
+      lessonOrder: lesson.order,
+      state: lesson._state,
+    }))
+    .sort((a, b) => (a.lessonOrder || 0) - (b.lessonOrder || 0));
+
+  if (!metadata.whyThisWhyNow) {
+    delete metadata.whyThisWhyNow;
+  }
+
+  if (sequenceData.unit_options.length > 0) {
+    // get the unitTitle from the unit_option who's slug matches the variantSlug
+    const unitOption = sequenceData.unit_options.find(
+      (unitOption) => unitOption.slug === slug,
+    );
+
+    if (unitOption) {
+      metadata.unitTitle = unitOption.title;
+    }
+  }
+
+  return {
+    unitSlug: slug,
+    ...root,
+    ...metadata,
+  };
+}
