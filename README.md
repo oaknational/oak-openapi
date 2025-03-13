@@ -90,6 +90,24 @@ In datadog, under the `open-api.thenational.academy` service, each request is lo
 2. `url` requested (this is different from `path` which is always the `[...trpc]` path)
 3. `query` which includes arguments passed (such as `year` on endpoints) and `trpc` arguments (that slot into the endpoint URL).
 
+## Batch requests for video urls
+
+In some cases, whilst we don't have the bulk download features up and running, a 3rd party may require direct Mux URLs to videos.
+
+A script is available to generate this. You will need the following prerequisites:
+
+1. `OAK_GRAPHQL_HOST` pointing to production Hasura (to ensure the latest data)
+2. `MUX_TOKEN` with read access as some videos won't be available and the Mux API is required to both find the static renditions, but also (in future) render the static mp4 files when entirely missing
+3. A JSON file containing an array of strings, those strings being the lesson slugs
+
+Assuming your environment is in place, and assuming that your slugs are in `./slugs.json`, run the following command:
+
+```sh
+pnpx tsx bin/get-direct-video-links.ts ./slugs.json > results.csv
+```
+
+The results.csv file is a CSV (without a header) that contains the URL and the lesson slug. This is to help ensure that the order is aligned to the original list.
+
 ## Infrastructure
 
 - TypeScript across nearly all code (exceptions being eslint config and next config)
