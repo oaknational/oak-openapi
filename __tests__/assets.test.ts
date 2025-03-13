@@ -1,6 +1,6 @@
 import { vi, expect, test } from 'vitest';
 import { makeCaller, makeRes } from './helper';
-import { downloadTypeEnum } from '~/lib/handlers/assets';
+import { downloadTypeEnum, getVideoFromMux } from '~/lib/handlers/assets';
 
 vi.mock('@google-cloud/storage', async () => {
   const { EventEmitter } = await import('events');
@@ -190,4 +190,14 @@ test('sequence assets and paging', async () => {
     expect(res.length).toBe(2);
     expect(res[0].assets.length, `${type} has zero assets`).toBeGreaterThan(0);
   }
+});
+
+test('cycling down the quality of videos against mux', async () => {
+  const streamUrl =
+    'https://stream.video.thenational.academy/yD02mc00PWTu0201HlC9S8vC012R01m6Njvcvxbz2WzJzJISo.m3u8';
+
+  const resultUrl = await getVideoFromMux(streamUrl, 'high');
+
+  expect(resultUrl.endsWith('.mp4')).toBe(true);
+  expect(resultUrl.endsWith('high.mp4')).toBe(false);
 });
