@@ -880,13 +880,7 @@ export const getAssets = router({
 
         if (!download) {
           // test if the download is there as our db is often out of sync with mux
-          const url = stream.replace(/\.m3u8$/, '/high.mp4');
-          const response = await fetch(url, {
-            method: 'HEAD',
-          });
-          if (response.status === 200) {
-            download = url;
-          }
+          download = await getVideoFromMux(stream);
         }
 
         const response = await fetch(download || stream);
@@ -947,6 +941,22 @@ export const getAssets = router({
       }
     }),
 });
+
+export async function getVideoFromMux(
+  sourceUrl: string,
+  level: 'high' | 'medium' | 'low' = 'high',
+): Promise<string> {
+  const url = sourceUrl.replace(/\.m3u8$/, `/${level}.mp4`);
+  const response = await fetch(url);
+  if (response.status === 200) {
+    return url;
+  } else if (level === 'low') {
+    return '';
+  } else {
+    const nextLevel = level === 'high' ? 'medium' : 'low';
+    return getVideoFromMux(sourceUrl, nextLevel);
+  }
+}
 
 async function listFilesWithMimeType(
   storage: Storage,
