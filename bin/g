@@ -10,6 +10,11 @@ if [[ $1 == "prod" ]]; then
   URL=$2
 fi
 
+if [[ $2 != "" ]]; then
+  ROOT=$1
+  URL=$2
+fi
+
 if [[ $URL == "" ]]; then
   echo "Usage: $0 <endpoint>"
   exit 1
