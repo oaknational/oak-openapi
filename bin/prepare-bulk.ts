@@ -38,6 +38,8 @@ import {
 } from '~/lib/handlers/subjects';
 import {
   currentCycle,
+  DownloadView,
+  downloadView,
   getClient,
   SequenceView,
   sequenceView,
@@ -46,6 +48,8 @@ import {
   SubjectPhaseView,
 } from '~/lib/owaClient';
 import { formatUnitSummary, UnitSchema } from '~/lib/handlers/units';
+import { getVideoFromMux } from '~/lib/handlers/assets';
+import { Readable } from 'stream';
 
 const __dirname = path.resolve(path.dirname(''));
 
@@ -65,23 +69,21 @@ async function addVideoToTar(
   url: string,
   filename: string,
 ): Promise<void> {
-  const entry = pack.entry({ name: filename });
-
   const response = await fetch(url);
   if (!response.body) throw new Error(`Failed to fetch ${url}`);
 
-  const reader = response.body.getReader();
-  const pump = (): Promise<void> =>
-    reader.read().then(({ done, value }) => {
-      if (done) {
-        entry.end();
-        return;
-      }
-      entry.write(value);
-      return pump();
+  const nodeStream = Readable.fromWeb(response.body);
+
+  return new Promise<void>((resolve, reject) => {
+    const entry = pack.entry({ name: filename }, (err) => {
+      if (err) reject(err);
+      else resolve();
     });
 
-  await pump();
+    nodeStream.pipe(entry);
+    nodeStream.on('end', () => entry.end());
+    nodeStream.on('error', reject);
+  });
 }
 
 function runtime() {
@@ -147,15 +149,18 @@ async function getUnitSummaries(
     );
 
     const lessonData = await getAllLessonData(unitSlug);
+    const videoLinks = await getAllLessonAssets(
+      lessonData.map((_) => _.lessonSlug),
+    );
 
     for (const lesson of lessonData) {
       try {
         // TODO pack in the video
-        await addVideoToTar(
-          pack,
-          'https://example.com/video1.mp4',
-          'video1.mp4',
-        );
+        const url = await getVideoFromMux(videoLinks[lesson.lessonSlug]);
+        console.log(`🔵 ${url}`);
+        await addVideoToTar(pack, url, `${lesson.lessonSlug}.mp4`);
+
+        console.log(`📹 ${lesson.lessonSlug}`);
 
         // delete the url from the lesson object
 
@@ -170,8 +175,38 @@ async function getUnitSummaries(
   }
 }
 
-export async function getAllLessonAssets(lessonSlugs: string[]) {
-  return lessonSlugs;
+export async function getAllLessonAssets(
+  lessonSlugs: string[],
+): Promise<Record<string, string>> {
+  const query = gql`
+      query GetDownloads($slugs: [String!]!) {
+        ${downloadView}(
+          where: {
+            lessonSlug: { _in: $slugs }
+          }
+        ) {
+          lessonSlug
+          video: videos
+        }
+      }
+    `;
+
+  const variables = {
+    slugs: lessonSlugs,
+  };
+
+  const res: DownloadView = await client.request(query, variables);
+
+  // map res so that it's slug -> video
+  const map = res[downloadView].reduce(
+    (acc, { lessonSlug, video }) => {
+      acc[lessonSlug] = video.stream;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+
+  return map;
 }
 
 async function getAllLessonData(unitSlug: string) {
@@ -323,6 +358,7 @@ for (const s of sequences) {
   await getUnitSummaries(s.sequenceSlug, sequence, pack);
   pack.finalize();
 
+  // FIXME break early
   break;
 }
 
