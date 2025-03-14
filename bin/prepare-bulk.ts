@@ -50,6 +50,7 @@ import {
 } from '~/lib/owaClient';
 import { formatUnitSummary, UnitSchema } from '~/lib/handlers/units';
 import { getVideoFromMux, lessonAssetsType } from '~/lib/handlers/assets';
+import { isSubjectSupported, allowedUnits } from '~/lib/queryGate';
 import { Readable } from 'stream';
 import { Storage } from '@google-cloud/storage';
 
@@ -220,6 +221,19 @@ function logError(message: string): void {
   console.error(`[${runtime()}][ERROR] ${message}`);
 }
 
+/**
+ * Check if the given lesson's assets should be processed based on subject and unit gating
+ */
+function isLessonAssetsAllowed(lesson: {
+  subjectSlug: string;
+  unitSlug: string;
+}): boolean {
+  const { subjectSlug, unitSlug } = lesson;
+
+  // Check if subject is supported or unit is in allowed list
+  return isSubjectSupported(subjectSlug) || allowedUnits.includes(unitSlug);
+}
+
 async function getAssetFromStorage(asset: any): Promise<Readable> {
   // For debugging
   log('DEBUG', `Getting asset from storage: ${JSON.stringify(asset)}`);
@@ -305,6 +319,16 @@ async function getUnitSummaries(
     );
 
     for (const lesson of lessonData) {
+      // Check if this lesson's assets are allowed based on subject/unit gating
+      const assetsAllowed = isLessonAssetsAllowed(lesson);
+      if (!assetsAllowed) {
+        log(
+          'INFO',
+          `Skipping assets for lesson ${lesson.lessonSlug} - not in allowed subjects/units list`,
+        );
+        continue;
+      }
+
       // Process video
       try {
         const videoStart = Date.now();
@@ -313,7 +337,11 @@ async function getUnitSummaries(
           videoLinks[lesson.lessonSlug].videoStream as unknown as string,
         );
 
-        await addToTar(packs.videos, url, `${lesson.lessonSlug}.mp4`);
+        await addToTar(
+          packs.videos,
+          url,
+          `${lesson.sequenceSlug}-${lesson.lessonSlug}.mp4`,
+        );
         const totalVideoTime = Date.now() - videoStart;
 
         log(
@@ -321,7 +349,7 @@ async function getUnitSummaries(
           `Video processed: ${lesson.lessonSlug} (${totalVideoTime}ms)`,
         );
 
-        lesson.video = `videos.tar:${lesson.lessonSlug}.mp4`;
+        lesson.video = `${lesson.sequenceSlug}-videos.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}.mp4`;
       } catch (e) {
         logError(`Failed to process video for ${lesson.lessonSlug}: ${e}`);
       }
@@ -337,10 +365,10 @@ async function getUnitSummaries(
           await addToTar(
             packs.worksheets,
             videoLinks[lesson.lessonSlug].worksheet,
-            `${lesson.lessonSlug}_worksheet.pdf`,
+            `${lesson.sequenceSlug}-${lesson.lessonSlug}_worksheet.pdf`,
           );
 
-          lesson.worksheet = `worksheets.tar:${lesson.lessonSlug}_worksheet.pdf`;
+          lesson.worksheet = `${lesson.sequenceSlug}-worksheets.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}_worksheet.pdf`;
 
           const worksheetTime = Date.now() - worksheetStart;
           log(
@@ -376,10 +404,10 @@ async function getUnitSummaries(
           await addToTar(
             packs.worksheets,
             videoLinks[lesson.lessonSlug].worksheetAnswers,
-            `${lesson.lessonSlug}_worksheet_answers.pdf`,
+            `${lesson.sequenceSlug}-${lesson.lessonSlug}_worksheet_answers.pdf`,
           );
 
-          lesson.worksheetAnswers = `worksheets.tar:${lesson.lessonSlug}_worksheet_answers.pdf`;
+          lesson.worksheetAnswers = `${lesson.sequenceSlug}-worksheets.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}_worksheet_answers.pdf`;
         } catch (e) {
           logError(
             `Failed to process worksheet answers for ${lesson.lessonSlug}: ${e}`,
@@ -418,10 +446,10 @@ async function getUnitSummaries(
           await addToTar(
             packs.slideDecks,
             modifiedSlideDeck,
-            `${lesson.lessonSlug}_slide_deck.pptx`,
+            `${lesson.sequenceSlug}-${lesson.lessonSlug}_slide_deck.pptx`,
           );
 
-          lesson.slideDeck = `slide-decks.tar:${lesson.lessonSlug}_slide_deck.pptx`;
+          lesson.slideDeck = `${lesson.sequenceSlug}-slide-decks.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}_slide_deck.pptx`;
 
           const slideDeckTime = Date.now() - slideDeckStart;
           log(
@@ -453,10 +481,10 @@ async function getUnitSummaries(
           await addToTar(
             packs.starterQuizzes,
             videoLinks[lesson.lessonSlug].starterQuiz,
-            `${lesson.lessonSlug}_starter_quiz.pdf`,
+            `${lesson.sequenceSlug}-${lesson.lessonSlug}_starter_quiz.pdf`,
           );
 
-          lesson.starterQuiz = `quizzes.tar:${lesson.lessonSlug}_starter_quiz.pdf`;
+          lesson.starterQuiz = `${lesson.sequenceSlug}-quizzes.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}_starter_quiz.pdf`;
 
           // Process starter quiz answers if available and has bucket_name
           if (
@@ -471,10 +499,10 @@ async function getUnitSummaries(
             await addToTar(
               packs.starterQuizzes,
               videoLinks[lesson.lessonSlug].starterQuizAnswers,
-              `${lesson.lessonSlug}_starter_quiz_answers.pdf`,
+              `${lesson.sequenceSlug}-${lesson.lessonSlug}_starter_quiz_answers.pdf`,
             );
 
-            lesson.starterQuizAnswers = `quizzes.tar:${lesson.lessonSlug}_starter_quiz_answers.pdf`;
+            lesson.starterQuizAnswers = `${lesson.sequenceSlug}-quizzes.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}_starter_quiz_answers.pdf`;
           }
 
           log('INFO', `Starter quiz processed: ${lesson.lessonSlug}`);
@@ -503,10 +531,10 @@ async function getUnitSummaries(
           await addToTar(
             packs.exitQuizzes,
             videoLinks[lesson.lessonSlug].exitQuiz,
-            `${lesson.lessonSlug}_exit_quiz.pdf`,
+            `${lesson.sequenceSlug}-${lesson.lessonSlug}_exit_quiz.pdf`,
           );
 
-          lesson.exitQuiz = `quizzes.tar:${lesson.lessonSlug}_exit_quiz.pdf`;
+          lesson.exitQuiz = `${lesson.sequenceSlug}-quizzes.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}_exit_quiz.pdf`;
 
           // Process exit quiz answers if available and has bucket_name
           if (
@@ -521,10 +549,10 @@ async function getUnitSummaries(
             await addToTar(
               packs.exitQuizzes,
               videoLinks[lesson.lessonSlug].exitQuizAnswers,
-              `${lesson.lessonSlug}_exit_quiz_answers.pdf`,
+              `${lesson.sequenceSlug}-${lesson.lessonSlug}_exit_quiz_answers.pdf`,
             );
 
-            lesson.exitQuizAnswers = `quizzes.tar:${lesson.lessonSlug}_exit_quiz_answers.pdf`;
+            lesson.exitQuizAnswers = `${lesson.sequenceSlug}-quizzes.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}_exit_quiz_answers.pdf`;
           }
 
           log('INFO', `Exit quiz processed: ${lesson.lessonSlug}`);
@@ -553,10 +581,10 @@ async function getUnitSummaries(
           await addToTar(
             packs.supplementaryResources,
             videoLinks[lesson.lessonSlug].supplementaryResource,
-            `${lesson.lessonSlug}_supplementary.pdf`,
+            `${lesson.sequenceSlug}-${lesson.lessonSlug}_supplementary.pdf`,
           );
 
-          lesson.supplementaryResource = `resources.tar:${lesson.lessonSlug}_supplementary.pdf`;
+          lesson.supplementaryResource = `${lesson.sequenceSlug}-resources.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}_supplementary.pdf`;
 
           log('INFO', `Supplementary resource processed: ${lesson.lessonSlug}`);
         } catch (e) {
@@ -810,26 +838,36 @@ for (const s of sequences) {
   await fs.mkdir(sequenceDir, { recursive: true });
 
   // Create tarballs for different asset types
-  const videosOutput = createWriteStream(`${sequenceDir}/videos.tar`);
+  const videosOutput = createWriteStream(
+    `${sequenceDir}/${s.sequenceSlug}-videos.tar`,
+  );
   const videoPack = tar.pack();
   videoPack.pipe(videosOutput);
 
-  const worksheetsOutput = createWriteStream(`${sequenceDir}/worksheets.tar`);
+  const worksheetsOutput = createWriteStream(
+    `${sequenceDir}/${s.sequenceSlug}-worksheets.tar`,
+  );
   const worksheetsPack = tar.pack();
   worksheetsPack.pipe(worksheetsOutput);
 
   // Create slide decks tarball
-  const slideDecksOutput = createWriteStream(`${sequenceDir}/slide-decks.tar`);
+  const slideDecksOutput = createWriteStream(
+    `${sequenceDir}/${s.sequenceSlug}-slide-decks.tar`,
+  );
   const slideDecksPack = tar.pack();
   slideDecksPack.pipe(slideDecksOutput);
 
   // Create quizzes tarball
-  const quizzesOutput = createWriteStream(`${sequenceDir}/quizzes.tar`);
+  const quizzesOutput = createWriteStream(
+    `${sequenceDir}/${s.sequenceSlug}-quizzes.tar`,
+  );
   const quizzesPack = tar.pack();
   quizzesPack.pipe(quizzesOutput);
 
   // Create supplementary resources tarball
-  const resourcesOutput = createWriteStream(`${sequenceDir}/resources.tar`);
+  const resourcesOutput = createWriteStream(
+    `${sequenceDir}/${s.sequenceSlug}-resources.tar`,
+  );
   const resourcesPack = tar.pack();
   resourcesPack.pipe(resourcesOutput);
 
