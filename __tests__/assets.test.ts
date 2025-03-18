@@ -1,6 +1,12 @@
 import { vi, expect, test } from 'vitest';
 import { makeCaller, makeRes } from './helper';
-import { downloadTypeEnum, getVideoFromMux } from '~/lib/handlers/assets';
+import {
+  downloadTypeEnum,
+  getVideoFromMux,
+  isApprovedLesson,
+} from '~/lib/handlers/assets';
+import { allowedUnits } from '~/lib/queryGateData/allowedUnits';
+import { supportedLessons } from '~/lib/queryGateData/supportedLessons';
 
 vi.mock('@google-cloud/storage', async () => {
   const { EventEmitter } = await import('events');
@@ -200,4 +206,43 @@ test('cycling down the quality of videos against mux', async () => {
 
   expect(resultUrl.endsWith('.mp4')).toBe(true);
   expect(resultUrl.endsWith('high.mp4')).toBe(false);
+});
+
+const testSet = new Set('invalid lesson');
+const approvedLessonsSet = new Set(supportedLessons);
+
+test('isApprovedLesson: blocked subjects return false', () => {
+  expect(isApprovedLesson('english', 'poetry', 'lesson 1')).toBe(false);
+});
+
+test('isApprovedLesson: made up subjects return false', () => {
+  expect(
+    isApprovedLesson(
+      'defence-against-dark-arts',
+      'defensive-spells',
+      'protego',
+    ),
+  ).toBe(false);
+});
+
+test('isApprovedLesson: supported subject returns true', () => {
+  expect(isApprovedLesson('maths', 'unit-1', 'lesson-1')).toBe(true);
+});
+
+test('isApprovedLesson: supported unit returns true', () => {
+  expect(
+    isApprovedLesson(
+      'english',
+      'apostrophes-and-speech-punctuation',
+      'lesson-1',
+    ),
+  ).toBe(true);
+});
+
+test('isApprovedLesson: random unit returns false', () => {
+  expect(isApprovedLesson('english', 'random-unit', 'lesson-1')).toBe(false);
+});
+
+test('isApprovedLesson: random lesson returns false', () => {
+  expect(isApprovedLesson('english', 'random-unit', 'lesson-1')).toBe(false);
 });

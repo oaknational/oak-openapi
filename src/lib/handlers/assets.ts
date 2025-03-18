@@ -40,6 +40,9 @@ if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
 import {
   checkLessonAllowedAsset,
   checkQueryAllowedAssets,
+  isBlockedUnitOrSubject,
+  isSubjectSupported,
+  isUnitSupported,
   modifySubject,
 } from '~/lib/queryGate';
 import { sequenceWhere } from './sequences';
@@ -347,6 +350,7 @@ export const getAssets = router({
           where: $where
           order_by: { order: asc }
         ) {
+          slug
           lessons
         }
       }`;
@@ -354,7 +358,8 @@ export const getAssets = router({
       const res: SequenceView = await client.request(query, { where });
       const rawData = res[sequenceView];
 
-      // unique lesson slugs
+      // TODO: function to check for allowed lessons
+
       const lessonSlugs = new Set(
         rawData
           .map((unit) => {
@@ -976,4 +981,25 @@ async function listFilesWithMimeType(
     name: file.name,
     mimeType: file.metadata.contentType || 'unknown',
   }));
+}
+
+export function isApprovedLesson(
+  subjectSlug: string,
+  unitSlug: string,
+  // lessonSlug: string,
+) {
+  // Return false immediately if a blocked subject
+  if (isBlockedUnitOrSubject({ unitSlug, subjectSlug })) {
+    return false;
+  }
+  // If it's a supported subject, all good
+  if (isSubjectSupported(subjectSlug)) {
+    return true;
+  }
+  // If it's a supported unit, even better - all lessons are valid
+  if (isUnitSupported(unitSlug)) {
+    return true;
+  }
+  // TODO: If all else is not true, check the lesson slug
+  return false;
 }
