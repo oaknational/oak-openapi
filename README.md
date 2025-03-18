@@ -118,6 +118,49 @@ The results.csv file is a CSV (without a header) that contains the URL and the l
 - trpc-openapi to add the openapi metadata
 - graphql and some direct sql is used against the Oak Web Application (OWA) hasura based database
 
+# Bulk Download
+
+The bulk download feature allows you to download all assets (videos, worksheets, slide decks, quizzes, etc.) for entire sequences, organized into tar archives.
+
+## Using the Bulk Download Script
+
+The prepare-bulk.ts script creates organized archives of Oak educational content for offline use.
+
+### Prerequisites
+
+1. Access to Oak's Google Cloud Storage (set via `GOOGLE_APPLICATION_CREDENTIALS_JSON` env variable)
+2. Database access (set via `DATABASE_URL` env variable)
+3. OWA Hasura access (for GraphQL queries)
+
+### Running the Script
+
+To generate bulk download packages:
+
+```sh
+pnpx tsx bin/prepare-bulk.ts
+```
+
+### Output Structure
+
+The script generates a directory structure in the `out` folder organized by sequence:
+
+```
+out/
+  └── {sequence-slug}/
+      ├── sequence.json           # Metadata about the sequence
+      ├── units.jsonl             # Information about each unit
+      ├── lessons.jsonl           # Details about each lesson including asset references
+      ├── {sequence-slug}-videos.tar       # Archive of all video files
+      ├── {sequence-slug}-worksheets.tar   # Archive of all worksheets and answer sheets
+      ├── {sequence-slug}-slide-decks.tar  # Archive of all presentation files
+      ├── {sequence-slug}-quizzes.tar      # Archive of all starter and exit quizzes
+      └── {sequence-slug}-resources.tar    # Archive of all supplementary resources
+```
+
+Each file inside the tar archives is named with the sequence slug prefix (e.g., `math-primary-lesson1.mp4`).
+
+The lessons.jsonl file contains references to all assets for each lesson, using the format `{tar-filename}:{file-path-in-tar}`.
+
 # Load testing
 
 Required dependencies:
