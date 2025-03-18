@@ -26,12 +26,12 @@ import type {
 import { z } from 'zod';
 import { baseUrl } from '../baseUrl';
 import {
-  allowedUnits,
   blockedSubjects,
   getSubjectAndUnitForLesson,
   isBlockedUnitOrSubject,
   supportsImages,
 } from '../queryGate';
+import { allowedUnits } from '../queryGateData/allowedUnits';
 import { TRPCError } from '@trpc/server';
 import { sequenceWhere } from './sequences';
 import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
