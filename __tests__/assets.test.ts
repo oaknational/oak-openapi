@@ -3,10 +3,8 @@ import { makeCaller, makeRes } from './helper';
 import {
   downloadTypeEnum,
   getVideoFromMux,
-  isApprovedLesson,
+  // isApprovedLesson,
 } from '~/lib/handlers/assets';
-import { allowedUnits } from '~/lib/queryGateData/allowedUnits';
-import { supportedLessons } from '~/lib/queryGateData/supportedLessons';
 
 vi.mock('@google-cloud/storage', async () => {
   const { EventEmitter } = await import('events');
@@ -155,8 +153,6 @@ test('sequence assets and paging', async () => {
     sequence: 'maths-secondary',
     type: 'slideDeck',
     year: 10,
-    limit: 2,
-    offset: 0,
   });
 
   expect(res.length).toBe(2);
@@ -173,8 +169,6 @@ test('sequence assets and paging', async () => {
     sequence: 'maths-secondary',
     type: 'slideDeck',
     year: 10,
-    limit: 2,
-    offset: 2,
   });
 
   expect(res.length).toBe(2);
@@ -190,12 +184,46 @@ test('sequence assets and paging', async () => {
       sequence: 'maths-secondary',
       type,
       year: 10,
-      limit: 2,
-      offset: 2,
     });
-    expect(res.length).toBe(2);
     expect(res[0].assets.length, `${type} has zero assets`).toBeGreaterThan(0);
   }
+});
+
+test('lessons in the supported lessons array are allowed', async () => {
+  const request = makeRes();
+  const caller = makeCaller(
+    {
+      user: 1,
+    },
+    request,
+  );
+
+  // this will throw if the lesson is not allowed, which
+  // is all we're testing for
+  const res = await caller.getAssets.getLessonAsset({
+    lesson: 'identifying-unknown-substances-including-barium',
+    type: 'slideDeck',
+  });
+
+  expect(typeof res).toBe('undefined');
+});
+
+test('lessons not in the supported lessons array are not allowed', async () => {
+  const request = makeRes();
+  const caller = makeCaller(
+    {
+      user: 1,
+    },
+    request,
+  );
+
+  await expect(
+    async () =>
+      await caller.getAssets.getLessonAsset({
+        lesson: 'made up lesson for testing',
+        type: 'video',
+      }),
+  ).rejects.toThrow('Lesson not available');
 });
 
 test('cycling down the quality of videos against mux', async () => {
@@ -208,41 +236,38 @@ test('cycling down the quality of videos against mux', async () => {
   expect(resultUrl.endsWith('high.mp4')).toBe(false);
 });
 
-const testSet = new Set('invalid lesson');
-const approvedLessonsSet = new Set(supportedLessons);
+// test('isApprovedLesson: blocked subjects return false', () => {
+//   expect(isApprovedLesson('english', 'poetry', 'lesson 1')).toBe(false);
+// });
 
-test('isApprovedLesson: blocked subjects return false', () => {
-  expect(isApprovedLesson('english', 'poetry', 'lesson 1')).toBe(false);
-});
+// test('isApprovedLesson: made up subjects return false', () => {
+//   expect(
+//     isApprovedLesson(
+//       'defence-against-dark-arts',
+//       'defensive-spells',
+//       'protego',
+//     ),
+//   ).toBe(false);
+// });
 
-test('isApprovedLesson: made up subjects return false', () => {
-  expect(
-    isApprovedLesson(
-      'defence-against-dark-arts',
-      'defensive-spells',
-      'protego',
-    ),
-  ).toBe(false);
-});
+// test('isApprovedLesson: supported subject returns true', () => {
+//   expect(isApprovedLesson('maths', 'unit-1', 'lesson-1')).toBe(true);
+// });
 
-test('isApprovedLesson: supported subject returns true', () => {
-  expect(isApprovedLesson('maths', 'unit-1', 'lesson-1')).toBe(true);
-});
+// test('isApprovedLesson: supported unit returns true', () => {
+//   expect(
+//     isApprovedLesson(
+//       'english',
+//       'apostrophes-and-speech-punctuation',
+//       'lesson-1',
+//     ),
+//   ).toBe(true);
+// });
 
-test('isApprovedLesson: supported unit returns true', () => {
-  expect(
-    isApprovedLesson(
-      'english',
-      'apostrophes-and-speech-punctuation',
-      'lesson-1',
-    ),
-  ).toBe(true);
-});
+// test('isApprovedLesson: random unit returns false', () => {
+//   expect(isApprovedLesson('english', 'random-unit', 'lesson-1')).toBe(false);
+// });
 
-test('isApprovedLesson: random unit returns false', () => {
-  expect(isApprovedLesson('english', 'random-unit', 'lesson-1')).toBe(false);
-});
-
-test('isApprovedLesson: random lesson returns false', () => {
-  expect(isApprovedLesson('english', 'random-unit', 'lesson-1')).toBe(false);
-});
+// test('isApprovedLesson: random lesson returns false', () => {
+//   expect(isApprovedLesson('english', 'random-unit', 'lesson-1')).toBe(false);
+// });

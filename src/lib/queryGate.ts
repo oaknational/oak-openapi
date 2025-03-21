@@ -18,11 +18,11 @@ import {
   sequenceViewWhereInput,
 } from './owaClient';
 
-import { supportedLessons } from './queryGateData/supportedLessons';
-import { allowedUnits } from './queryGateData/allowedUnits';
+import supportedUnits from './queryGateData/supportedUnits.json' assert { type: 'json' };
+import supportedLessons from './queryGateData/supportedLessons.json' assert { type: 'json' };
 
+// TODO move these to JSON too
 const supportedSubjects = ['maths'];
-
 export const blockedSubjects = ['english'];
 
 type KV = Record<string, string>;
@@ -41,6 +41,11 @@ export async function blockLessonForCopyrightText(
   client: GraphQLClient,
   lessonSlug: string,
 ) {
+  if (supportedLessons.includes(lessonSlug)) {
+    // not copyright
+    return false;
+  }
+
   const res = await getSubjectAndUnitForLesson(client, lessonSlug);
 
   if (!res) {
@@ -58,7 +63,7 @@ export function isBlockedUnitOrSubject({
   unitSlug: string;
   subjectSlug: string;
 }): boolean {
-  if (allowedUnits.includes(unitSlug)) {
+  if (supportedUnits.includes(unitSlug)) {
     // not copyright
     return false;
   }
@@ -78,12 +83,12 @@ export async function blockUnitForCopyrightText(
   // number, so we'll remove that for the moment, and then check
 
   if (/\-\d+$/.test(unitSlug)) {
-    if (allowedUnits.includes(unitSlug.replace(/-\d+$/, ''))) {
+    if (supportedUnits.includes(unitSlug.replace(/-\d+$/, ''))) {
       return false;
     }
   }
 
-  if (allowedUnits.includes(unitSlug)) {
+  if (supportedUnits.includes(unitSlug)) {
     // not copyright
     return false;
   }
@@ -104,6 +109,7 @@ export async function blockUnitForCopyrightText(
   return false;
 }
 
+// FIXME remove this - it's too much of a hack
 export function modifySubject(subject: string) {
   // this is stupid code, but my thinking is that hopefully we can open up to
   // more subjects quickly
@@ -113,23 +119,32 @@ export function modifySubject(subject: string) {
   return supportedSubjects[0];
 }
 
-export function checkQueryAllowedAssets(
-  subject: string = '',
-  unit: string = '',
-  lesson: string = '',
-) {
-  return (
-    isSubjectSupported(subject) ||
-    isUnitSupported(unit) ||
-    isLessonSupported(lesson)
-  );
+export function checkQueryAllowedAssets(params: {
+  subject?: string;
+  unit?: string;
+  lesson?: string;
+}) {
+  const { subject = '', unit = '', lesson = '' } = params;
+
+  // if the query is empty, prevent it
+  const supportedSubject = subject ? isSubjectSupported(subject) : false;
+  const supportedUnit = unit ? isUnitSupported(unit) : false;
+  const supportedLesson = lesson ? isLessonSupported(lesson) : false;
+
+  return supportedSubject || supportedUnit || supportedLesson;
 }
 
 export async function checkLessonAllowedAsset(
   client: GraphQLClient,
-  slug: string,
+  lessonSlug: string,
 ) {
-  const res = await getSubjectAndUnitForLesson(client, slug);
+  // start with a direct match on the lessons
+  if (supportedLessons.includes(lessonSlug)) {
+    return true;
+  }
+
+  // otherwise get the subject and unit to see if those are supported
+  const res = await getSubjectAndUnitForLesson(client, lessonSlug);
 
   if (!res) {
     return false;
@@ -137,11 +152,7 @@ export async function checkLessonAllowedAsset(
 
   const { subjectSlug, unitSlug } = res;
 
-  return (
-    isSubjectSupported(subjectSlug) ||
-    isUnitSupported(unitSlug) ||
-    isLessonSupported(slug)
-  );
+  return isSubjectSupported(subjectSlug) || isUnitSupported(unitSlug);
 }
 
 export function supportsImages(subject: string, unit: string) {
@@ -153,7 +164,7 @@ export function isSubjectSupported(subject: string) {
 }
 
 export function isUnitSupported(unit: string) {
-  return allowedUnits.includes(unit);
+  return supportedUnits.includes(unit);
 }
 
 export function isLessonSupported(lesson: string) {
