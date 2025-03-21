@@ -25,18 +25,6 @@ import supportedLessons from './queryGateData/supportedLessons.json' assert { ty
 const supportedSubjects = ['maths'];
 export const blockedSubjects = ['english'];
 
-type KV = Record<string, string>;
-
-export function modifyQueryWithSubject(query: string, vars: KV) {
-  vars.subjectSlug = 'maths';
-  if (query.includes('subjectSlug')) {
-    return query;
-  }
-
-  query += `, _and: { subjectSlug: { _eq: $subject } }`;
-  return query;
-}
-
 export async function blockLessonForCopyrightText(
   client: GraphQLClient,
   lessonSlug: string,
@@ -107,16 +95,6 @@ export async function blockUnitForCopyrightText(
   }
 
   return false;
-}
-
-// FIXME remove this - it's too much of a hack
-export function modifySubject(subject: string) {
-  // this is stupid code, but my thinking is that hopefully we can open up to
-  // more subjects quickly
-  if (isUnitSupported(subject)) {
-    return subject;
-  }
-  return supportedSubjects[0];
 }
 
 export function checkQueryAllowedAssets(params: {
