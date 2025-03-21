@@ -39,8 +39,8 @@ if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
 
 import {
   checkLessonAllowedAsset,
-  checkQueryAllowedAssets,
   isBlockedUnitOrSubject,
+  isLessonSupported,
   isSubjectSupported,
   isUnitSupported,
   modifySubject,
@@ -318,19 +318,12 @@ export const getAssets = router({
         sequence: z.string(),
         year: z.number().optional(),
         type: downloadTypeEnum.optional(),
-        offset: z.number().optional().default(0),
-        limit: z
-          .number({
-            description: 'Limit the number of results returned, max 100',
-          })
-          .lte(100)
-          .optional()
-          .default(10),
       }),
     )
     .output(lessonsAssetsType)
-    .query(async ({ input, ctx }) => {
-      const { limit, offset, sequence, year, type } = input;
+    .query(async ({ input }) => {
+      // FIXME year was never being used to filter
+      const { sequence, type } = input;
       const client = getClient();
 
       const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
@@ -358,8 +351,6 @@ export const getAssets = router({
       const res: SequenceView = await client.request(query, { where });
       const rawData = res[sequenceView];
 
-      // TODO: function to check for allowed lessons
-
       const lessonSlugs = new Set(
         rawData
           .map((unit) => {
@@ -368,14 +359,38 @@ export const getAssets = router({
           .flat(),
       );
 
+      const lessonToUnitLookup = rawData.reduce(
+        (acc, unit) => {
+          unit.lessons.forEach((lesson) => {
+            acc[lesson.slug] = unit.slug;
+          });
+          return acc;
+        },
+        {} as { [key: string]: string },
+      );
+
+      const isLessonAllowed = (slug: string) => {
+        if (isSubjectSupported(subjectSlug)) {
+          return true;
+        }
+
+        if (isUnitSupported(lessonToUnitLookup[slug])) {
+          return true;
+        }
+
+        if (isLessonSupported(slug)) {
+          return true;
+        }
+
+        return false;
+      };
+
       const downloadsQuery = gql`
-        query GetDownloads($lessonSlugs: [String!]!, $limit: Int!, $offset: Int!) {
+        query GetDownloads($lessonSlugs: [String!]!) {
           ${downloadView}(
             where: {
               lessonSlug: { _in: $lessonSlugs }
             }
-            limit: $limit
-            offset: $offset
           ) {
             lessonSlug
             lessonTitle
@@ -397,36 +412,10 @@ export const getAssets = router({
         downloadsQuery,
         {
           lessonSlugs: Array.from(lessonSlugs),
-          limit,
-          offset,
         },
       );
 
       const downloads = downloadsViewResult[downloadView];
-
-      let next = null;
-      if (downloads.length === limit) {
-        next = `${baseUrl}${ctx.req.url}?offset=${
-          offset + limit
-        }&limit=${limit}`;
-        if (sequence) {
-          next += `&sequence=${sequence}`;
-        }
-        if (year) {
-          next += `&year=${year}`;
-        }
-        if (type) {
-          next += `&type=${type}`;
-        }
-        ctx.res.setHeader('link', `<${next}>; rel="next"`);
-      }
-
-      if (!downloads || downloads.length === 0 || !downloads[0]) {
-        throw new TRPCError({
-          message: 'No lessons found',
-          code: 'NOT_FOUND',
-        });
-      }
 
       const tpcQuery = gql`
         query GetTPC($lessonSlugs: [String!]!) {
@@ -448,28 +437,34 @@ export const getAssets = router({
 
       const tpc = tpcViewResult[lessonView];
 
-      const result = downloads.map((d) => {
-        const lessonSlug = d.lessonSlug;
+      // FIXME add the year filter if provided
 
-        const attribution = tpc.find((l) => l.lessonSlug === lessonSlug);
-        let mappedAttribution: string[] = [];
+      const result = downloads
+        .filter(({ lessonSlug }) => isLessonAllowed(lessonSlug))
+        .map((d) => {
+          const lessonSlug = d.lessonSlug;
 
-        if (attribution) {
-          mappedAttribution = [
-            ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
-            ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
-          ]
-            .filter((string) => string !== undefined)
-            .filter((string) => string !== '');
-        }
+          const attribution = tpc.find((l) => l.lessonSlug === lessonSlug);
+          let mappedAttribution: string[] = [];
 
-        return {
-          lessonSlug,
-          lessonTitle: d.lessonTitle,
-          attribution: mappedAttribution.length ? mappedAttribution : undefined,
-          assets: assetDownloads(lessonSlug, d, type),
-        };
-      });
+          if (attribution) {
+            mappedAttribution = [
+              ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
+              ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
+            ]
+              .filter((string) => string !== undefined)
+              .filter((string) => string !== '');
+          }
+
+          return {
+            lessonSlug,
+            lessonTitle: d.lessonTitle,
+            attribution: mappedAttribution.length
+              ? mappedAttribution
+              : undefined,
+            assets: assetDownloads(lessonSlug, d, type),
+          };
+        });
 
       return result;
     }),
@@ -578,16 +573,20 @@ export const getAssets = router({
         unitArg = ', $unit: String';
       }
 
-      if (unit || subject) {
-        const supported = checkQueryAllowedAssets(subject, unit || '');
+      // FIXME, we need to remove this and filter down at the lesson level
+      // if (unit || subject) {
+      //   const supported = checkQueryAllowedAssets({
+      //     subject,
+      //     unit: unit || '',
+      //   });
 
-        if (!supported) {
-          throw new TRPCError({
-            message: 'Lesson assets not available for this query',
-            code: 'NOT_FOUND',
-          });
-        }
-      }
+      //   if (!supported) {
+      //     throw new TRPCError({
+      //       message: 'Lesson assets not available for this query',
+      //       code: 'NOT_FOUND',
+      //     });
+      //   }
+      // }
 
       // step 1: find the slugs that match
       const lessonQuery = gql`
@@ -986,7 +985,7 @@ async function listFilesWithMimeType(
 export function isApprovedLesson(
   subjectSlug: string,
   unitSlug: string,
-  // lessonSlug: string,
+  lessonSlug: string,
 ) {
   // Return false immediately if a blocked subject
   if (isBlockedUnitOrSubject({ unitSlug, subjectSlug })) {
@@ -1001,5 +1000,6 @@ export function isApprovedLesson(
     return true;
   }
   // TODO: If all else is not true, check the lesson slug
-  return false;
+
+  if (lessonSlug) return false;
 }
