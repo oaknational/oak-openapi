@@ -43,7 +43,6 @@ import {
   isLessonSupported,
   isSubjectSupported,
   isUnitSupported,
-  modifySubject,
 } from '~/lib/queryGate';
 import { sequenceWhere } from './sequences';
 import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
@@ -545,25 +544,14 @@ export const getAssets = router({
             description: 'Optional unit slug to additionally filter by',
           })
           .optional(),
-        offset: z.number().optional().default(0),
-        limit: z
-          .number({
-            description: 'Limit the number of results returned, max 100',
-          })
-          .lte(100)
-          .optional()
-          .default(10),
       }),
     )
     .output(lessonsAssetsType)
-    .query(async ({ input, ctx }) => {
+    .query(async ({ input }) => {
       const keyStage = input.keyStage;
       const subject = input.subject;
       const unit = input.unit || null;
       const typeFilter = input.type;
-
-      const offset = input.offset;
-      const limit = input.limit;
 
       let unitFilter = '';
       let unitArg = '';
@@ -573,24 +561,9 @@ export const getAssets = router({
         unitArg = ', $unit: String';
       }
 
-      // FIXME, we need to remove this and filter down at the lesson level
-      // if (unit || subject) {
-      //   const supported = checkQueryAllowedAssets({
-      //     subject,
-      //     unit: unit || '',
-      //   });
-
-      //   if (!supported) {
-      //     throw new TRPCError({
-      //       message: 'Lesson assets not available for this query',
-      //       code: 'NOT_FOUND',
-      //     });
-      //   }
-      // }
-
       // step 1: find the slugs that match
       const lessonQuery = gql`
-        query GetLessons($_contains: jsonb, $limit: Int!, $offset: Int! ${unitArg}) {
+        query GetLessons($_contains: jsonb, ${unitArg}) {
           ${unitVariantLessonsView} (
             where: {
               is_legacy: { _eq: false }
@@ -599,9 +572,8 @@ export const getAssets = router({
                 ${unitFilter}
               }
             }
-            limit: $limit
-            offset: $offset
           ) {
+            unit_slug
             lesson_slug
           }
         }
@@ -612,18 +584,14 @@ export const getAssets = router({
           keystage_slug: string;
           subject_slug: string;
         };
-        limit: number;
-        offset: number;
         unit?: string;
       };
 
       const lessonQueryVariables = {
         _contains: {
           keystage_slug: keyStage,
-          subject_slug: modifySubject(subject),
+          subject_slug: subject,
         },
-        limit,
-        offset,
       } as LessonQueryVariables;
 
       if (unit) {
@@ -634,17 +602,6 @@ export const getAssets = router({
         await graphqlClient.request(lessonQuery, lessonQueryVariables);
 
       const res = lessonViewResult[unitVariantLessonsView];
-
-      let next = null;
-      if (res.length === limit) {
-        next = `${baseUrl}${ctx.req.url}?offset=${
-          offset + limit
-        }&limit=${limit}`;
-        if (unit) {
-          next += `&unit=${unit}`;
-        }
-        ctx.res.setHeader('link', `<${next}>; rel="next"`);
-      }
 
       // step 2: get the assets for each lesson
       const downloadsQuery = gql`
@@ -672,6 +629,13 @@ export const getAssets = router({
       `;
 
       const lessonSlugs = res.map((l) => l.lesson_slug);
+      const lessonToUnitLookup = res.reduce(
+        (acc, { lesson_slug, unit_slug }) => {
+          acc[lesson_slug] = unit_slug;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
 
       const downloadsViewResult: DownloadView = await graphqlClient.request(
         downloadsQuery,
@@ -709,28 +673,48 @@ export const getAssets = router({
 
       const tpc = tpcViewResult[lessonView];
 
-      const result = downloads.map((d) => {
-        const lessonSlug = d.lessonSlug;
-
-        const attribution = tpc.find((l) => l.lessonSlug === lessonSlug);
-        let mappedAttribution: string[] = [];
-
-        if (attribution) {
-          mappedAttribution = [
-            ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
-            ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
-          ]
-            .filter((string) => string !== undefined)
-            .filter((string) => string !== '');
+      const isLessonAllowed = (slug: string) => {
+        if (isSubjectSupported(subject)) {
+          return true;
         }
 
-        return {
-          lessonSlug,
-          lessonTitle: d.lessonTitle,
-          attribution: mappedAttribution.length ? mappedAttribution : undefined,
-          assets: assetDownloads(lessonSlug, d, typeFilter),
-        };
-      });
+        if (isUnitSupported(lessonToUnitLookup[slug])) {
+          return true;
+        }
+
+        if (isLessonSupported(slug)) {
+          return true;
+        }
+
+        return false;
+      };
+
+      const result = downloads
+        .filter(({ lessonSlug }) => isLessonAllowed(lessonSlug))
+        .map((d) => {
+          const lessonSlug = d.lessonSlug;
+
+          const attribution = tpc.find((l) => l.lessonSlug === lessonSlug);
+          let mappedAttribution: string[] = [];
+
+          if (attribution) {
+            mappedAttribution = [
+              ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
+              ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
+            ]
+              .filter((string) => string !== undefined)
+              .filter((string) => string !== '');
+          }
+
+          return {
+            lessonSlug,
+            lessonTitle: d.lessonTitle,
+            attribution: mappedAttribution.length
+              ? mappedAttribution
+              : undefined,
+            assets: assetDownloads(lessonSlug, d, typeFilter),
+          };
+        });
 
       return result;
     }),
