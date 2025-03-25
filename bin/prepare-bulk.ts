@@ -111,13 +111,13 @@ async function addURLToTar(
   url: string,
   filename: string,
 ): Promise<void> {
-  const res = await fetch(url);
-  const size =
-    parseInt(res.headers.get('content-length') || '', 10) || undefined;
+  return new Promise<void>(async (resolve, reject) => {
+    const res = await fetch(url);
+    const size =
+      parseInt(res.headers.get('content-length') || '', 10) || undefined;
 
-  log('DEBUG', `Adding URL to tar: ${url}, size: ${size || 'unknown'}`);
+    log('DEBUG', `Adding URL to tar: ${url}, size: ${size || 'unknown'}`);
 
-  return new Promise<void>((resolve, reject) => {
     if (!res.body) {
       return reject(new Error("Response body doesn't exist"));
     }
