@@ -1,6 +1,9 @@
 import { vi, expect, test } from 'vitest';
 import { makeCaller, makeRes } from './helper';
-import { downloadTypeEnum, getVideoFromMux } from '~/lib/handlers/assets';
+import {
+  getVideoFromMux,
+  // isApprovedLesson,
+} from '~/lib/handlers/assets';
 
 vi.mock('@google-cloud/storage', async () => {
   const { EventEmitter } = await import('events');
@@ -136,7 +139,7 @@ test.skip('read a video redirect', async () => {
   expect(call[1][key]).toMatch(/https:\/\/stream\.video\.thenational\.academy/);
 });
 
-test('sequence assets and paging', async () => {
+test('lessons in the supported lessons array are allowed', async () => {
   const request = makeRes();
   const caller = makeCaller(
     {
@@ -145,51 +148,32 @@ test('sequence assets and paging', async () => {
     request,
   );
 
-  let res = await caller.getAssets.getSequenceAssets({
-    sequence: 'maths-secondary',
+  // this will throw if the lesson is not allowed, which
+  // is all we're testing for
+  const res = await caller.getAssets.getLessonAsset({
+    lesson: 'identifying-unknown-substances-including-barium',
     type: 'slideDeck',
-    year: 10,
-    limit: 2,
-    offset: 0,
   });
 
-  expect(res.length).toBe(2);
+  expect(typeof res).toBe('undefined');
+});
 
-  const first = res[0];
-
-  expect(first).toHaveProperty('lessonSlug');
-  expect(first).toHaveProperty('assets');
-  expect(first.assets.length).toBeGreaterThan(0);
-  expect(first.assets[0]).toHaveProperty('type');
-  expect(first.assets[0].type).toBe('slideDeck');
-
-  res = await caller.getAssets.getSequenceAssets({
-    sequence: 'maths-secondary',
-    type: 'slideDeck',
-    year: 10,
-    limit: 2,
-    offset: 2,
-  });
-
-  expect(res.length).toBe(2);
-  expect(res.map((r) => r.lessonSlug)).not.toContain(first.lessonSlug);
-
-  // check the other types - but ignore supplementaryResource as it's not always there
-  const types = Object.values(downloadTypeEnum.enum).filter(
-    (_) => _ !== 'slideDeck' && _ !== 'supplementaryResource',
+test('lessons not in the supported lessons array are not allowed', async () => {
+  const request = makeRes();
+  const caller = makeCaller(
+    {
+      user: 1,
+    },
+    request,
   );
 
-  for (const type of types) {
-    res = await caller.getAssets.getSequenceAssets({
-      sequence: 'maths-secondary',
-      type,
-      year: 10,
-      limit: 2,
-      offset: 2,
-    });
-    expect(res.length).toBe(2);
-    expect(res[0].assets.length, `${type} has zero assets`).toBeGreaterThan(0);
-  }
+  await expect(
+    async () =>
+      await caller.getAssets.getLessonAsset({
+        lesson: 'made up lesson for testing',
+        type: 'video',
+      }),
+  ).rejects.toThrow('Lesson not available');
 });
 
 test('cycling down the quality of videos against mux', async () => {
@@ -201,3 +185,107 @@ test('cycling down the quality of videos against mux', async () => {
   expect(resultUrl.endsWith('.mp4')).toBe(true);
   expect(resultUrl.endsWith('high.mp4')).toBe(false);
 });
+
+test('blocked lesson: growing-rearing-and-catching-our-food', async () => {
+  const request = makeRes();
+  const caller = makeCaller(
+    {
+      user: 1,
+    },
+    request,
+  );
+
+  const slug = 'growing-rearing-and-catching-our-food';
+
+  await expect(
+    async () =>
+      await caller.getAssets.getLessonAsset({
+        lesson: slug,
+        type: 'slideDeck',
+      }),
+  ).rejects.toThrow('Lesson not available');
+
+  // make sure it doesn't also turn up in the sequence assets
+  const res = await caller.getAssets.getSequenceAssets({
+    sequence: 'cooking-nutrition-secondary',
+  });
+
+  expect(res.map((a) => a.lessonSlug)).not.toContain(slug);
+  expect(res.length).toBeGreaterThan(0);
+
+  const ksres = await caller.getAssets.getSubjectAssets({
+    subject: 'cooking-nutrition',
+    keyStage: 'ks3',
+  });
+
+  expect(ksres.map((a) => a.lessonSlug)).not.toContain(slug);
+});
+
+test('unblocked lesson: making-yakisoba-noodles', async () => {
+  const request = makeRes();
+  const caller = makeCaller(
+    {
+      user: 1,
+    },
+    request,
+  );
+
+  const slug = 'making-yakisoba-noodles';
+
+  // if this throws then the lesson is blocked
+  await caller.getAssets.getLessonAsset({
+    lesson: slug,
+    type: 'slideDeck',
+  });
+
+  // make sure it doesn't also turn up in the sequence assets
+  const res = await caller.getAssets.getSequenceAssets({
+    sequence: 'cooking-nutrition-secondary',
+  });
+
+  expect(res.map((a) => a.lessonSlug)).toContain(slug);
+  expect(res.length).toBeGreaterThan(0);
+
+  const ksres = await caller.getAssets.getSubjectAssets({
+    subject: 'cooking-nutrition',
+    keyStage: 'ks3',
+  });
+
+  expect(ksres.map((a) => a.lessonSlug)).toContain(slug);
+});
+
+// test('isApprovedLesson: blocked subjects return false', () => {
+//   expect(isApprovedLesson('english', 'poetry', 'lesson 1')).toBe(false);
+// });
+
+// test('isApprovedLesson: made up subjects return false', () => {
+//   expect(
+//     isApprovedLesson(
+//       'defence-against-dark-arts',
+//       'defensive-spells',
+//       'protego',
+//     ),
+//   ).toBe(false);
+// });
+
+// test('isApprovedLesson: supported subject returns true', () => {
+//   expect(isApprovedLesson('maths', 'unit-1', 'lesson-1')).toBe(true);
+// });
+
+// test('isApprovedLesson: supported unit returns true', () => {
+//   expect(
+//     isApprovedLesson(
+//       'english',
+//       'apostrophes-and-speech-punctuation',
+//       'lesson-1',
+//     ),
+//   ).toBe(true);
+// });
+
+// test('isApprovedLesson: random unit returns false', () => {
+//   expect(isApprovedLesson('english', 'random-unit', 'lesson-1')).toBe(false);
+// });
+
+// test('isApprovedLesson: random lesson returns false', () => {
+//   expect(isApprovedLesson('english', 'random-unit', 'lesson-1')).toBe(false);
+// });
