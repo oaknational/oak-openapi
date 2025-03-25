@@ -51,14 +51,18 @@ import {
 } from '~/lib/owaClient';
 import { formatUnitSummary, UnitSchema } from '~/lib/handlers/units';
 import { getVideoFromMux } from '~/lib/handlers/assets';
-import { isSubjectSupported, isUnitSupported } from '~/lib/queryGate';
-import { Readable } from 'stream';
+import {
+  isLessonSupported,
+  isSubjectSupported,
+  isUnitSupported,
+} from '~/lib/queryGate';
 import { Storage } from '@google-cloud/storage';
 
-import https from 'node:https';
-import { URL } from 'node:url';
-
-// const httpsAgent = new https.Agent({ keepAlive: false });
+if (process.version < 'v22') {
+  // this is because node 18 leaves sockets open 😱
+  console.error('Node version 22 or higher is required');
+  process.exit(1);
+}
 
 // Initialize Google Cloud Storage
 let storage: Storage;
@@ -93,13 +97,13 @@ interface AssetPacks {
 }
 
 function stat() {
-  const handles = process._getActiveHandles();
-  handles.forEach((h, i) => console.log(i, h.constructor.name));
-  // log(
-  //   'INFO',
-  //   // @ts-expect-error - this does exist
-  //   `handles: ${process._getActiveHandles().length}, requests: ${process._getActiveRequests().length}`,
-  // );
+  // handles.forEach((h, i) => console.log(i, h.constructor.name));
+  // l(handles.length);
+  log(
+    'INFO',
+    // @ts-expect-error - this does exist
+    `handles: ${process._getActiveHandles().length}, requests: ${process._getActiveRequests().length}`,
+  );
 }
 
 async function addURLToTar(
@@ -107,95 +111,46 @@ async function addURLToTar(
   url: string,
   filename: string,
 ): Promise<void> {
+  const res = await fetch(url);
+  const size =
+    parseInt(res.headers.get('content-length') || '', 10) || undefined;
+
+  log('DEBUG', `Adding URL to tar: ${url}, size: ${size || 'unknown'}`);
+
   return new Promise<void>((resolve, reject) => {
-    https
-      .get(new URL(url), (res) => {
-        log('INFO', 'Got response');
-        if (res.statusCode !== 200) {
-          res.resume(); // discard data
-          return reject(new Error(`Failed to fetch ${url}: ${res.statusCode}`));
+    if (!res.body) {
+      return reject(new Error("Response body doesn't exist"));
+    }
+    const reader = res.body.getReader();
+
+    const entry = pack.entry({ name: filename, size }, async (err) => {
+      reader.releaseLock();
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+
+    const pump = () => {
+      reader.read().then(({ done, value }) => {
+        if (done) {
+          entry.end();
+          return;
         }
 
-        const size =
-          parseInt(res.headers['content-length'] || '', 10) || undefined;
-        const entry = pack.entry({ name: filename, size }, (err) => {
-          if (err) reject(err);
-          else resolve();
-        });
+        entry.write(value);
+        pump();
+      });
+    };
 
-        res.on('error', reject);
-        entry.on('error', reject);
-
-        res.pipe(entry);
-      })
-      .on('error', reject);
+    pump();
   });
-
-  // const response = await fetch(url);
-
-  // console.log('after fetch');
-  // // if (!response.body) throw new Error(`Failed to fetch ${url}`);
-
-  // const contentLength = response.headers.get('content-length');
-  // const size = contentLength ? parseInt(contentLength, 10) : undefined;
-
-  // log('DEBUG', `Adding URL to tar: ${url}, size: ${size || 'unknown'}`);
-
-  // return new Promise<void>(async (resolve, reject) => {
-  //   // let reader = null as unknown as ReadableStreamDefaultReader<Uint8Array>;
-  //   try {
-  //     const nodeStream = Readable.fromWeb(response.body as any);
-
-  //     if (!response.body) {
-  //       return reject(new Error('Response body is undefined'));
-  //     }
-
-  //     // Manual streaming without using Readable
-  //     // reader = response.body.getReader();
-
-  //     const entry = pack.entry(
-  //       {
-  //         name: filename,
-  //         size: size,
-  //       },
-  //       async (err) => {
-  //         // reader.releaseLock();
-  //         // await response.body.cancel();
-  //         console.log('entry end', err);
-  //         if (err) {
-  //           // if (response.body) await response.body.cancel(); // force close the stream
-
-  //           reject(err);
-  //         } else {
-  //           resolve();
-  //         }
-  //       },
-  //     );
-
-  //     nodeStream.on('error', reject);
-  //     nodeStream.pipe(entry);
-
-  //     // Process the stream chunk by chunk
-  //     // while (true) {
-  //     //   const { done, value } = await reader.read();
-  //     //   if (done) break;
-
-  //     //   // Write the chunk to the tar entry
-  //     //   entry.write(value);
-  //     // }
-
-  //     // // End the entry when done
-  //     // entry.end();
-  //   } catch (error) {
-  //     // if (reader) reader.releaseLock();
-  //     reject(error);
-  //   }
-  // });
 }
 
 async function addStorageAssetToTar(
   pack: Pack,
-  asset: any,
+  asset: LessonAsset,
   filename: string,
 ): Promise<void> {
   if (!asset || !asset.bucket_name || !asset.bucket_path) {
@@ -240,7 +195,7 @@ async function addStorageAssetToTar(
 
 async function addToTar(
   pack: Pack,
-  urlOrAsset: string | any,
+  urlOrAsset: string | LessonAsset,
   filename: string,
 ): Promise<void> {
   // Check if we have a URL string or a Google Cloud Storage asset
@@ -270,7 +225,7 @@ function runtime() {
 function log(level: string, message: string): void {
   if (level === 'DEBUG') {
     // nop
-    // return;
+    return;
   }
   console.log(`[${runtime()}][${level}] ${message}`);
 }
@@ -285,8 +240,13 @@ function logError(message: string): void {
 function isLessonAssetsAllowed(lesson: {
   subjectSlug: string;
   unitSlug: string;
+  lessonSlug: string;
 }): boolean {
-  const { subjectSlug, unitSlug } = lesson;
+  const { subjectSlug, unitSlug, lessonSlug } = lesson;
+
+  if (isLessonSupported(lessonSlug)) {
+    return true;
+  }
 
   // Check if subject is supported or unit is in allowed list
   return isSubjectSupported(subjectSlug) || isUnitSupported(unitSlug);
