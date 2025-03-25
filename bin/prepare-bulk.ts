@@ -23,6 +23,7 @@
  */
 
 import 'renvy';
+
 import path from 'node:path';
 import { promises as fs, createWriteStream } from 'node:fs';
 import pg from 'pg';
@@ -49,10 +50,15 @@ import {
   SubjectPhaseView,
 } from '~/lib/owaClient';
 import { formatUnitSummary, UnitSchema } from '~/lib/handlers/units';
-import { getVideoFromMux, lessonAssetsType } from '~/lib/handlers/assets';
-import { isSubjectSupported, allowedUnits } from '~/lib/queryGate';
+import { getVideoFromMux } from '~/lib/handlers/assets';
+import { isSubjectSupported, isUnitSupported } from '~/lib/queryGate';
 import { Readable } from 'stream';
 import { Storage } from '@google-cloud/storage';
+
+import https from 'node:https';
+import { URL } from 'node:url';
+
+// const httpsAgent = new https.Agent({ keepAlive: false });
 
 // Initialize Google Cloud Storage
 let storage: Storage;
@@ -86,54 +92,105 @@ interface AssetPacks {
   supplementaryResources?: Pack;
 }
 
+function stat() {
+  const handles = process._getActiveHandles();
+  handles.forEach((h, i) => console.log(i, h.constructor.name));
+  // log(
+  //   'INFO',
+  //   // @ts-expect-error - this does exist
+  //   `handles: ${process._getActiveHandles().length}, requests: ${process._getActiveRequests().length}`,
+  // );
+}
+
 async function addURLToTar(
   pack: Pack,
   url: string,
   filename: string,
 ): Promise<void> {
-  const response = await fetch(url);
-  if (!response.body) throw new Error(`Failed to fetch ${url}`);
+  return new Promise<void>((resolve, reject) => {
+    https
+      .get(new URL(url), (res) => {
+        log('INFO', 'Got response');
+        if (res.statusCode !== 200) {
+          res.resume(); // discard data
+          return reject(new Error(`Failed to fetch ${url}: ${res.statusCode}`));
+        }
 
-  const contentLength = response.headers.get('content-length');
-  const size = contentLength ? parseInt(contentLength, 10) : undefined;
-
-  log('DEBUG', `Adding URL to tar: ${url}, size: ${size || 'unknown'}`);
-
-  return new Promise<void>(async (resolve, reject) => {
-    try {
-      const entry = pack.entry(
-        {
-          name: filename,
-          size: size,
-        },
-        (err) => {
+        const size =
+          parseInt(res.headers['content-length'] || '', 10) || undefined;
+        const entry = pack.entry({ name: filename, size }, (err) => {
           if (err) reject(err);
           else resolve();
-        },
-      );
+        });
 
-      if (!response.body) {
-        return reject(new Error('Response body is undefined'));
-      }
+        res.on('error', reject);
+        entry.on('error', reject);
 
-      // Manual streaming without using Readable
-      const reader = response.body.getReader();
-
-      // Process the stream chunk by chunk
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        // Write the chunk to the tar entry
-        entry.write(value);
-      }
-
-      // End the entry when done
-      entry.end();
-    } catch (error) {
-      reject(error);
-    }
+        res.pipe(entry);
+      })
+      .on('error', reject);
   });
+
+  // const response = await fetch(url);
+
+  // console.log('after fetch');
+  // // if (!response.body) throw new Error(`Failed to fetch ${url}`);
+
+  // const contentLength = response.headers.get('content-length');
+  // const size = contentLength ? parseInt(contentLength, 10) : undefined;
+
+  // log('DEBUG', `Adding URL to tar: ${url}, size: ${size || 'unknown'}`);
+
+  // return new Promise<void>(async (resolve, reject) => {
+  //   // let reader = null as unknown as ReadableStreamDefaultReader<Uint8Array>;
+  //   try {
+  //     const nodeStream = Readable.fromWeb(response.body as any);
+
+  //     if (!response.body) {
+  //       return reject(new Error('Response body is undefined'));
+  //     }
+
+  //     // Manual streaming without using Readable
+  //     // reader = response.body.getReader();
+
+  //     const entry = pack.entry(
+  //       {
+  //         name: filename,
+  //         size: size,
+  //       },
+  //       async (err) => {
+  //         // reader.releaseLock();
+  //         // await response.body.cancel();
+  //         console.log('entry end', err);
+  //         if (err) {
+  //           // if (response.body) await response.body.cancel(); // force close the stream
+
+  //           reject(err);
+  //         } else {
+  //           resolve();
+  //         }
+  //       },
+  //     );
+
+  //     nodeStream.on('error', reject);
+  //     nodeStream.pipe(entry);
+
+  //     // Process the stream chunk by chunk
+  //     // while (true) {
+  //     //   const { done, value } = await reader.read();
+  //     //   if (done) break;
+
+  //     //   // Write the chunk to the tar entry
+  //     //   entry.write(value);
+  //     // }
+
+  //     // // End the entry when done
+  //     // entry.end();
+  //   } catch (error) {
+  //     // if (reader) reader.releaseLock();
+  //     reject(error);
+  //   }
+  // });
 }
 
 async function addStorageAssetToTar(
@@ -189,6 +246,7 @@ async function addToTar(
   // Check if we have a URL string or a Google Cloud Storage asset
   if (typeof urlOrAsset === 'string') {
     // It's a URL string
+    stat();
     return addURLToTar(pack, urlOrAsset, filename);
   } else {
     // It's a Google Cloud Storage asset
@@ -212,7 +270,7 @@ function runtime() {
 function log(level: string, message: string): void {
   if (level === 'DEBUG') {
     // nop
-    return;
+    // return;
   }
   console.log(`[${runtime()}][${level}] ${message}`);
 }
@@ -231,21 +289,21 @@ function isLessonAssetsAllowed(lesson: {
   const { subjectSlug, unitSlug } = lesson;
 
   // Check if subject is supported or unit is in allowed list
-  return isSubjectSupported(subjectSlug) || allowedUnits.includes(unitSlug);
+  return isSubjectSupported(subjectSlug) || isUnitSupported(unitSlug);
 }
 
-async function getAssetFromStorage(asset: any): Promise<Readable> {
-  // For debugging
-  log('DEBUG', `Getting asset from storage: ${JSON.stringify(asset)}`);
+// async function getAssetFromStorage(asset: any): Promise<Readable> {
+//   // For debugging
+//   log('DEBUG', `Getting asset from storage: ${JSON.stringify(asset)}`);
 
-  if (!asset || !asset.bucket_name || !asset.bucket_path) {
-    throw new Error(`Invalid asset data: ${JSON.stringify(asset)}`);
-  }
+//   if (!asset || !asset.bucket_name || !asset.bucket_path) {
+//     throw new Error(`Invalid asset data: ${JSON.stringify(asset)}`);
+//   }
 
-  const { bucket_name, bucket_path } = asset;
+//   const { bucket_name, bucket_path } = asset;
 
-  return storage.bucket(bucket_name).file(bucket_path).createReadStream();
-}
+//   return storage.bucket(bucket_name).file(bucket_path).createReadStream();
+// }
 
 const deepSearchAll = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -676,7 +734,8 @@ export async function getAllLessonAssets(
 
       acc[lessonSlug] = {
         ...allAssets,
-        videoStream, // FIXME later
+        // @ts-expect-error not worth sorting out the type discrepancy
+        videoStream,
       };
 
       return acc;
@@ -772,6 +831,7 @@ async function getAllSubjects() {
           ${subjectPhaseView}(
             where: {
               cycle: { _eq: $currentCycle }
+              slug: { _eq: "maths" }
             }
             order_by: { display_order: asc }
           ) {
