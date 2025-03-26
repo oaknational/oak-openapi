@@ -268,3 +268,49 @@ test(`there is not "all-years" in PE secondary`, async () => {
 
   expect(first.year).not.toBe('all-years');
 });
+
+test('cannot access Financial Education sequence contents', async () => {
+  const { caller } = authedCaller();
+
+  await expect(
+    async () =>
+      await caller.getSequences.getSequenceUnits({
+        sequence: 'financial-education',
+      }),
+  ).rejects.toThrowError();
+
+  await expect(
+    async () =>
+      await caller.getSequences.getSequenceUnits({
+        sequence: 'financial-education',
+      }),
+  ).rejects.toThrowError();
+
+  await expect(
+    async () =>
+      await caller.getAssets.getSequenceAssets({
+        sequence: 'financial-education',
+      }),
+  ).rejects.toThrowError();
+
+  await expect(
+    async () =>
+      await caller.getAssets.getSequenceAssets({
+        sequence: 'financial-education',
+      }),
+  ).rejects.toThrowError();
+
+  await expect(
+    async () =>
+      await caller.getQuestions.getQuestionsForSequence({
+        sequence: 'financial-education',
+      }),
+  ).rejects.toThrowError();
+
+  await expect(
+    async () =>
+      await caller.getQuestions.getQuestionsForSequence({
+        sequence: 'financial-education',
+      }),
+  ).rejects.toThrowError();
+});

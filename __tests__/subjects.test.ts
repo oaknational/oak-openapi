@@ -99,3 +99,14 @@ test('false subjects 404 and not error', async () => {
       }),
   ).rejects.toMatchObject({ code: 'NOT_FOUND' });
 });
+
+test('Financial education returns 404', async () => {
+  const { caller } = authedCaller();
+
+  await expect(
+    async () =>
+      await caller.getSubjects.getSubjectYears({
+        subject: 'financial-education',
+      }),
+  ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+});
