@@ -57,12 +57,31 @@ import {
   isUnitSupported,
 } from '~/lib/queryGate';
 import { Storage } from '@google-cloud/storage';
+import readline from 'node:readline';
 
 if (process.version < 'v22') {
   // this is because node 18 leaves sockets open 😱
   console.error('Node version 22 or higher is required');
   process.exit(1);
 }
+
+// Function to wait for user input
+async function waitForEnter(): Promise<void> {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise((resolve) => {
+    rl.question('Press Enter to continue...', () => {
+      rl.close();
+      resolve();
+    });
+  });
+}
+
+console.log('Also remember to start ./bulk-download-videos.sh. Ready?');
+await waitForEnter();
 
 // Initialize Google Cloud Storage
 let storage: Storage;
@@ -88,7 +107,7 @@ await db.connect();
 log('INFO', 'Database connected');
 
 interface AssetPacks {
-  videos: Pack;
+  // videos: Pack;
   worksheets?: Pack;
   slideDecks?: Pack;
   starterQuizzes?: Pack;
@@ -106,46 +125,15 @@ function stat() {
   );
 }
 
-async function addURLToTar(
-  pack: Pack,
-  url: string,
-  filename: string,
-): Promise<void> {
-  return new Promise<void>(async (resolve, reject) => {
-    const res = await fetch(url);
-    const size =
-      parseInt(res.headers.get('content-length') || '', 10) || undefined;
+async function addURLToTar(url: string, filename: string): Promise<void> {
+  // append to the file `videos.tsv` with the url, the filename and 'maths-primary-videos.tar'
 
-    log('DEBUG', `Adding URL to tar: ${url}, size: ${size || 'unknown'}`);
+  await fs.appendFile(
+    `${__dirname}/videos.tsv`,
+    `${url}\t${filename}\tout/maths-primary/maths-primary-videos.tar\n`,
+  );
 
-    if (!res.body) {
-      return reject(new Error("Response body doesn't exist"));
-    }
-    const reader = res.body.getReader();
-
-    const entry = pack.entry({ name: filename, size }, async (err) => {
-      reader.releaseLock();
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
-
-    const pump = () => {
-      reader.read().then(({ done, value }) => {
-        if (done) {
-          entry.end();
-          return;
-        }
-
-        entry.write(value);
-        pump();
-      });
-    };
-
-    pump();
-  });
+  return;
 }
 
 async function addStorageAssetToTar(
@@ -202,7 +190,7 @@ async function addToTar(
   if (typeof urlOrAsset === 'string') {
     // It's a URL string
     stat();
-    return addURLToTar(pack, urlOrAsset, filename);
+    // return addURLToTar(pack, urlOrAsset, filename);
   } else {
     // It's a Google Cloud Storage asset
     return addStorageAssetToTar(pack, urlOrAsset, filename);
@@ -355,11 +343,7 @@ async function getUnitSummaries(
           videoLinks[lesson.lessonSlug].videoStream as unknown as string,
         );
 
-        await addToTar(
-          packs.videos,
-          url,
-          `${lesson.sequenceSlug}-${lesson.lessonSlug}.mp4`,
-        );
+        await addURLToTar(url, `${slug}-${lesson.lessonSlug}.mp4`);
         const totalVideoTime = Date.now() - videoStart;
 
         log(
@@ -367,7 +351,7 @@ async function getUnitSummaries(
           `Video processed: ${lesson.lessonSlug} (${totalVideoTime}ms)`,
         );
 
-        lesson.video = `${lesson.sequenceSlug}-videos.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}.mp4`;
+        lesson.video = `${slug}-videos.tar:${slug}-${lesson.lessonSlug}.mp4`;
       } catch (e) {
         logError(`Failed to process video for ${lesson.lessonSlug}: ${e}`);
       }
@@ -383,10 +367,10 @@ async function getUnitSummaries(
           await addToTar(
             packs.worksheets,
             videoLinks[lesson.lessonSlug].worksheet,
-            `${lesson.sequenceSlug}-${lesson.lessonSlug}_worksheet.pdf`,
+            `${slug}-${lesson.lessonSlug}_worksheet.pdf`,
           );
 
-          lesson.worksheet = `${lesson.sequenceSlug}-worksheets.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}_worksheet.pdf`;
+          lesson.worksheet = `${slug}-worksheets.tar:${slug}-${lesson.lessonSlug}_worksheet.pdf`;
 
           const worksheetTime = Date.now() - worksheetStart;
           log(
@@ -422,10 +406,10 @@ async function getUnitSummaries(
           await addToTar(
             packs.worksheets,
             videoLinks[lesson.lessonSlug].worksheetAnswers,
-            `${lesson.sequenceSlug}-${lesson.lessonSlug}_worksheet_answers.pdf`,
+            `${slug}-${lesson.lessonSlug}_worksheet_answers.pdf`,
           );
 
-          lesson.worksheetAnswers = `${lesson.sequenceSlug}-worksheets.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}_worksheet_answers.pdf`;
+          lesson.worksheetAnswers = `${slug}-worksheets.tar:${slug}-${lesson.lessonSlug}_worksheet_answers.pdf`;
         } catch (e) {
           logError(
             `Failed to process worksheet answers for ${lesson.lessonSlug}: ${e}`,
@@ -464,10 +448,10 @@ async function getUnitSummaries(
           await addToTar(
             packs.slideDecks,
             modifiedSlideDeck,
-            `${lesson.sequenceSlug}-${lesson.lessonSlug}_slide_deck.pptx`,
+            `${slug}-${lesson.lessonSlug}_slide_deck.pptx`,
           );
 
-          lesson.slideDeck = `${lesson.sequenceSlug}-slide-decks.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}_slide_deck.pptx`;
+          lesson.slideDeck = `${slug}-slide-decks.tar:${slug}-${lesson.lessonSlug}_slide_deck.pptx`;
 
           const slideDeckTime = Date.now() - slideDeckStart;
           log(
@@ -499,10 +483,10 @@ async function getUnitSummaries(
           await addToTar(
             packs.starterQuizzes,
             videoLinks[lesson.lessonSlug].starterQuiz,
-            `${lesson.sequenceSlug}-${lesson.lessonSlug}_starter_quiz.pdf`,
+            `${slug}-${lesson.lessonSlug}_starter_quiz.pdf`,
           );
 
-          lesson.starterQuiz = `${lesson.sequenceSlug}-quizzes.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}_starter_quiz.pdf`;
+          lesson.starterQuiz = `${slug}-quizzes.tar:${slug}-${lesson.lessonSlug}_starter_quiz.pdf`;
 
           // Process starter quiz answers if available and has bucket_name
           if (
@@ -517,10 +501,10 @@ async function getUnitSummaries(
             await addToTar(
               packs.starterQuizzes,
               videoLinks[lesson.lessonSlug].starterQuizAnswers,
-              `${lesson.sequenceSlug}-${lesson.lessonSlug}_starter_quiz_answers.pdf`,
+              `${slug}-${lesson.lessonSlug}_starter_quiz_answers.pdf`,
             );
 
-            lesson.starterQuizAnswers = `${lesson.sequenceSlug}-quizzes.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}_starter_quiz_answers.pdf`;
+            lesson.starterQuizAnswers = `${slug}-quizzes.tar:${slug}-${lesson.lessonSlug}_starter_quiz_answers.pdf`;
           }
 
           log('INFO', `Starter quiz processed: ${lesson.lessonSlug}`);
@@ -549,10 +533,10 @@ async function getUnitSummaries(
           await addToTar(
             packs.exitQuizzes,
             videoLinks[lesson.lessonSlug].exitQuiz,
-            `${lesson.sequenceSlug}-${lesson.lessonSlug}_exit_quiz.pdf`,
+            `${slug}-${lesson.lessonSlug}_exit_quiz.pdf`,
           );
 
-          lesson.exitQuiz = `${lesson.sequenceSlug}-quizzes.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}_exit_quiz.pdf`;
+          lesson.exitQuiz = `${slug}-quizzes.tar:${slug}-${lesson.lessonSlug}_exit_quiz.pdf`;
 
           // Process exit quiz answers if available and has bucket_name
           if (
@@ -567,10 +551,10 @@ async function getUnitSummaries(
             await addToTar(
               packs.exitQuizzes,
               videoLinks[lesson.lessonSlug].exitQuizAnswers,
-              `${lesson.sequenceSlug}-${lesson.lessonSlug}_exit_quiz_answers.pdf`,
+              `${slug}-${lesson.lessonSlug}_exit_quiz_answers.pdf`,
             );
 
-            lesson.exitQuizAnswers = `${lesson.sequenceSlug}-quizzes.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}_exit_quiz_answers.pdf`;
+            lesson.exitQuizAnswers = `${slug}-quizzes.tar:${slug}-${lesson.lessonSlug}_exit_quiz_answers.pdf`;
           }
 
           log('INFO', `Exit quiz processed: ${lesson.lessonSlug}`);
@@ -599,10 +583,10 @@ async function getUnitSummaries(
           await addToTar(
             packs.supplementaryResources,
             videoLinks[lesson.lessonSlug].supplementaryResource,
-            `${lesson.sequenceSlug}-${lesson.lessonSlug}_supplementary.pdf`,
+            `${slug}-${lesson.lessonSlug}_supplementary.pdf`,
           );
 
-          lesson.supplementaryResource = `${lesson.sequenceSlug}-resources.tar:${lesson.sequenceSlug}-${lesson.lessonSlug}_supplementary.pdf`;
+          lesson.supplementaryResource = `${slug}-resources.tar:${slug}-${lesson.lessonSlug}_supplementary.pdf`;
 
           log('INFO', `Supplementary resource processed: ${lesson.lessonSlug}`);
         } catch (e) {
@@ -893,7 +877,7 @@ for (const s of sequences) {
 
   // Create asset packs object
   const assetPacks: AssetPacks = {
-    videos: videoPack,
+    // videos: videoPack,
     worksheets: worksheetsPack,
     slideDecks: slideDecksPack,
     starterQuizzes: quizzesPack,
@@ -909,7 +893,7 @@ for (const s of sequences) {
   await getUnitSummaries(s.sequenceSlug, sequence, assetPacks);
 
   // Finalize all tarballs
-  videoPack.finalize();
+  // videoPack.finalize();
   worksheetsPack.finalize();
   slideDecksPack.finalize();
   quizzesPack.finalize();
