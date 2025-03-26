@@ -110,12 +110,18 @@ export const getUnits = router({
 
       const isUnitVariant = /-\d+$/.test(slug);
 
-      let where;
+      // Ensure that non-curriculum units don't come through
+      const whereNonCurriculum = { non_curriculum: { _eq: false } };
+
+      let whereSlug;
+
       if (isUnitVariant) {
-        where = { slug: { _like: `${slug.replace(/-\d+$/, '-')}%` } };
+        whereSlug = { slug: { _like: `${slug.replace(/-\d+$/, '-')}%` } };
       } else {
-        where = { slug: { _eq: slug } };
+        whereSlug = { slug: { _eq: slug } };
       }
+
+      const where = { ...whereSlug, ...whereNonCurriculum };
 
       const query = gql`
         query getUnit($where: ${sequenceViewWhereInput}) @cached(ttl: 300) {

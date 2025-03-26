@@ -23,7 +23,7 @@ import supportedLessons from './queryGateData/supportedLessons.json' assert { ty
 
 // TODO move these to JSON too
 const supportedSubjects = ['maths'];
-export const blockedSubjects = ['english'];
+export const blockedSubjects = ['english', 'financial-education'];
 
 export async function blockLessonForCopyrightText(
   client: GraphQLClient,
