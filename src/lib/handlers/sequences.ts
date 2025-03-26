@@ -154,6 +154,7 @@ type WhereCondition = {
     phase_slug?: { _eq: string };
     state?: { _eq: string };
     year?: { _eq: string };
+    non_curriculum?: { _eq: boolean };
   }>;
 };
 
@@ -171,6 +172,7 @@ export function sequenceWhere(sequence: string, year?: string) {
       },
       { phase_slug: { _eq: phaseSlug } },
       { state: { _eq: 'published' } },
+      { non_curriculum: { _eq: false } },
     ],
   };
 

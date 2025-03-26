@@ -254,6 +254,27 @@ test('unblocked lesson: making-yakisoba-noodles', async () => {
   expect(ksres.map((a) => a.lessonSlug)).toContain(slug);
 });
 
+test('financial education is hidden: returns invalid enum value', async () => {
+  const request = makeRes();
+  const caller = makeCaller(
+    {
+      user: 1,
+    },
+    request,
+  );
+
+  const slug = 'financial-education';
+
+  await expect(
+    async () =>
+      await caller.getAssets.getSubjectAssets({
+        subject: slug,
+        keyStage: 'ks2',
+        type: 'slideDeck',
+      }),
+  ).rejects.toThrow('Invalid enum value');
+});
+
 // test('isApprovedLesson: blocked subjects return false', () => {
 //   expect(isApprovedLesson('english', 'poetry', 'lesson 1')).toBe(false);
 // });
