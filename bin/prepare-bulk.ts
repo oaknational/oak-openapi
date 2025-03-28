@@ -6,38 +6,17 @@
 // 6. for each lesson, also download the questions `/lessons/{lesson}/quiz`
 // 6. for each lesson, also download the transcript `/lessons/{lesson}/transcript`
 
-/**
- * finish with a data structure like this:
- * {
- *   "subject": "string",
- *   "phase": "string",
- *   "units": [
- *     {
- *       "summary": "string"
- *     }
- *   ],
- *   "lessons": {
- *     "slug": {}
- *   }
- * }
- */
-
-import 'renvy';
-
 import path from 'node:path';
 import { promises as fs, createWriteStream } from 'node:fs';
+import readline from 'node:readline';
 import pg from 'pg';
+import 'renvy';
 import lodash from 'lodash';
 import type { Pack } from 'tar-stream';
 import tar from 'tar-stream';
 import { gql } from 'graphql-request';
+import { Storage } from '@google-cloud/storage';
 import { sequenceWhere } from '~/lib/handlers/sequences';
-import {
-  phaseToKeyStages,
-  phaseToSequences,
-  SubjectsResult,
-  yearsFromKeyStages,
-} from '~/lib/handlers/subjects';
 import {
   currentCycle,
   DownloadView,
@@ -46,8 +25,10 @@ import {
   SequenceView,
   sequenceView,
   sequenceViewWhereInput,
+  SubjectPhase,
   subjectPhaseView,
   SubjectPhaseView,
+  TitleSlug,
 } from '~/lib/owaClient';
 import { formatUnitSummary, UnitSchema } from '~/lib/handlers/units';
 import { getVideoFromMux } from '~/lib/handlers/assets';
@@ -56,8 +37,7 @@ import {
   isSubjectSupported,
   isUnitSupported,
 } from '~/lib/queryGate';
-import { Storage } from '@google-cloud/storage';
-import readline from 'node:readline';
+import { parseSubjectPhaseSlug } from '~/lib/sequenceSlugParser';
 
 if (process.version < 'v22') {
   // this is because node 18 leaves sockets open 😱
@@ -80,6 +60,19 @@ async function waitForEnter(): Promise<void> {
   });
 }
 
+// if there's an argv[2] then capture is an filter the sequences to this single
+// subject and phase
+let subjectPhaseFilter: string | undefined;
+if (process.argv.length > 2) {
+  subjectPhaseFilter = process.argv[2];
+
+  const phase = subjectPhaseFilter.split('-').pop() as string;
+  if (!['primary', 'secondary'].includes(phase)) {
+    console.error('Invalid phase provided: must be "primary" or "secondary"');
+    process.exit(1);
+  }
+}
+
 console.log('Also remember to start ./bulk-download-videos.sh. Ready?');
 await waitForEnter();
 
@@ -95,19 +88,16 @@ if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
 }
 
 const __dirname = path.resolve(path.dirname(''));
-
-// let requests = 0;
 const start = Date.now();
 const client = getClient();
 
 const db = new pg.Client(process.env.DATABASE_URL);
-log('INFO', 'Connecting to database...');
+log('Connecting to database...');
 await db.connect();
 
-log('INFO', 'Database connected');
+log('Database connected');
 
 interface AssetPacks {
-  // videos: Pack;
   worksheets?: Pack;
   slideDecks?: Pack;
   starterQuizzes?: Pack;
@@ -115,29 +105,16 @@ interface AssetPacks {
   supplementaryResources?: Pack;
 }
 
-function stat() {
-  // handles.forEach((h, i) => console.log(i, h.constructor.name));
-  // l(handles.length);
-  log(
-    'INFO',
-    // @ts-expect-error - this does exist
-    `handles: ${process._getActiveHandles().length}, requests: ${process._getActiveRequests().length}`,
-  );
-}
-
-async function addURLToTar(
+async function addURLToQueue(
   url: string,
   filename: string,
   sequence: string,
 ): Promise<void> {
-  // append to the file `videos.tsv` with the url, the filename and 'maths-primary-videos.tar'
-
+  // this is picked up by build-bulk-download-videos.sh
   await fs.appendFile(
     `${__dirname}/videos.tsv`,
     `${url}\t${filename}\t${sequence}\n`,
   );
-
-  return;
 }
 
 async function addStorageAssetToTar(
@@ -157,8 +134,6 @@ async function addStorageAssetToTar(
   try {
     const [metadata] = await file.getMetadata();
     const size = metadata.size ? parseInt(metadata.size + '', 10) : undefined;
-
-    log('DEBUG', `Adding file from storage: ${bucket_path}, size: ${size}`);
 
     return new Promise<void>((resolve, reject) => {
       const nodeStream = file.createReadStream();
@@ -185,22 +160,6 @@ async function addStorageAssetToTar(
   }
 }
 
-async function addToTar(
-  pack: Pack,
-  urlOrAsset: string | LessonAsset,
-  filename: string,
-): Promise<void> {
-  // Check if we have a URL string or a Google Cloud Storage asset
-  if (typeof urlOrAsset === 'string') {
-    // It's a URL string
-    stat();
-    // return addURLToTar(pack, urlOrAsset, filename);
-  } else {
-    // It's a Google Cloud Storage asset
-    return addStorageAssetToTar(pack, urlOrAsset, filename);
-  }
-}
-
 function runtime() {
   // returns hours, minutes, seconds since start
   const elapsed = Date.now() - start;
@@ -214,12 +173,8 @@ function runtime() {
     .join(':');
 }
 
-function log(level: string, message: string): void {
-  if (level === 'DEBUG') {
-    // nop
-    return;
-  }
-  console.log(`[${runtime()}][${level}] ${message}`);
+function log(message: string): void {
+  console.log(`[${runtime()}][INFO] ${message}`);
 }
 
 function logError(message: string): void {
@@ -243,19 +198,6 @@ function isLessonAssetsAllowed(lesson: {
   // Check if subject is supported or unit is in allowed list
   return isSubjectSupported(subjectSlug) || isUnitSupported(unitSlug);
 }
-
-// async function getAssetFromStorage(asset: any): Promise<Readable> {
-//   // For debugging
-//   log('DEBUG', `Getting asset from storage: ${JSON.stringify(asset)}`);
-
-//   if (!asset || !asset.bucket_name || !asset.bucket_path) {
-//     throw new Error(`Invalid asset data: ${JSON.stringify(asset)}`);
-//   }
-
-//   const { bucket_name, bucket_path } = asset;
-
-//   return storage.bucket(bucket_name).file(bucket_path).createReadStream();
-// }
 
 const deepSearchAll = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -303,10 +245,9 @@ async function getUnitSummaries(
     totalLessons += lessons.length;
   }
 
-  log('INFO', `Found ${totalLessons} total lessons to process`);
+  log(`Found ${totalLessons} total lessons to process`);
 
   for (const unitSlug of unitSlugs) {
-    // const unit: UnitSchema = await get(`/units/${unitSlug}/summary`, {});
     const unit = getUnit(sequence, unitSlug);
 
     if (!unit) {
@@ -315,16 +256,13 @@ async function getUnitSummaries(
     }
 
     const lessonData = await getAllLessonData(unitSlug);
-    log(
-      'INFO',
-      `Processing unit: ${unitSlug} with ${lessonData.length} lessons`,
-    );
+    log(`Processing unit: ${unitSlug} with ${lessonData.length} lessons`);
 
     // TODO decide whether to slim this down as it includes redundant data,
     // such as the sequence year, etc.
     await fs.appendFile(`${sequenceDir}/units.jsonl`, JSON.stringify(unit));
 
-    const videoLinks = await getAllLessonAssets(
+    const assetLinks = await getAllLessonAssets(
       lessonData.map((_) => _.lessonSlug),
     );
 
@@ -333,7 +271,6 @@ async function getUnitSummaries(
       const assetsAllowed = isLessonAssetsAllowed(lesson);
       if (!assetsAllowed) {
         log(
-          'INFO',
           `Skipping assets for lesson ${lesson.lessonSlug} - not in allowed subjects/units list`,
         );
         continue;
@@ -344,16 +281,13 @@ async function getUnitSummaries(
         const videoStart = Date.now();
         // Get video URL
         const url = await getVideoFromMux(
-          videoLinks[lesson.lessonSlug].videoStream as unknown as string,
+          assetLinks[lesson.lessonSlug].videoStream as unknown as string,
         );
 
-        await addURLToTar(url, `${lesson.lessonSlug}.mp4`, slug);
+        await addURLToQueue(url, `${lesson.lessonSlug}.mp4`, slug);
         const totalVideoTime = Date.now() - videoStart;
 
-        log(
-          'INFO',
-          `Video processed: ${lesson.lessonSlug} (${totalVideoTime}ms)`,
-        );
+        log(`Video processed: ${lesson.lessonSlug} (${totalVideoTime}ms)`);
 
         lesson.video = `${slug}-videos.tar:${lesson.lessonSlug}.mp4`;
       } catch (e) {
@@ -362,54 +296,45 @@ async function getUnitSummaries(
 
       // Process worksheet if available and has bucket_name
       if (
-        videoLinks[lesson.lessonSlug].worksheet &&
-        videoLinks[lesson.lessonSlug].worksheet.bucket_name &&
+        assetLinks[lesson.lessonSlug].worksheet &&
+        assetLinks[lesson.lessonSlug].worksheet.bucket_name &&
         packs.worksheets
       ) {
         try {
           const worksheetStart = Date.now();
-          await addToTar(
+          await addStorageAssetToTar(
             packs.worksheets,
-            videoLinks[lesson.lessonSlug].worksheet,
+            assetLinks[lesson.lessonSlug].worksheet,
             `${lesson.lessonSlug}_worksheet.pdf`,
           );
 
           lesson.worksheet = `${slug}-worksheets.tar:${lesson.lessonSlug}_worksheet.pdf`;
 
           const worksheetTime = Date.now() - worksheetStart;
-          log(
-            'INFO',
-            `Worksheet processed: ${lesson.lessonSlug} (${worksheetTime}ms)`,
-          );
+          log(`Worksheet processed: ${lesson.lessonSlug} (${worksheetTime}ms)`);
         } catch (e) {
           logError(
             `Failed to process worksheet for ${lesson.lessonSlug}: ${e}`,
           );
           logError(
-            `Worksheet data: ${JSON.stringify(videoLinks[lesson.lessonSlug].worksheet)}`,
+            `Worksheet data: ${JSON.stringify(assetLinks[lesson.lessonSlug].worksheet)}`,
           );
           logError(
-            `Full asset data: ${JSON.stringify(videoLinks[lesson.lessonSlug])}`,
+            `Full asset data: ${JSON.stringify(assetLinks[lesson.lessonSlug])}`,
           );
-          process.exit(1); // Exit after first error to capture debug info
         }
       }
 
       // Process worksheet answers if available and has bucket_name
       if (
-        videoLinks[lesson.lessonSlug].worksheetAnswers &&
-        videoLinks[lesson.lessonSlug].worksheetAnswers.bucket_name &&
+        assetLinks[lesson.lessonSlug].worksheetAnswers &&
+        assetLinks[lesson.lessonSlug].worksheetAnswers.bucket_name &&
         packs.worksheets
       ) {
         try {
-          log(
-            'DEBUG',
-            `Processing worksheet answers: ${JSON.stringify(videoLinks[lesson.lessonSlug].worksheetAnswers)}`,
-          );
-
-          await addToTar(
+          await addStorageAssetToTar(
             packs.worksheets,
-            videoLinks[lesson.lessonSlug].worksheetAnswers,
+            assetLinks[lesson.lessonSlug].worksheetAnswers,
             `${lesson.lessonSlug}_worksheet_answers.pdf`,
           );
 
@@ -419,22 +344,20 @@ async function getUnitSummaries(
             `Failed to process worksheet answers for ${lesson.lessonSlug}: ${e}`,
           );
           logError(
-            `Worksheet answers data: ${JSON.stringify(videoLinks[lesson.lessonSlug].worksheetAnswers)}`,
+            `Worksheet answers data: ${JSON.stringify(assetLinks[lesson.lessonSlug].worksheetAnswers)}`,
           );
         }
       }
 
       // Process slide deck if available and has bucket_name - replace extension with PPTX
       if (
-        videoLinks[lesson.lessonSlug].slideDeck &&
-        videoLinks[lesson.lessonSlug].slideDeck.bucket_name &&
+        assetLinks[lesson.lessonSlug].slideDeck &&
+        assetLinks[lesson.lessonSlug].slideDeck.bucket_name &&
         packs.slideDecks
       ) {
         try {
           const slideDeckStart = Date.now();
-          const slideDeck = videoLinks[lesson.lessonSlug].slideDeck;
-
-          log('DEBUG', `Processing slide deck: ${JSON.stringify(slideDeck)}`);
+          const slideDeck = assetLinks[lesson.lessonSlug].slideDeck;
 
           // Make a copy of the slideDeck object with modified bucket_path
           const modifiedSlideDeck = { ...slideDeck };
@@ -444,12 +367,7 @@ async function getUnitSummaries(
           parts.pop(); // drop the filename
           modifiedSlideDeck.bucket_path = parts.join('/') + '/PowerPoint.pptx';
 
-          log(
-            'DEBUG',
-            `Modified slide deck bucket_path: ${modifiedSlideDeck.bucket_path}`,
-          );
-
-          await addToTar(
+          await addStorageAssetToTar(
             packs.slideDecks,
             modifiedSlideDeck,
             `${lesson.lessonSlug}_slide_deck.pptx`,
@@ -459,7 +377,6 @@ async function getUnitSummaries(
 
           const slideDeckTime = Date.now() - slideDeckStart;
           log(
-            'INFO',
             `Slide deck processed: ${lesson.lessonSlug} (${slideDeckTime}ms)`,
           );
         } catch (e) {
@@ -467,26 +384,21 @@ async function getUnitSummaries(
             `Failed to process slide deck for ${lesson.lessonSlug}: ${e}`,
           );
           logError(
-            `Slide deck data: ${JSON.stringify(videoLinks[lesson.lessonSlug].slideDeck)}`,
+            `Slide deck data: ${JSON.stringify(assetLinks[lesson.lessonSlug].slideDeck)}`,
           );
         }
       }
 
       // Process starter quiz if available and has bucket_name
       if (
-        videoLinks[lesson.lessonSlug].starterQuiz &&
-        videoLinks[lesson.lessonSlug].starterQuiz.bucket_name &&
+        assetLinks[lesson.lessonSlug].starterQuiz &&
+        assetLinks[lesson.lessonSlug].starterQuiz.bucket_name &&
         packs.starterQuizzes
       ) {
         try {
-          log(
-            'DEBUG',
-            `Processing starter quiz: ${JSON.stringify(videoLinks[lesson.lessonSlug].starterQuiz)}`,
-          );
-
-          await addToTar(
+          await addStorageAssetToTar(
             packs.starterQuizzes,
-            videoLinks[lesson.lessonSlug].starterQuiz,
+            assetLinks[lesson.lessonSlug].starterQuiz,
             `${lesson.lessonSlug}_starter_quiz.pdf`,
           );
 
@@ -494,49 +406,39 @@ async function getUnitSummaries(
 
           // Process starter quiz answers if available and has bucket_name
           if (
-            videoLinks[lesson.lessonSlug].starterQuizAnswers &&
-            videoLinks[lesson.lessonSlug].starterQuizAnswers.bucket_name
+            assetLinks[lesson.lessonSlug].starterQuizAnswers &&
+            assetLinks[lesson.lessonSlug].starterQuizAnswers.bucket_name
           ) {
-            log(
-              'DEBUG',
-              `Processing starter quiz answers: ${JSON.stringify(videoLinks[lesson.lessonSlug].starterQuizAnswers)}`,
-            );
-
-            await addToTar(
+            await addStorageAssetToTar(
               packs.starterQuizzes,
-              videoLinks[lesson.lessonSlug].starterQuizAnswers,
+              assetLinks[lesson.lessonSlug].starterQuizAnswers,
               `${lesson.lessonSlug}_starter_quiz_answers.pdf`,
             );
 
             lesson.starterQuizAnswers = `${slug}-quizzes.tar:${lesson.lessonSlug}_starter_quiz_answers.pdf`;
           }
 
-          log('INFO', `Starter quiz processed: ${lesson.lessonSlug}`);
+          log(`Starter quiz processed: ${lesson.lessonSlug}`);
         } catch (e) {
           logError(
             `Failed to process starter quiz for ${lesson.lessonSlug}: ${e}`,
           );
           logError(
-            `Starter quiz data: ${JSON.stringify(videoLinks[lesson.lessonSlug].starterQuiz)}`,
+            `Starter quiz data: ${JSON.stringify(assetLinks[lesson.lessonSlug].starterQuiz)}`,
           );
         }
       }
 
       // Process exit quiz if available and has bucket_name
       if (
-        videoLinks[lesson.lessonSlug].exitQuiz &&
-        videoLinks[lesson.lessonSlug].exitQuiz.bucket_name &&
+        assetLinks[lesson.lessonSlug].exitQuiz &&
+        assetLinks[lesson.lessonSlug].exitQuiz.bucket_name &&
         packs.exitQuizzes
       ) {
         try {
-          log(
-            'DEBUG',
-            `Processing exit quiz: ${JSON.stringify(videoLinks[lesson.lessonSlug].exitQuiz)}`,
-          );
-
-          await addToTar(
+          await addStorageAssetToTar(
             packs.exitQuizzes,
-            videoLinks[lesson.lessonSlug].exitQuiz,
+            assetLinks[lesson.lessonSlug].exitQuiz,
             `${lesson.lessonSlug}_exit_quiz.pdf`,
           );
 
@@ -544,61 +446,51 @@ async function getUnitSummaries(
 
           // Process exit quiz answers if available and has bucket_name
           if (
-            videoLinks[lesson.lessonSlug].exitQuizAnswers &&
-            videoLinks[lesson.lessonSlug].exitQuizAnswers.bucket_name
+            assetLinks[lesson.lessonSlug].exitQuizAnswers &&
+            assetLinks[lesson.lessonSlug].exitQuizAnswers.bucket_name
           ) {
-            log(
-              'DEBUG',
-              `Processing exit quiz answers: ${JSON.stringify(videoLinks[lesson.lessonSlug].exitQuizAnswers)}`,
-            );
-
-            await addToTar(
+            await addStorageAssetToTar(
               packs.exitQuizzes,
-              videoLinks[lesson.lessonSlug].exitQuizAnswers,
+              assetLinks[lesson.lessonSlug].exitQuizAnswers,
               `${lesson.lessonSlug}_exit_quiz_answers.pdf`,
             );
 
             lesson.exitQuizAnswers = `${slug}-quizzes.tar:${lesson.lessonSlug}_exit_quiz_answers.pdf`;
           }
 
-          log('INFO', `Exit quiz processed: ${lesson.lessonSlug}`);
+          log(`Exit quiz processed: ${lesson.lessonSlug}`);
         } catch (e) {
           logError(
             `Failed to process exit quiz for ${lesson.lessonSlug}: ${e}`,
           );
           logError(
-            `Exit quiz data: ${JSON.stringify(videoLinks[lesson.lessonSlug].exitQuiz)}`,
+            `Exit quiz data: ${JSON.stringify(assetLinks[lesson.lessonSlug].exitQuiz)}`,
           );
         }
       }
 
       // Process supplementary resource if available and has bucket_name
       if (
-        videoLinks[lesson.lessonSlug].supplementaryResource &&
-        videoLinks[lesson.lessonSlug].supplementaryResource.bucket_name &&
+        assetLinks[lesson.lessonSlug].supplementaryResource &&
+        assetLinks[lesson.lessonSlug].supplementaryResource.bucket_name &&
         packs.supplementaryResources
       ) {
         try {
-          log(
-            'DEBUG',
-            `Processing supplementary resource: ${JSON.stringify(videoLinks[lesson.lessonSlug].supplementaryResource)}`,
-          );
-
-          await addToTar(
+          await addStorageAssetToTar(
             packs.supplementaryResources,
-            videoLinks[lesson.lessonSlug].supplementaryResource,
+            assetLinks[lesson.lessonSlug].supplementaryResource,
             `${lesson.lessonSlug}_supplementary.pdf`,
           );
 
           lesson.supplementaryResource = `${slug}-resources.tar:${lesson.lessonSlug}_supplementary.pdf`;
 
-          log('INFO', `Supplementary resource processed: ${lesson.lessonSlug}`);
+          log(`Supplementary resource processed: ${lesson.lessonSlug}`);
         } catch (e) {
           logError(
             `Failed to process supplementary resource for ${lesson.lessonSlug}: ${e}`,
           );
           logError(
-            `Supplementary resource data: ${JSON.stringify(videoLinks[lesson.lessonSlug].supplementaryResource)}`,
+            `Supplementary resource data: ${JSON.stringify(assetLinks[lesson.lessonSlug].supplementaryResource)}`,
           );
         }
       }
@@ -611,7 +503,6 @@ async function getUnitSummaries(
 
         completedLessons++;
         log(
-          'INFO',
           `${completedLessons}/${totalLessons} completed lesson: ${lesson.lessonSlug}`,
         );
       } catch (error) {
@@ -732,8 +623,16 @@ async function getAllLessonData(unitSlug: string) {
   return res.rows;
 }
 
-async function getAllSequenceData(sequence: string): Promise<UnitSchema[]> {
+type UnitWithExamBoards = UnitSchema & {
+  examBoards?: TitleSlug[];
+};
+
+async function getAllSequenceData(
+  sequence: string,
+  examBoards?: TitleSlug[],
+): Promise<UnitWithExamBoards[]> {
   const where = sequenceWhere(sequence);
+  console.log(JSON.stringify(where));
   const query = gql`
     query ($where: ${sequenceViewWhereInput}!) {
       ${sequenceView}(
@@ -744,6 +643,7 @@ async function getAllSequenceData(sequence: string): Promise<UnitSchema[]> {
         threads
         slug
         domain
+        examboard
         examboard_slug
         keystage_slug
         order
@@ -770,42 +670,119 @@ async function getAllSequenceData(sequence: string): Promise<UnitSchema[]> {
   }`;
 
   const res: SequenceView = await client.request(query, { where });
-  return res[sequenceView].map((_) => formatUnitSummary(_.slug, _));
+
+  let units = res[sequenceView].map((_) =>
+    formatUnitSummary(_.slug, _),
+  ) as UnitWithExamBoards[];
+
+  // some units will appear more than once. equally, if the sequence string
+  // ends with `-secondary` then we need to add the exam boards to the object
+  // the duplicates need to to removed, but their exam boards need to be added
+  if (examBoards) {
+    const seen = new Set<string>();
+    units = units.reduce((acc, unit, i, allUnits) => {
+      // ignore duplicates, they've been dealt with
+      if (seen.has(unit.unitSlug)) {
+        return acc;
+      }
+
+      seen.add(unit.unitSlug);
+
+      // first copy the exam boards onto units have no exam board (this actually
+      // means they're in all exam boards).
+      if (unit.examboard && unit.examboardSlug) {
+        // now we restructure the exam board property
+        const { examboard, examboardSlug } = unit;
+        delete unit.examboard;
+        delete unit.examboardSlug;
+
+        const localExamBoards: TitleSlug[] = [
+          { title: examboard, slug: examboardSlug },
+        ];
+
+        // now find if there's any other units with the same slug
+        allUnits.forEach((_, j) => {
+          if (i === j) {
+            return false; // this is the current unit
+          }
+          if (_.unitSlug === unit.unitSlug) {
+            if (_.examboard && _.examboardSlug) {
+              localExamBoards.push({
+                title: _.examboard,
+                slug: _.examboardSlug,
+              });
+            }
+          }
+        });
+
+        unit.examBoards = localExamBoards;
+      } else if (!unit.examboardSlug) {
+        unit.examBoards = examBoards;
+      }
+
+      acc.push(unit);
+
+      return acc;
+    }, [] as UnitWithExamBoards[]);
+  }
+
+  return units;
+}
+
+interface SlimSequenceResult {
+  sequenceSlug: string;
+  ks4Options?: TitleSlug[];
+}
+
+function phaseToSequences(subject: SubjectPhase): SlimSequenceResult[] {
+  return subject.phases.map((phase) => {
+    if (phase.slug === 'secondary' && subject.ks4_options) {
+      return {
+        sequenceSlug: `${subject.slug}-${phase.slug}`,
+        ks4Options: subject.ks4_options,
+      };
+    }
+
+    return {
+      sequenceSlug: `${subject.slug}-${phase.slug}`,
+    };
+  });
 }
 
 async function getAllSubjects() {
+  let slugFilter = '';
+  if (subjectPhaseFilter) {
+    const { subjectSlug } = parseSubjectPhaseSlug(subjectPhaseFilter);
+    slugFilter = `slug: { _eq: "${subjectSlug}" }`;
+  }
+
   const query = gql`
-        query ($currentCycle: String!) @cached(ttl: 300) {
-          ${subjectPhaseView}(
-            where: {
-              cycle: { _eq: $currentCycle }
-              slug: { _eq: "maths" }
-            }
-            order_by: { display_order: asc }
-          ) {
-            title
-            slug
-            keystages
-            phases
-            ks4_options
-            display_order
-          }
-        }`;
+    query ($currentCycle: String!) @cached(ttl: 300) {
+      ${subjectPhaseView}(
+        where: {
+          cycle: { _eq: $currentCycle }
+          ${slugFilter}
+        }
+        order_by: { display_order: asc }
+      ) {
+        title
+        slug
+        keystages
+        phases
+        ks4_options
+        display_order
+      }
+    }`;
 
   const res: SubjectPhaseView = await client.request(query, {
     currentCycle,
   });
 
-  const reply = res[subjectPhaseView].map((subject) => {
-    const keyStages = phaseToKeyStages(subject);
-    return {
-      subjectTitle: subject.title,
-      subjectSlug: subject.slug,
-      sequenceSlugs: phaseToSequences(subject),
-      keyStages,
-      years: yearsFromKeyStages(keyStages),
-    };
-  });
+  let reply = res[subjectPhaseView].map(phaseToSequences).flat();
+
+  if (subjectPhaseFilter) {
+    reply = reply.filter((s) => s.sequenceSlug == subjectPhaseFilter);
+  }
 
   return reply;
 }
@@ -821,37 +798,29 @@ function getUnit(sequence: UnitSchema[], unit: string) {
   return found;
 }
 
-log('INFO', 'Fetching all subjects...');
+log('Fetching all subjects...');
 const startSubjects = Date.now();
-const allSubjects: SubjectsResult = await getAllSubjects();
-log(
-  'INFO',
-  `Fetched ${allSubjects.length} subjects (${Date.now() - startSubjects}ms)`,
-);
-
-const sequences = allSubjects.map((_) => _.sequenceSlugs).flat();
-log('INFO', `Found ${sequences.length} sequences to process`);
+const sequences: SlimSequenceResult[] = await getAllSubjects();
+log(`Fetched ${sequences.length} sequences (${Date.now() - startSubjects}ms)`);
 
 // Ensure the main output directory exists
 await fs.mkdir(`${__dirname}/out`, { recursive: true });
 
 for (const s of sequences) {
-  log('INFO', `Processing sequence: ${s.sequenceSlug}`);
+  log(`Processing sequence: ${s.sequenceSlug}`);
   const seqStart = Date.now();
-  const sequence = await getAllSequenceData(s.sequenceSlug);
-  log('INFO', `Fetched sequence data (${Date.now() - seqStart}ms)`);
+  const sequence = await getAllSequenceData(s.sequenceSlug, s.ks4Options);
+  log(`Fetched sequence data (${Date.now() - seqStart}ms)`);
+
+  console.log(
+    sequence.find((s) => s.unitSlug === 'modern-text-first-study-4896'),
+  );
 
   // Create sequence-specific directory
   const sequenceDir = `${__dirname}/out/${s.sequenceSlug}`;
   await fs.mkdir(sequenceDir, { recursive: true });
 
   // Create tarballs for different asset types
-  const videosOutput = createWriteStream(
-    `${sequenceDir}/${s.sequenceSlug}-videos.tar`,
-  );
-  const videoPack = tar.pack();
-  videoPack.pipe(videosOutput);
-
   const worksheetsOutput = createWriteStream(
     `${sequenceDir}/${s.sequenceSlug}-worksheets.tar`,
   );
@@ -903,11 +872,17 @@ for (const s of sequences) {
   quizzesPack.finalize();
   resourcesPack.finalize();
 
-  log('INFO', `Completed sequence: ${s.sequenceSlug}`);
+  // this is picked up by build-bulk-download-videos.sh
+  await fs.appendFile(
+    `${__dirname}/videos.tsv`,
+    `complete\tnop\t${s.sequenceSlug}\n`,
+  );
+
+  log(`Completed sequence: ${s.sequenceSlug}`);
 
   // FIXME break early
   break;
 }
 
 await db.end();
-log('INFO', `Script completed`);
+log(`Script completed`);
