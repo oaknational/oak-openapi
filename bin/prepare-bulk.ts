@@ -812,10 +812,6 @@ for (const s of sequences) {
   const sequence = await getAllSequenceData(s.sequenceSlug, s.ks4Options);
   log(`Fetched sequence data (${Date.now() - seqStart}ms)`);
 
-  console.log(
-    sequence.find((s) => s.unitSlug === 'modern-text-first-study-4896'),
-  );
-
   // Create sequence-specific directory
   const sequenceDir = `${__dirname}/out/${s.sequenceSlug}`;
   await fs.mkdir(sequenceDir, { recursive: true });
