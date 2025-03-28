@@ -49,7 +49,10 @@ export const output = z.object({
   ),
 });
 
-export type UnitSchema = z.infer<typeof output>;
+export type UnitSchema = z.infer<typeof output> & {
+  examboardSlug?: string;
+  examboard?: string;
+};
 
 export const getUnits = router({
   getUnit: protectedProcedure
@@ -144,6 +147,8 @@ export const getUnits = router({
             why_this_why_now
             threads
             year
+            examboard
+            examboard_slug
           }
         }
       `;
@@ -223,6 +228,9 @@ export function formatUnitSummary(
       state: 'published' | 'new';
     }[];
 
+    examboard?: string;
+    examboardSlug?: string;
+
     // cycle 2
     whyThisWhyNow?: string;
     description?: string;
@@ -236,6 +244,14 @@ export function formatUnitSummary(
   metadata.yearSlug = `year-${sequenceData.year}`;
   metadata.year = parseInt(sequenceData.year, 10);
   metadata.phaseSlug = sequenceData.phase_slug;
+
+  // note that it's intentional that the examboard is NOT included in the zod
+  // output on the openapi meta, as it's specifically used by the bulk download
+  // and not the API (because in fact this content should be an array)
+  if (sequenceData.examboard_slug) {
+    metadata.examboardSlug = sequenceData.examboard_slug;
+    metadata.examboard = sequenceData.examboard;
+  }
   metadata.subjectSlug = sequenceData.subject_slug;
   metadata.keyStageSlug = sequenceData.keystage_slug;
   metadata.whyThisWhyNow = sequenceData.why_this_why_now;

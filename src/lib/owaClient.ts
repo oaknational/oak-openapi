@@ -92,6 +92,7 @@ export type Sequence = TitleSlug & {
     order: number;
   })[];
   examboard_slug: string;
+  examboard: string;
   keystage_slug: string;
   notes: string;
   national_curriculum_content: { id: string; title: string }[];
