@@ -137,6 +137,7 @@ async function getSubjectPhase(subject: string): Promise<SubjectPhase> {
       where: {
         cycle: { _eq: $currentCycle }
         slug: { _eq: $subject }
+        _not: {slug: {_eq: "financial-education"}}
       }
     ) {
       title
@@ -253,11 +254,13 @@ export const getSubjects = router({
     .query(async () => {
       const client = getClient();
       // slug: { _nin: $blocked }
+      // filtering out financial education - this will be replaced once RHSE units are published
       const query = gql`
       query ($currentCycle: String!) @cached(ttl: 300) {
         ${subjectPhaseView}(
           where: {
             cycle: { _eq: $currentCycle }
+            _not: {slug: {_eq: "financial-education"}}
           }
           order_by: { display_order: asc }
         ) {
