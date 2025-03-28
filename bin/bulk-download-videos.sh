@@ -25,6 +25,8 @@ while true; do
     tarfile="out/$dir/${dir}-videos.tar"
     echo "Creating tarball: $tarfile"
     tar -cf "$tarfile" -C "$outdir/.." "videos"
+    echo "$outdir complete"
+    rm -rf "out/$dir/videos"
     continue
   fi
 
