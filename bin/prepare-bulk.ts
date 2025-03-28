@@ -1,11 +1,4 @@
-// 1. loop through all the subjects and phases - what do about exam boards
-// 2. for each sequence, download `/sequences/{subject}-{phase}/units`
-// 3. for each unit, download `/units/{unit}/summary`
-// 4. for each lesson in the unit, download `/lessons/{lesson}/summary`
-// 5. for each lesson, also download `/lessons/{lesson}/content`
-// 6. for each lesson, also download the questions `/lessons/{lesson}/quiz`
-// 6. for each lesson, also download the transcript `/lessons/{lesson}/transcript`
-
+// See README_BULK_DOWNLOAD.md for details
 import path from 'node:path';
 import { promises as fs, createWriteStream } from 'node:fs';
 import readline from 'node:readline';
@@ -566,7 +559,37 @@ export async function getAllLessonAssets(
   return map;
 }
 
-async function getAllLessonData(unitSlug: string) {
+interface Lesson {
+  lessonTitle: string;
+  lessonSlug: string;
+  unitSlug: string;
+  unitTitle: string;
+  subjectSlug: string;
+  subjectTitle: string;
+  keyStageSlug: string;
+  keyStageTitle: string;
+  lessonKeywords: string;
+  keyLearningPoints: string;
+  misconceptionsAndCommonMistakes: string;
+  pupilLessonOutcome: string;
+  teacherTips: string;
+  contentGuidance: string;
+  downloadsAvailable: boolean;
+  supervisionLevel: string;
+  transcript_sentences: string;
+  transcript_vtt: string;
+  supplementaryResource?: string;
+  starterQuiz?: string;
+  starterQuizAnswers?: string;
+  exitQuiz?: string;
+  exitQuizAnswers?: string;
+  slideDeck?: string;
+  worksheet?: string;
+  worksheetAnswers?: string;
+  video?: string;
+}
+
+async function getAllLessonData(unitSlug: string): Promise<Lesson[]> {
   const sql = `
     SELECT
       lessons."lessonTitle",
