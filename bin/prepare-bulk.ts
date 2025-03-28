@@ -235,18 +235,6 @@ async function getUnitSummaries(
   // walk sequence and at the lowest level, get the units array
   const unitSlugs: string[] = deepSearchAll(sequence, 'unitSlug');
 
-  // Initialize counters for tracking progress
-  let totalLessons = 0;
-  let completedLessons = 0;
-
-  // First get total lesson count across all units
-  for (const unitSlug of unitSlugs) {
-    const lessons = await getAllLessonData(unitSlug);
-    totalLessons += lessons.length;
-  }
-
-  log(`Found ${totalLessons} total lessons to process`);
-
   for (const unitSlug of unitSlugs) {
     const unit = getUnit(sequence, unitSlug);
 
@@ -266,232 +254,230 @@ async function getUnitSummaries(
       lessonData.map((_) => _.lessonSlug),
     );
 
+    let ctr = 0;
     for (const lesson of lessonData) {
       // Check if this lesson's assets are allowed based on subject/unit gating
       const assetsAllowed = isLessonAssetsAllowed(lesson);
       if (!assetsAllowed) {
         log(
-          `Skipping assets for lesson ${lesson.lessonSlug} - not in allowed subjects/units list`,
+          `Skipping lesson ${lesson.lessonSlug} - not in allowed subjects/units list`,
         );
         continue;
       }
 
-      // Process video
-      try {
-        const videoStart = Date.now();
-        // Get video URL
-        const url = await getVideoFromMux(
-          assetLinks[lesson.lessonSlug].videoStream as unknown as string,
-        );
+      log(`${++ctr}/${lessonData.length}: ${lesson.lessonSlug}`);
 
-        await addURLToQueue(url, `${lesson.lessonSlug}.mp4`, slug);
-        const totalVideoTime = Date.now() - videoStart;
-
-        log(`Video processed: ${lesson.lessonSlug} (${totalVideoTime}ms)`);
-
-        lesson.video = `${slug}-videos.tar:${lesson.lessonSlug}.mp4`;
-      } catch (e) {
-        logError(`Failed to process video for ${lesson.lessonSlug}: ${e}`);
-      }
-
-      // Process worksheet if available and has bucket_name
-      if (
-        assetLinks[lesson.lessonSlug].worksheet &&
-        assetLinks[lesson.lessonSlug].worksheet.bucket_name &&
-        packs.worksheets
-      ) {
+      if (assetsAllowed) {
+        // Process video
         try {
-          const worksheetStart = Date.now();
-          await addStorageAssetToTar(
-            packs.worksheets,
-            assetLinks[lesson.lessonSlug].worksheet,
-            `${lesson.lessonSlug}_worksheet.pdf`,
+          // const videoStart = Date.now();
+          // Get video URL
+          const url = await getVideoFromMux(
+            assetLinks[lesson.lessonSlug].videoStream as unknown as string,
           );
 
-          lesson.worksheet = `${slug}-worksheets.tar:${lesson.lessonSlug}_worksheet.pdf`;
+          await addURLToQueue(url, `${lesson.lessonSlug}.mp4`, slug);
+          // const totalVideoTime = Date.now() - videoStart;
 
-          const worksheetTime = Date.now() - worksheetStart;
-          log(`Worksheet processed: ${lesson.lessonSlug} (${worksheetTime}ms)`);
+          // log(`Video processed: ${lesson.lessonSlug} (${totalVideoTime}ms)`);
+
+          lesson.video = `${slug}-videos.tar:${lesson.lessonSlug}.mp4`;
         } catch (e) {
-          logError(
-            `Failed to process worksheet for ${lesson.lessonSlug}: ${e}`,
-          );
-          logError(
-            `Worksheet data: ${JSON.stringify(assetLinks[lesson.lessonSlug].worksheet)}`,
-          );
-          logError(
-            `Full asset data: ${JSON.stringify(assetLinks[lesson.lessonSlug])}`,
-          );
+          logError(`Failed to process video for ${lesson.lessonSlug}: ${e}`);
         }
-      }
 
-      // Process worksheet answers if available and has bucket_name
-      if (
-        assetLinks[lesson.lessonSlug].worksheetAnswers &&
-        assetLinks[lesson.lessonSlug].worksheetAnswers.bucket_name &&
-        packs.worksheets
-      ) {
-        try {
-          await addStorageAssetToTar(
-            packs.worksheets,
-            assetLinks[lesson.lessonSlug].worksheetAnswers,
-            `${lesson.lessonSlug}_worksheet_answers.pdf`,
-          );
+        // Process worksheet if available and has bucket_name
+        if (
+          assetLinks[lesson.lessonSlug].worksheet &&
+          assetLinks[lesson.lessonSlug].worksheet.bucket_name &&
+          packs.worksheets
+        ) {
+          try {
+            await addStorageAssetToTar(
+              packs.worksheets,
+              assetLinks[lesson.lessonSlug].worksheet,
+              `${lesson.lessonSlug}_worksheet.pdf`,
+            );
 
-          lesson.worksheetAnswers = `${slug}-worksheets.tar:${lesson.lessonSlug}_worksheet_answers.pdf`;
-        } catch (e) {
-          logError(
-            `Failed to process worksheet answers for ${lesson.lessonSlug}: ${e}`,
-          );
-          logError(
-            `Worksheet answers data: ${JSON.stringify(assetLinks[lesson.lessonSlug].worksheetAnswers)}`,
-          );
+            lesson.worksheet = `${slug}-worksheets.tar:${lesson.lessonSlug}_worksheet.pdf`;
+
+            // log(`Worksheet processed: ${lesson.lessonSlug} (${worksheetTime}ms)`);
+          } catch (e) {
+            logError(
+              `Failed to process worksheet for ${lesson.lessonSlug}: ${e}`,
+            );
+            logError(
+              `Worksheet data: ${JSON.stringify(assetLinks[lesson.lessonSlug].worksheet)}`,
+            );
+            logError(
+              `Full asset data: ${JSON.stringify(assetLinks[lesson.lessonSlug])}`,
+            );
+          }
         }
-      }
 
-      // Process slide deck if available and has bucket_name - replace extension with PPTX
-      if (
-        assetLinks[lesson.lessonSlug].slideDeck &&
-        assetLinks[lesson.lessonSlug].slideDeck.bucket_name &&
-        packs.slideDecks
-      ) {
-        try {
-          const slideDeckStart = Date.now();
-          const slideDeck = assetLinks[lesson.lessonSlug].slideDeck;
+        // Process worksheet answers if available and has bucket_name
+        if (
+          assetLinks[lesson.lessonSlug].worksheetAnswers &&
+          assetLinks[lesson.lessonSlug].worksheetAnswers.bucket_name &&
+          packs.worksheets
+        ) {
+          try {
+            await addStorageAssetToTar(
+              packs.worksheets,
+              assetLinks[lesson.lessonSlug].worksheetAnswers,
+              `${lesson.lessonSlug}_worksheet_answers.pdf`,
+            );
 
-          // Make a copy of the slideDeck object with modified bucket_path
-          const modifiedSlideDeck = { ...slideDeck };
-
-          // Replace the extension in the bucket_path with PPTX
-          const parts = modifiedSlideDeck.bucket_path.split('/');
-          parts.pop(); // drop the filename
-          modifiedSlideDeck.bucket_path = parts.join('/') + '/PowerPoint.pptx';
-
-          await addStorageAssetToTar(
-            packs.slideDecks,
-            modifiedSlideDeck,
-            `${lesson.lessonSlug}_slide_deck.pptx`,
-          );
-
-          lesson.slideDeck = `${slug}-slide-decks.tar:${lesson.lessonSlug}_slide_deck.pptx`;
-
-          const slideDeckTime = Date.now() - slideDeckStart;
-          log(
-            `Slide deck processed: ${lesson.lessonSlug} (${slideDeckTime}ms)`,
-          );
-        } catch (e) {
-          logError(
-            `Failed to process slide deck for ${lesson.lessonSlug}: ${e}`,
-          );
-          logError(
-            `Slide deck data: ${JSON.stringify(assetLinks[lesson.lessonSlug].slideDeck)}`,
-          );
+            lesson.worksheetAnswers = `${slug}-worksheets.tar:${lesson.lessonSlug}_worksheet_answers.pdf`;
+          } catch (e) {
+            logError(
+              `Failed to process worksheet answers for ${lesson.lessonSlug}: ${e}`,
+            );
+            logError(
+              `Worksheet answers data: ${JSON.stringify(assetLinks[lesson.lessonSlug].worksheetAnswers)}`,
+            );
+          }
         }
-      }
 
-      // Process starter quiz if available and has bucket_name
-      if (
-        assetLinks[lesson.lessonSlug].starterQuiz &&
-        assetLinks[lesson.lessonSlug].starterQuiz.bucket_name &&
-        packs.starterQuizzes
-      ) {
-        try {
-          await addStorageAssetToTar(
-            packs.starterQuizzes,
-            assetLinks[lesson.lessonSlug].starterQuiz,
-            `${lesson.lessonSlug}_starter_quiz.pdf`,
-          );
+        // Process slide deck if available and has bucket_name - replace extension with PPTX
+        if (
+          assetLinks[lesson.lessonSlug].slideDeck &&
+          assetLinks[lesson.lessonSlug].slideDeck.bucket_name &&
+          packs.slideDecks
+        ) {
+          try {
+            const slideDeck = assetLinks[lesson.lessonSlug].slideDeck;
 
-          lesson.starterQuiz = `${slug}-quizzes.tar:${lesson.lessonSlug}_starter_quiz.pdf`;
+            // Make a copy of the slideDeck object with modified bucket_path
+            const modifiedSlideDeck = { ...slideDeck };
 
-          // Process starter quiz answers if available and has bucket_name
-          if (
-            assetLinks[lesson.lessonSlug].starterQuizAnswers &&
-            assetLinks[lesson.lessonSlug].starterQuizAnswers.bucket_name
-          ) {
+            // Replace the extension in the bucket_path with PPTX
+            const parts = modifiedSlideDeck.bucket_path.split('/');
+            parts.pop(); // drop the filename
+            modifiedSlideDeck.bucket_path =
+              parts.join('/') + '/PowerPoint.pptx';
+
+            await addStorageAssetToTar(
+              packs.slideDecks,
+              modifiedSlideDeck,
+              `${lesson.lessonSlug}_slide_deck.pptx`,
+            );
+
+            lesson.slideDeck = `${slug}-slide-decks.tar:${lesson.lessonSlug}_slide_deck.pptx`;
+          } catch (e) {
+            logError(
+              `Failed to process slide deck for ${lesson.lessonSlug}: ${e}`,
+            );
+            logError(
+              `Slide deck data: ${JSON.stringify(assetLinks[lesson.lessonSlug].slideDeck)}`,
+            );
+          }
+        }
+
+        // Process starter quiz if available and has bucket_name
+        if (
+          assetLinks[lesson.lessonSlug].starterQuiz &&
+          assetLinks[lesson.lessonSlug].starterQuiz.bucket_name &&
+          packs.starterQuizzes
+        ) {
+          try {
             await addStorageAssetToTar(
               packs.starterQuizzes,
-              assetLinks[lesson.lessonSlug].starterQuizAnswers,
-              `${lesson.lessonSlug}_starter_quiz_answers.pdf`,
+              assetLinks[lesson.lessonSlug].starterQuiz,
+              `${lesson.lessonSlug}_starter_quiz.pdf`,
             );
 
-            lesson.starterQuizAnswers = `${slug}-quizzes.tar:${lesson.lessonSlug}_starter_quiz_answers.pdf`;
+            lesson.starterQuiz = `${slug}-quizzes.tar:${lesson.lessonSlug}_starter_quiz.pdf`;
+
+            // Process starter quiz answers if available and has bucket_name
+            if (
+              assetLinks[lesson.lessonSlug].starterQuizAnswers &&
+              assetLinks[lesson.lessonSlug].starterQuizAnswers.bucket_name
+            ) {
+              await addStorageAssetToTar(
+                packs.starterQuizzes,
+                assetLinks[lesson.lessonSlug].starterQuizAnswers,
+                `${lesson.lessonSlug}_starter_quiz_answers.pdf`,
+              );
+
+              lesson.starterQuizAnswers = `${slug}-quizzes.tar:${lesson.lessonSlug}_starter_quiz_answers.pdf`;
+            }
+
+            // log(`Starter quiz processed: ${lesson.lessonSlug}`);
+          } catch (e) {
+            logError(
+              `Failed to process starter quiz for ${lesson.lessonSlug}: ${e}`,
+            );
+            logError(
+              `Starter quiz data: ${JSON.stringify(assetLinks[lesson.lessonSlug].starterQuiz)}`,
+            );
           }
-
-          log(`Starter quiz processed: ${lesson.lessonSlug}`);
-        } catch (e) {
-          logError(
-            `Failed to process starter quiz for ${lesson.lessonSlug}: ${e}`,
-          );
-          logError(
-            `Starter quiz data: ${JSON.stringify(assetLinks[lesson.lessonSlug].starterQuiz)}`,
-          );
         }
-      }
 
-      // Process exit quiz if available and has bucket_name
-      if (
-        assetLinks[lesson.lessonSlug].exitQuiz &&
-        assetLinks[lesson.lessonSlug].exitQuiz.bucket_name &&
-        packs.exitQuizzes
-      ) {
-        try {
-          await addStorageAssetToTar(
-            packs.exitQuizzes,
-            assetLinks[lesson.lessonSlug].exitQuiz,
-            `${lesson.lessonSlug}_exit_quiz.pdf`,
-          );
-
-          lesson.exitQuiz = `${slug}-quizzes.tar:${lesson.lessonSlug}_exit_quiz.pdf`;
-
-          // Process exit quiz answers if available and has bucket_name
-          if (
-            assetLinks[lesson.lessonSlug].exitQuizAnswers &&
-            assetLinks[lesson.lessonSlug].exitQuizAnswers.bucket_name
-          ) {
+        // Process exit quiz if available and has bucket_name
+        if (
+          assetLinks[lesson.lessonSlug].exitQuiz &&
+          assetLinks[lesson.lessonSlug].exitQuiz.bucket_name &&
+          packs.exitQuizzes
+        ) {
+          try {
             await addStorageAssetToTar(
               packs.exitQuizzes,
-              assetLinks[lesson.lessonSlug].exitQuizAnswers,
-              `${lesson.lessonSlug}_exit_quiz_answers.pdf`,
+              assetLinks[lesson.lessonSlug].exitQuiz,
+              `${lesson.lessonSlug}_exit_quiz.pdf`,
             );
 
-            lesson.exitQuizAnswers = `${slug}-quizzes.tar:${lesson.lessonSlug}_exit_quiz_answers.pdf`;
+            lesson.exitQuiz = `${slug}-quizzes.tar:${lesson.lessonSlug}_exit_quiz.pdf`;
+
+            // Process exit quiz answers if available and has bucket_name
+            if (
+              assetLinks[lesson.lessonSlug].exitQuizAnswers &&
+              assetLinks[lesson.lessonSlug].exitQuizAnswers.bucket_name
+            ) {
+              await addStorageAssetToTar(
+                packs.exitQuizzes,
+                assetLinks[lesson.lessonSlug].exitQuizAnswers,
+                `${lesson.lessonSlug}_exit_quiz_answers.pdf`,
+              );
+
+              lesson.exitQuizAnswers = `${slug}-quizzes.tar:${lesson.lessonSlug}_exit_quiz_answers.pdf`;
+            }
+
+            // log(`Exit quiz processed: ${lesson.lessonSlug}`);
+          } catch (e) {
+            logError(
+              `Failed to process exit quiz for ${lesson.lessonSlug}: ${e}`,
+            );
+            logError(
+              `Exit quiz data: ${JSON.stringify(assetLinks[lesson.lessonSlug].exitQuiz)}`,
+            );
           }
-
-          log(`Exit quiz processed: ${lesson.lessonSlug}`);
-        } catch (e) {
-          logError(
-            `Failed to process exit quiz for ${lesson.lessonSlug}: ${e}`,
-          );
-          logError(
-            `Exit quiz data: ${JSON.stringify(assetLinks[lesson.lessonSlug].exitQuiz)}`,
-          );
         }
-      }
 
-      // Process supplementary resource if available and has bucket_name
-      if (
-        assetLinks[lesson.lessonSlug].supplementaryResource &&
-        assetLinks[lesson.lessonSlug].supplementaryResource.bucket_name &&
-        packs.supplementaryResources
-      ) {
-        try {
-          await addStorageAssetToTar(
-            packs.supplementaryResources,
-            assetLinks[lesson.lessonSlug].supplementaryResource,
-            `${lesson.lessonSlug}_supplementary.pdf`,
-          );
+        // Process supplementary resource if available and has bucket_name
+        if (
+          assetLinks[lesson.lessonSlug].supplementaryResource &&
+          assetLinks[lesson.lessonSlug].supplementaryResource.bucket_name &&
+          packs.supplementaryResources
+        ) {
+          try {
+            await addStorageAssetToTar(
+              packs.supplementaryResources,
+              assetLinks[lesson.lessonSlug].supplementaryResource,
+              `${lesson.lessonSlug}_supplementary.pdf`,
+            );
 
-          lesson.supplementaryResource = `${slug}-resources.tar:${lesson.lessonSlug}_supplementary.pdf`;
+            lesson.supplementaryResource = `${slug}-resources.tar:${lesson.lessonSlug}_supplementary.pdf`;
 
-          log(`Supplementary resource processed: ${lesson.lessonSlug}`);
-        } catch (e) {
-          logError(
-            `Failed to process supplementary resource for ${lesson.lessonSlug}: ${e}`,
-          );
-          logError(
-            `Supplementary resource data: ${JSON.stringify(assetLinks[lesson.lessonSlug].supplementaryResource)}`,
-          );
+            // log(`Supplementary resource processed: ${lesson.lessonSlug}`);
+          } catch (e) {
+            logError(
+              `Failed to process supplementary resource for ${lesson.lessonSlug}: ${e}`,
+            );
+            logError(
+              `Supplementary resource data: ${JSON.stringify(assetLinks[lesson.lessonSlug].supplementaryResource)}`,
+            );
+          }
         }
       }
 
@@ -499,11 +485,6 @@ async function getUnitSummaries(
         await fs.appendFile(
           `${sequenceDir}/lessons.jsonl`,
           JSON.stringify(lesson),
-        );
-
-        completedLessons++;
-        log(
-          `${completedLessons}/${totalLessons} completed lesson: ${lesson.lessonSlug}`,
         );
       } catch (error) {
         logError(`Failed processing lesson ${lesson.lessonSlug}: ${error}`);
@@ -620,7 +601,17 @@ async function getAllLessonData(unitSlug: string) {
     // rowMode: 'array',
   });
 
-  return res.rows;
+  const seen = new Set();
+
+  return res.rows.reduce((acc, row) => {
+    if (seen.has(row.lessonSlug)) {
+      return acc;
+    }
+
+    seen.add(row.lessonSlug);
+    acc.push(row);
+    return acc;
+  }, []);
 }
 
 type UnitWithExamBoards = UnitSchema & {
@@ -632,7 +623,7 @@ async function getAllSequenceData(
   examBoards?: TitleSlug[],
 ): Promise<UnitWithExamBoards[]> {
   const where = sequenceWhere(sequence);
-  console.log(JSON.stringify(where));
+
   const query = gql`
     query ($where: ${sequenceViewWhereInput}!) {
       ${sequenceView}(
