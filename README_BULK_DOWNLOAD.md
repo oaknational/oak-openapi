@@ -40,6 +40,8 @@ Typically the database url will point to the [local proxied](https://www.notion.
 1. `bin/papare-bulk.ts`
 2. `bin/bulk-download-videos.sh`
 
+Also remember if you're running the database proxy, that the
+
 ## Timings
 
 For a single sequence
