@@ -339,7 +339,7 @@ function Features() {
 
               <OakTertiaryButton
                 element="a"
-                href="https://drive.google.com/file/d/14QBLs7cvcS_Z10EhrirOSZeN_paaaezC/view"
+                href="https://docs.google.com/document/d/1fWRXIsB8qOV2lTIsZSsCILBQa6zvgCPIfskbrEMX8oE/view"
                 isTrailingIcon
                 iconName="arrow-right"
               >
