@@ -228,6 +228,13 @@ async function getUnitSummaries(
   // walk sequence and at the lowest level, get the units array
   const unitSlugs: string[] = deepSearchAll(sequence, 'unitSlug');
 
+  const totalLessonCount = sequence.reduce(
+    (acc, _) => acc + (_.unitLessons.length || 0),
+    0,
+  );
+
+  let ctr = 0;
+
   for (const unitSlug of unitSlugs) {
     const unit = getUnit(sequence, unitSlug);
 
@@ -241,13 +248,15 @@ async function getUnitSummaries(
 
     // TODO decide whether to slim this down as it includes redundant data,
     // such as the sequence year, etc.
-    await fs.appendFile(`${sequenceDir}/units.jsonl`, JSON.stringify(unit));
+    await fs.appendFile(
+      `${sequenceDir}/units.jsonl`,
+      JSON.stringify(unit) + '\n',
+    );
 
     const assetLinks = await getAllLessonAssets(
       lessonData.map((_) => _.lessonSlug),
     );
 
-    let ctr = 0;
     for (const lesson of lessonData) {
       // Check if this lesson's assets are allowed based on subject/unit gating
       const assetsAllowed = isLessonAssetsAllowed(lesson);
@@ -258,7 +267,24 @@ async function getUnitSummaries(
         continue;
       }
 
-      log(`${++ctr}/${lessonData.length}: ${lesson.lessonSlug}`);
+      log(`${++ctr}/${totalLessonCount}: ${lesson.lessonSlug}`);
+
+      // capture and store captions and transcript in a separate file from lessons.jsonl
+      const transcript = lesson.transcript_sentences;
+      const vtt = lesson.transcript_vtt;
+
+      // remove transcript from lesson object so it's not stored
+      delete lesson.transcript_sentences;
+      delete lesson.transcript_vtt;
+
+      await fs.appendFile(
+        `${sequenceDir}/transcripts.jsonl`,
+        JSON.stringify({
+          lessonSlug: lesson.lessonSlug,
+          transcript,
+          vtt,
+        }) + '\n',
+      );
 
       if (assetsAllowed) {
         // Process video
@@ -477,7 +503,7 @@ async function getUnitSummaries(
       try {
         await fs.appendFile(
           `${sequenceDir}/lessons.jsonl`,
-          JSON.stringify(lesson),
+          JSON.stringify(lesson) + '\n',
         );
       } catch (error) {
         logError(`Failed processing lesson ${lesson.lessonSlug}: ${error}`);
@@ -576,8 +602,8 @@ interface Lesson {
   contentGuidance: string;
   downloadsAvailable: boolean;
   supervisionLevel: string;
-  transcript_sentences: string;
-  transcript_vtt: string;
+  transcript_sentences?: string;
+  transcript_vtt?: string;
   supplementaryResource?: string;
   starterQuiz?: string;
   starterQuizAnswers?: string;
