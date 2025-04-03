@@ -10,6 +10,7 @@ out/
       ├── sequence.json           # metadata about the sequence
       ├── units.jsonl             # information about each unit
       ├── lessons.jsonl           # details about each lesson including asset references
+      ├── transcripts.jsonl       # captions and VTT of all videos
       ├── {sequence-slug}-videos.tar       # all lesson video files
       ├── {sequence-slug}-worksheets.tar   # all worksheets and answer sheets
       ├── {sequence-slug}-slide-decks.tar  # all PPTX slides
