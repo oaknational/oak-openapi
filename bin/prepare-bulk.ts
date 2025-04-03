@@ -299,7 +299,7 @@ async function getUnitSummaries(
     0,
   );
 
-  let ctr = 0;
+  let currentLessonCtr = 0;
 
   for (const unitSlug of unitSlugs) {
     const unit = getUnit(sequence, unitSlug);
@@ -331,7 +331,7 @@ async function getUnitSummaries(
         );
       }
 
-      log(`${++ctr}/${totalLessonCount}: ${lesson.lessonSlug}`);
+      log(`${++currentLessonCtr}/${totalLessonCount}: ${lesson.lessonSlug}`);
 
       if (assetsAllowed) {
         // capture and store captions and transcript in a separate file from lessons.jsonl
