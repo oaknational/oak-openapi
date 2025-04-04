@@ -29,6 +29,7 @@ while true; do
     rm -rf "out/$dir/videos"
 
     gsutil -m cp -r ./out/$dir gs://oak_bulk_data_store
+    rm -rf ./out/$dir
     continue
   fi
 
