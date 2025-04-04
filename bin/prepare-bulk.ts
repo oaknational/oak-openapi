@@ -783,12 +783,20 @@ await fs.mkdir(`${__dirname}/out`, { recursive: true });
 
 for (const s of sequences) {
   log(`Processing sequence: ${s.sequenceSlug}`);
+
   const seqStart = Date.now();
   const sequence = await getAllSequenceData(s.sequenceSlug, s.ks4Options);
   log(`Fetched sequence data (${Date.now() - seqStart}ms)`);
 
   // Create sequence-specific directory
   const sequenceDir = `${__dirname}/out/${s.sequenceSlug}`;
+
+  // if the directory already exists, assume it's already been processed and skip it
+  if (await fs.stat(sequenceDir).catch(() => false)) {
+    log(`Skipping sequence ${s.sequenceSlug} - already processed`);
+    continue;
+  }
+
   await fs.mkdir(sequenceDir, { recursive: true });
 
   // Create tarballs for different asset types
