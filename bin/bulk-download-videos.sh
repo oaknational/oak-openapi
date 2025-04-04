@@ -27,6 +27,8 @@ while true; do
     tar -cf "$tarfile" -C "$outdir/.." "videos"
     echo "$outdir complete"
     rm -rf "out/$dir/videos"
+
+    gsutil -m cp -r ./out/$dir gs://oak_bulk_data_store
     continue
   fi
 
