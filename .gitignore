@@ -1,8 +1,11 @@
 node_modules/
 .next/
 .env
+.env.*
 .swc
 tmp/
 bin/generate-key.ts
 out/
 .DS_Store
+videos.tsv
+videos.tsv.bak
