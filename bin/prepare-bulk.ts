@@ -736,6 +736,7 @@ async function getAllSubjects() {
         where: {
           cycle: { _eq: $currentCycle }
           ${slugFilter}
+          _not: {slug: {_eq: "financial-education"}}
         }
         order_by: { display_order: asc }
       ) {
