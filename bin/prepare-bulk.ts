@@ -820,7 +820,6 @@ for (const s of sequences) {
 
   // Create asset packs object
   const assetPacks: AssetPacks = {
-    // videos: videoPack,
     worksheets: worksheetsPack,
     slideDecks: slideDecksPack,
     starterQuizzes: quizzesPack,
@@ -836,7 +835,6 @@ for (const s of sequences) {
   await getUnitSummaries(s.sequenceSlug, sequence, assetPacks);
 
   // Finalize all tarballs
-  // videoPack.finalize();
   worksheetsPack.finalize();
   slideDecksPack.finalize();
   quizzesPack.finalize();
@@ -849,9 +847,6 @@ for (const s of sequences) {
   );
 
   log(`Completed sequence: ${s.sequenceSlug}`);
-
-  // FIXME break early
-  break;
 }
 
 await db.end();
