@@ -47,7 +47,7 @@ const subjectResult = z.object({
 const subjectsResult = z.array(subjectResult);
 export type SubjectsResult = z.infer<typeof subjectsResult>;
 
-function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
+export function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
   const keyStageLookup: Record<string, string[]> = {
     primary: ['ks1', 'ks2'],
     secondary: ['ks3', 'ks4'],
@@ -94,13 +94,13 @@ function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
   return sequences;
 }
 
-function phaseToKeyStages(subject: SubjectPhase) {
+export function phaseToKeyStages(subject: SubjectPhase) {
   return subject.keystages.map(({ slug, title }) => {
     return { keyStageSlug: slug, keyStageTitle: title };
   });
 }
 
-function yearsFromKeyStages(
+export function yearsFromKeyStages(
   keyStages: { keyStageSlug: string; keyStageTitle: string }[],
 ) {
   const years = keyStages.reduce((acc: number[], { keyStageSlug }) => {

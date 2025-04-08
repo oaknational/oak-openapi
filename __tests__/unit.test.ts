@@ -98,3 +98,10 @@ test('threads are present', async () => {
 
   expect(res.threads?.length).toBeGreaterThan(0);
 });
+
+/** notes
+ * Examboard information on units:
+ * - poetry-anthology-first-study-1482 - only eduqas
+ * - modern-text-first-study-4896 - aqa and edexcel
+ * - myths-and-legends-re-told-poetry-and-short-stories - none, therefore all
+ **/

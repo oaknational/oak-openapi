@@ -169,7 +169,8 @@ export const getLessons = router({
       if (blocked) {
         response.setHeader('Server-Timing', timing.toHeader(response));
         throw new TRPCError({
-          message: 'Lesson not available for this query',
+          message:
+            'Lesson not available for this query (blocked for copyright text)',
           code: 'NOT_FOUND',
         });
       }

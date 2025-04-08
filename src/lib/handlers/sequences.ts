@@ -469,7 +469,7 @@ export const getSequences = router({
     }),
 });
 
-function formatUnit(unit: Sequence) {
+export function formatUnit(unit: Sequence) {
   let categories: Category[] | undefined;
 
   const threads =
