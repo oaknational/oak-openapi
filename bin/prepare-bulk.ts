@@ -776,17 +776,19 @@ function getUnit(sequence: UnitSchema[], unit: string) {
 log('Fetching all subjects...');
 const startSubjects = Date.now();
 const sequences: SlimSequenceResult[] = await getAllSubjects();
-log(`Fetched ${sequences.length} sequences (${Date.now() - startSubjects}ms)`);
+log(
+  `Fetched ${sequences.length} subject phases (${Date.now() - startSubjects}ms)`,
+);
 
 // Ensure the main output directory exists
 await fs.mkdir(`${__dirname}/out`, { recursive: true });
 
 for (const s of sequences) {
-  log(`Processing sequence: ${s.sequenceSlug}`);
+  log(`Processing subject phase: ${s.sequenceSlug}`);
 
   const seqStart = Date.now();
   const sequence = await getAllSequenceData(s.sequenceSlug, s.ks4Options);
-  log(`Fetched sequence data (${Date.now() - seqStart}ms)`);
+  log(`Fetched subject phase data (${Date.now() - seqStart}ms)`);
 
   // Create sequence-specific directory
   const sequenceDir = `${__dirname}/out/${s.sequenceSlug}`;
@@ -855,7 +857,7 @@ for (const s of sequences) {
     `complete\tnop\t${s.sequenceSlug}\n`,
   );
 
-  log(`Completed sequence: ${s.sequenceSlug}`);
+  log(`Completed subject phase: ${s.sequenceSlug}`);
 }
 
 await db.end();
