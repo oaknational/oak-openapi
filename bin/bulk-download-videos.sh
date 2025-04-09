@@ -20,21 +20,25 @@ while true; do
   sed -i.bak "\|$line|d" "$WATCH_FILE"
 
   url=$(printf '%s' "$line" | cut -f1)
+  filename=$(printf '%s' "$line" | cut -f2)
+  dir=$(printf '%s' "$line" | cut -f3)
 
   if [ "$url" = "complete" ]; then
-    tarfile="out/$dir/${dir}-videos.tar"
-    echo "Creating tarball: $tarfile"
-    tar -cf "$tarfile" -C "$outdir/.." "videos"
-    echo "$outdir complete"
-    rm -rf "out/$dir/videos"
+    # test if the "out/$dir/videos" directory exists
+    if [ -d "out/$dir/videos" ]; then
+      tarfile="out/$dir/${dir}-videos.tar"
+      echo "Creating tarball: $tarfile"
+      tar -cf "$tarfile" -C "$outdir/.." "videos"
+      echo "$outdir/videos complete"
+      rm -rf "out/$dir/videos"
+    fi
 
+    # then copy across the directory and remove it to maintain disk space
     gsutil -m cp -r ./out/$dir gs://oak_bulk_data_store
     rm -rf ./out/$dir
     continue
   fi
 
-  filename=$(printf '%s' "$line" | cut -f2)
-  dir=$(printf '%s' "$line" | cut -f3)
   outdir="out/$dir/videos"
   mkdir -p "$outdir"
   tmpfile="$outdir/$filename"
@@ -51,7 +55,7 @@ while true; do
       break
     fi
 
-    echo "Download failed (exit code $exit_code)... (attempt $attempt)"
+    echo "Download failed (exit code $exit_code)... (attempt $attempt): $line"
     sleep "$retry_delay"
     attempt=$((attempt + 1))
   done
