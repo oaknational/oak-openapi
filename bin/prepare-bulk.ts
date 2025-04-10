@@ -571,7 +571,7 @@ async function getAllLessonData(unitSlug: string): Promise<Lesson[]> {
       transcripts."transcript_sentences",
       transcripts."transcript_vtt"
     FROM
-      published.mv_lesson_openapi_1_2_1 AS lessons,
+      published.mv_lesson_openapi_1_2_3 AS lessons,
       published.mv_lesson_content_published_5_0_0 AS transcripts
     WHERE
       lessons."lessonId" = transcripts."lesson_id"

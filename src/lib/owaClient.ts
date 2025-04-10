@@ -4,11 +4,11 @@ export { gql } from 'graphql-request';
 
 export const currentCycle = '2';
 
-export const lessonView = 'published_mv_lesson_openapi_1_2_1';
+export const lessonView = 'published_mv_lesson_openapi_1_2_3';
 export const downloadView = 'published_mv_openapi_downloads_1_0_0';
 export const unitVariantLessonsView =
   'published_mv_synthetic_unitvariant_lessons_by_year_12_0_0';
-export const lessonViewTable = 'published.mv_lesson_openapi_1_2_1';
+export const lessonViewTable = 'published.mv_lesson_openapi_1_2_3';
 export const subjectPhaseView = 'published_mv_subject_phase_options_0_11';
 export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_15';
 
@@ -184,7 +184,7 @@ export interface TitleSlug {
 }
 
 export type LessonView = {
-  published_mv_lesson_openapi_1_2_1: Lesson[];
+  published_mv_lesson_openapi_1_2_3: Lesson[];
 };
 
 // Note: where any is used, the structure is currently unknown/undocumented
