@@ -786,9 +786,14 @@ await fs.mkdir(`${__dirname}/out`, { recursive: true });
 for (const s of sequences) {
   log(`Processing subject phase: ${s.sequenceSlug}`);
 
-  const seqStart = Date.now();
   const sequence = await getAllSequenceData(s.sequenceSlug, s.ks4Options);
-  log(`Fetched subject phase data (${Date.now() - seqStart}ms)`);
+
+  if (sequence.length === 0) {
+    log(`No sequence data found for ${s.sequenceSlug}`);
+    continue;
+  }
+
+  log(`Fetched subject phase data`);
 
   // Create sequence-specific directory
   const sequenceDir = `${__dirname}/out/${s.sequenceSlug}`;
