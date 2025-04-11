@@ -294,10 +294,10 @@ async function getUnitSummaries(
   // walk sequence and at the lowest level, get the units array
   const unitSlugs: string[] = deepSearchAll(sequence, 'unitSlug');
 
-  const totalLessonCount = sequence.reduce(
-    (acc, _) => acc + (_.unitLessons.length || 0),
-    0,
-  );
+  const totalLessonCount = sequence.reduce((acc, _) => {
+    const lessons = _.unitLessons.filter((l) => l.state === 'published').length;
+    return acc + lessons;
+  }, 0);
 
   let currentLessonCtr = 0;
 
