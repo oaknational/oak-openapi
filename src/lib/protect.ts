@@ -7,7 +7,7 @@ import {
   defaultRateLimit,
 } from './rateLimit';
 
-const getRateLimit = (userLimit: number | undefined | null) => {
+export const getRateLimiter = (userLimit: number | undefined | null) => {
   if (userLimit !== defaultRateLimit && typeof userLimit === 'number') {
     return rateLimiter(rateLimits.custom(userLimit));
   } else {
@@ -32,7 +32,7 @@ export const protectedProcedure = t.procedure.use(
     let limit: RateLimitInfo | undefined;
 
     if (user) {
-      const rateLimit = getRateLimit(user.rateLimit);
+      const rateLimit = getRateLimiter(user.rateLimit);
       limit = await rateLimit.check(user, noCost);
       if (limit.isSubjectToRateLimiting) {
         ctx.res.setHeader('X-RateLimit-Limit', limit.limit);
