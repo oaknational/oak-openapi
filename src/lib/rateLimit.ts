@@ -66,7 +66,7 @@ export const rateLimiter = (rateLimit: RateLimit): RateLimiter => {
 
         return {
           isSubjectToRateLimiting: true,
-          limit: defaultRateLimit,
+          limit: user.rateLimit ?? defaultRateLimit,
           remaining: res.remaining,
           reset: res.reset,
         };
