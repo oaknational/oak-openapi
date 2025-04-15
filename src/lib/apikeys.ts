@@ -110,7 +110,7 @@ export async function findUserByKey(
       await redis.hset(`user:${key}`, { lastRequest: new Date().toJSON() });
     }
 
-    if (user.rateLimit === undefined) {
+    if (user.rateLimit === undefined || user.rateLimit === null) {
       user.rateLimit = defaultRateLimit;
     }
     return user;
