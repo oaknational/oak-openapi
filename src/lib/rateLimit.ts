@@ -64,8 +64,6 @@ export const rateLimiter = (rateLimit: RateLimit): RateLimiter => {
         // NOTE: The upstash/ratelimit docs recommend context.waitUntil(pending) instead of awaiting upfront
         await pending;
 
-        console.log({ ...rest });
-
         return {
           isSubjectToRateLimiting: true,
           ...rest,
