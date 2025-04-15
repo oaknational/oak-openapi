@@ -12,6 +12,13 @@ export const rateLimits = {
     // github is 5000/hour as an arbitrary reference
     limiter: RateLimit.slidingWindow(defaultRateLimit, '1 h'),
   }),
+  custom: (limit: number) =>
+    new RateLimit({
+      redis,
+      prefix: `rateLimit:${limit}-`,
+      analytics: true,
+      limiter: RateLimit.slidingWindow(limit, '1 h'),
+    }),
 } as const;
 
 export type RateLimitInfo =
@@ -56,6 +63,8 @@ export const rateLimiter = (rateLimit: RateLimit): RateLimiter => {
 
         // NOTE: The upstash/ratelimit docs recommend context.waitUntil(pending) instead of awaiting upfront
         await pending;
+
+        console.log({ ...rest });
 
         return {
           isSubjectToRateLimiting: true,
