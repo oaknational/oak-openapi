@@ -62,8 +62,8 @@ For example, an internal error would throw as such:
 
 ```ts
 throw new TRPCError({
- message: 'Unexpected answer type',
- code: 'INTERNAL_SERVER_ERROR',
+  message: 'Unexpected answer type',
+  code: 'INTERNAL_SERVER_ERROR',
 });
 ```
 
@@ -71,9 +71,9 @@ A user error (such as an unknown subject is requested) is:
 
 ```ts
 throw new TRPCError({
-   message: `Invalid subject: ${res.subjectSlug}`,
-   code: 'BAD_REQUEST',
- });
+  message: `Invalid subject: ${res.subjectSlug}`,
+  code: 'BAD_REQUEST',
+});
 ```
 
 ## Analytics / Logging
@@ -175,3 +175,53 @@ How to run:
 ## Required env values
 
 Complete the values in `.env.example` and rename to `.env`
+
+# Styling
+
+To stay consistent with Oak repositories, all styling should be done via `styled-components`. The `pages` folder contains the following:
+
+````
+pages/
+  └── styles/
+      ├── playgroundStyles.tsx           # Metadata about the sequence
+      └──  playground.css             # Information about each unit
+```
+
+1. To update the styling of the playground, have a look through the `playground.css` folder first, to identify if the selectors for the required component already exist.
+
+2. To view local changes, you can edit the `playgroundStyles.tsx` directly. Just make sure once the styling is updated, that the corresponding css file includes the changes and the tree below is updated.
+
+The CSS file is sectioned into several sections as referenced below:
+
+````
+
+playground.css/
+├── PAGE GENERICS
+├── HEADER
+│ ├── Top level title
+│ ├── Header links
+│ ├── Server dropdown component
+│ ├── Authorise button
+│ └── Version tags
+├── API DOCUMENTATION
+│ ├── Section headers
+│ ├── Closed Accordion
+│ │ ├── GET tag
+│ │ └── Icons
+│ ├── Open accordion
+│ │ ├── Sub-section headers
+│ │ ├── Spacing
+│ │ ├── Parameter section
+│ │ │ └── Cancel button
+│ │ ├── Response table
+│ │ └── Default section
+│ ├── Font overrides
+│ ├── Div spacing
+│ └── Authorisation modal
+└── SCHEMA DOCUMENTATION
+├── Accordion
+└── Spacing
+
+```
+
+```

@@ -20,6 +20,11 @@ div.swagger-ui,
   font-weight: 400;
 }
 
+/* Spacing between main divs */
+.swagger-ui .no-margin {
+  margin-bottom: 48px;
+}
+
 /* HEADER */
 
 /* Top level title */
@@ -151,6 +156,8 @@ div.swagger-ui,
   margin-bottom: 12px;
 }
 
+/* ACCORDION */
+
 .swagger-ui .opblock.opblock-get .opblock-summary-method {
   background: #93e892;
 }
@@ -165,35 +172,6 @@ div.swagger-ui,
 .swagger-ui .copy-to-clipboard {
   background: black;
   color: #93e892;
-}
-
-/* ACCORDION */
-
-/* Section headers */
-.swagger-ui section.models h4 {
-  font-family: 'Lexend', sans-serif;
-  font-size: 32px;
-  font-weight: bold;
-  color: #222222;
-}
-
-.swagger-ui .model-title {
-  font-family: 'Lexend', sans-serif;
-  font-size: 16px;
-  font-weight: bold;
-  color: #222222;
-}
-
-.swagger-ui .model {
-  font-size: 14px;
-  line-height: 1.3;
-}
-
-/* Accordion spacing */
-.swagger-ui section.models .model-container {
-  background-color: #f2f2f2;
-  border-radius: 4px;
-  margin-bottom: 12px;
 }
 
 /* OPEN ACCORDION */
@@ -227,24 +205,13 @@ div.swagger-ui,
   background: black;
 }
 
-/* Annoyingly we have to override the font-family a lot because, Swagger */
-
-/* Section titles */
-.swagger-ui .parameter__name,
-.swagger-ui .opblock-description-wrapper p,
-/* Sub-header for responses */
-.swagger-ui .response-control-media-type__title,
-/* Tab title */
-.swagger-ui .tab li button.tablinks,
-/* open accordion - responses */
-.swagger-ui .responses-inner h4,
-.swagger-ui .opblock .opblock-section-header h4,
-.swagger-ui .responses-inner h4,
-.swagger-ui .responses-inner h5 {
+/* Cancel button */
+.swagger-ui .btn.cancel {
   font-family: 'Lexend', sans-serif;
+  box-shadow: none;
 }
 
-/* Docs section */
+/* Response table  */
 .swagger-ui .parameters-col_description,
 .swagger-ui table thead tr td,
 .swagger-ui .response-col_links,
@@ -267,20 +234,25 @@ div.swagger-ui,
   padding: 12px 16px 12px;
 }
 
-/* Cancel button */
-.swagger-ui .btn.cancel {
+/* Font overrides */
+/* Annoyingly we have to override the font-family a lot because, Swagger */
+
+/* Section titles */
+.swagger-ui .parameter__name,
+.swagger-ui .opblock-description-wrapper p,
+/* Sub-header for responses */
+.swagger-ui .response-control-media-type__title,
+/* Tab title */
+.swagger-ui .tab li button.tablinks,
+/* open accordion - responses */
+.swagger-ui .responses-inner h4,
+.swagger-ui .opblock .opblock-section-header h4,
+.swagger-ui .responses-inner h4,
+.swagger-ui .responses-inner h5 {
   font-family: 'Lexend', sans-serif;
-  box-shadow: none;
 }
 
-/* Spacing between main divs */
-
-.swagger-ui .no-margin {
-  margin-bottom: 48px;
-}
-
-/* Authorisation modal */
-
+/* Auth modal */
 .swagger-ui .dialog-ux .modal-ux-content h4,
 .swagger-ui .dialog-ux .modal-ux-header h3,
 .swagger-ui .auth-container input[type='text'] {
@@ -294,4 +266,33 @@ div.swagger-ui,
   .auth-btn-wrapper
   .authorize {
   font-weight: 400;
+}
+
+/* SCHEMA DOCUMENTATION */
+
+/* Accordion */
+.swagger-ui section.models h4 {
+  font-family: 'Lexend', sans-serif;
+  font-size: 32px;
+  font-weight: bold;
+  color: #222222;
+}
+
+.swagger-ui .model-title {
+  font-family: 'Lexend', sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  color: #222222;
+}
+
+.swagger-ui .model {
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+/* Accordion spacing */
+.swagger-ui section.models .model-container {
+  background-color: #f2f2f2;
+  border-radius: 4px;
+  margin-bottom: 12px;
 }
