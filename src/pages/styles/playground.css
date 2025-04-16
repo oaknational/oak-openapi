@@ -74,7 +74,9 @@ div.swagger-ui,
   color: #222222;
   padding: 12px 16px 12px;
   background-color: #ffffff;
-  width: 360px;
+  max-width: 100%;
+  min-width: 130px;
+  width: 100%;
 }
 
 /* Authorize button */
