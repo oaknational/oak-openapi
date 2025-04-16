@@ -180,7 +180,7 @@ Complete the values in `.env.example` and rename to `.env`
 
 To stay consistent with Oak repositories, all styling should be done via `styled-components`. The `pages` folder contains the following:
 
-````
+```
 pages/
   └── styles/
       ├── playgroundStyles.tsx           # Metadata about the sequence
@@ -193,7 +193,7 @@ pages/
 
 The CSS file is sectioned into several sections as referenced below:
 
-````
+```
 
 playground.css/
 ├── PAGE GENERICS
@@ -221,7 +221,5 @@ playground.css/
 └── SCHEMA DOCUMENTATION
 ├── Accordion
 └── Spacing
-
-```
 
 ```
