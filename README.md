@@ -198,28 +198,28 @@ The CSS file is sectioned into several sections as referenced below:
 playground.css/
 ├── PAGE GENERICS
 ├── HEADER
-│ ├── Top level title
-│ ├── Header links
-│ ├── Server dropdown component
-│ ├── Authorise button
-│ └── Version tags
+│   ├── Top level title
+│   ├── Header links
+│   ├── Server dropdown component
+│   ├── Authorise button
+│   └── Version tags
 ├── API DOCUMENTATION
-│ ├── Section headers
-│ ├── Closed Accordion
-│ │ ├── GET tag
-│ │ └── Icons
-│ ├── Open accordion
-│ │ ├── Sub-section headers
-│ │ ├── Spacing
-│ │ ├── Parameter section
-│ │ │ └── Cancel button
-│ │ ├── Response table
-│ │ └── Default section
-│ ├── Font overrides
-│ ├── Div spacing
-│ └── Authorisation modal
+│   ├── Section headers
+│   ├── Closed Accordion
+│   │   ├── GET tag
+│   │   └── Icons
+│   ├── Open accordion
+│   │   ├── Sub-section headers
+│   │   ├── Spacing
+│   │   ├── Parameter section
+│   │   │   └── Cancel button
+│   │   ├── Response table
+│   │   └── Default section
+│   ├── Font overrides
+│   ├── Div spacing
+│   └── Authorisation modal
 └── SCHEMA DOCUMENTATION
-├── Accordion
-└── Spacing
+    ├── Accordion
+    └── Spacing
 
 ```
