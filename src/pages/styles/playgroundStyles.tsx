@@ -1,6 +1,21 @@
 import { createGlobalStyle } from 'styled-components';
 
 const PlaygroundStyle = createGlobalStyle`
+
+:root {
+  --oak-black: #222222;
+  --oak-white: #FFFFFF;
+  --link-active: #0d24c4;
+  --pink-30: #f5e9f2;
+  --pink: #deb7d5;
+  --lavender: #a0b6f2;
+  --lavender-30: #e3e9fb;
+  --mint-30: #EBFBEB;
+  --mint: #BEF2BD;
+  --grey-10: #f9f9f9;
+  --grey-20: #f2f2f2
+}
+
 div.swagger-ui,
 .swagger-ui label {
   font-family: 'Lexend', sans-serif;
@@ -8,8 +23,8 @@ div.swagger-ui,
 
 .swagger-ui .btn {
   font-family: 'Lexend', sans-serif;
-  background-color: black;
-  border-color: black;
+  background-color: var(--oak-black);
+  border-color: var(--oak-black);
   color: white;
   box-shadow: none;
   font-size: 16px;
@@ -23,7 +38,7 @@ div.swagger-ui,
   font-family: 'Lexend', sans-serif;
   font-size: 56px;
   font-weight: bold;
-  color: #222222;
+  color: var(--oak-black);
 }
 
 /* Header links */
@@ -31,14 +46,14 @@ div.swagger-ui,
   font-family: 'Lexend', sans-serif;
   font-size: 16px;
   font-weight: light;
-  color: #0d24c4;
+  color: var(--link-active);
 }
 
 .swagger-ui .info a {
   font-family: 'Lexend', sans-serif;
   font-size: 16px;
   font-weight: light;
-  color: #0d24c4;
+  color: var(--link-active);
 }
 
 /* Servers dropdown component */
@@ -46,12 +61,12 @@ div.swagger-ui,
   font-family: 'Lexend', sans-serif;
   font-size: 16px;
   font-weight: bold;
-  color: #222222;
+  color: var(--oak-black);
 }
 
 .swagger-ui select {
-  background-color:  #FFFFFF;
-  border-color:  #222222;
+  background-color:  var(--oak-white);
+  border-color:  var(--oak-black);
   border-width: 2px;
   border-radius: 4px;
   box-shadow: none;
@@ -62,9 +77,9 @@ div.swagger-ui,
   font-family: 'Lexend', sans-serif;
   font-size: 16px;
   font-weight: lighter;
-  color: #222222;
+  color: var(--oak-black);
   padding: 12px 16px 12px;
-  background-color: #ffffff;
+  background-color: var(--oak-white);
   max-width: 100%;
   min-width: 130px;
   width: 100%;
@@ -76,9 +91,9 @@ div.swagger-ui,
   font-size: 16px;
   font-weight: bold;
   color: white;
-  background-color: black;
+  background-color: var(--oak-black);
   padding: 12px 16px 12px;
-  border-color: black;
+  border-color: var(--oak-black);
 }
 
 .swagger-ui .btn.authorize svg {
@@ -94,19 +109,19 @@ div.swagger-ui,
 .swagger-ui .info .title small pre {
   font-family: 'Lexend', sans-serif;
   font-size: 16px;
-  color: black;
+  color: var(--oak-black);
   border-radius: 4px;
   font-weight: 600;
-  background-color: #f5e9f2;
+  background-color: var(--pink-30);
   border-width: 2px;
   padding: 4px;
   border-width: 2px;
-  border-color: #a0b6f2;
+  border-color: var(--lavender);
 }
 
 .swagger-ui .info .title small.version-stamp pre {
-  background-color: #e3e9fb;
-  border-color: #deb7d5;
+  background-color: var(--lavender-30);
+  border-color: var(--pink);
 }
 
 .swagger-ui .info .title small {
@@ -120,14 +135,15 @@ div.swagger-ui,
   font-family: 'Lexend', sans-serif;
   font-size: 32px;
   font-weight: bold;
-  color: #222222;
+  color: var(--oak-black);
 }
 
 /* Accordion */
 .swagger-ui .opblock.opblock-get .opblock-summary {
-  color: #222222;
-  background:  #EBFBEB;
-  border-color:  #93E892;
+  color: var(--oak-black);
+  background:  var(--mint-30);
+  border-color:  var(--mint);
+  border-bottom-color: var(--mint);
   border-radius: 2px;
   box-shadow: none;
 }
@@ -137,32 +153,32 @@ div.swagger-ui,
   font-family: 'Lexend', sans-serif;
   font-size: 20px;
   font-weight: bold;
-  color: #222222;
+  color: var(--oak-black);
 }
 
 /* GET tag */
 .swagger-ui .opblock.opblock-get {
-  background: #ebfbeb;
-  border-color: #93e892;
+  background: var(--mint-30);
+  border-color: var(--mint);
   border-radius: 2px;
   box-shadow: none;
   margin-bottom: 12px;
 }
 
 .swagger-ui .opblock.opblock-get .opblock-summary-method {
-  background: #93e892;
+  background: var(--mint);
 }
 
 /* Auth & copy icons */
 .swagger-ui .opblock .opblock-summary .view-line-link.copy-to-clipboard svg,
 .swagger-ui .authorization__btn .unlocked {
-  fill: black;
+  fill: var(--oak-black);
   opacity: 1;
 }
 
 .swagger-ui .copy-to-clipboard {
-  background: black;
-  color: #93e892;
+  background: var(--oak-black);
+  color: var(--mint);
 }
 
 /* ACCORDION */
@@ -172,14 +188,14 @@ div.swagger-ui,
   font-family: 'Lexend', sans-serif;
   font-size: 32px;
   font-weight: bold;
-  color: #222222;
+  color: var(--oak-black);
 }
 
 .swagger-ui .model-title {
   font-family: 'Lexend', sans-serif;
   font-size: 16px;
   font-weight: bold;
-  color: #222222;
+  color: var(--oak-black);
 }
 
 .swagger-ui .model {
@@ -189,7 +205,7 @@ div.swagger-ui,
 
 /* Accordion spacing */
 .swagger-ui section.models .model-container {
-  background-color: #f2f2f2;
+  background-color: var(--grey-20);
   border-radius: 4px;
   margin-bottom: 12px;
 }
@@ -202,27 +218,35 @@ div.swagger-ui,
 }
 
 .swagger-ui .opblock-body {
-  background-color: #f9f9f9;
+  background-color: var(--grey-10);
 }
 
 /* Parameter section  */
-.swagger-ui .parameters-col_description input {
-  font-family: 'Lexend', sans-serif;
-  border-color: 808080;
-  color: 808080;
-  border-radius: 4px;
-  border-width: 2px;
-}
 
 .swagger-ui .parameter__name.required span,
 .swagger-ui .parameter__name.required:after {
   font-family: 'Lexend', sans-serif;
-  color: black;
+  color: var(--oak-black);
   font-weight: 400;
 }
 
+.swagger-ui .parameters-col_description select,
+.swagger-ui .parameters-col_description input,
+.swagger-ui .parameters-col_description input &:focus,
+.swagger-ui .parameters-col_description select &:focus  {
+  border-width: 2px;
+  border-color: var(--oak-black);
+  border-radius: 4px;
+  outline-color: var(--oak-black);
+}
+
 .swagger-ui .opblock.opblock-get .tab-header .tab-item.active h4 span:after {
-  background: black;
+  background: var(--oak-black);
+}
+
+.swagger-ui .btn.execute {
+  background-color: var(--oak-black);
+  border-color: var(--oak-black);
 }
 
 /* Annoyingly we have to override the font-family a lot because, Swagger */
@@ -258,8 +282,8 @@ div.swagger-ui,
 }
 
 .swagger-ui .response-control-media-type--accept-controller select {
-  color: #222222;
-  border-color: #222222;
+  color: var(--oak-black);
+  border-color: var(--oak-black);
   border-radius: 4px;
   border-width: 2px;
   padding: 12px 16px 12px;
