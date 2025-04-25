@@ -333,29 +333,31 @@ async function getUnitSummaries(
 
       log(`${++currentLessonCtr}/${totalLessonCount}: ${lesson.lessonSlug}`);
 
+      if (assetsAllowed) {
+        // capture and store captions and transcript in a separate file from lessons.jsonl
+        const transcript = lesson.transcript_sentences;
+        const vtt = lesson.transcript_vtt;
+
+        // remove transcript from lesson object so it's not stored
+        delete lesson.transcript_sentences;
+        delete lesson.transcript_vtt;
+
+        await fs.appendFile(
+          `${sequenceDir}/transcripts.jsonl`,
+          JSON.stringify({
+            lessonSlug: lesson.lessonSlug,
+            transcript,
+            vtt,
+          }) + '\n',
+        );
+      }
+
       if (processAssets) {
         if (!assetsAllowed) {
           log(
             `Skipping lesson ${lesson.lessonSlug} assets - not in allowed subjects/units list`,
           );
         } else {
-          // capture and store captions and transcript in a separate file from lessons.jsonl
-          const transcript = lesson.transcript_sentences;
-          const vtt = lesson.transcript_vtt;
-
-          // remove transcript from lesson object so it's not stored
-          delete lesson.transcript_sentences;
-          delete lesson.transcript_vtt;
-
-          await fs.appendFile(
-            `${sequenceDir}/transcripts.jsonl`,
-            JSON.stringify({
-              lessonSlug: lesson.lessonSlug,
-              transcript,
-              vtt,
-            }) + '\n',
-          );
-
           // Process video
           try {
             const url = await getVideoFromMux(
@@ -813,42 +815,44 @@ for (const s of sequences) {
 
   await fs.mkdir(sequenceDir, { recursive: true });
 
-  // Create tarballs for different asset types
-  const worksheetsOutput = createWriteStream(
-    `${sequenceDir}/${s.sequenceSlug}-worksheets.tar`,
-  );
-  const worksheetsPack = tar.pack();
-  worksheetsPack.pipe(worksheetsOutput);
+  const assetPacks: AssetPacks = {};
 
-  // Create slide decks tarball
-  const slideDecksOutput = createWriteStream(
-    `${sequenceDir}/${s.sequenceSlug}-slide-decks.tar`,
-  );
-  const slideDecksPack = tar.pack();
-  slideDecksPack.pipe(slideDecksOutput);
+  if (processAssets) {
+    // Create tarballs for different asset types
+    const worksheetsOutput = createWriteStream(
+      `${sequenceDir}/${s.sequenceSlug}-worksheets.tar`,
+    );
+    const worksheetsPack = tar.pack();
+    worksheetsPack.pipe(worksheetsOutput);
 
-  // Create quizzes tarball
-  const quizzesOutput = createWriteStream(
-    `${sequenceDir}/${s.sequenceSlug}-quizzes.tar`,
-  );
-  const quizzesPack = tar.pack();
-  quizzesPack.pipe(quizzesOutput);
+    // Create slide decks tarball
+    const slideDecksOutput = createWriteStream(
+      `${sequenceDir}/${s.sequenceSlug}-slide-decks.tar`,
+    );
+    const slideDecksPack = tar.pack();
+    slideDecksPack.pipe(slideDecksOutput);
 
-  // Create supplementary resources tarball
-  const resourcesOutput = createWriteStream(
-    `${sequenceDir}/${s.sequenceSlug}-resources.tar`,
-  );
-  const resourcesPack = tar.pack();
-  resourcesPack.pipe(resourcesOutput);
+    // Create quizzes tarball
+    const quizzesOutput = createWriteStream(
+      `${sequenceDir}/${s.sequenceSlug}-quizzes.tar`,
+    );
+    const quizzesPack = tar.pack();
+    quizzesPack.pipe(quizzesOutput);
 
-  // Create asset packs object
-  const assetPacks: AssetPacks = {
-    worksheets: worksheetsPack,
-    slideDecks: slideDecksPack,
-    starterQuizzes: quizzesPack,
-    exitQuizzes: quizzesPack,
-    supplementaryResources: resourcesPack,
-  };
+    // Create supplementary resources tarball
+    const resourcesOutput = createWriteStream(
+      `${sequenceDir}/${s.sequenceSlug}-resources.tar`,
+    );
+    const resourcesPack = tar.pack();
+    resourcesPack.pipe(resourcesOutput);
+
+    // Create asset packs object
+    assetPacks.worksheets = worksheetsPack;
+    assetPacks.slideDecks = slideDecksPack;
+    assetPacks.starterQuizzes = quizzesPack;
+    assetPacks.exitQuizzes = quizzesPack;
+    assetPacks.supplementaryResources = resourcesPack;
+  }
 
   await fs.writeFile(
     `${sequenceDir}/sequence.json`,
@@ -857,11 +861,14 @@ for (const s of sequences) {
 
   await getUnitSummaries(s.sequenceSlug, sequence, assetPacks);
 
-  // Finalize all tarballs
-  worksheetsPack.finalize();
-  slideDecksPack.finalize();
-  quizzesPack.finalize();
-  resourcesPack.finalize();
+  if (processAssets) {
+    // Finalize all tarballs
+    if (assetPacks.worksheets) assetPacks.worksheets.finalize();
+    if (assetPacks.slideDecks) assetPacks.slideDecks.finalize();
+    if (assetPacks.starterQuizzes) assetPacks.starterQuizzes.finalize();
+    if (assetPacks.supplementaryResources)
+      assetPacks.supplementaryResources.finalize();
+  }
 
   // this is picked up by build-bulk-download-videos.sh
   await fs.appendFile(
