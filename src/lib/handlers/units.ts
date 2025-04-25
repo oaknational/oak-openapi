@@ -26,7 +26,7 @@ export const output = z.object({
   unitTitle: z.string(),
   tags: z.array(z.string()),
   yearSlug: z.string(),
-  year: z.number(),
+  year: z.union([z.number(), z.string({ description: 'All years' })]),
   phaseSlug: z.string(),
   subjectSlug: z.string(),
   keyStageSlug: z.string(),
@@ -216,7 +216,7 @@ export function formatUnitSummary(
 
   type Metadata = {
     unitTitle: string;
-    year: number;
+    year: number | 'All years';
     yearSlug: string;
     phaseSlug: string;
     subjectSlug: string;
@@ -241,8 +241,14 @@ export function formatUnitSummary(
 
   metadata.unitTitle = sequenceData.title;
   metadata.description = sequenceData.description;
-  metadata.yearSlug = `year-${sequenceData.year}`;
-  metadata.year = parseInt(sequenceData.year, 10);
+
+  if (sequenceData.year === 'all-years') {
+    metadata.yearSlug = `all-years`;
+    metadata.year = 'All years';
+  } else {
+    metadata.yearSlug = `year-${sequenceData.year}`;
+    metadata.year = parseInt(sequenceData.year, 10);
+  }
   metadata.phaseSlug = sequenceData.phase_slug;
 
   // note that it's intentional that the examboard is NOT included in the zod
