@@ -310,6 +310,13 @@ async function getUnitSummaries(
   for (const unitSlug of unitSlugs) {
     const unit = getUnit(sequence, unitSlug);
 
+    if (
+      unitSlug ===
+      'swimming-an-introduction-to-core-aquatic-skills-and-survival-swimming'
+    ) {
+      console.log(JSON.stringify(unit, null, 2));
+    }
+
     if (!unit) {
       logError(`Unit not found: ${unitSlug}`);
       continue;
@@ -654,9 +661,21 @@ async function getAllSequenceData(
 
   const res: SequenceView = await client.request(query, { where });
 
-  let units = res[sequenceView].map((_) =>
-    formatUnitSummary(_.slug, _),
-  ) as UnitWithExamBoards[];
+  // before the unit is cleaned up, we need to check for features and do the
+  // modifications to the unit
+
+  let units = res[sequenceView]
+    .map((_) => {
+      if (_.features?.pe_swimming) {
+        return {
+          ..._,
+          year: 'all-years',
+        };
+      }
+
+      return _;
+    })
+    .map((_) => formatUnitSummary(_.slug, _)) as UnitWithExamBoards[];
 
   // some units will appear more than once. equally, if the sequence string
   // ends with `-secondary` then we need to add the exam boards to the object
