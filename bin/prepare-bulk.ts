@@ -290,7 +290,7 @@ async function downloadQuiz(
 
 async function getUnitSummaries(
   slug: string,
-  sequence: UnitSchema[],
+  sequence: UnitWithExamBoards[],
   packs: AssetPacks,
 ) {
   // Ensure the sequence directory exists
@@ -310,13 +310,6 @@ async function getUnitSummaries(
   for (const unitSlug of unitSlugs) {
     const unit = getUnit(sequence, unitSlug);
 
-    if (
-      unitSlug ===
-      'swimming-an-introduction-to-core-aquatic-skills-and-survival-swimming'
-    ) {
-      console.log(JSON.stringify(unit, null, 2));
-    }
-
     if (!unit) {
       logError(`Unit not found: ${unitSlug}`);
       continue;
@@ -324,11 +317,6 @@ async function getUnitSummaries(
 
     const lessonData = await getAllLessonData(unitSlug);
     log(`Processing unit: ${unitSlug} with ${lessonData.length} lessons`);
-
-    await fs.appendFile(
-      `${sequenceDir}/units.jsonl`,
-      JSON.stringify(unit) + '\n',
-    );
 
     const assetLinks = await getAllLessonAssets(
       lessonData.map((_) => _.lessonSlug),
@@ -612,8 +600,10 @@ async function getAllLessonData(unitSlug: string): Promise<Lesson[]> {
   }, []);
 }
 
-type UnitWithExamBoards = UnitSchema & {
-  examBoards?: TitleSlug[];
+type ExamBoard = TitleSlug & { examSubjectTitle?: string };
+
+type UnitWithExamBoards = Omit<UnitSchema, 'phaseSlug' | 'subjectSlug'> & {
+  examBoards?: ExamBoard[];
 };
 
 async function getAllSequenceData(
@@ -632,6 +622,7 @@ async function getAllSequenceData(
         title
         threads
         slug
+        actions
         domain
         examboard
         examboard_slug
@@ -639,11 +630,6 @@ async function getAllSequenceData(
         order
         pathway
         pathway_slug
-        phase
-        subject
-        subjectcategories
-        subject_parent
-        subject_slug
         tier
         features
         actions
@@ -653,18 +639,19 @@ async function getAllSequenceData(
 
         description
         lessons
-        phase_slug
         why_this_why_now
+        prior_knowledge_requirements
+        national_curriculum_content
 
       }
   }`;
 
-  const res: SequenceView = await client.request(query, { where });
+  const queryResult: SequenceView = await client.request(query, { where });
 
   // before the unit is cleaned up, we need to check for features and do the
   // modifications to the unit
 
-  let units = res[sequenceView]
+  let units = queryResult[sequenceView]
     .map((_) => {
       if (_.features?.pe_swimming) {
         return {
@@ -698,9 +685,17 @@ async function getAllSequenceData(
         delete unit.examboard;
         delete unit.examboardSlug;
 
-        const localExamBoards: TitleSlug[] = [
+        const localExamBoards: ExamBoard[] = [
           { title: examboard, slug: examboardSlug },
         ];
+
+        const subjectOverride =
+          queryResult[sequenceView][i].actions?.programme_field_overrides
+            ?.subject;
+
+        if (subjectOverride) {
+          localExamBoards[0].examSubjectTitle = subjectOverride;
+        }
 
         // now find if there's any other units with the same slug
         allUnits.forEach((_, j) => {
@@ -709,10 +704,15 @@ async function getAllSequenceData(
           }
           if (_.unitSlug === unit.unitSlug) {
             if (_.examboard && _.examboardSlug) {
-              localExamBoards.push({
+              const res: ExamBoard = {
                 title: _.examboard,
                 slug: _.examboardSlug,
-              });
+              };
+
+              if (subjectOverride) {
+                res.examSubjectTitle = subjectOverride;
+              }
+              localExamBoards.push(res);
             }
           }
         });
@@ -733,6 +733,7 @@ async function getAllSequenceData(
 
 interface SlimSequenceResult {
   sequenceSlug: string;
+  subjectTitle: string;
   ks4Options?: TitleSlug[];
 }
 
@@ -741,12 +742,14 @@ function phaseToSequences(subject: SubjectPhase): SlimSequenceResult[] {
     if (phase.slug === 'secondary' && subject.ks4_options) {
       return {
         sequenceSlug: `${subject.slug}-${phase.slug}`,
+        subjectTitle: subject.title,
         ks4Options: subject.ks4_options,
       };
     }
 
     return {
       sequenceSlug: `${subject.slug}-${phase.slug}`,
+      subjectTitle: subject.title,
     };
   });
 }
@@ -790,7 +793,7 @@ async function getAllSubjects() {
   return reply;
 }
 
-function getUnit(sequence: UnitSchema[], unit: string) {
+function getUnit(sequence: UnitWithExamBoards[], unit: string) {
   const found = sequence.find((_) => _.unitSlug === unit);
 
   if (!found) {
