@@ -158,7 +158,11 @@ type WhereCondition = {
   }>;
 };
 
-export function sequenceWhere(sequence: string, year?: string) {
+export function sequenceWhere(
+  sequence: string,
+  year?: string,
+  ignorePathway = false,
+) {
   const { phaseSlug, subjectSlug, ks4OptionSlug } =
     parseSubjectPhaseSlug(sequence);
 
@@ -215,13 +219,18 @@ export function sequenceWhere(sequence: string, year?: string) {
       }
     : { pathway_slug: { _is_null: true } };
 
-  return {
+  const res = {
     ...baseWhere,
-    _and: [
-      ...baseWhere._and,
-      isExamboard ? examboardCondition : pathwayCondition,
-    ],
+    _and: [...baseWhere._and],
   };
+
+  if (isExamboard) {
+    res._and.push(examboardCondition as WhereCondition['_and'][0]);
+  } else if (!ignorePathway) {
+    res._and.push(pathwayCondition as WhereCondition['_and'][0]);
+  }
+
+  return res;
 }
 
 export const getSequences = router({
