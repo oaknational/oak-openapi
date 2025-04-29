@@ -335,21 +335,25 @@ async function getUnitSummaries(
 
       if (assetsAllowed) {
         // capture and store captions and transcript in a separate file from lessons.jsonl
-        const transcript = lesson.transcript_sentences;
+        let transcript = lesson.transcript_sentences;
         const vtt = lesson.transcript_vtt;
 
         // remove transcript from lesson object so it's not stored
         delete lesson.transcript_sentences;
         delete lesson.transcript_vtt;
 
-        await fs.appendFile(
-          `${sequenceDir}/transcripts.jsonl`,
-          JSON.stringify({
-            lessonSlug: lesson.lessonSlug,
-            transcript,
-            vtt,
-          }) + '\n',
-        );
+        if (transcript) {
+          // retrospective fix to remove tags still in the transcript
+          transcript = transcript.replace(/<[^>]*>/g, '');
+          await fs.appendFile(
+            `${sequenceDir}/transcripts.jsonl`,
+            JSON.stringify({
+              lessonSlug: lesson.lessonSlug,
+              transcript,
+              vtt,
+            }) + '\n',
+          );
+        }
       }
 
       if (processAssets) {
