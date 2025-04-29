@@ -11,7 +11,6 @@ import {
 } from 'lib/owaClient';
 import { z } from 'zod';
 import { blockUnitForCopyrightText } from '../queryGate';
-import { defaultCaching } from '../networkCache';
 
 const threadSchema = z.object({
   slug: z.string(),
@@ -56,7 +55,7 @@ export type UnitSchema = z.infer<typeof output> & {
 
 export const getUnits = router({
   getUnit: protectedProcedure
-    .use(defaultCaching)
+
     .meta({
       openapi: {
         method: 'GET',
