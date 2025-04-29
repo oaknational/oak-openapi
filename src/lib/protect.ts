@@ -1,8 +1,20 @@
 import { TRPCError } from '@trpc/server';
 import { t } from '~/lib/trpc';
-import { RateLimitInfo, rateLimiter, rateLimits } from './rateLimit';
+import {
+  RateLimitInfo,
+  rateLimiter,
+  rateLimits,
+  defaultRateLimit,
+} from './rateLimit';
 
-const rateLimit = rateLimiter(rateLimits.standard);
+export const getRateLimiter = (userLimit: number | undefined | null) => {
+  if (userLimit !== defaultRateLimit && typeof userLimit === 'number') {
+    return rateLimiter(rateLimits.custom(userLimit));
+  } else {
+    // we want to use the standard rate limit otherwise
+    return rateLimiter(rateLimits.standard);
+  }
+};
 
 export const protectedProcedure = t.procedure.use(
   async ({ ctx, next, meta }) => {
@@ -20,6 +32,7 @@ export const protectedProcedure = t.procedure.use(
     let limit: RateLimitInfo | undefined;
 
     if (user) {
+      const rateLimit = getRateLimiter(user.rateLimit);
       limit = await rateLimit.check(user, noCost);
       if (limit.isSubjectToRateLimiting) {
         ctx.res.setHeader('X-RateLimit-Limit', limit.limit);

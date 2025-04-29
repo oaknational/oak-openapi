@@ -1,10 +1,7 @@
 import { router } from '~/lib/trpc';
 import { z } from 'zod';
-import { rateLimiter, rateLimits } from '../rateLimit';
 import { TRPCError } from '@trpc/server';
-import { protectedProcedure } from '../protect';
-
-const rateLimit = rateLimiter(rateLimits.standard);
+import { protectedProcedure, getRateLimiter } from '../protect';
 
 export const getRateLimit = router({
   getRateLimit: protectedProcedure
@@ -50,6 +47,7 @@ export const getRateLimit = router({
         });
       }
 
+      const rateLimit = getRateLimiter(user.rateLimit);
       const rate = await rateLimit.check(user, true);
 
       if (rate.isSubjectToRateLimiting) {

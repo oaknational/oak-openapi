@@ -47,7 +47,7 @@ const subjectResult = z.object({
 const subjectsResult = z.array(subjectResult);
 export type SubjectsResult = z.infer<typeof subjectsResult>;
 
-function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
+export function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
   const keyStageLookup: Record<string, string[]> = {
     primary: ['ks1', 'ks2'],
     secondary: ['ks3', 'ks4'],
@@ -94,13 +94,13 @@ function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
   return sequences;
 }
 
-function phaseToKeyStages(subject: SubjectPhase) {
+export function phaseToKeyStages(subject: SubjectPhase) {
   return subject.keystages.map(({ slug, title }) => {
     return { keyStageSlug: slug, keyStageTitle: title };
   });
 }
 
-function yearsFromKeyStages(
+export function yearsFromKeyStages(
   keyStages: { keyStageSlug: string; keyStageTitle: string }[],
 ) {
   const years = keyStages.reduce((acc: number[], { keyStageSlug }) => {
@@ -137,6 +137,7 @@ async function getSubjectPhase(subject: string): Promise<SubjectPhase> {
       where: {
         cycle: { _eq: $currentCycle }
         slug: { _eq: $subject }
+        _not: {slug: {_eq: "financial-education"}}
       }
     ) {
       title
@@ -153,7 +154,11 @@ async function getSubjectPhase(subject: string): Promise<SubjectPhase> {
     subject,
   });
 
-  if (!res || !Array.isArray(res[subjectPhaseView])) {
+  if (
+    !res ||
+    !Array.isArray(res[subjectPhaseView]) ||
+    res[subjectPhaseView].length === 0
+  ) {
     throw new TRPCError({
       message: 'Subject not found',
       code: 'NOT_FOUND',
@@ -249,11 +254,13 @@ export const getSubjects = router({
     .query(async () => {
       const client = getClient();
       // slug: { _nin: $blocked }
+      // filtering out financial education - this will be replaced once RHSE units are published
       const query = gql`
       query ($currentCycle: String!) @cached(ttl: 300) {
         ${subjectPhaseView}(
           where: {
             cycle: { _eq: $currentCycle }
+            _not: {slug: {_eq: "financial-education"}}
           }
           order_by: { display_order: asc }
         ) {
