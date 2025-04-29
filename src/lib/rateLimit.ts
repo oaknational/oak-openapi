@@ -12,6 +12,13 @@ export const rateLimits = {
     // github is 5000/hour as an arbitrary reference
     limiter: RateLimit.slidingWindow(defaultRateLimit, '1 h'),
   }),
+  custom: (limit: number) =>
+    new RateLimit({
+      redis,
+      prefix: `rateLimit:${limit}-`,
+      analytics: true,
+      limiter: RateLimit.slidingWindow(limit, '1 h'),
+    }),
 } as const;
 
 export type RateLimitInfo =
@@ -66,7 +73,7 @@ export const rateLimiter = (rateLimit: RateLimit): RateLimiter => {
 
         return {
           isSubjectToRateLimiting: true,
-          limit: defaultRateLimit,
+          limit: user.rateLimit ?? defaultRateLimit,
           remaining: res.remaining,
           reset: res.reset,
         };

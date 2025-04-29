@@ -62,8 +62,8 @@ For example, an internal error would throw as such:
 
 ```ts
 throw new TRPCError({
- message: 'Unexpected answer type',
- code: 'INTERNAL_SERVER_ERROR',
+  message: 'Unexpected answer type',
+  code: 'INTERNAL_SERVER_ERROR',
 });
 ```
 
@@ -71,9 +71,9 @@ A user error (such as an unknown subject is requested) is:
 
 ```ts
 throw new TRPCError({
-   message: `Invalid subject: ${res.subjectSlug}`,
-   code: 'BAD_REQUEST',
- });
+  message: `Invalid subject: ${res.subjectSlug}`,
+  code: 'BAD_REQUEST',
+});
 ```
 
 ## Analytics / Logging
@@ -90,6 +90,24 @@ In datadog, under the `open-api.thenational.academy` service, each request is lo
 2. `url` requested (this is different from `path` which is always the `[...trpc]` path)
 3. `query` which includes arguments passed (such as `year` on endpoints) and `trpc` arguments (that slot into the endpoint URL).
 
+## Batch requests for video urls
+
+In some cases, whilst we don't have the bulk download features up and running, a 3rd party may require direct Mux URLs to videos.
+
+A script is available to generate this. You will need the following prerequisites:
+
+1. `OAK_GRAPHQL_HOST` pointing to production Hasura (to ensure the latest data)
+2. `MUX_TOKEN` with read access as some videos won't be available and the Mux API is required to both find the static renditions, but also (in future) render the static mp4 files when entirely missing
+3. A JSON file containing an array of strings, those strings being the lesson slugs
+
+Assuming your environment is in place, and assuming that your slugs are in `./slugs.json`, run the following command:
+
+```sh
+pnpx tsx bin/get-direct-video-links.ts ./slugs.json > results.csv
+```
+
+The results.csv file is a CSV (without a header) that contains the URL and the lesson slug. This is to help ensure that the order is aligned to the original list.
+
 ## Infrastructure
 
 - TypeScript across nearly all code (exceptions being eslint config and next config)
@@ -99,6 +117,49 @@ In datadog, under the `open-api.thenational.academy` service, each request is lo
 - zod to define the types
 - trpc-openapi to add the openapi metadata
 - graphql and some direct sql is used against the Oak Web Application (OWA) hasura based database
+
+# Bulk Download
+
+The bulk download feature allows you to download all assets (videos, worksheets, slide decks, quizzes, etc.) for entire sequences, organized into tar archives.
+
+## Using the Bulk Download Script
+
+The prepare-bulk.ts script creates organized archives of Oak educational content for offline use.
+
+### Prerequisites
+
+1. Access to Oak's Google Cloud Storage (set via `GOOGLE_APPLICATION_CREDENTIALS_JSON` env variable)
+2. Database access (set via `DATABASE_URL` env variable)
+3. OWA Hasura access (for GraphQL queries)
+
+### Running the Script
+
+To generate bulk download packages:
+
+```sh
+pnpx tsx bin/prepare-bulk.ts
+```
+
+### Output Structure
+
+The script generates a directory structure in the `out` folder organized by sequence:
+
+```
+out/
+  └── {sequence-slug}/
+      ├── sequence.json           # Metadata about the sequence
+      ├── units.jsonl             # Information about each unit
+      ├── lessons.jsonl           # Details about each lesson including asset references
+      ├── {sequence-slug}-videos.tar       # Archive of all video files
+      ├── {sequence-slug}-worksheets.tar   # Archive of all worksheets and answer sheets
+      ├── {sequence-slug}-slide-decks.tar  # Archive of all presentation files
+      ├── {sequence-slug}-quizzes.tar      # Archive of all starter and exit quizzes
+      └── {sequence-slug}-resources.tar    # Archive of all supplementary resources
+```
+
+Each file inside the tar archives is named with the sequence slug prefix (e.g., `math-primary-lesson1.mp4`).
+
+The lessons.jsonl file contains references to all assets for each lesson, using the format `{tar-filename}:{file-path-in-tar}`.
 
 # Load testing
 
@@ -114,3 +175,51 @@ How to run:
 ## Required env values
 
 Complete the values in `.env.example` and rename to `.env`
+
+# Styling
+
+To stay consistent with Oak repositories, all styling should be done via `styled-components`. The `pages` folder contains the following:
+
+```
+pages/
+  └── styles/
+      ├── playgroundStyles.tsx           # Metadata about the sequence
+      └──  playground.css             # Information about each unit
+```
+
+1. To update the styling of the playground, have a look through the `playground.css` folder first, to identify if the selectors for the required component already exist.
+
+2. To view local changes, you can edit the `playgroundStyles.tsx` directly. Just make sure once the styling is updated, that the corresponding css file includes the changes and the tree below is updated.
+
+The CSS file is sectioned into several sections as referenced below:
+
+```
+
+playground.css/
+├── PAGE GENERICS
+├── HEADER
+│   ├── Top level title
+│   ├── Header links
+│   ├── Server dropdown component
+│   ├── Authorise button
+│   └── Version tags
+├── API DOCUMENTATION
+│   ├── Section headers
+│   ├── Closed Accordion
+│   │   ├── GET tag
+│   │   └── Icons
+│   ├── Open accordion
+│   │   ├── Sub-section headers
+│   │   ├── Spacing
+│   │   ├── Parameter section
+│   │   │   └── Cancel button
+│   │   ├── Response table
+│   │   └── Default section
+│   ├── Font overrides
+│   ├── Div spacing
+│   └── Authorisation modal
+└── SCHEMA DOCUMENTATION
+    ├── Accordion
+    └── Spacing
+
+```

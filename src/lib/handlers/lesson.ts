@@ -167,7 +167,8 @@ export const getLessons = router({
       if (blocked) {
         response.setHeader('Server-Timing', timing.toHeader(response));
         throw new TRPCError({
-          message: 'Lesson not available for this query',
+          message:
+            'Lesson not available for this query (blocked for copyright text)',
           code: 'NOT_FOUND',
         });
       }
@@ -321,7 +322,9 @@ export const getLessons = router({
         sqlWhere += ` AND "keyStageSlug" = '${keyStage.replace(/'/g, "''")}'`;
       }
 
-      const sql = `SELECT * from (SELECT "lessonSlug", SIMILARITY("lessonTitle", '${q}') FROM ${lessonViewTable} WHERE ${sqlWhere} group by "lessonSlug", "similarity") as a order by a.similarity desc limit 20`;
+      // Added clause to filter out finance lessons from search
+      const financeWhere = `"subjectSlug" <> 'financial-education'`;
+      const sql = `SELECT * from (SELECT "lessonSlug", SIMILARITY("lessonTitle", '${q}') FROM ${lessonViewTable} WHERE ${sqlWhere} AND ${financeWhere} group by "lessonSlug", "similarity") as a order by a.similarity desc limit 20`;
 
       const result = await querySQL(sql).then((res) => res.json());
 

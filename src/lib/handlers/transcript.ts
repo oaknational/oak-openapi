@@ -1,7 +1,12 @@
 import { protectedProcedure } from '~/lib/protect';
 import { router } from '~/lib/trpc';
 import { TRPCError } from '@trpc/server';
-import { getClient, gql } from 'lib/owaClient';
+import {
+  getClient,
+  gql,
+  LessonContentView,
+  lessonContentView,
+} from 'lib/owaClient';
 import { z } from 'zod';
 import { checkLessonAllowedAsset } from '../queryGate';
 
@@ -46,11 +51,9 @@ export const getLessonTranscript = router({
         });
       }
 
-      const view = 'published_mv_lesson_content_published_5_0_0';
-
       const query = gql`
         query ($slug: String!) {
-          ${view}(
+          ${lessonContentView}(
             where: { lesson_slug: { _eq: $slug } }
           ) {
             transcript_sentences
@@ -59,19 +62,12 @@ export const getLessonTranscript = router({
         }
       `;
 
-      type TranscriptResponse = {
-        [view]: {
-          transcript_sentences: string;
-          transcript_vtt: string;
-        }[];
-      };
-
-      const res: TranscriptResponse = await client.request(query, {
+      const res: LessonContentView = await client.request(query, {
         slug,
       });
 
-      const transcript = res[view][0]?.transcript_sentences;
-      const vtt = res[view][0]?.transcript_vtt;
+      const transcript = res[lessonContentView][0]?.transcript_sentences;
+      const vtt = res[lessonContentView][0]?.transcript_vtt;
 
       return { vtt: vtt.replace(/\r/g, ''), transcript };
     }),

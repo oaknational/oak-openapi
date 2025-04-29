@@ -4,13 +4,16 @@ export { gql } from 'graphql-request';
 
 export const currentCycle = '2';
 
-export const lessonView = 'published_mv_lesson_openapi_1_2_1';
+export const lessonView = 'published_mv_lesson_openapi_1_2_3';
+export const lessonContentView = 'published_mv_lesson_content_published_5_0_0';
 export const downloadView = 'published_mv_openapi_downloads_1_0_0';
 export const unitVariantLessonsView =
   'published_mv_synthetic_unitvariant_lessons_by_year_12_0_0';
-export const lessonViewTable = 'published.mv_lesson_openapi_1_2_1';
+export const lessonViewTable = 'published.mv_lesson_openapi_1_2_3';
+export const lessonContentViewTable =
+  'published.mv_lesson_content_published_5_0_0';
 export const subjectPhaseView = 'published_mv_subject_phase_options_0_11';
-export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_12';
+export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_15';
 
 export const views = [
   lessonView,
@@ -21,7 +24,7 @@ export const views = [
 ];
 
 export const sequenceViewWhereInput =
-  'published_mv_curriculum_sequence_b_13_0_12_bool_exp';
+  'published_mv_curriculum_sequence_b_13_0_15_bool_exp';
 
 export function querySQL(sql: string) {
   return fetch(`${process.env.OAK_GRAPHQL_HOST}/v1/query`, {
@@ -56,7 +59,7 @@ export type LessonDetail = {
 };
 
 export type SubjectPhaseView = {
-  published_mv_subject_phase_options_0_11: SubjectPhase[];
+  [subjectPhaseView]: SubjectPhase[];
 };
 
 export type SubjectPhase = {
@@ -69,21 +72,28 @@ export type SubjectPhase = {
   display_order: number;
 };
 
+export type LessonContentView = {
+  [lessonContentView]: {
+    transcript_sentences: string;
+    transcript_vtt: string;
+  }[];
+};
+
 export type SequenceView = {
-  published_mv_curriculum_sequence_b_13_0_12: Sequence[];
+  [sequenceView]: Sequence[];
 };
 
 export type UnitVariantLessonsView = {
-  published_mv_synthetic_unitvariant_lessons_by_year_12_0_0: UnitVariantLesson[];
+  [unitVariantLessonsView]: UnitVariantLesson[];
 };
 
 export type Sequence = TitleSlug & {
   unit_options: (TitleSlug & {
     why_this_why_now: string;
     description: string;
-    lessons: (TitleSlug & { order: number })[];
+    lessons: (TitleSlug & { order: number; _state: 'new' | 'published' })[];
   })[];
-  lessons: (TitleSlug & { order: number })[];
+  lessons: (TitleSlug & { order: number; _state: 'new' | 'published' })[];
   title: string;
   description: string;
   slug: string;
@@ -92,6 +102,7 @@ export type Sequence = TitleSlug & {
     order: number;
   })[];
   examboard_slug: string;
+  examboard: string;
   keystage_slug: string;
   notes: string;
   national_curriculum_content: { id: string; title: string }[];
@@ -183,7 +194,7 @@ export interface TitleSlug {
 }
 
 export type LessonView = {
-  published_mv_lesson_openapi_1_2_1: Lesson[];
+  published_mv_lesson_openapi_1_2_3: Lesson[];
 };
 
 // Note: where any is used, the structure is currently unknown/undocumented
