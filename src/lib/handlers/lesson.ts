@@ -14,7 +14,6 @@ import {
 import { z } from 'zod';
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
 import { blockLessonForCopyrightText } from '../queryGate';
-import { defaultCaching } from '../networkCache';
 import Timing from '~/lib/serverTimings';
 
 toSorted.shim();
@@ -74,7 +73,6 @@ type LessonSummary = z.infer<typeof lessonSummary>;
 
 export const getLessons = router({
   getLesson: protectedProcedure
-    .use(defaultCaching)
     .meta({
       openapi: {
         method: 'GET',
