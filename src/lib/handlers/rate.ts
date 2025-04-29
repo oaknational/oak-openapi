@@ -1,12 +1,10 @@
 import { router } from '~/lib/trpc';
 import { z } from 'zod';
-import { defaultCaching } from '../networkCache';
 import { TRPCError } from '@trpc/server';
 import { protectedProcedure, getRateLimiter } from '../protect';
 
 export const getRateLimit = router({
   getRateLimit: protectedProcedure
-    .use(defaultCaching)
     .meta({
       openapi: {
         method: 'GET',
