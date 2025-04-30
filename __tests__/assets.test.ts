@@ -106,7 +106,16 @@ test('request power point', async () => {
     type: 'exitQuiz',
   });
 
-  expect(request.setHeader.mock.lastCall[1].endsWith('.pdf"')).toBe(true);
+  expect(request.setHeader.mock.lastCall[1].endsWith('quiz.pdf"')).toBe(true);
+
+  await caller.getAssets.getLessonAsset({
+    lesson: 'checking-understanding-of-perimeter',
+    type: 'exitQuizAnswers',
+  });
+
+  expect(request.setHeader.mock.lastCall[1].endsWith('quizanswers.pdf"')).toBe(
+    true,
+  );
 });
 
 // this can be stored when we have more lessons that do actually redirect
