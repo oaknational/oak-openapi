@@ -838,8 +838,14 @@ export const getAssets = router({
           });
         }
 
-        // find the file with the correct extension
-        const found = list.find((file) => file.mimeType === mime);
+        // find the file with the correct extension (pptx) or file name for pdf
+        const found = list.find((file) => {
+          if (usePPTX) {
+            return file.mimeType === mime;
+          } else {
+            return file.name === bucket_path;
+          }
+        });
 
         if (found) {
           bucket_path = found.name;
