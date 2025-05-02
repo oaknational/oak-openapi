@@ -111,7 +111,7 @@ export type Sequence = TitleSlug & {
   pathway_slug: string;
   phase: string;
   phase_slug: string;
-  prior_knowledge_requirements: { id: string; title: string }[];
+  prior_knowledge_requirements: string[];
   subject: string;
   subject_parent: string;
   subject_slug: string;
