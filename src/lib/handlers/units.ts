@@ -23,9 +23,8 @@ type Thread = z.infer<typeof threadSchema>;
 export const output = z.object({
   unitSlug: z.string(),
   unitTitle: z.string(),
-  tags: z.array(z.string()),
   yearSlug: z.string(),
-  year: z.number(),
+  year: z.union([z.number(), z.string({ description: 'All years' })]),
   phaseSlug: z.string(),
   subjectSlug: z.string(),
   keyStageSlug: z.string(),
@@ -148,6 +147,9 @@ export const getUnits = router({
             year
             examboard
             examboard_slug
+
+            prior_knowledge_requirements
+            national_curriculum_content
           }
         }
       `;
@@ -174,7 +176,6 @@ export function formatUnitSummary(
   const isUnitVariant = testIfUnitVariant(slug);
   type RootUnitData = {
     unitTitle: string;
-    tags: string[];
     notes: string;
     threads: Thread[];
     priorKnowledgeRequirements: string[];
@@ -199,23 +200,36 @@ export function formatUnitSummary(
     }
   }
 
+  if (typeof sequenceData.prior_knowledge_requirements === 'string') {
+    try {
+      sequenceData.prior_knowledge_requirements = JSON.parse(
+        sequenceData.prior_knowledge_requirements,
+      );
+    } catch (e) {
+      // nop
+    }
+  }
+
   // we populate from the sequence view
   const root: RootUnitData = {
     unitTitle: sequenceData.title,
-    tags: sequenceData.tags || [],
     notes: sequenceData.notes,
     threads: sequenceData.threads,
-    priorKnowledgeRequirements: (
-      sequenceData.prior_knowledge_requirements || []
-    ).map(({ title }) => title),
-    nationalCurriculumContent: (
-      sequenceData.national_curriculum_content || []
-    ).map(({ title }) => title),
+    priorKnowledgeRequirements: Array.from(
+      new Set(sequenceData.prior_knowledge_requirements || []),
+    ),
+    nationalCurriculumContent: Array.from(
+      new Set(
+        (sequenceData.national_curriculum_content || []).map(
+          ({ title }) => title,
+        ),
+      ),
+    ),
   };
 
   type Metadata = {
     unitTitle: string;
-    year: number;
+    year: number | 'All years';
     yearSlug: string;
     phaseSlug: string;
     subjectSlug: string;
@@ -240,8 +254,14 @@ export function formatUnitSummary(
 
   metadata.unitTitle = sequenceData.title;
   metadata.description = sequenceData.description;
-  metadata.yearSlug = `year-${sequenceData.year}`;
-  metadata.year = parseInt(sequenceData.year, 10);
+
+  if (sequenceData.year === 'all-years') {
+    metadata.yearSlug = `all-years`;
+    metadata.year = 'All years';
+  } else {
+    metadata.yearSlug = `year-${sequenceData.year}`;
+    metadata.year = parseInt(sequenceData.year, 10);
+  }
   metadata.phaseSlug = sequenceData.phase_slug;
 
   // note that it's intentional that the examboard is NOT included in the zod
