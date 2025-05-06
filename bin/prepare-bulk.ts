@@ -335,6 +335,13 @@ async function getUnitSummaries(
 
       log(`${++currentLessonCtr}/${totalLessonCount}: ${lesson.lessonSlug}`);
 
+      if (lesson.transcript_sentences) {
+        lesson.transcript_sentences = lesson.transcript_sentences.replace(
+          /<[^>]*>/g,
+          '',
+        );
+      }
+
       if (processAssets) {
         if (!assetsAllowed) {
           log(
