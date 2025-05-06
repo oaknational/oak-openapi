@@ -307,6 +307,8 @@ async function getUnitSummaries(
 
   let currentLessonCtr = 0;
 
+  const lessons = [];
+
   for (const unitSlug of unitSlugs) {
     const unit = getUnit(sequence, unitSlug);
 
@@ -318,6 +320,11 @@ async function getUnitSummaries(
     const lessonData = await getAllLessonData(unitSlug);
     log(`Processing unit: ${unitSlug} with ${lessonData.length} lessons`);
 
+    if (!processAssets) {
+      lessons.push(lessonData);
+      continue;
+    }
+
     const assetLinks = await getAllLessonAssets(
       lessonData.map((_) => _.lessonSlug),
     );
@@ -327,25 +334,6 @@ async function getUnitSummaries(
       const assetsAllowed = isLessonAssetsAllowed(lesson);
 
       log(`${++currentLessonCtr}/${totalLessonCount}: ${lesson.lessonSlug}`);
-
-      if (assetsAllowed) {
-        // capture and store captions and transcript in a separate file from lessons.jsonl
-        const transcript = lesson.transcript_sentences;
-        const vtt = lesson.transcript_vtt;
-
-        // remove transcript from lesson object so it's not stored
-        delete lesson.transcript_sentences;
-        delete lesson.transcript_vtt;
-
-        await fs.appendFile(
-          `${sequenceDir}/transcripts.jsonl`,
-          JSON.stringify({
-            lessonSlug: lesson.lessonSlug,
-            transcript,
-            vtt,
-          }) + '\n',
-        );
-      }
 
       if (processAssets) {
         if (!assetsAllowed) {
@@ -443,6 +431,8 @@ async function getUnitSummaries(
       }
     }
   }
+
+  return lessons;
 }
 
 interface LessonAsset {
@@ -876,12 +866,19 @@ for (const s of sequences) {
     assetPacks.supplementaryResources = resourcesPack;
   }
 
-  await fs.writeFile(
-    `${sequenceDir}/sequence.json`,
-    JSON.stringify({ ...s, sequence }),
-  );
+  const lessons = await getUnitSummaries(s.sequenceSlug, sequence, assetPacks);
 
-  await getUnitSummaries(s.sequenceSlug, sequence, assetPacks);
+  if (lessons.length) {
+    await fs.writeFile(
+      `${sequenceDir}/${s.sequenceSlug}.json`,
+      JSON.stringify({ ...s, sequence, lessons }),
+    );
+  } else {
+    await fs.writeFile(
+      `${sequenceDir}/sequence.json`,
+      JSON.stringify({ ...s, sequence }),
+    );
+  }
 
   if (processAssets) {
     // Finalize all tarballs
