@@ -38,12 +38,11 @@ export const protectedProcedure = t.procedure.use(
         ctx.res.setHeader('X-RateLimit-Limit', limit.limit);
         ctx.res.setHeader('X-RateLimit-Remaining', limit.remaining);
         ctx.res.setHeader('X-RateLimit-Reset', limit.reset);
-        if (limit.remaining <= 0) {
+        if (limit.remaining <= 0 && !noCost) {
           ctx.res.setHeader('X-Retry-After', limit.reset);
           ctx.res.statusCode = 429; // not sure this is needed, but belt & braces
 
-          // TODO: log this (properly) with the user's key
-          console.log('Rate limit exceeded for user %s', user.key);
+          // console.log('Rate limit exceeded for user %s', user.key);
 
           throw new TRPCError({
             message: 'Rate limited exceeded',
