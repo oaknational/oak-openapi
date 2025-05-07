@@ -33,6 +33,7 @@ import {
   isUnitSupported,
 } from '~/lib/queryGate';
 import { parseSubjectPhaseSlug } from '~/lib/sequenceSlugParser';
+import assert from 'node:assert';
 
 const processAssets = process.env.INCLUDE_ASSETS ? true : false;
 
@@ -321,7 +322,7 @@ async function getUnitSummaries(
     log(`Processing unit: ${unitSlug} with ${lessonData.length} lessons`);
 
     if (!processAssets) {
-      lessons.push(lessonData);
+      lessons.push(...lessonData);
       continue;
     }
 
@@ -438,6 +439,10 @@ async function getUnitSummaries(
       }
     }
   }
+
+  assert(lessons.length === totalLessonCount, 'Lesson count mismatch');
+
+  log(`Completed ${slug} total: ${totalLessonCount} lessons`);
 
   return lessons;
 }
