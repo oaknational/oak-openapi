@@ -20,8 +20,6 @@ out/
 
 Inside the tarballs, the files are named as `{lesson-slug}.{ext}`, for example `
 
-TODO add transcripts as the separate resource
-
 To run the script, use (for a single sequence `science-secondary`):
 
 ```
@@ -43,6 +41,18 @@ Processing involves collecting every unit, writing this to `units.jsonl`
 3. OWA Hasura access (for GraphQL queries via `OAK_GRAPHQL_HOST`)
 
 Typically the database url will point to the [local proxied](https://www.notion.so/oaknationalacademy/Using-a-remote-proxy-with-Hasura-instances-a08746d2d79a4c0f9ad28be4ae502ffa?pvs=4) database.
+
+## Required env values:
+
+- GOOGLE_APPLICATION_CREDENTIALS_JSON: Google Cloud credentials
+- DATABASE_URL: Database connection string
+- OAK_GRAPHQL_HOST: GraphQL host URL
+- OAK_GRAPHQL_SECRET: Authentication key for GraphQL API
+
+## Optional env value:
+
+- BUCKET_NAME: Storage bucket name - defaults to `oak_bulk_data_store`
+- INCLUDE_ASSETS: Flag for processing assets - defaults to `false`
 
 ## Key software
 
