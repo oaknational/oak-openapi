@@ -38,7 +38,7 @@ import assert from 'node:assert';
 const bucketName = process.env.BUCKET_NAME || 'oak_bulk_data_store';
 const processAssets = process.env.INCLUDE_ASSETS ? true : false;
 
-if (process.version < 'v22') {
+if (processAssets && process.version < 'v22') {
   // this is because node 18 leaves sockets open 😱
   console.error('Node version 22 or higher is required');
   process.exit(1);
