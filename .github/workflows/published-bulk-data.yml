@@ -1,0 +1,46 @@
+name: Daily bulk & upload
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # every day at 00:00 UTC
+  workflow_dispatch: # manual trigger
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    env:
+      GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+      GCS_BUCKET: ${{ secrets.GCS_BUCKET }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: Enable Corepack & activate pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate artefacts
+        run: pnpm bulk
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure gcloud
+        run: gcloud config set project $GCP_PROJECT
+
+      - name: Upload to Cloud Storage
+        uses: google-github-actions/upload-cloud-storage@v0
+        with:
+          path: 'out/**'
+          bucket: ${{ env.GCS_BUCKET }}

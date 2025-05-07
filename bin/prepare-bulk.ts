@@ -1,6 +1,6 @@
 // See README_BULK_DOWNLOAD.md for details
 import path from 'node:path';
-import { promises as fs, createWriteStream } from 'node:fs';
+import { promises as fs, createWriteStream, createReadStream } from 'node:fs';
 import readline from 'node:readline';
 import pg from 'pg';
 import 'renvy';
@@ -35,6 +35,7 @@ import {
 import { parseSubjectPhaseSlug } from '~/lib/sequenceSlugParser';
 import assert from 'node:assert';
 
+const bucketName = process.env.BUCKET_NAME || 'oak_bulk_data_store';
 const processAssets = process.env.INCLUDE_ASSETS ? true : false;
 
 if (process.version < 'v22') {
@@ -795,6 +796,33 @@ async function getAllSubjects() {
   return reply;
 }
 
+function uploadToStorage(sequenceDir: string, slug: string) {
+  return;
+
+  // let the workflow do this work for now
+
+  // now send the lesson to gcp storage under the `oak_bulk_data_store` bucket
+  const bucket = storage.bucket(bucketName);
+  const filePath = `${sequenceDir}/${slug}.json`;
+  const destination = `${slug}/${slug}.json`;
+  const file = bucket.file(destination);
+  const readStream = createReadStream(filePath);
+  const writeStream = file.createWriteStream({
+    resumable: false,
+    gzip: true, // reduces upload time by about 15 seconds
+  });
+  readStream.on('error', (err) => {
+    logError(`Error reading file: ${err}`);
+  });
+  writeStream.on('error', (err) => {
+    logError(`Error uploading file: ${err}`);
+  });
+  writeStream.on('finish', () => {
+    log(`File uploaded to ${bucketName}/${destination}`);
+  });
+  readStream.pipe(writeStream);
+}
+
 function getUnit(sequence: UnitWithExamBoards[], unit: string) {
   const found = sequence.find((_) => _.unitSlug === unit);
 
@@ -822,7 +850,6 @@ for (const s of sequences) {
   const sequence = await getAllSequenceData(s.sequenceSlug, s.ks4Options);
 
   if (sequence.length === 0) {
-    log(`No sequence data found for ${s.sequenceSlug}`);
     continue;
   }
 
@@ -834,6 +861,8 @@ for (const s of sequences) {
   // if the directory already exists, assume it's already been processed and skip it
   if (await fs.stat(sequenceDir).catch(() => false)) {
     log(`Skipping sequence ${s.sequenceSlug} - already processed`);
+
+    uploadToStorage(sequenceDir, s.sequenceSlug);
     continue;
   }
 
@@ -885,6 +914,7 @@ for (const s of sequences) {
       `${sequenceDir}/${s.sequenceSlug}.json`,
       JSON.stringify({ ...s, sequence, lessons }),
     );
+    uploadToStorage(sequenceDir, s.sequenceSlug);
   } else {
     await fs.writeFile(
       `${sequenceDir}/sequence.json`,
