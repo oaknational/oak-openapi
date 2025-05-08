@@ -10,7 +10,7 @@ env:
   PROJECT_ID: oak-national-academy-ci-cd
   REGION: europe-west2
   REPO: oak-open-api
-  APP: oak-open-api
+  APP: bulk-data
 
 jobs:
   deploy:
