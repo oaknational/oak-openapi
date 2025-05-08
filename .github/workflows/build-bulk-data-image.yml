@@ -9,8 +9,8 @@ on:
 env:
   PROJECT_ID: oak-national-academy-ci-cd
   REGION: europe-west2
-  REPO: oak-curriculum-openapi
-  APP: openapi
+  REPO: oak-open-api
+  APP: oak-open-api
 
 jobs:
   deploy:
