@@ -23,6 +23,11 @@ resource "google_cloud_run_v2_job" "this" {
           value = var.graphql_host_secret
         }
 
+        env {
+          name  = "BUCKET_NAME"
+          value = google_storage_bucket.this.name
+        }
+
         resources {
           limits = {
             cpu    = "1000m"
