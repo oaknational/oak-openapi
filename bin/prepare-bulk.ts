@@ -33,6 +33,7 @@ import {
   isUnitSupported,
 } from '~/lib/queryGate';
 import { parseSubjectPhaseSlug } from '~/lib/sequenceSlugParser';
+import assert from 'node:assert';
 
 const processAssets = process.env.INCLUDE_ASSETS ? true : false;
 
@@ -307,6 +308,8 @@ async function getUnitSummaries(
 
   let currentLessonCtr = 0;
 
+  const lessons = [];
+
   for (const unitSlug of unitSlugs) {
     const unit = getUnit(sequence, unitSlug);
 
@@ -318,6 +321,11 @@ async function getUnitSummaries(
     const lessonData = await getAllLessonData(unitSlug);
     log(`Processing unit: ${unitSlug} with ${lessonData.length} lessons`);
 
+    if (!processAssets) {
+      lessons.push(...lessonData);
+      continue;
+    }
+
     const assetLinks = await getAllLessonAssets(
       lessonData.map((_) => _.lessonSlug),
     );
@@ -328,27 +336,11 @@ async function getUnitSummaries(
 
       log(`${++currentLessonCtr}/${totalLessonCount}: ${lesson.lessonSlug}`);
 
-      if (assetsAllowed) {
-        // capture and store captions and transcript in a separate file from lessons.jsonl
-        let transcript = lesson.transcript_sentences;
-        const vtt = lesson.transcript_vtt;
-
-        // remove transcript from lesson object so it's not stored
-        delete lesson.transcript_sentences;
-        delete lesson.transcript_vtt;
-
-        if (transcript) {
-          // retrospective fix to remove tags still in the transcript
-          transcript = transcript.replace(/<[^>]*>/g, '');
-          await fs.appendFile(
-            `${sequenceDir}/transcripts.jsonl`,
-            JSON.stringify({
-              lessonSlug: lesson.lessonSlug,
-              transcript,
-              vtt,
-            }) + '\n',
-          );
-        }
+      if (lesson.transcript_sentences) {
+        lesson.transcript_sentences = lesson.transcript_sentences.replace(
+          /<[^>]*>/g,
+          '',
+        );
       }
 
       if (processAssets) {
@@ -447,6 +439,12 @@ async function getUnitSummaries(
       }
     }
   }
+
+  assert(lessons.length === totalLessonCount, 'Lesson count mismatch');
+
+  log(`Completed ${slug} total: ${totalLessonCount} lessons`);
+
+  return lessons;
 }
 
 interface LessonAsset {
@@ -880,12 +878,19 @@ for (const s of sequences) {
     assetPacks.supplementaryResources = resourcesPack;
   }
 
-  await fs.writeFile(
-    `${sequenceDir}/sequence.json`,
-    JSON.stringify({ ...s, sequence }),
-  );
+  const lessons = await getUnitSummaries(s.sequenceSlug, sequence, assetPacks);
 
-  await getUnitSummaries(s.sequenceSlug, sequence, assetPacks);
+  if (lessons.length) {
+    await fs.writeFile(
+      `${sequenceDir}/${s.sequenceSlug}.json`,
+      JSON.stringify({ ...s, sequence, lessons }),
+    );
+  } else {
+    await fs.writeFile(
+      `${sequenceDir}/sequence.json`,
+      JSON.stringify({ ...s, sequence }),
+    );
+  }
 
   if (processAssets) {
     // Finalize all tarballs
