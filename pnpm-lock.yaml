@@ -21,8 +21,8 @@ dependencies:
     specifier: ^1.1.0
     version: 1.1.0(@prisma/client@5.21.1)
   '@trpc/server':
-    specifier: ^10.45.2
-    version: 10.45.2
+    specifier: ^11.1.2
+    version: 11.1.2(typescript@5.5.2)
   '@upstash/ratelimit':
     specifier: ^2.0.5
     version: 2.0.5(@upstash/redis@1.31.6)
@@ -79,7 +79,7 @@ dependencies:
     version: 3.1.7
   trpc-to-openapi:
     specifier: ^2.3.0
-    version: 2.3.0(@trpc/server@10.45.2)(zod-openapi@4.2.4)(zod@3.23.8)
+    version: 2.3.0(@trpc/server@11.1.2)(zod-openapi@4.2.4)(zod@3.23.8)
   uuid:
     specifier: ^10.0.0
     version: 10.0.0
@@ -2129,8 +2129,12 @@ packages:
     engines: {node: '>= 10'}
     dev: false
 
-  /@trpc/server@10.45.2:
-    resolution: {integrity: sha512-wOrSThNNE4HUnuhJG6PfDRp4L2009KDVxsd+2VYH8ro6o/7/jwYZ8Uu5j+VaW+mOmc8EHerHzGcdbGNQSAUPgg==}
+  /@trpc/server@11.1.2(typescript@5.5.2):
+    resolution: {integrity: sha512-Oi9zWHG0ZDkbDo4sYkduoV7q4sIe6UwjrRLC91vNMYQK+PVgpbTCmK1laRwewAGu0zaayqcGDosANjceOIC3GA==}
+    peerDependencies:
+      typescript: '>=5.7.2'
+    dependencies:
+      typescript: 5.5.2
     dev: false
 
   /@types/caseless@0.12.5:
@@ -8448,14 +8452,14 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /trpc-to-openapi@2.3.0(@trpc/server@10.45.2)(zod-openapi@4.2.4)(zod@3.23.8):
+  /trpc-to-openapi@2.3.0(@trpc/server@11.1.2)(zod-openapi@4.2.4)(zod@3.23.8):
     resolution: {integrity: sha512-KydGijqAMozQId+Oz4NLF7wV5igqUJWcqSjHwp9HdREk6xMtdav/onbNY2aND4BSmYVYIT+uZrKH4i+Ev0gbGQ==}
     peerDependencies:
       '@trpc/server': ^11.1.0
       zod: ^3.23.8
       zod-openapi: 4.2.4
     dependencies:
-      '@trpc/server': 10.45.2
+      '@trpc/server': 11.1.2(typescript@5.5.2)
       co-body: 6.2.0
       h3: 1.15.1
       openapi3-ts: 4.4.0
@@ -8687,7 +8691,6 @@ packages:
     resolution: {integrity: sha512-NcRtPEOsPFFWjobJEtfihkLCZCXZt/os3zf8nTxjVH3RvTSxjrCamJpbExGvYOF+tFHc3pA65qpdwPbzjohhew==}
     engines: {node: '>=14.17'}
     hasBin: true
-    dev: true
 
   /typical@4.0.0:
     resolution: {integrity: sha512-VAH4IvQ7BDFYglMd7BPRDfLgxZZX4O4TFcRDA6EN5X7erNJJq+McIEp8np9aVtxrCJ6qx4GTYVfOWNjcqwZgRw==}
