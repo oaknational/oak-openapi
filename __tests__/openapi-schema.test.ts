@@ -1,7 +1,7 @@
 import { it, expect } from 'vitest';
 import Ajv, { ErrorObject } from 'ajv';
 import addFormats from 'ajv-formats';
-import { openApiDocument } from '~/pages/api/v0/swagger.json';
+import { openApiDocument } from '~/app/api/v0/swagger.json';
 import type { OpenAPIV3 } from 'openapi-types';
 
 const swaggerData: OpenAPIV3.Document = openApiDocument;
