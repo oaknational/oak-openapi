@@ -1,27 +1,35 @@
 import { type NextRequest } from 'next/server';
 import { User, findUserByKey } from '~/lib/apikeys';
-import { type CreateNextContextOptions } from '@trpc/server/adapters/next';
-import { inferAsyncReturnType } from '@trpc/server';
-import type { NextApiRequest } from 'next';
 import { RateLimitInfo } from './rateLimit';
 
-export type Context = inferAsyncReturnType<typeof createContext>;
+// method setHeader, prop setStatus, method end
+interface TrpcNextResponse {
+  setHeader: (key: string, value: string) => void;
+  setStatus: (statusCode: number) => void;
+  end: () => void;
+}
 
-const createContextWithUser = async (req: NextRequest) => {
+const createContextWithUser = async ({
+  req,
+  res,
+}: {
+  req: NextRequest;
+  res: TrpcNextResponse;
+}) => {
   const user = await withUser(req);
 
   // Log the request which is forwarded to datadog
-  // console.info(
-  //   JSON.stringify({
-  //     userId: user?.id,
-  //     url: req.url,
-  //     query: req.query,
-  //   }),
-  // );
+  console.info(
+    JSON.stringify({
+      userId: user?.id,
+      url: req.url,
+      query: req.nextUrl.searchParams.toString(),
+    }),
+  );
 
   return {
     req: req,
-    // res: opts.res,
+    res,
     rateLimit: undefined as RateLimitInfo | undefined,
     user,
   };

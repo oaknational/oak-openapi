@@ -3,7 +3,7 @@ import {
   getLatestMajorVersion,
 } from '~/lib/handlers/changelog';
 import router from '~/lib/router';
-import { NextApiRequest, NextApiResponse } from 'next';
+
 import { OpenAPIV3 } from 'openapi-types';
 import { generateOpenApiDocument } from 'trpc-to-openapi';
 import { baseUrl } from '~/lib/baseUrl';
@@ -142,6 +142,6 @@ Object.keys(openApiDocument.paths).forEach((_) => {
   }
 });
 
-export async function GET(req: NextApiRequest) {
+export async function GET() {
   return NextResponse.json(openApiDocument);
 }
