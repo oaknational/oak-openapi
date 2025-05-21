@@ -1,3 +1,4 @@
+import { type NextRequest } from 'next/server';
 import { User, findUserByKey } from '~/lib/apikeys';
 import { type CreateNextContextOptions } from '@trpc/server/adapters/next';
 import { inferAsyncReturnType } from '@trpc/server';
@@ -6,31 +7,33 @@ import { RateLimitInfo } from './rateLimit';
 
 export type Context = inferAsyncReturnType<typeof createContext>;
 
-const createContextWithUser = async (opts: CreateNextContextOptions) => {
-  const user = await withUser(opts.req);
+const createContextWithUser = async (req: NextRequest) => {
+  const user = await withUser(req);
 
   // Log the request which is forwarded to datadog
-  console.info(
-    JSON.stringify({
-      userId: user?.id,
-      url: opts.req.url,
-      query: opts.req.query,
-    }),
-  );
+  // console.info(
+  //   JSON.stringify({
+  //     userId: user?.id,
+  //     url: req.url,
+  //     query: req.query,
+  //   }),
+  // );
 
   return {
-    req: opts.req,
-    res: opts.res,
+    req: req,
+    // res: opts.res,
     rateLimit: undefined as RateLimitInfo | undefined,
     user,
   };
 };
 
-export const withUser = async (req: NextApiRequest) => {
+export const withUser = async (req: NextRequest) => {
   let user: User | null = null;
 
-  if (req.headers.authorization) {
-    const token = req.headers.authorization?.split(' ')[1];
+  const authorization = req.headers.get('authorization');
+
+  if (authorization) {
+    const token = authorization?.split(' ')[1];
     if (token) {
       user = await findUserByKey(token);
     }
