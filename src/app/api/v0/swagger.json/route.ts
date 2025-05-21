@@ -5,7 +5,7 @@ import {
 import router from '~/lib/router';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { OpenAPIV3 } from 'openapi-types';
-import { generateOpenApiDocument } from 'trpc-openapi';
+import { generateOpenApiDocument } from 'trpc-to-openapi';
 import { baseUrl } from '~/lib/baseUrl';
 import { NextResponse } from 'next/server';
 

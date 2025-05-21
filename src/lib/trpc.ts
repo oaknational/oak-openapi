@@ -1,7 +1,7 @@
 import { initTRPC } from '@trpc/server';
 import util from 'node:util';
 import superjson from 'superjson';
-import { OpenApiMeta } from 'trpc-openapi';
+import { OpenApiMeta } from 'trpc-to-openapi';
 import { ZodError } from 'zod';
 
 import type { Context } from '~/lib/context';
