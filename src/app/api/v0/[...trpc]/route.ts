@@ -1,9 +1,29 @@
-import { TRPCError } from '@trpc/server';
-import Cors from 'cors';
+// import { TRPCError } from '@trpc/server';
 import router from 'lib/router';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { createOpenApiNextHandler } from 'trpc-to-openapi';
 import { createContext } from 'lib/context';
+import { type NextRequest } from 'next/server';
+import { createOpenApiFetchHandler } from 'trpc-to-openapi';
+
+export const dynamic = 'force-dynamic';
+
+const handler = (req: NextRequest) => {
+  return createOpenApiFetchHandler({
+    endpoint: '/api/v0',
+    router,
+    createContext,
+    req,
+  });
+};
+
+export {
+  handler as GET,
+  handler as POST,
+  handler as PUT,
+  handler as PATCH,
+  handler as DELETE,
+  handler as OPTIONS,
+  handler as HEAD,
+};
 
 // const cors = Cors({
 //   methods: ['GET', 'HEAD'],
@@ -32,27 +52,3 @@ import { createContext } from 'lib/context';
 //   const handled = handleCORS(req, res);
 //   return handled;
 // }
-
-import { type NextRequest } from 'next/server';
-import { createOpenApiFetchHandler } from 'trpc-to-openapi';
-
-export const dynamic = 'force-dynamic';
-
-const handler = (req: NextRequest) => {
-  return createOpenApiFetchHandler({
-    endpoint: '/api/v0',
-    router,
-    createContext: () => createContext(req),
-    req,
-  });
-};
-
-export {
-  handler as GET,
-  handler as POST,
-  handler as PUT,
-  handler as PATCH,
-  handler as DELETE,
-  handler as OPTIONS,
-  handler as HEAD,
-};
