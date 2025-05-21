@@ -7,6 +7,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { OpenAPIV3 } from 'openapi-types';
 import { generateOpenApiDocument } from 'trpc-openapi';
 import { baseUrl } from '~/lib/baseUrl';
+import { NextResponse } from 'next/server';
 
 const version = getLatestVersion(getLatestMajorVersion());
 
@@ -141,8 +142,6 @@ Object.keys(openApiDocument.paths).forEach((_) => {
   }
 });
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  res.json(openApiDocument);
-};
-
-export default handler;
+export async function GET(req: NextApiRequest) {
+  return NextResponse.json(openApiDocument);
+}

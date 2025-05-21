@@ -9,9 +9,10 @@ const cors = Cors({
   methods: ['GET', 'HEAD'],
 });
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+const handleCORS = (req: NextApiRequest, res: NextApiResponse) => {
   // this seems like a weird way to do CORS but apparently it's the way
   // Vercel/nextjs recommends: https://github.com/vercel/next.js/blob/canary/examples/api-routes-cors/pages/api/cors.ts
+
   cors(req, res, (result: unknown) => {
     if (result instanceof Error) {
       throw new TRPCError({
@@ -27,4 +28,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   })(req, res);
 };
 
-export default handler;
+export async function GET(req: NextApiRequest, res: NextApiResponse) {
+  const handled = handleCORS(req, res);
+  return handled;
+}

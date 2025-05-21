@@ -42,4 +42,4 @@ const getConfig = async () => {
   return config;
 };
 
-module.exports = getConfig;
+export default getConfig;
