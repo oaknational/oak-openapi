@@ -38,6 +38,10 @@ const _OakAPINavigationLink = styled(_OakSecondaryLink)`
   &.selected {
     position: relative;
 
+    &:hover {
+      text-decoration: none;
+    }
+
     &::after {
       position: absolute;
       content: '';
