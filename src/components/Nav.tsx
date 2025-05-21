@@ -1,15 +1,16 @@
 import styled from 'styled-components';
-import { OakAPINavigationLink } from './OakAPINavigationLink';
+import { OakAPINavigationLink as _OakAPINavigationLink } from './OakAPINavigationLink';
 import {
   OakFlex,
+  OakSpan,
   OakHeading,
-  OakIcon,
-  OakLabel,
   OakLink,
   OakMaxWidth,
   OakModal,
+  OakSecondaryButton,
 } from '@oaknational/oak-components';
 import Logo from '~/components/Logo';
+import { useState } from 'react';
 
 const OakLinkLogo = styled(OakLink)`
   margin: 0;
@@ -20,63 +21,44 @@ const OakLinkLogo = styled(OakLink)`
   }
 `;
 
-const BurgerMenu = styled.div`
-  label {
-    cursor: pointer;
-  }
+const MenuSeparator = styled.hr`
+  background: #cacaca;
+  height: 1px;
+  width: 235px;
+  margin: 0;
+  border: 0;
+`;
 
-  input,
-  label {
+const MenuContainer = styled(OakFlex)`
+  .menu-contents-wide {
     display: none;
   }
 
-  @media (max-width: 1280px) {
-    label {
-      display: block;
-    }
-
-    nav {
-      display: none;
-    }
-
-    input:checked + nav {
+  @media (min-width: 1280px) {
+    .menu-contents-wide {
       display: flex;
-      flex-direction: column;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background-color: white;
-      padding: 16px;
-      justify-content: flex-start;
+      flex: 1;
+    }
 
-      & > div {
-        flex-direction: column;
-
-        > a {
-          display: inline-block;
-          width: fit-content;
-        }
-      }
+    .menu-contents {
+      display: none;
     }
   }
 `;
 
 export function Navigation() {
   return (
-    <OakFlex $bb={'border-solid-m'}>
+    <MenuContainer $bb={'border-solid-m'}>
       <OakMaxWidth
         as="header"
         $alignItems={'center'}
-        $gap={'all-spacing-10'}
+        $gap={'all-spacing-9'}
         $pv="inner-padding-s"
         $ph="inner-padding-m"
         $color="text-primary"
-        $justifyContent="space-between"
         $flexDirection={'row'}
       >
-        <OakFlex role="list" $gap="space-between-l" $alignItems="center">
+        <OakFlex role="list" $gap="space-between-m2" $alignItems="center">
           <OakFlex $alignItems="center" $gap="space-between-s">
             <OakLinkLogo
               aria-label="Oak National Academy"
@@ -89,75 +71,141 @@ export function Navigation() {
             </OakHeading>
           </OakFlex>
         </OakFlex>
-        <Menu>
-          <OakFlex role="list" $gap="space-between-m">
-            <OakAPINavigationLink role="listitem" href="#" className="selected">
-              Home
-            </OakAPINavigationLink>
-            <OakAPINavigationLink role="listitem" href="/docs">
-              Documentation
-            </OakAPINavigationLink>
-          </OakFlex>
-          <OakFlex role="list" $gap="space-between-m">
-            <OakAPINavigationLink
-              role="listitem"
-              href="mailto:xxx@yyy.com"
-              isTrailingIcon
-              iconName="send"
-            >
-              Request an API key
-            </OakAPINavigationLink>
 
-            <OakAPINavigationLink
-              role="listitem"
-              href="/playground"
-              isTrailingIcon
-              iconName="external"
-              target="_blank"
-            >
-              API playground
-            </OakAPINavigationLink>
-
-            <OakAPINavigationLink
-              role="listitem"
-              href="/bulk-downloads"
-              isTrailingIcon
-              iconName="external"
-              target="_blank"
-            >
-              Bulk downloads
-            </OakAPINavigationLink>
-          </OakFlex>
+        <MenuContents className="menu-contents-wide" wide={true} />
+        <Menu className="menu-contents">
+          <MenuContents wide={false} />
         </Menu>
       </OakMaxWidth>
+    </MenuContainer>
+  );
+}
+
+function OakAPINavigationLink({ $font = 'heading-light-7', ...props }) {
+  const children = props.children;
+
+  // this is a workaround because the font can't be passed directly to links… apparently
+  return (
+    <_OakAPINavigationLink {...props}>
+      <OakSpan $font={$font}>{children}</OakSpan>
+    </_OakAPINavigationLink>
+  );
+}
+
+const MenuModal = styled(OakModal)`
+  width: 375px;
+
+  ${_OakAPINavigationLink} {
+    width: fit-content;
+
+    &.selected::after {
+      display: none;
+    }
+
+    &.selected:hover {
+      text-decoration: underline;
+    }
+  }
+`;
+
+function Menu({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <OakFlex $flexGrow="1" $justifyContent="end" className={className}>
+      <OakSecondaryButton
+        style={{ padding: 0, border: 0 }}
+        onClick={() => setIsOpen(true)}
+        iconName="hamburger"
+      />
+
+      <MenuModal
+        isOpen={isOpen}
+        isLeftHandSide={false}
+        footerSlot={null}
+        onClose={() => setIsOpen(false)}
+      >
+        <OakFlex
+          as="nav"
+          $gap="space-between-l"
+          $pa="all-spacing-4"
+          $flexDirection="column"
+          $flexGrow="1"
+        >
+          {children}
+        </OakFlex>
+      </MenuModal>
     </OakFlex>
   );
 }
 
-function Menu({ children }: { children: React.ReactNode }) {
+function MenuContents({
+  wide,
+  className,
+}: {
+  wide: boolean;
+  className?: string;
+}) {
+  const flexDirection = wide ? 'row' : 'column';
   return (
-    <>
-      <OakLabel htmlFor="show-menu">
-        <OakIcon $colorFilter="black" alt="Show menu" iconName="hamburger" />
-      </OakLabel>
-      <input id="show-menu" className="show-menu" type="checkbox" />
-      <OakModal
-        isOpen={false}
-        isLeftHandSide={false}
-        footerSlot={null}
-        onClose={() => {}}
+    <OakFlex
+      $gap="space-between-m2"
+      $flexDirection={flexDirection}
+      className={className}
+      $justifyContent="space-between"
+    >
+      <OakFlex
+        role="list"
+        $gap="space-between-m2"
+        $flexDirection={flexDirection}
       >
-        <BurgerMenu>
-          <OakFlex
-            as="nav"
-            $gap="space-between-l"
-            $justifyContent="space-between"
-            $flexGrow="1"
-          >
-            {children}
-          </OakFlex>
-        </BurgerMenu>
-      </OakModal>
-    </>
+        <OakAPINavigationLink role="listitem" href="#" className="selected">
+          Home
+        </OakAPINavigationLink>
+        <OakAPINavigationLink role="listitem" href="/docs">
+          Documentation
+        </OakAPINavigationLink>
+      </OakFlex>
+      {wide ? null : <MenuSeparator />}
+      <OakFlex
+        role="list"
+        $gap="space-between-m"
+        $flexDirection={flexDirection}
+      >
+        <OakAPINavigationLink
+          role="listitem"
+          href="mailto:xxx@yyy.com"
+          isTrailingIcon
+          iconName="send"
+        >
+          Request an API key
+        </OakAPINavigationLink>
+
+        <OakAPINavigationLink
+          role="listitem"
+          href="/playground"
+          isTrailingIcon
+          iconName="external"
+          target="_blank"
+        >
+          API playground
+        </OakAPINavigationLink>
+
+        <OakAPINavigationLink
+          role="listitem"
+          href="/bulk-downloads"
+          isTrailingIcon
+          iconName="external"
+          target="_blank"
+        >
+          Bulk downloads
+        </OakAPINavigationLink>
+      </OakFlex>
+    </OakFlex>
   );
 }

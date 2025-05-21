@@ -1,11 +1,9 @@
-import {
-  OakSecondaryLink as _OakSecondaryLink,
-  OakSpan,
-} from '@oaknational/oak-components';
+import { OakSecondaryLink as _OakSecondaryLink } from '@oaknational/oak-components';
 import styled from 'styled-components';
 
-const _OakAPINavigationLink = styled(_OakSecondaryLink)`
+export const OakAPINavigationLink = styled(_OakSecondaryLink)`
   text-decoration: none;
+
   & > span + div {
     margin-left: 0.25rem;
   }
@@ -55,14 +53,3 @@ const _OakAPINavigationLink = styled(_OakSecondaryLink)`
     }
   }
 `;
-
-export function OakAPINavigationLink({ $font = 'heading-light-7', ...props }) {
-  const children = props.children;
-
-  // this is a workaround because the font can't be passed directly to links… apparently
-  return (
-    <_OakAPINavigationLink {...props}>
-      <OakSpan $font={$font}>{children}</OakSpan>
-    </_OakAPINavigationLink>
-  );
-}
