@@ -493,6 +493,7 @@ export function formatUnit(unit: Sequence) {
   if (unit.subjectcategories && unit.subjectcategories.length > 0) {
     categories = unit.subjectcategories.map((cat) => ({
       categoryTitle: cat.title,
+      categorySlug: cat.slug,
     }));
   }
 
