@@ -1,61 +1,46 @@
 // See README_BULK_DOWNLOAD.md for details
-import path from 'node:path';
-import { promises as fs, createWriteStream } from 'node:fs';
-import readline from 'node:readline';
-import pg from 'pg';
+import fs from 'node:fs/promises';
 import 'renvy';
-import lodash from 'lodash';
-import type { Pack } from 'tar-stream';
-import tar from 'tar-stream';
-import { gql } from 'graphql-request';
-import { Storage } from '@google-cloud/storage';
-import { sequenceWhere } from '~/lib/handlers/sequences';
-import {
-  currentCycle,
-  DownloadView,
-  downloadView,
-  getClient,
-  lessonContentViewTable,
-  lessonViewTable,
-  SequenceView,
-  sequenceView,
-  sequenceViewWhereInput,
-  SubjectPhase,
-  subjectPhaseView,
-  SubjectPhaseView,
-  TitleSlug,
-} from '~/lib/owaClient';
-import { formatUnitSummary, UnitSchema } from '~/lib/handlers/units';
+import { getClient } from '~/lib/owaClient';
+
 import { getVideoFromMux } from '~/lib/handlers/assets';
 import {
   isLessonSupported,
   isSubjectSupported,
   isUnitSupported,
 } from '~/lib/queryGate';
-import { parseSubjectPhaseSlug } from '~/lib/sequenceSlugParser';
 import assert from 'node:assert';
+import { log, logError } from '../src/lib/bulk-data/logger';
+import {
+  deepSearchAll,
+  waitForEnter,
+  __dirname,
+} from '../src/lib/bulk-data/utils';
+import {
+  getGoogleCloudStorage,
+  uploadToStorage,
+} from '../src/lib/bulk-data/data-stores';
+import { AssetPacks, UnitWithExamBoards } from '../src/lib/bulk-data/types';
+import {
+  addStorageAssetToTar,
+  addURLToQueue,
+  buildAssetPacks,
+  downloadQuiz,
+} from '../src/lib/bulk-data/assets';
+import {
+  getAllLessonAssets,
+  getAllLessonData,
+  getAllSequenceData,
+  getAllSubjects,
+  getUnit,
+} from '../src/lib/bulk-data/get-data';
 
 const processAssets = process.env.INCLUDE_ASSETS ? true : false;
 
-if (process.version < 'v22') {
+if (processAssets && process.version < 'v22') {
   // this is because node 18 leaves sockets open 😱
   console.error('Node version 22 or higher is required');
   process.exit(1);
-}
-
-// Function to wait for user input
-async function waitForEnter(): Promise<void> {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise((resolve) => {
-    rl.question('Press Enter to continue...', () => {
-      rl.close();
-      resolve();
-    });
-  });
 }
 
 // if there's an argv[2] then capture is an filter the sequences to this single
@@ -76,110 +61,10 @@ if (processAssets) {
   await waitForEnter();
 }
 
-// Initialize Google Cloud Storage
-let storage: Storage;
-if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-  const credentials = JSON.parse(
-    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
-  );
-  storage = new Storage({ credentials });
-} else {
-  storage = new Storage();
-}
-
-const __dirname = path.resolve(path.dirname(''));
-const start = Date.now();
 const client = getClient();
+const storage = getGoogleCloudStorage();
 
-const db = new pg.Client(process.env.DATABASE_URL);
-log('Connecting to database...');
-await db.connect();
-
-log('Database connected');
-
-interface AssetPacks {
-  worksheets?: Pack;
-  slideDecks?: Pack;
-  starterQuizzes?: Pack;
-  exitQuizzes?: Pack;
-  supplementaryResources?: Pack;
-}
-
-async function addURLToQueue(
-  url: string,
-  filename: string,
-  sequence: string,
-): Promise<void> {
-  // this is picked up by build-bulk-download-videos.sh
-  await fs.appendFile(
-    `${__dirname}/videos.tsv`,
-    `${url}\t${filename}\t${sequence}\n`,
-  );
-}
-
-async function addStorageAssetToTar(
-  pack: Pack,
-  asset: LessonAsset,
-  filename: string,
-): Promise<void> {
-  if (!asset || !asset.bucket_name || !asset.bucket_path) {
-    throw new Error(`Invalid asset data: ${JSON.stringify(asset)}`);
-  }
-
-  const { bucket_name, bucket_path } = asset;
-
-  // First, get the file metadata to determine its size
-  const file = storage.bucket(bucket_name).file(bucket_path);
-
-  try {
-    const [metadata] = await file.getMetadata();
-    const size = metadata.size ? parseInt(metadata.size + '', 10) : undefined;
-
-    return new Promise<void>((resolve, reject) => {
-      const nodeStream = file.createReadStream();
-      const entry = pack.entry(
-        {
-          name: filename,
-          size: size,
-        },
-        (err) => {
-          if (err) reject(err);
-          else resolve(void 0);
-        },
-      );
-
-      nodeStream.pipe(entry);
-      nodeStream.on('error', (err: Error) => {
-        logError(`Stream error: ${err}`);
-        reject(err);
-      });
-    });
-  } catch (error) {
-    logError(`Error getting file metadata: ${error}`);
-    throw error;
-  }
-}
-
-function runtime() {
-  // returns hours, minutes, seconds since start
-  const elapsed = Date.now() - start;
-  const seconds = Math.floor(elapsed / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-
-  // returns in the format of 00:03:00
-  return [hours, minutes % 60, seconds % 60]
-    .map((num) => num.toString().padStart(2, '0'))
-    .join(':');
-}
-
-function log(message: string): void {
-  console.log(`[${runtime()}][INFO] ${message}`);
-}
-
-function logError(message: string): void {
-  console.error(`[${runtime()}][ERROR] ${message}`);
-}
+main();
 
 /**
  * Check if the given lesson's assets should be processed based on subject and unit gating
@@ -199,97 +84,7 @@ function isLessonAssetsAllowed(lesson: {
   return isSubjectSupported(subjectSlug) || isUnitSupported(unitSlug);
 }
 
-const deepSearchAll = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  obj: any,
-  key: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  cond?: (_?: any) => boolean,
-) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let results: any = [];
-  if (lodash.isObject(obj)) {
-    if (lodash.has(obj, key)) {
-      if (!cond || cond(obj)) {
-        results.push(lodash.get(obj, key));
-      }
-    }
-    lodash.forOwn(obj, (value) => {
-      if (lodash.isObject(value)) {
-        results = results.concat(deepSearchAll(value, key, cond));
-      }
-    });
-  }
-  return results;
-};
-
-type ValidDownloadTypes = 'starterQuiz' | 'exitQuiz' | 'worksheet';
-
-async function downloadQuiz(
-  key: ValidDownloadTypes,
-  assetLinks: LessonAssetsMap,
-  lesson: Lesson,
-  packs: AssetPacks,
-  slug: string,
-) {
-  // Process starter quiz if available and has bucket_name
-  type ValidKeys =
-    | ValidDownloadTypes
-    | ('exitQuizAnswers' | 'starterQuizAnswers' | 'worksheetAnswers');
-
-  const findPackKey = (key: ValidDownloadTypes) => {
-    if (key === 'starterQuiz') {
-      return 'starterQuizzes';
-    } else if (key === 'exitQuiz') {
-      return 'exitQuizzes';
-    }
-
-    return 'worksheets';
-  };
-
-  const type = key.replace('Quiz', '');
-  const answerKey: ValidKeys = `${key}Answers`;
-  const packKey = findPackKey(key);
-  const suffix = key === 'worksheet' ? 'worksheet' : 'quiz';
-  const tarFilename = `${slug}-${key === 'worksheet' ? 'worksheets' : 'quizzes'}.tar`;
-
-  if (
-    assetLinks[lesson.lessonSlug][key] &&
-    assetLinks[lesson.lessonSlug][key].bucket_name &&
-    packs[packKey]
-  ) {
-    try {
-      await addStorageAssetToTar(
-        packs[packKey],
-        assetLinks[lesson.lessonSlug][key],
-        `${lesson.lessonSlug}_${type}_${suffix}.pdf`,
-      );
-
-      lesson[key] = `${tarFilename}:${lesson.lessonSlug}_${type}_${suffix}.pdf`;
-
-      if (
-        assetLinks[lesson.lessonSlug][answerKey] &&
-        assetLinks[lesson.lessonSlug][answerKey].bucket_name
-      ) {
-        await addStorageAssetToTar(
-          packs[packKey],
-          assetLinks[lesson.lessonSlug][answerKey],
-          `${lesson.lessonSlug}_${type}_${suffix}_answers.pdf`,
-        );
-
-        lesson[answerKey] =
-          `${tarFilename}:${lesson.lessonSlug}_${type}_${suffix}_answers.pdf`;
-      }
-    } catch (e) {
-      logError(`Failed to process ${type} for ${lesson.lessonSlug}: ${e}`);
-      logError(
-        `${type} data: ${JSON.stringify(assetLinks[lesson.lessonSlug][key])}`,
-      );
-    }
-  }
-}
-
-async function getUnitSummaries(
+async function buildLessonData(
   slug: string,
   sequence: UnitWithExamBoards[],
   packs: AssetPacks,
@@ -323,10 +118,15 @@ async function getUnitSummaries(
 
     if (!processAssets) {
       lessons.push(...lessonData);
+      /**
+       * The default usage, this is the point where the loop ends
+       * because we're not collecting assets by default.
+       */
       continue;
     }
 
     const assetLinks = await getAllLessonAssets(
+      client,
       lessonData.map((_) => _.lessonSlug),
     );
 
@@ -383,6 +183,7 @@ async function getUnitSummaries(
                 packs.slideDecks,
                 modifiedSlideDeck,
                 `${lesson.lessonSlug}_slide_deck.pptx`,
+                storage,
               );
 
               lesson.slideDeck = `${slug}-slide-decks.tar:${lesson.lessonSlug}_slide_deck.pptx`;
@@ -407,6 +208,7 @@ async function getUnitSummaries(
                 packs.supplementaryResources,
                 assetLinks[lesson.lessonSlug].supplementaryResource,
                 `${lesson.lessonSlug}_supplementary.pdf`,
+                storage,
               );
 
               lesson.supplementaryResource = `${slug}-resources.tar:${lesson.lessonSlug}_supplementary.pdf`;
@@ -423,9 +225,9 @@ async function getUnitSummaries(
           }
 
           // now do quizzes (and worksheet) and their respective answer sheets
-          await downloadQuiz('starterQuiz', assetLinks, lesson, packs, slug);
-          await downloadQuiz('exitQuiz', assetLinks, lesson, packs, slug);
-          await downloadQuiz('worksheet', assetLinks, lesson, packs, slug);
+          for (const key of ['starterQuiz', 'exitQuiz', 'worksheet'] as const) {
+            await downloadQuiz(key, assetLinks, lesson, packs, slug, storage);
+          }
         }
       }
 
@@ -440,475 +242,105 @@ async function getUnitSummaries(
     }
   }
 
-  assert(lessons.length === totalLessonCount, 'Lesson count mismatch');
+  assert(
+    lessons.length === totalLessonCount,
+    `Failed lesson count: ${slug} ${lessons.length}/${totalLessonCount}`,
+  );
 
   log(`Completed ${slug} total: ${totalLessonCount} lessons`);
 
   return lessons;
 }
 
-interface LessonAsset {
-  ext: string;
-  type: string;
-  label: string;
-  bucket_name: string;
-  bucket_path: string;
-}
-
-interface LessonAssets {
-  exitQuiz: LessonAsset;
-  exitQuizAnswers: LessonAsset;
-  slideDeck: LessonAsset;
-  starterQuizAnswers: LessonAsset;
-  starterQuiz: LessonAsset;
-  supplementaryResource: LessonAsset;
-  video: { stream: string };
-  worksheet: LessonAsset;
-  worksheetAnswers: LessonAsset;
-  videoStream: LessonAsset;
-}
-
-interface LessonAssetsMap {
-  [lessonSlug: string]: LessonAssets;
-}
-
-export async function getAllLessonAssets(
-  lessonSlugs: string[],
-): Promise<LessonAssetsMap> {
-  const query = gql`
-      query GetDownloads($slugs: [String!]!) {
-        ${downloadView}(
-          where: {
-            lessonSlug: { _in: $slugs }
-          }
-        ) {
-          lessonSlug
-          exitQuiz
-          exitQuizAnswers
-          slideDeck: slidedeck
-          starterQuizAnswers
-          starterQuiz: starter_quiz
-          supplementaryResource
-          video: videos
-          worksheet
-          worksheetAnswers
-        }
-      }
-    `;
-
-  const variables = {
-    slugs: lessonSlugs,
-  };
-
-  const res: DownloadView = await client.request(query, variables);
-
-  // map res so that it's slug -> all assets
-  const map = res[downloadView].reduce(
-    (acc, assets) => {
-      const { lessonSlug, ...allAssets } = assets;
-
-      // Extract video stream specifically for backward compatibility
-      const videoStream = assets.video?.stream || null;
-
-      acc[lessonSlug] = {
-        ...allAssets,
-        // @ts-expect-error not worth sorting out the type discrepancy
-        videoStream,
-      };
-
-      return acc;
-    },
-    {} as Record<string, LessonAssets>,
+async function main() {
+  const startSubjects = Date.now();
+  const sequences = await getAllSubjects(client, subjectPhaseFilter);
+  log(
+    `Fetched ${sequences.length} subject phase/s (${Date.now() - startSubjects}ms)`,
   );
 
-  return map;
-}
+  // Ensure the main output directory exists
+  await fs.mkdir(`${__dirname}/out`, { recursive: true });
 
-interface Lesson {
-  lessonTitle: string;
-  lessonSlug: string;
-  unitSlug: string;
-  unitTitle: string;
-  subjectSlug: string;
-  subjectTitle: string;
-  keyStageSlug: string;
-  keyStageTitle: string;
-  lessonKeywords: string;
-  keyLearningPoints: string;
-  misconceptionsAndCommonMistakes: string;
-  pupilLessonOutcome: string;
-  teacherTips: string;
-  contentGuidance: string;
-  downloadsAvailable: boolean;
-  supervisionLevel: string;
-  transcript_sentences?: string;
-  transcript_vtt?: string;
-  supplementaryResource?: string;
-  starterQuiz?: string;
-  starterQuizAnswers?: string;
-  exitQuiz?: string;
-  exitQuizAnswers?: string;
-  slideDeck?: string;
-  worksheet?: string;
-  worksheetAnswers?: string;
-  video?: string;
-}
+  for (const s of sequences) {
+    log(`Processing subject phase: ${s.sequenceSlug}`);
 
-async function getAllLessonData(unitSlug: string): Promise<Lesson[]> {
-  const sql = `
-    SELECT
-      lessons."lessonTitle",
-      lessons."lessonSlug",
-      lessons."unitSlug",
-      lessons."unitTitle",
-      lessons."subjectSlug",
-      lessons."subjectTitle",
-      lessons."keyStageSlug",
-      lessons."keyStageTitle",
-      lessons."lessonKeywords",
-      lessons."keyLearningPoints",
-      lessons."misconceptionsAndCommonMistakes",
-      lessons."pupilLessonOutcome",
-      lessons."teacherTips",
-      lessons."contentGuidance",
-      lessons."hasDownloadableResources" AS downloadsAvailable,
-      lessons."supervisionLevel",
-      transcripts."transcript_sentences",
-      transcripts."transcript_vtt"
-    FROM
-      ${lessonViewTable} AS lessons,
-      ${lessonContentViewTable} AS transcripts
-    WHERE
-      lessons."lessonId" = transcripts."lesson_id"
-      AND lessons."unitSlug" = $1::text
-      AND transcripts."_state" = 'published'`;
+    const sequence = await getAllSequenceData(
+      client,
+      s.sequenceSlug,
+      s.ks4Options,
+    );
 
-  const res = await db.query({
-    text: sql,
-    values: [unitSlug],
-    // rowMode: 'array',
-  });
-
-  const seen = new Set();
-
-  return res.rows.reduce((acc, row) => {
-    if (seen.has(row.lessonSlug)) {
-      return acc;
+    if (sequence.length === 0) {
+      continue;
     }
 
-    seen.add(row.lessonSlug);
-    acc.push(row);
-    return acc;
-  }, []);
-}
+    // create sequence-specific directory
+    const sequenceDir = `${__dirname}/out/${s.sequenceSlug}`;
 
-type ExamBoard = TitleSlug & { examSubjectTitle?: string };
+    // if the directory already exists, assume it's already been
+    // processed and skip it
+    if (await fs.stat(sequenceDir).catch(() => false)) {
+      log(`Skipping sequence ${s.sequenceSlug} - already processed`);
 
-type UnitWithExamBoards = Omit<UnitSchema, 'phaseSlug' | 'subjectSlug'> & {
-  examBoards?: ExamBoard[];
-};
-
-async function getAllSequenceData(
-  sequence: string,
-  examBoards?: TitleSlug[],
-): Promise<UnitWithExamBoards[]> {
-  // `true` means there's no pathway - ie. we don't want to limit on core, gcse, etc
-  const where = sequenceWhere(sequence, undefined, true);
-
-  const query = gql`
-    query ($where: ${sequenceViewWhereInput}!) {
-      ${sequenceView}(
-        where: $where
-        order_by: { order: asc }
-      ) {
-        title
-        threads
-        slug
-        actions
-        domain
-        examboard
-        examboard_slug
-        keystage_slug
-        order
-        pathway
-        pathway_slug
-        tier
-        features
-        actions
-        tier_slug
-        unit_options
-        year
-
-        description
-        lessons
-        why_this_why_now
-        prior_knowledge_requirements
-        national_curriculum_content
-
-      }
-  }`;
-
-  const queryResult: SequenceView = await client.request(query, { where });
-
-  // before the unit is cleaned up, we need to check for features and do the
-  // modifications to the unit
-
-  let units = queryResult[sequenceView]
-    .map((_) => {
-      if (_.features?.pe_swimming) {
-        return {
-          ..._,
-          year: 'all-years',
-        };
-      }
-
-      return _;
-    })
-    .map((_) => formatUnitSummary(_.slug, _)) as UnitWithExamBoards[];
-
-  // some units will appear more than once. equally, if the sequence string
-  // ends with `-secondary` then we need to add the exam boards to the object
-  // the duplicates need to to removed, but their exam boards need to be added
-  if (examBoards) {
-    const seen = new Set<string>();
-    units = units.reduce((acc, unit, i, allUnits) => {
-      // ignore duplicates, they've been dealt with
-      if (seen.has(unit.unitSlug)) {
-        return acc;
-      }
-
-      seen.add(unit.unitSlug);
-
-      // first copy the exam boards onto units have no exam board (this actually
-      // means they're in all exam boards).
-      if (unit.examboard && unit.examboardSlug) {
-        // now we restructure the exam board property
-        const { examboard, examboardSlug } = unit;
-        delete unit.examboard;
-        delete unit.examboardSlug;
-
-        const localExamBoards: ExamBoard[] = [
-          { title: examboard, slug: examboardSlug },
-        ];
-
-        const subjectOverride =
-          queryResult[sequenceView][i].actions?.programme_field_overrides
-            ?.subject;
-
-        if (subjectOverride) {
-          localExamBoards[0].examSubjectTitle = subjectOverride;
-        }
-
-        // now find if there's any other units with the same slug
-        allUnits.forEach((_, j) => {
-          if (i === j) {
-            return false; // this is the current unit
-          }
-          if (_.unitSlug === unit.unitSlug) {
-            if (_.examboard && _.examboardSlug) {
-              const res: ExamBoard = {
-                title: _.examboard,
-                slug: _.examboardSlug,
-              };
-
-              if (subjectOverride) {
-                res.examSubjectTitle = subjectOverride;
-              }
-              localExamBoards.push(res);
-            }
-          }
-        });
-
-        unit.examBoards = localExamBoards;
-      } else if (!unit.examboardSlug) {
-        unit.examBoards = examBoards;
-      }
-
-      acc.push(unit);
-
-      return acc;
-    }, [] as UnitWithExamBoards[]);
-  }
-
-  return units;
-}
-
-interface SlimSequenceResult {
-  sequenceSlug: string;
-  subjectTitle: string;
-  ks4Options?: TitleSlug[];
-}
-
-function phaseToSequences(subject: SubjectPhase): SlimSequenceResult[] {
-  return subject.phases.map((phase) => {
-    if (phase.slug === 'secondary' && subject.ks4_options) {
-      return {
-        sequenceSlug: `${subject.slug}-${phase.slug}`,
-        subjectTitle: subject.title,
-        ks4Options: subject.ks4_options,
-      };
+      uploadToStorage(sequenceDir, s.sequenceSlug, storage);
+      continue;
     }
 
-    return {
-      sequenceSlug: `${subject.slug}-${phase.slug}`,
-      subjectTitle: subject.title,
-    };
-  });
-}
+    try {
+      await fs.mkdir(sequenceDir, { recursive: true });
 
-async function getAllSubjects() {
-  let slugFilter = '';
-  if (subjectPhaseFilter) {
-    const { subjectSlug } = parseSubjectPhaseSlug(subjectPhaseFilter);
-    slugFilter = `slug: { _eq: "${subjectSlug}" }`;
-  }
+      const assetPacks: AssetPacks = {};
 
-  const query = gql`
-    query ($currentCycle: String!) @cached(ttl: 300) {
-      ${subjectPhaseView}(
-        where: {
-          cycle: { _eq: $currentCycle }
-          ${slugFilter}
-          _not: {slug: {_eq: "financial-education"}}
-        }
-        order_by: { display_order: asc }
-      ) {
-        title
-        slug
-        keystages
-        phases
-        ks4_options
-        display_order
+      if (processAssets) {
+        buildAssetPacks(sequenceDir, s.sequenceSlug, assetPacks);
       }
-    }`;
 
-  const res: SubjectPhaseView = await client.request(query, {
-    currentCycle,
-  });
+      const lessons = await buildLessonData(
+        s.sequenceSlug,
+        sequence,
+        assetPacks,
+      );
 
-  let reply = res[subjectPhaseView].map(phaseToSequences).flat();
+      await fs.writeFile(
+        `${sequenceDir}/${s.sequenceSlug}.json`,
+        JSON.stringify({ ...s, sequence, lessons }),
+      );
 
-  if (subjectPhaseFilter) {
-    reply = reply.filter((s) => s.sequenceSlug == subjectPhaseFilter);
+      // send to google storage
+      if (lessons.length) {
+        uploadToStorage(sequenceDir, s.sequenceSlug, storage);
+      }
+
+      if (processAssets) {
+        // finalize all tarballs
+        if (assetPacks.worksheets) assetPacks.worksheets.finalize();
+        if (assetPacks.slideDecks) assetPacks.slideDecks.finalize();
+        if (assetPacks.starterQuizzes) assetPacks.starterQuizzes.finalize();
+        if (assetPacks.supplementaryResources)
+          assetPacks.supplementaryResources.finalize();
+
+        // this is picked up by build-bulk-download-videos.sh
+        await fs.appendFile(
+          `${__dirname}/videos.tsv`,
+          `complete\tnop\t${s.sequenceSlug}\n`,
+        );
+      }
+
+      log(`Completed subject phase: ${s.sequenceSlug}`);
+    } catch (e) {
+      const error = e as Error;
+
+      if (error.name === 'AssertionError') {
+        logError(`${error.message}`);
+      } else {
+        logError(`Failed to process ${s.sequenceSlug}: ${e}`);
+        if (error.stack) logError(error.stack);
+      }
+      await fs.rmdir(`${sequenceDir}`);
+    }
   }
 
-  return reply;
+  // await db.end();
+  log(`Script completed`);
 }
-
-function getUnit(sequence: UnitWithExamBoards[], unit: string) {
-  const found = sequence.find((_) => _.unitSlug === unit);
-
-  if (!found) {
-    logError(`Unit not found: ${unit}`);
-    process.exit(1);
-  }
-
-  return found;
-}
-
-log('Fetching all subjects...');
-const startSubjects = Date.now();
-const sequences: SlimSequenceResult[] = await getAllSubjects();
-log(
-  `Fetched ${sequences.length} subject phases (${Date.now() - startSubjects}ms)`,
-);
-
-// Ensure the main output directory exists
-await fs.mkdir(`${__dirname}/out`, { recursive: true });
-
-for (const s of sequences) {
-  log(`Processing subject phase: ${s.sequenceSlug}`);
-
-  const sequence = await getAllSequenceData(s.sequenceSlug, s.ks4Options);
-
-  if (sequence.length === 0) {
-    log(`No sequence data found for ${s.sequenceSlug}`);
-    continue;
-  }
-
-  log(`Fetched subject phase data`);
-
-  // Create sequence-specific directory
-  const sequenceDir = `${__dirname}/out/${s.sequenceSlug}`;
-
-  // if the directory already exists, assume it's already been processed and skip it
-  if (await fs.stat(sequenceDir).catch(() => false)) {
-    log(`Skipping sequence ${s.sequenceSlug} - already processed`);
-    continue;
-  }
-
-  await fs.mkdir(sequenceDir, { recursive: true });
-
-  const assetPacks: AssetPacks = {};
-
-  if (processAssets) {
-    // Create tarballs for different asset types
-    const worksheetsOutput = createWriteStream(
-      `${sequenceDir}/${s.sequenceSlug}-worksheets.tar`,
-    );
-    const worksheetsPack = tar.pack();
-    worksheetsPack.pipe(worksheetsOutput);
-
-    // Create slide decks tarball
-    const slideDecksOutput = createWriteStream(
-      `${sequenceDir}/${s.sequenceSlug}-slide-decks.tar`,
-    );
-    const slideDecksPack = tar.pack();
-    slideDecksPack.pipe(slideDecksOutput);
-
-    // Create quizzes tarball
-    const quizzesOutput = createWriteStream(
-      `${sequenceDir}/${s.sequenceSlug}-quizzes.tar`,
-    );
-    const quizzesPack = tar.pack();
-    quizzesPack.pipe(quizzesOutput);
-
-    // Create supplementary resources tarball
-    const resourcesOutput = createWriteStream(
-      `${sequenceDir}/${s.sequenceSlug}-resources.tar`,
-    );
-    const resourcesPack = tar.pack();
-    resourcesPack.pipe(resourcesOutput);
-
-    // Create asset packs object
-    assetPacks.worksheets = worksheetsPack;
-    assetPacks.slideDecks = slideDecksPack;
-    assetPacks.starterQuizzes = quizzesPack;
-    assetPacks.exitQuizzes = quizzesPack;
-    assetPacks.supplementaryResources = resourcesPack;
-  }
-
-  const lessons = await getUnitSummaries(s.sequenceSlug, sequence, assetPacks);
-
-  if (lessons.length) {
-    await fs.writeFile(
-      `${sequenceDir}/${s.sequenceSlug}.json`,
-      JSON.stringify({ ...s, sequence, lessons }),
-    );
-  } else {
-    await fs.writeFile(
-      `${sequenceDir}/sequence.json`,
-      JSON.stringify({ ...s, sequence }),
-    );
-  }
-
-  if (processAssets) {
-    // Finalize all tarballs
-    if (assetPacks.worksheets) assetPacks.worksheets.finalize();
-    if (assetPacks.slideDecks) assetPacks.slideDecks.finalize();
-    if (assetPacks.starterQuizzes) assetPacks.starterQuizzes.finalize();
-    if (assetPacks.supplementaryResources)
-      assetPacks.supplementaryResources.finalize();
-  }
-
-  // this is picked up by build-bulk-download-videos.sh
-  await fs.appendFile(
-    `${__dirname}/videos.tsv`,
-    `complete\tnop\t${s.sequenceSlug}\n`,
-  );
-
-  log(`Completed subject phase: ${s.sequenceSlug}`);
-}
-
-await db.end();
-log(`Script completed`);

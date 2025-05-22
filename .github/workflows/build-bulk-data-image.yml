@@ -1,0 +1,60 @@
+name: Publish
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  release:
+    types: [released]
+
+env:
+  PROJECT_ID: oak-national-academy-ci-cd
+  REGION: europe-west2
+  REPO: oak-open-api
+  APP: bulk-data
+
+jobs:
+  deploy:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v3'
+
+      - name: Set release version from tag id
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: |
+          RELEASE_TAG=${{ github.event.release.tag_name }}
+          [ -z "$RELEASE_TAG" ] && echo "Release tag not set, exiting..." && exit 1;
+          echo "RELEASE_TAG=$RELEASE_TAG" >> "$GITHUB_ENV"
+
+      - name: Set release version from date time
+        if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
+        run: |
+          echo "RELEASE_TAG=$(date +%y-%m-%d.%H-%M)" >> "$GITHUB_ENV"
+
+      - name: 'Google auth'
+        id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          workload_identity_provider: ${{ vars.GOOGLE_IDENTITY_PROVIDER_NAME }}
+          service_account: ${{ vars.GOOGLE_CLOUD_SERVICE_ACCOUNT }}
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+        with:
+          project_id: '${{ env.PROJECT_ID }}'
+
+      - name: 'Docker auth'
+        run: |-
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+      - name: 'Build and push container'
+        run: |-
+          docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ env.APP }}:${{ env.RELEASE_TAG }}" .
+          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ env.APP }}:${{ env.RELEASE_TAG }}"
+
+      - name: 'Release Tag'
+        run: echo ${RELEASE_TAG}
