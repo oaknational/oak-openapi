@@ -9,6 +9,7 @@ import {
   OakModal,
   OakSecondaryButton,
 } from '@oaknational/oak-components';
+
 import Logo from '~/components/Logo';
 import { useState } from 'react';
 
@@ -43,6 +44,14 @@ const MenuContainer = styled(OakFlex)`
     .menu-contents {
       display: none;
     }
+  }
+`;
+
+// this is silly, but I don't have access to InternalShadowRoundButton
+// so it's necessary to hide the text and remove the padding
+const SecondaryButtonWithoutText = styled(OakSecondaryButton)`
+  div > span {
+    display: none;
   }
 `;
 
@@ -115,7 +124,8 @@ function Menu({
   const [isOpen, setIsOpen] = useState(false);
   return (
     <OakFlex $flexGrow="1" $justifyContent="end" className={className}>
-      <OakSecondaryButton
+      <SecondaryButtonWithoutText
+        isTrailingIcon={true}
         style={{ padding: 0, border: 0 }}
         onClick={() => setIsOpen(true)}
         iconName="hamburger"
