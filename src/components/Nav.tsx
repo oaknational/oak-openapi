@@ -60,13 +60,10 @@ export function Navigation() {
       >
         <OakFlex role="list" $gap="space-between-m2" $alignItems="center">
           <OakFlex $alignItems="center" $gap="space-between-s">
-            <OakLinkLogo
-              aria-label="Oak National Academy"
-              href="https://www.thenational.academy/"
-            >
+            <OakLinkLogo href="https://www.thenational.academy/">
               <Logo width="31" height="42" />
             </OakLinkLogo>
-            <OakHeading tag="h1" $font="heading-6">
+            <OakHeading tag="span" $font="heading-6">
               Oak Curriculum API
             </OakHeading>
           </OakFlex>
