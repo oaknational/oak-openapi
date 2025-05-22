@@ -11,6 +11,10 @@ export const OakAPINavigationLink = styled(_OakSecondaryLink)`
     margin-right: 0.25rem;
   }
 
+  &:visited {
+    color: inherit;
+  }
+
   &:hover {
     text-decoration: underline;
   }
@@ -18,7 +22,6 @@ export const OakAPINavigationLink = styled(_OakSecondaryLink)`
   &:focus-visible {
     text-decoration: none;
 
-    border-radius: 0;
     box-shadow:
       0 0 0 0.125rem rgba(255, 229, 85, 1),
       0 0 0 0.3rem rgba(87, 87, 87, 1);

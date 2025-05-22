@@ -48,7 +48,7 @@ const MenuContainer = styled(OakFlex)`
 
 export function Navigation() {
   return (
-    <MenuContainer $bb={'border-solid-m'}>
+    <MenuContainer $bb={'border-solid-s'} $borderColor="grey40">
       <OakMaxWidth
         as="header"
         $alignItems={'center'}
@@ -66,7 +66,7 @@ export function Navigation() {
             >
               <Logo width="31" height="42" />
             </OakLinkLogo>
-            <OakHeading ariaHidden tag="h1" $font="heading-6">
+            <OakHeading tag="h1" $font="heading-6">
               Oak Curriculum API
             </OakHeading>
           </OakFlex>
@@ -174,7 +174,7 @@ function MenuContents({
       {wide ? null : <MenuSeparator />}
       <OakFlex
         role="list"
-        $gap="space-between-m"
+        $gap="space-between-m2"
         $flexDirection={flexDirection}
       >
         <OakAPINavigationLink
