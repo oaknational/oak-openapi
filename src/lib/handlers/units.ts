@@ -20,6 +20,11 @@ const threadSchema = z.object({
 
 type Thread = z.infer<typeof threadSchema>;
 
+const categorySchema = z.object({
+  categoryTitle: z.string(),
+  categorySlug: z.string().optional(),
+});
+
 export const output = z.object({
   unitSlug: z.string(),
   unitTitle: z.string(),
@@ -34,6 +39,7 @@ export const output = z.object({
   nationalCurriculumContent: z.array(z.string()),
   whyThisWhyNow: z.string().optional(),
   threads: z.array(threadSchema).optional(),
+  categories: z.array(categorySchema).optional(),
   unitLessons: z.array(
     z.object({
       lessonSlug: z.string(),
@@ -47,6 +53,7 @@ export const output = z.object({
   ),
 });
 
+type Category = z.infer<typeof categorySchema>;
 export type UnitSchema = z.infer<typeof output> & {
   examboardSlug?: string;
   examboard?: string;
@@ -147,6 +154,7 @@ export const getUnits = router({
             year
             examboard
             examboard_slug
+            subjectcategories
 
             prior_knowledge_requirements
             national_curriculum_content
@@ -180,6 +188,7 @@ export function formatUnitSummary(
     threads: Thread[];
     priorKnowledgeRequirements: string[];
     nationalCurriculumContent: string[];
+    categories: Category[] | undefined;
   };
 
   if (isUnitVariant) {
@@ -210,6 +219,18 @@ export function formatUnitSummary(
     }
   }
 
+  let categories: Category[] | undefined;
+
+  if (
+    sequenceData.subjectcategories &&
+    sequenceData.subjectcategories.length > 0
+  ) {
+    categories = sequenceData.subjectcategories.map((cat) => ({
+      categoryTitle: cat.title,
+      categorySlug: cat.slug,
+    }));
+  }
+
   // we populate from the sequence view
   const root: RootUnitData = {
     unitTitle: sequenceData.title,
@@ -218,6 +239,7 @@ export function formatUnitSummary(
     priorKnowledgeRequirements: Array.from(
       new Set(sequenceData.prior_knowledge_requirements || []),
     ),
+    categories: categories,
     nationalCurriculumContent: Array.from(
       new Set(
         (sequenceData.national_curriculum_content || []).map(
