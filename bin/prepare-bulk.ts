@@ -64,12 +64,11 @@ if (processAssets) {
 const client = getClient();
 const storage = getGoogleCloudStorage();
 
-// const memoryTracker = trackMemoryUsage();
+const memoryTracker = trackMemoryUsage();
 
-main();
-// .then(() => {
-//   // clearInterval(memoryTracker);
-// });
+main().finally(() => {
+  clearInterval(memoryTracker);
+});
 
 /**
  * Check if the given lesson's assets should be processed based on subject and unit gating
