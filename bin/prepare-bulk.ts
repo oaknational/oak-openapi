@@ -64,9 +64,12 @@ if (processAssets) {
 const client = getClient();
 const storage = getGoogleCloudStorage();
 
-trackMemoryUsage();
+// const memoryTracker = trackMemoryUsage();
 
 main();
+// .then(() => {
+//   // clearInterval(memoryTracker);
+// });
 
 /**
  * Check if the given lesson's assets should be processed based on subject and unit gating
@@ -358,7 +361,7 @@ export function trackMemoryUsage() {
     arrayBuffers: 0,
   };
 
-  setInterval(() => {
+  return setInterval(() => {
     const usage = process.memoryUsage();
 
     for (const key in usage) {
