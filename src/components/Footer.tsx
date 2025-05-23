@@ -6,17 +6,20 @@ import {
   OakHandDrawnHR,
   OakHeading,
   OakIcon,
+  OakJauntyAngleLabel as _OakJauntyAngleLabel,
   OakLI,
   OakLink,
   OakMaxWidth,
   OakP,
+  OakSecondaryLink,
+  OakTextInput as _OakTextInput,
   OakTypography,
+  OakPrimaryButton,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
 import { footerSections } from '~/lib/footerSections';
 import SocialButtons, { OAK_SOCIALS } from './SocialButtons';
 import Logo from './Logo';
-import Svg from './StyledSvg';
 
 const TopOakHandDrawnHR = styled(OakHandDrawnHR)`
   position: relative;
@@ -24,16 +27,16 @@ const TopOakHandDrawnHR = styled(OakHandDrawnHR)`
   height: 0.25rem;
 `;
 
-const LoopSvg = styled(Svg)`
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  color: rgb(190, 242, 189);
-  transform: translate(25%, 15%) rotate(-10deg);
-`;
+// const LoopSvg = styled(Svg)`
+//   position: absolute;
+//   top: 0;
+//   right: 0;
+//   left: 0;
+//   width: 100%;
+//   height: 100%;
+//   color: rgb(190, 242, 189);
+//   transform: translate(25%, 15%) rotate(-10deg);
+// `;
 
 const OakLinkLogo = styled(OakLink)`
   margin: 0;
@@ -61,7 +64,18 @@ const FooterOakLink = styled(OakLink)`
 
 export default function Footer() {
   return (
-    <>
+    <footer>
+      <OakFlex
+        $background="mint30"
+        $flexDirection="column"
+        $pv="inner-padding-xl5"
+        $ph="inner-padding-m"
+        $gap="space-between-xl"
+      >
+        <ContactUs />
+        <GiveFeedback />
+        <GetUpdates />
+      </OakFlex>
       <OakBox
         $overflow={'hidden'}
         $background="white"
@@ -70,8 +84,6 @@ export default function Footer() {
       >
         <TopOakHandDrawnHR $height="all-spacing-1" />
         <nav>
-          <LoopSvg name="looping-line-3" />
-
           <OakMaxWidth
             // $pt={[16, 80]}
             $pt={['inner-padding-m', 'inner-padding-xl6']}
@@ -148,7 +160,7 @@ export default function Footer() {
           </OakMaxWidth>
         </nav>
       </OakBox>
-    </>
+    </footer>
   );
 }
 
@@ -206,3 +218,101 @@ const FooterLink = ({ text, href, ariaLabel, icon }: FooterLink) => {
     </OakFlex>
   );
 };
+
+function ContactUs() {
+  return (
+    <OakBox>
+      <OakHeading as="h2" $font="heading-5" $color="black">
+        Contact Us
+      </OakHeading>
+      <OakP $mt="space-between-ssx">
+        If you need help with using the API, get in touch.
+      </OakP>
+      <OakP $mt="space-between-m">
+        <strong>
+          <StrongLinkNoUnderline iconName="arrow-right" href="#" isTrailingIcon>
+            Send us an email
+          </StrongLinkNoUnderline>
+        </strong>
+      </OakP>
+    </OakBox>
+  );
+}
+
+function GiveFeedback() {
+  return (
+    <OakBox>
+      <OakHeading as="h2" $font="heading-5" $color="black">
+        Give Feedback
+      </OakHeading>
+      <OakP $mt="space-between-ssx">
+        Our API is new, we&apos;d love to hear your feedback to help us improve.
+      </OakP>
+      <OakP $mt="space-between-m">
+        <strong>
+          <StrongLinkNoUnderline iconName="arrow-right" href="#" isTrailingIcon>
+            Give feedback
+          </StrongLinkNoUnderline>
+        </strong>
+      </OakP>
+    </OakBox>
+  );
+}
+
+const OakJauntyAngleLabel = styled(_OakJauntyAngleLabel)`
+  width: fit-content;
+  background: #ffe555;
+  border-radius: 0;
+  z-index: 10;
+  cursor: pointer;
+  position: absolute;
+  padding: 4px 8px;
+  transform: rotate(-1.5deg) translateY(-15px) translateX(8px);
+`;
+
+const OakTextInput = styled(_OakTextInput)`
+  padding: 16px 0;
+  height: fit-content;
+`;
+
+function GetUpdates() {
+  return (
+    <OakBox>
+      <OakHeading as="h2" $font="heading-5" $color="black">
+        Receive updates
+      </OakHeading>
+      <OakP $mt="space-between-ssx" $mb="all-spacing-7">
+        Sign up to our mailing list to receive important updates about the API.
+      </OakP>
+      <OakP $mt="space-between-m">
+        {/* this isn't even a label :( */}
+        <OakJauntyAngleLabel $background="lemon" htmlFor="email" as="label">
+          <strong>Email address</strong>{' '}
+          <span style={{ fontWeight: 400 }}>(required)</span>
+        </OakJauntyAngleLabel>
+        <OakTextInput
+          id="email"
+          type="email"
+          $pa="inner-padding-m"
+          placeholder="Email address"
+        />
+      </OakP>
+      <OakP $mt="space-between-m">
+        <OakPrimaryButton>Sign up for updates</OakPrimaryButton>
+      </OakP>
+    </OakBox>
+  );
+}
+
+const StrongLinkNoUnderline = styled(OakSecondaryLink)`
+  text-decoration: none;
+  font-weight: 600;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:visited {
+    color: inherit;
+  }
+`;
