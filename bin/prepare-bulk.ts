@@ -64,6 +64,8 @@ if (processAssets) {
 const client = getClient();
 const storage = getGoogleCloudStorage();
 
+trackMemoryUsage();
+
 main();
 
 /**
@@ -343,4 +345,36 @@ async function main() {
 
   // await db.end();
   log(`Script completed`);
+}
+
+export function trackMemoryUsage() {
+  type MemoryUsageKeys = keyof NodeJS.MemoryUsage;
+
+  const maxUsage: Record<MemoryUsageKeys, number> = {
+    rss: 0,
+    heapTotal: 0,
+    heapUsed: 0,
+    external: 0,
+    arrayBuffers: 0,
+  };
+
+  setInterval(() => {
+    const usage = process.memoryUsage();
+
+    for (const key in usage) {
+      const k = key as MemoryUsageKeys;
+      if (usage[k] > maxUsage[k]) {
+        maxUsage[k] = usage[k];
+      }
+    }
+
+    const toMB = (bytes: number) => Math.round(bytes / 1024 / 1024);
+
+    console.warn(`Current Usage:
+    RSS: ${toMB(usage.rss)} MB (max ${toMB(maxUsage.rss)} MB)
+    Heap Total: ${toMB(usage.heapTotal)} MB (max ${toMB(maxUsage.heapTotal)} MB)
+    Heap Used: ${toMB(usage.heapUsed)} MB (max ${toMB(maxUsage.heapUsed)} MB)
+    External: ${toMB(usage.external)} MB (max ${toMB(maxUsage.external)} MB)
+    Array Buffers: ${toMB(usage.arrayBuffers)} MB (max ${toMB(maxUsage.arrayBuffers)} MB)`);
+  }, 5000);
 }
