@@ -31,7 +31,7 @@ import {
   isBlockedUnitOrSubject,
   supportsImages,
 } from '../queryGate';
-import allowedUnits from '../queryGateData/supportedUnits.json' assert { type: 'json' };
+import allowedUnits from '../queryGateData/supportedUnits.json' with { type: 'json' };
 import { TRPCError } from '@trpc/server';
 import { sequenceWhere } from './sequences';
 import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
