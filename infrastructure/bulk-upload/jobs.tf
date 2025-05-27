@@ -24,6 +24,16 @@ resource "google_cloud_run_v2_job" "this" {
         }
 
         env {
+          name  = "OAK_AUTH_TYPE"
+          value = var.oak-auth-type
+        }
+
+        env {
+          name  = "HASURA_ROLE"
+          value = var.hasura-role
+        }
+
+        env {
           name  = "BUCKET_NAME"
           value = google_storage_bucket.this.name
         }
@@ -31,7 +41,7 @@ resource "google_cloud_run_v2_job" "this" {
         resources {
           limits = {
             cpu    = "1000m"
-            memory = "512Mi"
+            memory = "1024Mi"
           }
         }
       }
