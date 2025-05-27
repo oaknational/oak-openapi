@@ -1,9 +1,6 @@
 import {
   OakBox,
   OakFlex,
-  OakGrid,
-  OakGridArea,
-  OakHandDrawnHR,
   OakHeading,
   OakIcon,
   OakJauntyAngleLabel as _OakJauntyAngleLabel,
@@ -12,7 +9,6 @@ import {
   OakMaxWidth,
   OakP,
   OakTextInput as _OakTextInput,
-  OakTypography,
   OakPrimaryButton,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
@@ -20,12 +16,6 @@ import { footerSections } from '~/lib/footerSections';
 import SocialButtons, { OAK_SOCIALS } from './SocialButtons';
 import Logo from './Logo';
 import { StrongLinkNoUnderline } from './StrongSecondaryLink';
-
-const TopOakHandDrawnHR = styled(OakHandDrawnHR)`
-  position: relative;
-  z-index: 10;
-  height: 0.25rem;
-`;
 
 // const LoopSvg = styled(Svg)`
 //   position: absolute;
@@ -83,83 +73,67 @@ export default function Footer() {
         $color="text-primary"
         $position={'relative'}
       >
-        <TopOakHandDrawnHR $height="all-spacing-1" />
-        <nav>
-          <OakMaxWidth
-            // $pt={[16, 80]}
-            $pt={['inner-padding-m', 'inner-padding-xl6']}
-            $justifyContent={'center'}
-            $flexDirection={'column'}
-            $ph="inner-padding-l"
-            $ma={'auto'}
-            $position={'relative'}
-            $width={'100%'}
+        <OakMaxWidth
+          as="nav"
+          $justifyContent={'center'}
+          $flexDirection={['column', 'column', 'row-reverse']}
+          $gap="space-between-l"
+          $pv={['space-between-xl', 'space-between-l', 'inner-padding-xl8']}
+          $ph="space-between-s"
+          $ma={'auto'}
+          $position={'relative'}
+          $width={'100%'}
+        >
+          <OakFlex
+            $flexDirection={['column', 'row']}
+            $gap={['space-between-l', 'space-between-s']}
           >
-            <OakGrid>
-              <OakGridArea $colSpan={[12, 3]}>
-                <FooterSectionLinks
-                  {...(footerSections.pupils as FooterSectionLinksProps)}
-                />
-                <OakBox $height="all-spacing-8" />
-                <FooterSectionLinks
-                  {...(footerSections.teachers as FooterSectionLinksProps)}
-                />
-              </OakGridArea>
-              <OakGridArea $colSpan={[12, 3]}>
-                <FooterSectionLinks
-                  {...(footerSections.oak as FooterSectionLinksProps)}
-                />
-              </OakGridArea>
-              <OakGridArea $colSpan={[12, 3]}>
-                <FooterSectionLinks
-                  {...(footerSections.legal as FooterSectionLinksProps)}
-                />
-              </OakGridArea>
-              <OakGridArea $colSpan={[12, 3]}>
-                <OakFlex
-                  $justifyContent={['left', 'right']}
-                  $mt={['space-between-m2', 'space-between-none']}
-                >
-                  <OakBox $ml={'space-between-none'} $display={['block']}>
-                    <OakLinkLogo
-                      aria-label="Oak National Academy"
-                      href="https://www.thenational.academy/"
-                    >
-                      <Logo height="66" width="150" />
-                    </OakLinkLogo>
-                  </OakBox>
-                </OakFlex>
-              </OakGridArea>
-            </OakGrid>
-            <OakFlex
-              $mb="space-between-xl"
-              $mt={['space-between-m2', 'space-between-xl']}
-              $width={'100%'}
-              $justifyContent={['flex-start', 'space-between']}
-              $flexDirection={['column', 'row']}
-              $alignItems={['flex-start', 'center']}
-              $pt={['inner-padding-s', 'inner-padding-none']}
-            >
-              <SocialButtons
-                $display={['flex']}
-                for="Oak National Academy"
-                {...OAK_SOCIALS}
+            <OakBox style={{ flex: '1' }} $minWidth="240px">
+              <FooterSectionLinks
+                {...(footerSections.pupils as FooterSectionLinksProps)}
               />
+            </OakBox>
+            <OakBox style={{ flex: '1' }} $minWidth="240px">
+              <FooterSectionLinks
+                {...(footerSections.oak as FooterSectionLinksProps)}
+              />
+            </OakBox>
+            <OakBox style={{ flex: '1' }} $minWidth="240px">
+              <FooterSectionLinks
+                {...(footerSections.legal as FooterSectionLinksProps)}
+              />
+            </OakBox>
+          </OakFlex>
+          <OakFlex
+            $mb="space-between-xl"
+            $width={'100%'}
+            $flexDirection={['column', 'row']}
+            $pt={['inner-padding-s', 'inner-padding-none']}
+          >
+            <OakFlex $flexDirection="column" $gap="space-between-l">
+              <OakLinkLogo href="https://www.thenational.academy/">
+                <Logo name="logo-with-text" width="165" height="75" />
+              </OakLinkLogo>
 
-              <OakFlex
-                $mt={['space-between-m2', 'space-between-none']}
-                $flexDirection={'column'}
-              >
-                <OakP $font={'body-3-bold'}>
-                  © Oak National Academy Limited, No 14174888
-                </OakP>
-                <OakP $font={['body-4']}>
-                  1 Scott Place, 2 Hardman Street, Manchester, M3 3AA
-                </OakP>
+              <OakFlex $flexDirection={'column'} $gap="space-between-m">
+                <SocialButtons
+                  $display={['flex']}
+                  for="Oak National Academy"
+                  {...OAK_SOCIALS}
+                />
+
+                <OakBox>
+                  <OakP $font={'body-3-bold'} $mb="space-between-s">
+                    © Oak National Academy Limited, No 14174888
+                  </OakP>
+                  <OakP $font={['body-4']}>
+                    1 Scott Place, 2 Hardman Street, Manchester, M3 3AA
+                  </OakP>
+                </OakBox>
               </OakFlex>
             </OakFlex>
-          </OakMaxWidth>
-        </nav>
+          </OakFlex>
+        </OakMaxWidth>
       </OakBox>
     </footer>
   );
@@ -179,35 +153,39 @@ type FooterSectionLinksProps = {
 };
 
 const FooterSectionLinks = ({ title, links }: FooterSectionLinksProps) => {
+  // $mt={['space-between-m2', 'space-between-none']}
+  // $mb="space-between-ssx"
   return (
-    <OakFlex
-      $flexDirection="column"
-      $mt={['space-between-m2', 'space-between-none']}
-    >
-      <OakHeading
-        $mb="space-between-ssx"
-        $font="heading-7"
-        $color="black"
-        tag="h2"
-      >
+    <OakFlex $flexDirection="column" $gap="space-between-m">
+      <OakHeading $font="heading-7" $color="black" tag="h2">
         {title}
       </OakHeading>
-      <OakTypography $color={'black'} $font={'body-2'}>
-        <ul role="list">
-          {links.map((link) => (
-            <OakLI key={link.text} $mt="space-between-xs">
-              <FooterLink {...link} />
-            </OakLI>
-          ))}
-        </ul>
-      </OakTypography>
+
+      <OakFlex
+        $color={'black'}
+        $font={'body-2'}
+        as="ul"
+        role="list"
+        $flexDirection="column"
+        $gap="space-between-m"
+      >
+        {links.map((link) => (
+          <OakLI key={link.text}>
+            <FooterLink {...link} />
+          </OakLI>
+        ))}
+      </OakFlex>
     </OakFlex>
   );
 };
 
 const FooterLink = ({ text, href, ariaLabel, icon }: FooterLink) => {
   return (
-    <OakFlex $gap={'all-spacing-2'} $display={'inline-flex'}>
+    <OakFlex
+      $gap={'all-spacing-2'}
+      $display={'inline-flex'}
+      $alignItems="center"
+    >
       <FooterOakLink
         target={icon ? '_blank' : null}
         href={href}
@@ -215,7 +193,7 @@ const FooterLink = ({ text, href, ariaLabel, icon }: FooterLink) => {
       >
         {text}
       </FooterOakLink>
-      {icon && <OakIcon iconName={icon} />}
+      {icon && <OakIcon $height="all-spacing-6" iconName={icon} />}
     </OakFlex>
   );
 };

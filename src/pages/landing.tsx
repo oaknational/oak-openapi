@@ -4,7 +4,7 @@ import { Navigation } from '~/components/Nav';
 import {
   OakBox,
   OakFlex,
-  OakImage,
+  // OakImage,
   OakMaxWidth,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
@@ -57,12 +57,12 @@ function BlockAndText() {
         </p>
       </OakBox>
       <OakBox>
-        <OakImage
+        {/* <OakImage
           sizes="width: 2228px, height: 1472px"
           src={{ src: '/images/api_1.png', width: 2228, height: 1472 }}
           alt=""
           $height="all-spacing-20"
-        ></OakImage>
+        ></OakImage> */}
       </OakBox>
     </OakFlex>
   );
