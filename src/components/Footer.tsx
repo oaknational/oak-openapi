@@ -11,7 +11,6 @@ import {
   OakLink,
   OakMaxWidth,
   OakP,
-  OakSecondaryLink,
   OakTextInput as _OakTextInput,
   OakTypography,
   OakPrimaryButton,
@@ -20,6 +19,7 @@ import styled from 'styled-components';
 import { footerSections } from '~/lib/footerSections';
 import SocialButtons, { OAK_SOCIALS } from './SocialButtons';
 import Logo from './Logo';
+import { StrongLinkNoUnderline } from './StrongSecondaryLink';
 
 const TopOakHandDrawnHR = styled(OakHandDrawnHR)`
   position: relative;
@@ -65,17 +65,18 @@ const FooterOakLink = styled(OakLink)`
 export default function Footer() {
   return (
     <footer>
-      <OakFlex
-        $background="mint30"
-        $flexDirection="column"
-        $pv="inner-padding-xl5"
-        $ph="inner-padding-m"
-        $gap="space-between-xl"
-      >
-        <ContactUs />
-        <GiveFeedback />
-        <GetUpdates />
-      </OakFlex>
+      <OakBox $background="mint30">
+        <OakMaxWidth
+          $flexDirection={['column', 'row']}
+          $pv="inner-padding-xl5"
+          $ph="inner-padding-m"
+          $gap={['space-between-xl', 'space-between-m', 'space-between-xxxl']}
+        >
+          <ContactUs />
+          <GiveFeedback />
+          <GetUpdates />
+        </OakMaxWidth>
+      </OakBox>
       <OakBox
         $overflow={'hidden'}
         $background="white"
@@ -228,13 +229,15 @@ function ContactUs() {
       <OakP $mt="space-between-ssx">
         If you need help with using the API, get in touch.
       </OakP>
-      <OakP $mt="space-between-m">
-        <strong>
-          <StrongLinkNoUnderline iconName="arrow-right" href="#" isTrailingIcon>
-            Send us an email
-          </StrongLinkNoUnderline>
-        </strong>
-      </OakP>
+      <OakBox $mt="space-between-m">
+        <StrongLinkNoUnderline
+          iconName="arrow-right"
+          href="/"
+          isTrailingIcon={true}
+        >
+          Send us an email
+        </StrongLinkNoUnderline>
+      </OakBox>
     </OakBox>
   );
 }
@@ -248,13 +251,11 @@ function GiveFeedback() {
       <OakP $mt="space-between-ssx">
         Our API is new, we&apos;d love to hear your feedback to help us improve.
       </OakP>
-      <OakP $mt="space-between-m">
-        <strong>
-          <StrongLinkNoUnderline iconName="arrow-right" href="#" isTrailingIcon>
-            Give feedback
-          </StrongLinkNoUnderline>
-        </strong>
-      </OakP>
+      <OakBox $mt="space-between-m">
+        <StrongLinkNoUnderline iconName="arrow-right" href="/" isTrailingIcon>
+          Give feedback
+        </StrongLinkNoUnderline>
+      </OakBox>
     </OakBox>
   );
 }
@@ -284,7 +285,7 @@ function GetUpdates() {
       <OakP $mt="space-between-ssx" $mb="all-spacing-7">
         Sign up to our mailing list to receive important updates about the API.
       </OakP>
-      <OakP $mt="space-between-m">
+      <OakBox $mt="space-between-m">
         {/* this isn't even a label :( */}
         <OakJauntyAngleLabel $background="lemon" htmlFor="email" as="label">
           <strong>Email address</strong>{' '}
@@ -296,23 +297,10 @@ function GetUpdates() {
           $pa="inner-padding-m"
           placeholder="Email address"
         />
-      </OakP>
-      <OakP $mt="space-between-m">
+      </OakBox>
+      <OakBox $mt="space-between-m">
         <OakPrimaryButton>Sign up for updates</OakPrimaryButton>
-      </OakP>
+      </OakBox>
     </OakBox>
   );
 }
-
-const StrongLinkNoUnderline = styled(OakSecondaryLink)`
-  text-decoration: none;
-  font-weight: 600;
-
-  &:hover {
-    text-decoration: underline;
-  }
-
-  &:visited {
-    color: inherit;
-  }
-`;
