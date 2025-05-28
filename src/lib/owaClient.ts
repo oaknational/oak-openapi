@@ -13,7 +13,7 @@ export const lessonViewTable = 'published.mv_lesson_openapi_1_2_3';
 export const lessonContentViewTable =
   'published.mv_lesson_content_published_5_0_0';
 export const subjectPhaseView = 'published_mv_subject_phase_options_0_11';
-export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_17';
+export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_19';
 
 export const views = [
   lessonView,
@@ -24,7 +24,7 @@ export const views = [
 ];
 
 export const sequenceViewWhereInput =
-  'published_mv_curriculum_sequence_b_13_0_17_bool_exp';
+  'published_mv_curriculum_sequence_b_13_0_19_bool_exp';
 
 export function querySQL(sql: string) {
   return fetch(`${process.env.OAK_GRAPHQL_HOST}/v1/query`, {

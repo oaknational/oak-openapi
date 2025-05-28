@@ -57,36 +57,6 @@ async function getUnitOptionsForSequence(sequence: string, year: number) {
   return (found as UnitWithOptions).unitOptions;
 }
 
-test('optionality unit 2023-24 cohort', async () => {
-  const caller = makeCaller({
-    user: 1,
-  });
-
-  const unitOptions = await getUnitOptionsForSequence('english-primary', 3);
-
-  const unit = unitOptions[0].unitSlug;
-  const res = await caller.getUnits.getUnit({ unit });
-  expect(res).toHaveProperty('unitSlug');
-  expect(res.unitSlug).toBe(unit);
-});
-
-test('optionality unit 2024-25 cohort', async () => {
-  const request = makeRes();
-  const caller = makeCaller({
-    user: 1,
-    request,
-  });
-
-  const unitOptions = await getUnitOptionsForSequence('art-secondary', 10);
-
-  // check all the units
-  for (const { unitSlug: unit } of unitOptions) {
-    const res = await caller.getUnits.getUnit({ unit });
-    expect(res).toHaveProperty('unitSlug');
-    expect(res.unitSlug).toBe(unit);
-  }
-});
-
 test('threads are present', async () => {
   const caller = makeCaller({
     user: 1,

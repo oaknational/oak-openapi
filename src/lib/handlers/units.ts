@@ -209,16 +209,6 @@ export function formatUnitSummary(
     }
   }
 
-  if (typeof sequenceData.prior_knowledge_requirements === 'string') {
-    try {
-      sequenceData.prior_knowledge_requirements = JSON.parse(
-        sequenceData.prior_knowledge_requirements,
-      );
-    } catch (e) {
-      // nop
-    }
-  }
-
   let categories: Category[] | undefined;
 
   if (
