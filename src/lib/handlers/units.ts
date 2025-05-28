@@ -123,18 +123,10 @@ export const getUnits = router({
         });
       }
 
-      const isUnitVariant = testIfUnitVariant(slug);
-
       // Ensure that non-curriculum units don't come through
       const whereNonCurriculum = { non_curriculum: { _eq: false } };
 
-      let whereSlug;
-
-      if (isUnitVariant) {
-        whereSlug = { slug: { _like: `${slug.replace(/-\d+$/, '-')}%` } };
-      } else {
-        whereSlug = { slug: { _eq: slug } };
-      }
+      const whereSlug = { slug: { _eq: slug } };
 
       const where = { ...whereSlug, ...whereNonCurriculum };
 
@@ -173,15 +165,10 @@ export const getUnits = router({
     }),
 });
 
-export function testIfUnitVariant(slug: string): boolean {
-  return /-\d+$/.test(slug);
-}
-
 export function formatUnitSummary(
   slug: string,
   sequenceData: Sequence,
 ): UnitSchema {
-  const isUnitVariant = testIfUnitVariant(slug);
   type RootUnitData = {
     unitTitle: string;
     notes: string;
@@ -190,24 +177,6 @@ export function formatUnitSummary(
     nationalCurriculumContent: string[];
     categories: Category[] | undefined;
   };
-
-  if (isUnitVariant) {
-    // RADAR this is a hack that we hope to remove when
-    // published_mv_curriculum_sequence_b_13_0_12 is live
-    // until then, we need to do the unit option dance
-
-    const unitOption = sequenceData.unit_options.find(
-      (unitOption) => unitOption.slug === slug,
-    );
-
-    if (unitOption) {
-      sequenceData.slug = unitOption.slug;
-      sequenceData.title = unitOption.title;
-      sequenceData.lessons = unitOption.lessons;
-      sequenceData.why_this_why_now = unitOption.why_this_why_now;
-      sequenceData.description = unitOption.description;
-    }
-  }
 
   let categories: Category[] | undefined;
 
