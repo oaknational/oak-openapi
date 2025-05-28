@@ -10,12 +10,20 @@ import {
   OakP,
   OakTextInput as _OakTextInput,
   OakPrimaryButton,
+  OakHandDrawnHR,
+  OakFieldError,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
 import { footerSections } from '~/lib/footerSections';
 import SocialButtons, { OAK_SOCIALS } from './SocialButtons';
 import Logo from './Logo';
 import { StrongLinkNoUnderline } from './StrongSecondaryLink';
+
+const TopOakHandDrawnHR = styled(OakHandDrawnHR)`
+  position: relative;
+  z-index: 10;
+  height: 0.25rem;
+`;
 
 // const LoopSvg = styled(Svg)`
 //   position: absolute;
@@ -55,6 +63,7 @@ const FooterOakLink = styled(OakLink)`
 export default function Footer() {
   return (
     <footer>
+      <TopOakHandDrawnHR $height="all-spacing-1" />
       <OakBox $background="mint30">
         <OakMaxWidth
           $flexDirection={['column', 'row']}
@@ -200,10 +209,11 @@ const FooterLink = ({ text, href, ariaLabel, icon }: FooterLink) => {
 
 function ContactUs() {
   return (
-    <OakBox>
-      <OakHeading as="h2" $font="heading-5" $color="black">
+    <OakBox $color="black">
+      <OakFlex as="h2" $font="heading-5" $gap="all-spacing-2">
+        <OakIcon iconName="send" />
         Contact Us
-      </OakHeading>
+      </OakFlex>
       <OakP $mt="space-between-ssx">
         If you need help with using the API, get in touch.
       </OakP>
@@ -222,10 +232,11 @@ function ContactUs() {
 
 function GiveFeedback() {
   return (
-    <OakBox>
-      <OakHeading as="h2" $font="heading-5" $color="black">
+    <OakBox $color="black">
+      <OakFlex as="h2" $font="heading-5" $gap="all-spacing-2">
+        <OakIcon iconName="info" />
         Give Feedback
-      </OakHeading>
+      </OakFlex>
       <OakP $mt="space-between-ssx">
         Our API is new, we&apos;d love to hear your feedback to help us improve.
       </OakP>
@@ -247,6 +258,15 @@ const OakJauntyAngleLabel = styled(_OakJauntyAngleLabel)`
   position: absolute;
   padding: 4px 8px;
   transform: rotate(-1.5deg) translateY(-15px) translateX(8px);
+
+  strong {
+    font-weight: 600;
+  }
+
+  &:has(+ div input:not(:placeholder-shown):invalid) {
+    background: #dd0035;
+    color: white;
+  }
 `;
 
 const OakTextInput = styled(_OakTextInput)`
@@ -254,24 +274,37 @@ const OakTextInput = styled(_OakTextInput)`
   height: fit-content;
 `;
 
+const ShownOnInvalid = styled(OakBox)`
+  display: none;
+
+  &:has(+ label + div input:not(:placeholder-shown):invalid) {
+    display: block;
+  }
+`;
+
 function GetUpdates() {
   return (
-    <OakBox>
-      <OakHeading as="h2" $font="heading-5" $color="black">
+    <OakBox as="form" $action="/" $color="black">
+      <OakFlex as="h2" $font="heading-5" $gap="all-spacing-2">
+        <OakIcon iconName="bell" />
         Receive updates
-      </OakHeading>
+      </OakFlex>
       <OakP $mt="space-between-ssx" $mb="all-spacing-7">
         Sign up to our mailing list to receive important updates about the API.
       </OakP>
       <OakBox $mt="space-between-m">
-        {/* this isn't even a label :( */}
+        <ShownOnInvalid $mb="space-between-m">
+          <OakFieldError>Enter a valid email to continue</OakFieldError>
+        </ShownOnInvalid>
         <OakJauntyAngleLabel $background="lemon" htmlFor="email" as="label">
           <strong>Email address</strong>{' '}
           <span style={{ fontWeight: 400 }}>(required)</span>
         </OakJauntyAngleLabel>
         <OakTextInput
+          autoComplete="email"
           id="email"
           type="email"
+          required
           $pa="inner-padding-m"
           placeholder="Email address"
         />
