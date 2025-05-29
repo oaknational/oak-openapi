@@ -18,11 +18,16 @@ import { footerSections } from '~/lib/footerSections';
 import SocialButtons, { OAK_SOCIALS } from './SocialButtons';
 import Logo from './Logo';
 import { StrongLinkNoUnderline } from './StrongSecondaryLink';
+import IconFeedback from './IconFeedback';
 
 const TopOakHandDrawnHR = styled(OakHandDrawnHR)`
   position: relative;
   z-index: 10;
   height: 0.25rem;
+`;
+
+const FlexedBox = styled(OakBox)`
+  flex: 1;
 `;
 
 // const LoopSvg = styled(Svg)`
@@ -209,7 +214,7 @@ const FooterLink = ({ text, href, ariaLabel, icon }: FooterLink) => {
 
 function ContactUs() {
   return (
-    <OakBox $color="black">
+    <FlexedBox $color="black">
       <OakFlex as="h2" $font="heading-5" $gap="all-spacing-2">
         <OakIcon iconName="send" />
         Contact Us
@@ -226,15 +231,15 @@ function ContactUs() {
           Send us an email
         </StrongLinkNoUnderline>
       </OakBox>
-    </OakBox>
+    </FlexedBox>
   );
 }
 
 function GiveFeedback() {
   return (
-    <OakBox $color="black">
+    <FlexedBox $color="black">
       <OakFlex as="h2" $font="heading-5" $gap="all-spacing-2">
-        <OakIcon iconName="info" />
+        <IconFeedback />
         Give Feedback
       </OakFlex>
       <OakP $mt="space-between-ssx">
@@ -245,7 +250,7 @@ function GiveFeedback() {
           Give feedback
         </StrongLinkNoUnderline>
       </OakBox>
-    </OakBox>
+    </FlexedBox>
   );
 }
 
@@ -284,7 +289,7 @@ const ShownOnInvalid = styled(OakBox)`
 
 function GetUpdates() {
   return (
-    <OakBox as="form" $action="/" $color="black">
+    <FlexedBox as="form" $action="/" $color="black">
       <OakFlex as="h2" $font="heading-5" $gap="all-spacing-2">
         <OakIcon iconName="bell" />
         Receive updates
@@ -312,6 +317,6 @@ function GetUpdates() {
       <OakBox $mt="space-between-m">
         <OakPrimaryButton>Sign up for updates</OakPrimaryButton>
       </OakBox>
-    </OakBox>
+    </FlexedBox>
   );
 }
