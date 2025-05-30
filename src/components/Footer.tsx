@@ -19,7 +19,7 @@ import SocialButtons, { OAK_SOCIALS } from './SocialButtons';
 import Logo from './Logo';
 import { StrongLinkNoUnderline } from './StrongSecondaryLink';
 import IconFeedback from './IconFeedback';
-import { useRef, useState } from 'react';
+// import { useRef, useState } from 'react';
 
 const TopOakHandDrawnHR = styled(OakHandDrawnHR)`
   position: relative;
@@ -269,7 +269,7 @@ const OakJauntyAngleLabel = styled(_OakJauntyAngleLabel)`
     font-weight: 600;
   }
 
-  &:has(+ div.has-been-submitted input:not(:placeholder-shown):invalid) {
+  &:has(+ div input:not(:placeholder-shown):invalid) {
     background: #dd0035;
     color: white;
   }
@@ -283,37 +283,27 @@ const OakTextInput = styled(_OakTextInput)`
 const ShownOnInvalid = styled(OakBox)`
   display: none;
 
-  &:has(
-      + label + div.has-been-submitted input:not(:placeholder-shown):invalid
-    ) {
+  &:has(+ label + div input:not(:placeholder-shown):invalid) {
     display: block;
   }
 `;
 
 function GetUpdates() {
-  const formRef = useRef<HTMLFormElement>(null);
-  const [submitted, setSubmitted] = useState(false);
+  // const formRef = useRef<HTMLFormElement>(null);
+  // const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    console.log('>>>');
-    if (formRef.current) {
-      const valid = formRef.current.checkValidity();
-      if (!valid) {
-        setSubmitted(true);
-        e.preventDefault();
-      }
-    }
-  };
+  // const handleSubmit = (e: React.FormEvent) => {
+  //   if (formRef.current) {
+  //     const valid = formRef.current.checkValidity();
+  //     if (!valid) {
+  //       setSubmitted(true);
+  //       e.preventDefault();
+  //     }
+  //   }
+  // };
 
   return (
-    <FlexedBox
-      ref={formRef}
-      as="form"
-      $action="/"
-      $color="black"
-      onSubmit={handleSubmit}
-      formNoValidate={true}
-    >
+    <FlexedBox as="form" $action="/" $color="black" formNoValidate={true}>
       <OakBox $ma="0" $pa="0" as="fieldset" $ba="border-solid-none">
         <OakFlex as="h2" $font="heading-5" $gap="all-spacing-2">
           <OakIcon iconName="bell" />
@@ -337,8 +327,7 @@ function GetUpdates() {
             type="email"
             $pa="inner-padding-m"
             placeholder="Email address"
-            className={submitted ? 'has-been-submitted' : ''}
-            formNoValidate={true}
+            required={true}
           />
         </OakBox>
         <OakBox $mt="space-between-m">
