@@ -9,8 +9,8 @@ dependencies:
     specifier: ^7.14.0
     version: 7.14.0
   '@oaknational/oak-components':
-    specifier: ^1.111.1
-    version: 1.111.1(next-cloudinary@6.16.0)(next@14.2.4)(react-dom@18.3.1)(react@18.3.1)(styled-components@6.1.18)
+    specifier: ^1.119.0
+    version: 1.119.0(next-cloudinary@6.16.0)(next@14.2.4)(react-dom@18.3.1)(react@18.3.1)(styled-components@6.1.18)
   '@oaknational/oak-curriculum-schema':
     specifier: ^1.39.0
     version: 1.39.0(zod@3.23.8)
@@ -1215,8 +1215,8 @@ packages:
       fastq: 1.17.1
     dev: true
 
-  /@oaknational/oak-components@1.111.1(next-cloudinary@6.16.0)(next@14.2.4)(react-dom@18.3.1)(react@18.3.1)(styled-components@6.1.18):
-    resolution: {integrity: sha512-WtfN69tuoh3j+Mg/Pl+16iFaMl9+hCcxEKSNRZ0oJt71c1XdmnyFQjO3ucqyTD2C9dqeL1ytj8wxCQUeyhQpFw==}
+  /@oaknational/oak-components@1.119.0(next-cloudinary@6.16.0)(next@14.2.4)(react-dom@18.3.1)(react@18.3.1)(styled-components@6.1.18):
+    resolution: {integrity: sha512-bJwl29GpaWb6uLn7BXnMRT/sbuBGGCPBegG4Ns3ukz8vd9VpnCoKeGKJ7RDV00AyQBI+nkG5XfBpTyYB7XBa2w==}
     peerDependencies:
       next: '>=14.2.12'
       next-cloudinary: '>=6.16.0'

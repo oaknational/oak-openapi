@@ -19,6 +19,7 @@ import SocialButtons, { OAK_SOCIALS } from './SocialButtons';
 import Logo from './Logo';
 import { StrongLinkNoUnderline } from './StrongSecondaryLink';
 import IconFeedback from './IconFeedback';
+import { useRef, useState } from 'react';
 
 const TopOakHandDrawnHR = styled(OakHandDrawnHR)`
   position: relative;
@@ -268,7 +269,7 @@ const OakJauntyAngleLabel = styled(_OakJauntyAngleLabel)`
     font-weight: 600;
   }
 
-  &:has(+ div input:not(:placeholder-shown):invalid) {
+  &:has(+ div.has-been-submitted input:not(:placeholder-shown):invalid) {
     background: #dd0035;
     color: white;
   }
@@ -282,40 +283,67 @@ const OakTextInput = styled(_OakTextInput)`
 const ShownOnInvalid = styled(OakBox)`
   display: none;
 
-  &:has(+ label + div input:not(:placeholder-shown):invalid) {
+  &:has(
+      + label + div.has-been-submitted input:not(:placeholder-shown):invalid
+    ) {
     display: block;
   }
 `;
 
 function GetUpdates() {
+  const formRef = useRef<HTMLFormElement>(null);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    console.log('>>>');
+    if (formRef.current) {
+      const valid = formRef.current.checkValidity();
+      if (!valid) {
+        setSubmitted(true);
+        e.preventDefault();
+      }
+    }
+  };
+
   return (
-    <FlexedBox as="form" $action="/" $color="black">
-      <OakFlex as="h2" $font="heading-5" $gap="all-spacing-2">
-        <OakIcon iconName="bell" />
-        Receive updates
-      </OakFlex>
-      <OakP $mt="space-between-ssx" $mb="all-spacing-7">
-        Sign up to our mailing list to receive important updates about the API.
-      </OakP>
-      <OakBox $mt="space-between-m">
-        <ShownOnInvalid $mb="space-between-m">
-          <OakFieldError>Enter a valid email to continue</OakFieldError>
-        </ShownOnInvalid>
-        <OakJauntyAngleLabel $background="lemon" htmlFor="email" as="label">
-          <strong>Email address</strong>{' '}
-          <span style={{ fontWeight: 400 }}>(required)</span>
-        </OakJauntyAngleLabel>
-        <OakTextInput
-          autoComplete="email"
-          id="email"
-          type="email"
-          required
-          $pa="inner-padding-m"
-          placeholder="Email address"
-        />
-      </OakBox>
-      <OakBox $mt="space-between-m">
-        <OakPrimaryButton>Sign up for updates</OakPrimaryButton>
+    <FlexedBox
+      ref={formRef}
+      as="form"
+      $action="/"
+      $color="black"
+      onSubmit={handleSubmit}
+      formNoValidate={true}
+    >
+      <OakBox $ma="0" $pa="0" as="fieldset" $ba="border-solid-none">
+        <OakFlex as="h2" $font="heading-5" $gap="all-spacing-2">
+          <OakIcon iconName="bell" />
+          Receive updates
+        </OakFlex>
+        <OakP $mt="space-between-ssx" $mb="all-spacing-7">
+          Sign up to our mailing list to receive important updates about the
+          API.
+        </OakP>
+        <OakBox $mt="space-between-m">
+          <ShownOnInvalid $mb="space-between-m">
+            <OakFieldError>Enter a valid email to continue</OakFieldError>
+          </ShownOnInvalid>
+          <OakJauntyAngleLabel $background="lemon" htmlFor="email" as="label">
+            <strong>Email address</strong>{' '}
+            <span style={{ fontWeight: 400 }}>(required)</span>
+          </OakJauntyAngleLabel>
+          <OakTextInput
+            autoComplete="email"
+            id="email"
+            type="email"
+            $pa="inner-padding-m"
+            placeholder="Email address"
+            className={submitted ? 'has-been-submitted' : ''}
+            formNoValidate={true}
+          />
+        </OakBox>
+        <OakBox $mt="space-between-m">
+          <OakPrimaryButton>Sign up for updates</OakPrimaryButton>
+        </OakBox>
       </OakBox>
     </FlexedBox>
   );
