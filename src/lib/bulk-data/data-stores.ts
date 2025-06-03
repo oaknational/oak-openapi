@@ -3,7 +3,7 @@ import { log, logError } from './logger';
 import { createReadStream } from 'node:fs';
 import { tuplesToObjects } from './utils';
 
-const bucketName = process.env.BUCKET_NAME || 'oak_bulk_data_store';
+const bucketName = process.env.BUCKET_NAME;
 
 // Initialize Google Cloud Storage
 export function getGoogleCloudStorage() {
@@ -57,7 +57,10 @@ export function uploadToStorage(
   slug: string,
   storage: Storage,
 ) {
-  // let the workflow do this work for now
+  // if there's no bucket, let the workflow handle the uploading to GCP storage
+  if (!bucketName) {
+    return;
+  }
 
   // now send the lesson to gcp storage under the `oak_bulk_data_store` bucket
   const bucket = storage.bucket(bucketName);
