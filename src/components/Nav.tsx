@@ -1,68 +1,218 @@
-import { OakAnchorTarget, OakLI } from '@oaknational/oak-components';
-import React from 'react';
 import styled from 'styled-components';
+import { OakAPINavigationLink as _OakAPINavigationLink } from './OakAPINavigationLink';
+import {
+  OakFlex,
+  OakSpan,
+  OakHeading,
+  OakLink,
+  OakMaxWidth,
+  OakModal,
+  OakSecondaryButton,
+} from '@oaknational/oak-components';
 
-const StyledNav = styled.nav`
-  outline: none;
-`;
-const StyledOakLink = styled.a`
-  color: #222222;
-  display: Flex;
-`;
+import Logo from '~/components/Logo';
+import { useState } from 'react';
 
-const StyledUL = styled.ul`
-  list-style: none;
-  padding: 0;
+const OakLinkLogo = styled(OakLink)`
   margin: 0;
-  text-decoration: none;
-`;
+  padding: 0;
 
-const StyledOLItem = styled(OakLI)`
-  position: relative;
-  counter-increment: list-counter;
-  display: flex;
-  align-items: center;
-  color: #222222;
-  margin-bottom: 20px;
-
-  min-height: 40px;
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  &:hover {
-    text-decoration: underline;
-    color: #575757;
+  span {
+    display: flex;
   }
 `;
 
-export type NavProps = {
-  title?: string;
-  items: { title: string; href: string }[];
-  ariaLabel?: string;
-  anchorTarget?: string;
-  onClick?: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
-};
+const MenuSeparator = styled.hr`
+  background: #cacaca;
+  height: 1px;
+  width: 235px;
+  margin: 0;
+  border: 0;
+`;
 
-export const Nav = ({
-  items,
-  ariaLabel,
-  anchorTarget,
-  onClick,
-  ...rest
-}: NavProps) => {
+const MenuContainer = styled(OakFlex)`
+  .menu-contents-wide {
+    display: none;
+  }
+
+  @media (min-width: 1280px) {
+    .menu-contents-wide {
+      display: flex;
+      flex: 1;
+    }
+
+    .menu-contents {
+      display: none;
+    }
+  }
+`;
+
+// this is silly, but I don't have access to InternalShadowRoundButton
+// so it's necessary to hide the text and remove the padding
+const SecondaryButtonWithoutText = styled(OakSecondaryButton)`
+  div > span {
+    display: none;
+  }
+`;
+
+export function Navigation() {
   return (
-    <StyledNav aria-label={ariaLabel} {...rest}>
-      {anchorTarget && <OakAnchorTarget id={anchorTarget} />}
-      <StyledUL role="list">
-        {items.map((item, index) => (
-          <StyledOLItem $font={'heading-6'} key={index}>
-            <StyledOakLink onClick={onClick} href={item.href}>
-              {item.title}
-            </StyledOakLink>
-          </StyledOLItem>
-        ))}
-      </StyledUL>
-    </StyledNav>
+    <MenuContainer $bb={'border-solid-s'} $borderColor="grey40">
+      <OakMaxWidth
+        as="header"
+        $alignItems={'center'}
+        $gap={'all-spacing-9'}
+        $pv="inner-padding-s"
+        $ph="inner-padding-m"
+        $color="text-primary"
+        $flexDirection={'row'}
+      >
+        <OakFlex role="list" $gap="space-between-m2" $alignItems="center">
+          <OakFlex $alignItems="center" $gap="space-between-s">
+            <OakLinkLogo href="https://www.thenational.academy/">
+              <Logo width="31" height="42" />
+            </OakLinkLogo>
+            <OakHeading tag="span" $font="heading-6">
+              Oak Curriculum API
+            </OakHeading>
+          </OakFlex>
+        </OakFlex>
+
+        <MenuContents className="menu-contents-wide" wide={true} />
+        <Menu className="menu-contents">
+          <MenuContents wide={false} />
+        </Menu>
+      </OakMaxWidth>
+    </MenuContainer>
   );
-};
+}
+
+function OakAPINavigationLink({ $font = 'heading-light-7', ...props }) {
+  const children = props.children;
+
+  // this is a workaround because the font can't be passed directly to links… apparently
+  return (
+    <_OakAPINavigationLink {...props}>
+      <OakSpan $font={$font}>{children}</OakSpan>
+    </_OakAPINavigationLink>
+  );
+}
+
+const MenuModal = styled(OakModal)`
+  width: 375px;
+
+  ${_OakAPINavigationLink} {
+    width: fit-content;
+
+    &.selected::after {
+      display: none;
+    }
+
+    &.selected:hover {
+      text-decoration: underline;
+    }
+  }
+`;
+
+function Menu({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <OakFlex $flexGrow="1" $justifyContent="end" className={className}>
+      <SecondaryButtonWithoutText
+        isTrailingIcon={true}
+        style={{ padding: 0, border: 0 }}
+        onClick={() => setIsOpen(true)}
+        iconName="hamburger"
+      />
+
+      <MenuModal
+        isOpen={isOpen}
+        isLeftHandSide={false}
+        footerSlot={null}
+        onClose={() => setIsOpen(false)}
+      >
+        <OakFlex
+          as="nav"
+          $gap="space-between-l"
+          $pa="all-spacing-4"
+          $flexDirection="column"
+          $flexGrow="1"
+        >
+          {children}
+        </OakFlex>
+      </MenuModal>
+    </OakFlex>
+  );
+}
+
+function MenuContents({
+  wide,
+  className,
+}: {
+  wide: boolean;
+  className?: string;
+}) {
+  const flexDirection = wide ? 'row' : 'column';
+  return (
+    <OakFlex
+      $gap="space-between-m2"
+      $flexDirection={flexDirection}
+      className={className}
+      $justifyContent="space-between"
+    >
+      <OakFlex
+        role="list"
+        $gap="space-between-m2"
+        $flexDirection={flexDirection}
+      >
+        <OakAPINavigationLink role="listitem" href="#" className="selected">
+          Home
+        </OakAPINavigationLink>
+        <OakAPINavigationLink role="listitem" href="/docs">
+          Documentation
+        </OakAPINavigationLink>
+      </OakFlex>
+      {wide ? null : <MenuSeparator />}
+      <OakFlex
+        role="list"
+        $gap="space-between-m2"
+        $flexDirection={flexDirection}
+      >
+        <OakAPINavigationLink
+          role="listitem"
+          href="mailto:xxx@yyy.com"
+          isTrailingIcon
+          iconName="send"
+        >
+          Request an API key
+        </OakAPINavigationLink>
+
+        <OakAPINavigationLink
+          role="listitem"
+          href="/playground"
+          isTrailingIcon
+          iconName="external"
+          target="_blank"
+        >
+          API playground
+        </OakAPINavigationLink>
+
+        <OakAPINavigationLink
+          role="listitem"
+          href="/bulk-downloads"
+          isTrailingIcon
+          iconName="external"
+          target="_blank"
+        >
+          Bulk downloads
+        </OakAPINavigationLink>
+      </OakFlex>
+    </OakFlex>
+  );
+}

@@ -17,6 +17,18 @@ variable "graphql_host_secret" {
   nullable    = false
 }
 
+variable "oak-auth-type" {
+  description = "value"
+  type        = string
+  nullable    = false
+}
+
+variable "hasura-role" {
+  description = "value"
+  type        = string
+  nullable    = false
+}
+
 variable "tag_id" {
   description = "The tag id of the docker image"
   type        = string

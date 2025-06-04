@@ -7,7 +7,7 @@ export default function Logo({
   fill = 'currentColor' as OakColorToken,
 }) {
   return Svg({
-    name: 'logo-with-text',
+    name: 'logo',
     width,
     height,
     fill,
