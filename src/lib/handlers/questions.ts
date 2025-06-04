@@ -31,7 +31,7 @@ import {
   isBlockedUnitOrSubject,
   supportsImages,
 } from '../queryGate';
-import allowedUnits from '../queryGateData/supportedUnits.json' assert { type: 'json' };
+import allowedUnits from '../queryGateData/supportedUnits.json' with { type: 'json' };
 import { TRPCError } from '@trpc/server';
 import { sequenceWhere } from './sequences';
 import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
@@ -270,9 +270,17 @@ function formatMultipleChoiceAnswer(
   });
 }
 
+function formatImageUrl(url: string) {
+  const urlObj = new URL(url);
+  urlObj.hostname = 'cloudinary-res.thenational.academy';
+  return urlObj.href;
+}
+
 function formatImage(image: ImageStem, text: null | { text: string } = null) {
   const content: ImageDataSchemaType = {
-    url: image.image_object.secure_url || image.image_object.url || '',
+    url: formatImageUrl(
+      image.image_object.secure_url || image.image_object.url || '',
+    ),
     width: image.image_object.width || 0,
     height: image.image_object.height || 0,
     alt: image.image_object.context?.custom?.alt || undefined,
