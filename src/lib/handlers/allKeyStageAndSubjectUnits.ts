@@ -18,28 +18,28 @@ export const getAllKeyStageAndSubjectUnits = router({
         path: '/key-stages/{keyStage}/subject/{subject}/units',
         description:
           'This endpoint returns all the units (titles and slugs) that are currently available on Oak for a given subject and key stage',
-        example: {
-          response: [
-            {
-              units: [
-                {
-                  unitSlug:
-                    '2-4-and-8-times-tables-using-times-tables-to-solve-problems',
-                  unitTitle:
-                    '2, 4 and 8 times tables: using times tables to solve problems',
-                },
-                {
-                  unitSlug:
-                    'bridging-100-counting-on-and-back-in-10s-adding-subtracting-multiples-of-10',
-                  unitTitle:
-                    'Bridging 100: counting on and back in 10s, adding/subtracting multiples of 10',
-                },
-              ],
-              yearSlug: 'year-3',
-              yearTitle: 'Year 3',
-            },
-          ],
-        },
+        // example: {
+        //   response: [
+        //     {
+        //       units: [
+        //         {
+        //           unitSlug:
+        //             '2-4-and-8-times-tables-using-times-tables-to-solve-problems',
+        //           unitTitle:
+        //             '2, 4 and 8 times tables: using times tables to solve problems',
+        //         },
+        //         {
+        //           unitSlug:
+        //             'bridging-100-counting-on-and-back-in-10s-adding-subtracting-multiples-of-10',
+        //           unitTitle:
+        //             'Bridging 100: counting on and back in 10s, adding/subtracting multiples of 10',
+        //         },
+        //       ],
+        //       yearSlug: 'year-3',
+        //       yearTitle: 'Year 3',
+        //     },
+        //   ],
+        // },
       },
     })
     .input(
