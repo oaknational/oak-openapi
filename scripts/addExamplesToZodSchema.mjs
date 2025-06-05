@@ -351,7 +351,7 @@ function generateGlobalIndex(endpointMap) {
 
 function formatWithPrettier(pathName) {
   try {
-    execSync(`bash -c "npx prettier --write ${pathName}"`, {
+    execSync(`bash -c "pnpm prettier --write ${pathName}"`, {
       stdio: 'inherit',
     });
     console.log('✨ Prettier formatted generated files');
