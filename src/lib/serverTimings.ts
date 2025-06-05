@@ -1,5 +1,3 @@
-import { NextApiResponse } from 'next';
-
 type TimingsRecord = Record<
   string,
   { start: [number, number]; end?: [number, number]; delta?: string }
@@ -27,11 +25,8 @@ export default class Timing {
     return this.timings[key].delta;
   }
 
-  toHeader(res: NextApiResponse) {
-    let existingHeaders = res.getHeader('Server-Timing');
-    if (existingHeaders && !Array.isArray(existingHeaders)) {
-      existingHeaders = [existingHeaders.toString()];
-    }
+  toHeader(headers: Headers) {
+    let existingHeaders = [headers.get('Server-Timing')];
 
     if (!existingHeaders) {
       existingHeaders = [];

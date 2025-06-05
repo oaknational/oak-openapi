@@ -1,4 +1,3 @@
-// import { TRPCError } from '@trpc/server';
 import router from 'lib/router';
 import { createContext } from 'lib/context';
 import { type NextRequest } from 'next/server';
