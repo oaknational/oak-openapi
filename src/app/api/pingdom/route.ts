@@ -1,9 +1,8 @@
 import { getClient, gql, views } from '~/lib/owaClient';
 import { performance } from 'node:perf_hooks';
 import { NextResponse } from 'next/server';
-import { Context } from '~/lib/context';
 
-async function handler({ resHeaders }: Context) {
+async function handler() {
   const start = performance.now();
   const client = getClient();
   const query = gql`
@@ -20,7 +19,7 @@ async function handler({ resHeaders }: Context) {
     }
   `;
 
-  resHeaders.set('Content-Type', 'application/xml');
+  const headers = { 'Content-Type': 'application/xml' };
 
   try {
     await client.request(query); // if the MV is missing then this will throw an error
@@ -28,13 +27,13 @@ async function handler({ resHeaders }: Context) {
     const duration = end - start;
     const response = new NextResponse(
       `<pingdom_http_custom_check><status>OK</status><response_time>${duration.toFixed(3)}</response_time></pingdom_http_custom_check>`,
-      { status: 200, statusText: 'ok' },
+      { status: 200, statusText: 'ok', headers },
     );
     return response;
   } catch (_) {
     const response = new NextResponse(
       '<pingdom_http_custom_check><status>failure</status></pingdom_http_custom_check>',
-      { status: 200, statusText: 'failure' },
+      { status: 200, statusText: 'failure', headers },
     );
     return response;
   }
