@@ -3,7 +3,7 @@ import { performance } from 'node:perf_hooks';
 import { NextResponse } from 'next/server';
 import { Context } from '~/lib/context';
 
-export default async function handler({ resHeaders }: Context) {
+async function handler({ resHeaders }: Context) {
   const start = performance.now();
   const client = getClient();
   const query = gql`
