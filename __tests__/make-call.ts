@@ -22,7 +22,7 @@ export function makeResHeaders() {
   return {
     get: vitest.fn(),
     set: vitest.fn(),
-  };
+  } as unknown as Headers;
 }
 
 export function makeCaller(opts = {}, res = makeRes()) {
