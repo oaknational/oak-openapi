@@ -18,7 +18,7 @@ import { useState } from 'react';
 export default function AdminPage() {
   return (
     <>
-      <OakBox $width="100%" $background="white" $color="text-primary">
+      <OakBox $width="100%" $background="white">
         <OakMaxWidth
           $ph="inner-padding-m"
           $flexDirection={'row'}

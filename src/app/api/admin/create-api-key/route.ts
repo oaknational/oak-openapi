@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addUser } from '~/lib/apikeys';
 
-export default async function handler(req: NextRequest) {
+async function handler(req: NextRequest) {
   if (req.method !== 'POST') {
     return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 });
   }

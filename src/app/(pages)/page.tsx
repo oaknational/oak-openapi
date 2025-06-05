@@ -89,7 +89,7 @@ function Banner() {
       $pv="inner-padding-s"
       $ph="inner-padding-m"
       $bb={'border-solid-m'}
-      $color="text-primary"
+      // $color="text-primary"
     >
       <OakLinkLogo
         aria-label="Oak National Academy"
@@ -106,7 +106,10 @@ function Banner() {
 
 function Hero() {
   return (
-    <OakBox $background="mint" $color="text-primary">
+    <OakBox
+      $background="mint"
+      // $color="text-primary"
+    >
       <OakMaxWidth
         $ph="inner-padding-m"
         $flexDirection={'row'}
@@ -175,7 +178,11 @@ function Hero() {
 }
 function Features() {
   return (
-    <OakBox $width="100%" $background="white" $color="text-primary">
+    <OakBox
+      $width="100%"
+      $background="white"
+      // $color="text-primary"
+    >
       <OakMaxWidth
         $ph="inner-padding-m"
         $flexDirection={'row'}
