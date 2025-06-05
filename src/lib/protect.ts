@@ -35,14 +35,14 @@ export const protectedProcedure = t.procedure.use(
       const rateLimit = getRateLimiter(user.rateLimit);
       limit = await rateLimit.check(user, noCost);
       if (limit.isSubjectToRateLimiting) {
-        ctx.res.setHeader('X-RateLimit-Limit', limit.limit.toString());
-        ctx.res.setHeader('X-RateLimit-Remaining', limit.remaining.toString());
-        ctx.res.setHeader('X-RateLimit-Reset', limit.reset.toString());
+        ctx.resHeaders.set('X-RateLimit-Limit', limit.limit.toString());
+        ctx.resHeaders.set('X-RateLimit-Remaining', limit.remaining.toString());
+        ctx.resHeaders.set('X-RateLimit-Reset', limit.reset.toString());
         if (limit.remaining <= 0 && !noCost) {
-          ctx.res.setHeader('X-Retry-After', limit.reset.toString());
-          ctx.res.statusCode = 429; // not sure this is needed, but belt & braces
+          ctx.resHeaders.set('X-Retry-After', limit.reset.toString());
+          // ctx.resHeaders.statusCode = 429; // not sure this is needed, but belt & braces
 
-          // console.log('Rate limit exceeded for user %s', user.key);
+          console.log('Rate limit exceeded for user %s', user.key);
 
           throw new TRPCError({
             message: 'Rate limited exceeded',

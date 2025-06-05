@@ -4,7 +4,7 @@ import { getAllKeyStageAndSubjectUnits } from './handlers/allKeyStageAndSubjectU
 import { changelog } from './handlers/changelog';
 import { getKeyStageSubjectLessons } from './handlers/keyStageSubjectLessons';
 import { getKeyStages } from './handlers/keyStages';
-import { getLessons } from './handlers/lesson';
+import { getLessons } from './handlers/lesson/lesson';
 import { getQuestions } from './handlers/questions';
 import { getUnits } from './handlers/units';
 import { getSubjects } from './handlers/subjects';

@@ -1,21 +1,12 @@
-import { type NextRequest } from 'next/server';
 import { User, findUserByKey } from '~/lib/apikeys';
-import { RateLimitInfo } from './rateLimit';
+import { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
 
-// method setHeader, prop setStatus, method end
-interface TrpcNextResponse {
-  setHeader: (key: string, value: string) => void;
-  setStatus: (statusCode: number) => void;
-  end: () => void;
-}
+export type Context = Awaited<Promise<ReturnType<typeof createContext>>>;
 
 const createContextWithUser = async ({
   req,
-  res,
-}: {
-  req: NextRequest;
-  res: TrpcNextResponse;
-}) => {
+  info,
+}: FetchCreateContextFnOptions) => {
   const user = await withUser(req);
 
   // Log the request which is forwarded to datadog
@@ -23,19 +14,19 @@ const createContextWithUser = async ({
     JSON.stringify({
       userId: user?.id,
       url: req.url,
-      query: req.nextUrl.searchParams.toString(),
+      query: info.url?.searchParams.toString(),
     }),
   );
 
   return {
-    req: req,
-    res,
-    rateLimit: undefined as RateLimitInfo | undefined,
+    req,
+    resHeaders: new Headers(),
+    rateLimit: undefined,
     user,
   };
 };
 
-export const withUser = async (req: NextRequest) => {
+export const withUser = async (req: Request) => {
   let user: User | null = null;
 
   const authorization = req.headers.get('authorization');
