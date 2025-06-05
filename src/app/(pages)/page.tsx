@@ -26,7 +26,7 @@ import Logo from '~/components/Logo';
 import Footer from '~/components/Footer';
 import Head from 'next/head';
 
-import { Nav } from '~/components/Nav';
+import { Nav } from '~/old/pages';
 
 const OakLinkLogo = styled(OakLink)`
   margin: 0;
