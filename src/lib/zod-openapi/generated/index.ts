@@ -1,1 +1,1 @@
-export * as lesson from "./lesson";
+export * as lesson from './lesson';

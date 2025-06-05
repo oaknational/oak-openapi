@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { execSync } from 'child_process';
 import parser from '@babel/parser';
 import traverse from '@babel/traverse';
 import generate from '@babel/generator';
@@ -204,10 +205,28 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
 
   let ast;
   try {
+    // import zod-openapi module
     ast = parser.parse(inputCode, {
       sourceType: 'module',
       plugins: ['typescript'],
     });
+    const programNode = ast.program;
+    const importPath = 'zod-openapi/extend';
+
+    const alreadyExists = programNode.body.some(
+      (n) => t.isImportDeclaration(n) && n.source.value === importPath,
+    );
+
+    if (!alreadyExists) {
+      const importStatement = t.importDeclaration(
+        [],
+        t.stringLiteral(importPath),
+      );
+      const emptyLine = t.noop(); // This forces a blank line after the import
+
+      programNode.body.unshift(emptyLine);
+      programNode.body.unshift(importStatement);
+    }
   } catch (err) {
     console.error(
       `❌ Failed to parse schema file: ${schemaFilePath}`,
@@ -313,6 +332,7 @@ function generatePerEndpointIndexes(endpointMap) {
 
     const endpointIndexPath = path.join(GENERATED_DIR, endpoint, 'index.ts');
     fs.writeFileSync(endpointIndexPath, exports.join('\n') + '\n');
+    formatWithPrettier(endpointIndexPath);
     console.log(`📦 Generated: ${endpointIndexPath}`);
   }
 }
@@ -325,7 +345,19 @@ function generateGlobalIndex(endpointMap) {
 
   const indexPath = path.join(GENERATED_DIR, 'index.ts');
   fs.writeFileSync(indexPath, indexExports.join('\n') + '\n');
+  formatWithPrettier(indexPath);
   console.log(`📦 Generated: ${indexPath}`);
+}
+
+function formatWithPrettier(pathName) {
+  try {
+    execSync(`bash -c "npx prettier --write ${pathName}"`, {
+      stdio: 'inherit',
+    });
+    console.log('✨ Prettier formatted generated files');
+  } catch (err) {
+    console.error('❌ Prettier formatting failed:', err.message);
+  }
 }
 
 function main() {
@@ -341,6 +373,7 @@ function main() {
     if (outputPath) {
       const endpoint = extractEndpointName(schemaFile);
       if (!endpointMap[endpoint]) endpointMap[endpoint] = [];
+      formatWithPrettier(outputPath);
       endpointMap[endpoint].push(outputPath);
     }
   }
