@@ -1,25 +1,30 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 import { addUser } from '~/lib/apikeys';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
+export default async function handler(req: NextRequest) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+    return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 });
   }
 
-  const { name, email, company } = req.body;
+  const { name, email, company } = await req.json();
 
   if (!name || !email || !company) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return NextResponse.json(
+      { error: 'Missing required fields' },
+      { status: 400 },
+    );
   }
 
   try {
     const apiKey = await addUser({ name, email, company });
-    return res.status(200).json({ apiKey });
+    return NextResponse.json({ apiKey });
   } catch (error) {
     console.error('Error generating API key:', error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    return NextResponse.json(
+      { error: 'Internal Server Error' },
+      { status: 500 },
+    );
   }
 }
+
+export { handler as GET, handler as POST, handler as PUT };
