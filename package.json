@@ -52,7 +52,8 @@
     "tar-stream": "^3.1.7",
     "trpc-to-openapi": "^2.3.0",
     "uuid": "^10.0.0",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "zod-openapi": "^4.2.4"
   },
   "devDependencies": {
     "@babel/core": "^7.27.4",
