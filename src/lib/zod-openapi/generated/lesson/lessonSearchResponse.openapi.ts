@@ -1,3 +1,4 @@
+import 'zod-openapi/extend';
 import z from 'zod';
 
 export const lessonSearchResultSchema = z.object({
