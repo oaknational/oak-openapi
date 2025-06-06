@@ -18,7 +18,7 @@ export const getRateLimiter = (userLimit: number | undefined | null) => {
 
 export const protectedProcedure = t.procedure.use(
   async ({ ctx, next, meta }) => {
-    const { user } = ctx;
+    const { user, resHeaders } = ctx;
     const noCost: boolean = (meta?.noCost as boolean) || false;
 
     if (!user) {
@@ -35,12 +35,12 @@ export const protectedProcedure = t.procedure.use(
       const rateLimit = getRateLimiter(user.rateLimit);
       limit = await rateLimit.check(user, noCost);
       if (limit.isSubjectToRateLimiting) {
-        ctx.headers.set('X-RateLimit-Limit', limit.limit.toString());
-        ctx.headers.set('X-RateLimit-Remaining', limit.remaining.toString());
-        ctx.headers.set('X-RateLimit-Reset', limit.reset.toString());
+        resHeaders.set('X-RateLimit-Limit', limit.limit.toString());
+        resHeaders.set('X-RateLimit-Remaining', limit.remaining.toString());
+        resHeaders.set('X-RateLimit-Reset', limit.reset.toString());
         if (limit.remaining <= 0 && !noCost) {
-          ctx.headers.set('X-Retry-After', limit.reset.toString());
-          // ctx.headers.statusCode = 429; // not sure this is needed, but belt & braces
+          resHeaders.set('X-Retry-After', limit.reset.toString());
+          // resHeaders.statusCode = 429; // not sure this is needed, but belt & braces
 
           console.log('Rate limit exceeded for user %s', user.key);
 

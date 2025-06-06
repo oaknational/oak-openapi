@@ -29,7 +29,7 @@ export function makeCaller(opts = {}, res = makeRes()) {
   const createCaller = createCallerFactory(router);
   const callerOptions = {
     req: {} as NextRequest,
-    headers: makeResHeaders(),
+    resHeaders: makeResHeaders(),
     rateLimit: undefined,
     user: null,
     ...opts,
