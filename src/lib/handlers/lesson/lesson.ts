@@ -46,6 +46,7 @@ export const getLessons = router({
     .input(lessonSummaryRequestOpenAPISchema)
     .output(lessonSummaryResponseOpenAPISchema)
     .query(async ({ ctx, input }) => {
+      const { resHeaders } = ctx;
       const slug = decodeURIComponent(input.lesson);
       const client = getClient();
 
@@ -54,10 +55,7 @@ export const getLessons = router({
       timing.end('blockLessonForCopyrightText');
 
       if (blocked) {
-        ctx.headers.set(
-          'Server-Timing',
-          timing.toHeader(ctx.headers).toString(),
-        );
+        resHeaders.set('Server-Timing', timing.toHeader(resHeaders).toString());
 
         throw new TRPCError({
           message:
@@ -98,7 +96,7 @@ export const getLessons = router({
 
       const data = res[lessonView];
 
-      ctx.headers.set('Server-Timing', timing.toHeader(ctx.headers).toString());
+      resHeaders.set('Server-Timing', timing.toHeader(resHeaders).toString());
 
       if (data.length === 0) {
         throw new TRPCError({

@@ -10,7 +10,6 @@ const createContextWithUser = async ({
   resHeaders,
 }: FetchCreateContextFnOptions) => {
   const user = await withUser(req);
-  console.log(resHeaders);
   // Log the request which is forwarded to datadog
   console.info(
     JSON.stringify({
@@ -22,7 +21,7 @@ const createContextWithUser = async ({
 
   return {
     req,
-    headers: new Headers(),
+    resHeaders,
     rateLimit: undefined as RateLimitInfo | undefined,
     user,
   };
