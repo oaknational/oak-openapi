@@ -46,9 +46,7 @@ export const getLessons = router({
     .input(lessonSummaryRequestOpenAPISchema)
     .output(lessonSummaryResponseOpenAPISchema)
     .query(async ({ ctx, input }) => {
-      const { resHeaders: headers } = ctx;
       const slug = decodeURIComponent(input.lesson);
-      console.log(input, ctx, headers);
       const client = getClient();
 
       timing.start('blockLessonForCopyrightText');
@@ -56,9 +54,9 @@ export const getLessons = router({
       timing.end('blockLessonForCopyrightText');
 
       if (blocked) {
-        ctx.resHeaders.set(
+        ctx.headers.set(
           'Server-Timing',
-          timing.toHeader(ctx.resHeaders).toString(),
+          timing.toHeader(ctx.headers).toString(),
         );
 
         throw new TRPCError({
@@ -99,11 +97,8 @@ export const getLessons = router({
       timing.end('getLesson graphql');
 
       const data = res[lessonView];
-      console.log(ctx.resHeaders);
-      ctx.resHeaders.set(
-        'Server-Timing',
-        timing.toHeader(ctx.resHeaders).toString(),
-      );
+
+      ctx.headers.set('Server-Timing', timing.toHeader(ctx.headers).toString());
 
       if (data.length === 0) {
         throw new TRPCError({

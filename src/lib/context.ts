@@ -1,14 +1,16 @@
 import { User, findUserByKey } from '~/lib/apikeys';
 import { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
+import { RateLimitInfo } from './rateLimit';
 
 export type Context = Awaited<Promise<ReturnType<typeof createContext>>>;
 
 const createContextWithUser = async ({
   req,
   info,
+  resHeaders,
 }: FetchCreateContextFnOptions) => {
   const user = await withUser(req);
-
+  console.log(resHeaders);
   // Log the request which is forwarded to datadog
   console.info(
     JSON.stringify({
@@ -20,8 +22,8 @@ const createContextWithUser = async ({
 
   return {
     req,
-    resHeaders: new Headers(),
-    rateLimit: undefined,
+    headers: new Headers(),
+    rateLimit: undefined as RateLimitInfo | undefined,
     user,
   };
 };
