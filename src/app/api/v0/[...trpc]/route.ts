@@ -11,6 +11,13 @@ const handler = (req: NextRequest) => {
     router,
     createContext,
     req,
+    responseMeta({ ctx }) {
+      return ctx?.headers
+        ? {
+            headers: ctx?.headers,
+          }
+        : {};
+    },
   });
 };
 
