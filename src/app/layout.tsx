@@ -1,9 +1,13 @@
 import type { Metadata } from 'next';
 import { Lexend } from 'next/font/google';
+import { PostHogProvider } from '~/context/AnalyticsProvider';
+import StyleContext from '~/context/StyleContext';
 
 const lexend = Lexend({
   subsets: ['latin', 'latin-ext', 'vietnamese'],
-  weight: '400',
+  display: 'swap',
+  variable: '--font-lexend',
+  weight: ['300', '400', '600'],
 });
 
 export const metadata: Metadata = {
@@ -27,8 +31,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en-GB" className={lexend.className}>
-      <body>{children}</body>
+    <html lang="en-GB" className={lexend.variable}>
+      <body>
+        <PostHogProvider>
+          <StyleContext>{children}</StyleContext>
+        </PostHogProvider>
+      </body>
     </html>
   );
 }

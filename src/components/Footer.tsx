@@ -1,4 +1,7 @@
+'use client';
+
 import {
+  OakMaxWidth,
   OakBox,
   OakFlex,
   OakGrid,
@@ -8,7 +11,6 @@ import {
   OakIcon,
   OakLI,
   OakLink,
-  OakMaxWidth,
   OakP,
   OakTypography,
 } from '@oaknational/oak-components';
@@ -73,14 +75,18 @@ export default function Footer() {
           <LoopSvg name="looping-line-3" />
 
           <OakMaxWidth
-            // $pt={[16, 80]}
             $pt={['inner-padding-m', 'inner-padding-xl6']}
             $justifyContent={'center'}
             $flexDirection={'column'}
-            $ph="inner-padding-l"
-            $ma={'auto'}
             $position={'relative'}
             $width={'100%'}
+            $ma="auto"
+            $ph={'inner-padding-m'}
+            $pv="inner-padding-xl6"
+            // FIXME: styles are being overwritten somewhere so having
+            // to declare this.
+            $mh={'auto'}
+            $maxWidth={['all-spacing-21', 'all-spacing-24']}
           >
             <OakGrid>
               <OakGridArea $colSpan={[12, 3]}>
@@ -130,7 +136,7 @@ export default function Footer() {
               <SocialButtons
                 $display={['flex']}
                 for="Oak National Academy"
-                {...OAK_SOCIALS}
+                socialNetworks={OAK_SOCIALS}
               />
 
               <OakFlex
