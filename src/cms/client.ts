@@ -1,11 +1,15 @@
 import { GraphQLClient } from 'graphql-request';
-import { projectId, dataset, sanityGraphqlApiSecret } from './env';
+import getServerConfig from '~/node-lib/serverConfig';
+
+const projectId = getServerConfig('sanityProjectId');
+const dataset = getServerConfig('sanityDataset');
+const token = getServerConfig('sanityGraphqlApiSecret');
 
 export const sanityConfig = {
   projectId,
   dataset,
   datasetTag: 'default',
-  useCDN: true,
+  useCDN: false,
 };
 
 const getGraphqlEndpoint = (opts: {
@@ -24,7 +28,7 @@ const graphqlAPIUrl = getGraphqlEndpoint(sanityConfig);
 
 export const client = new GraphQLClient(graphqlAPIUrl, {
   headers: {
-    Authorization: `Bearer ${sanityGraphqlApiSecret}`,
+    Authorization: `Bearer ${token}`,
   },
 });
 
