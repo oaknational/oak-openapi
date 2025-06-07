@@ -1,11 +1,18 @@
 import { PortableTextComponents, PortableText } from '@portabletext/react';
 import { FC } from 'react';
-import { OakHeading, OakLI, OakOL, OakSpan } from '@oaknational/oak-components';
+import {
+  OakHeading,
+  OakLI,
+  OakOL,
+  OakP,
+  OakSpan,
+} from '@oaknational/oak-components';
 
 import { PortableTextJSON } from '~/cms/schemaTypes/shared/portableText.schema';
 
-const contentPortableTextComponents = (): PortableTextComponents => ({
+const contentPortableTextComponents: PortableTextComponents = {
   block: {
+    normal: (props) => <OakP>{props.children}</OakP>,
     sectionHeading: (props) => (
       <OakHeading
         $font={['heading-6', 'heading-4']}
@@ -101,7 +108,7 @@ const contentPortableTextComponents = (): PortableTextComponents => ({
       return <OakSpan as="em">{props.children}</OakSpan>;
     },
   },
-});
+};
 
 type PortableTextProps = {
   portableText: PortableTextJSON;
@@ -109,11 +116,13 @@ type PortableTextProps = {
 
 export const ContentPortableText: FC<PortableTextProps> = (props) => {
   const { portableText } = props;
-  const portableTextComponents = contentPortableTextComponents();
 
   return (
     <>
-      <PortableText components={portableTextComponents} value={portableText} />
+      <PortableText
+        components={contentPortableTextComponents}
+        value={portableText}
+      />
     </>
   );
 };
