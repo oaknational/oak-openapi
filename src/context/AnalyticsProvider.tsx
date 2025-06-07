@@ -1,3 +1,4 @@
+'use client';
 import { createContext, useEffect, useContext, ReactNode } from 'react';
 import posthog from 'posthog-js';
 
