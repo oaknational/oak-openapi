@@ -11,12 +11,10 @@ import {
   OakP,
   OakPrimaryButton,
   OakSecondaryButton,
-  OakSpan,
+  OakTagFunctional,
 } from '@oaknational/oak-components';
 
 import styled from 'styled-components';
-
-import React from 'react';
 
 export default function Hero() {
   return (
@@ -32,16 +30,15 @@ export default function Hero() {
       >
         <OakGrid $cg="space-between-m" $rg="space-between-m">
           <OakGridArea $colSpan={[12, 7]} $flexDirection={'column'}>
-            <OakSpan
-              style={{ width: 'fit-content' }}
+            <OakTagFunctional
+              label="Beta"
+              $width="fit-content"
               $background="mint110"
               $borderRadius="border-radius-xl"
               $pv="inner-padding-xs"
               $ph="inner-padding-s"
               $font={'body-3-bold'}
-            >
-              Beta
-            </OakSpan>
+            />
 
             <OakHeading $mv={'space-between-m'} $font="heading-3" tag="h2">
               Access high-quality education content with Oak OpenAPI
