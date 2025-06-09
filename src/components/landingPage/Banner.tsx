@@ -1,5 +1,7 @@
 'use client';
-import { OakFlex, OakLink, OakHeading } from '@oaknational/oak-components';
+import React from 'react';
+
+import { OakFlex, OakHeading, OakLink } from '@oaknational/oak-components';
 import styled from 'styled-components';
 
 import Logo from '@/components/Logo';
@@ -23,6 +25,7 @@ export default function Banner() {
       $pv="inner-padding-s"
       $ph="inner-padding-m"
       $bb={'border-solid-m'}
+      $color="text-primary"
     >
       <OakLinkLogo
         aria-label="Oak National Academy"
