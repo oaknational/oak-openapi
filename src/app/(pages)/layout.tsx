@@ -5,8 +5,8 @@ import {
   OakGlobalStyle,
   OakThemeProvider,
 } from '@oaknational/oak-components';
-import { PostHogProvider } from '~/context/AnalyticsProvider';
-import StyledComponentsRegistry from '~/lib/registry';
+import { PostHogProvider } from '@/context/AnalyticsProvider';
+import StyledComponentsRegistry from '@/lib/registry';
 
 export default function PagesLayout({
   // Layouts must accept a children prop.

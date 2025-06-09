@@ -2,7 +2,7 @@
 // import { gql } from 'graphql-request';
 // import { z } from 'zod';
 
-// import { protectedProcedure } from '~/lib/protect';
+// import { protectedProcedure } from '@/lib/protect';
 // import { router } from '../trpc';
 // import {
 //   Download,
@@ -43,7 +43,7 @@
 //   isLessonSupported,
 //   isSubjectSupported,
 //   isUnitSupported,
-// } from '~/lib/queryGate';
+// } from '@/lib/queryGate';
 // import { sequenceWhere } from './sequences';
 // import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
 // import { blockedSequenceSubjects } from '../blockedContent';

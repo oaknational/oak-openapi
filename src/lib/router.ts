@@ -1,4 +1,4 @@
-import { router } from '~/lib/trpc';
+import { router } from '@/lib/trpc';
 
 // import { getAllKeyStageAndSubjectUnits } from './handlers/allKeyStageAndSubjectUnits';
 // import { changelog } from './handlers/changelog';

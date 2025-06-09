@@ -1,6 +1,6 @@
 import type { Pack } from 'tar-stream';
-import { UnitSchema } from '~/lib/handlers/units';
-import { TitleSlug } from '~/lib/owaClient';
+import { UnitSchema } from '@/lib/handlers/units';
+import { TitleSlug } from '@/lib/owaClient';
 
 export interface Lesson {
   lessonTitle: string;

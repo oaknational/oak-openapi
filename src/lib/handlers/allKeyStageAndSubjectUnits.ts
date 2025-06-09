@@ -1,5 +1,5 @@
-import { protectedProcedure } from '~/lib/protect';
-import { router } from '~/lib/trpc';
+import { protectedProcedure } from '@/lib/protect';
+import { router } from '@/lib/trpc';
 import { gql } from 'graphql-request';
 import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
 import {

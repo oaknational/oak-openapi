@@ -2,7 +2,7 @@
 import { OakFlex, OakLink, OakHeading } from '@oaknational/oak-components';
 import styled from 'styled-components';
 
-import Logo from '~/components/Logo';
+import Logo from '@/components/Logo';
 
 const OakLinkLogo = styled(OakLink)`
   margin: 0;

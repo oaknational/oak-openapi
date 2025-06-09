@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getClient, gql, views } from '~/lib/owaClient';
+import { getClient, gql, views } from '@/lib/owaClient';
 
 async function handler() {
   const client = getClient();

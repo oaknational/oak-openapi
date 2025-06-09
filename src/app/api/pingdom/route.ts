@@ -1,4 +1,4 @@
-import { getClient, gql, views } from '~/lib/owaClient';
+import { getClient, gql, views } from '@/lib/owaClient';
 import { performance } from 'node:perf_hooks';
 import { NextResponse } from 'next/server';
 

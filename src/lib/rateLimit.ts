@@ -1,5 +1,5 @@
 import { Ratelimit as RateLimit } from '@upstash/ratelimit';
-import { redis } from '~/lib/redis';
+import { redis } from '@/lib/redis';
 import { User } from './apikeys';
 
 export const defaultRateLimit = 1000;

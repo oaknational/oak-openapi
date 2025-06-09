@@ -3,7 +3,7 @@ import { makeCaller, makeRes } from './helper';
 import {
   getVideoFromMux,
   // isApprovedLesson,
-} from '~/lib/handlers/assets';
+} from '@/lib/handlers/assets';
 
 vi.mock('@google-cloud/storage', async () => {
   const { EventEmitter } = await import('events');

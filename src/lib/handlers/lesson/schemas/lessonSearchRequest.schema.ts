@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { keyStageSlugs, subjectSlugs } from '~/lib/keyStageAndSubjects';
+import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
 
 export const lessonSearchRequestSchema = z.object({
   q: z.string(),

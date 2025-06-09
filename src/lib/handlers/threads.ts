@@ -1,5 +1,5 @@
-// import { protectedProcedure } from '~/lib/protect';
-// import { router } from '~/lib/trpc';
+// import { protectedProcedure } from '@/lib/protect';
+// import { router } from '@/lib/trpc';
 // import { z } from 'zod';
 // import { getClient, gql, ThreadWithUnits } from '../owaClient';
 // import { TRPCError } from '@trpc/server';

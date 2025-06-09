@@ -1,7 +1,7 @@
 // import { z } from 'zod';
-// import { prisma } from '~/lib/db';
-// import { protectedProcedure } from '~/lib/protect';
-// import { router } from '~/lib/trpc';
+// import { prisma } from '@/lib/db';
+// import { protectedProcedure } from '@/lib/protect';
+// import { router } from '@/lib/trpc';
 
 // export const searchTranscripts = router({
 //   searchTranscripts: protectedProcedure

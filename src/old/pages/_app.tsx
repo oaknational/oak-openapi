@@ -4,7 +4,7 @@ import {
   oakDefaultTheme,
   OakGlobalStyle,
 } from '@oaknational/oak-components';
-import { PostHogProvider } from '~/context/AnalyticsProvider';
+import { PostHogProvider } from '@/context/AnalyticsProvider';
 
 export default function OakOpenAPIApp({ Component }: AppProps) {
   return (

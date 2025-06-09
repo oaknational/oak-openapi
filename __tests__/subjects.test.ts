@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { authedCaller } from './helper';
-import * as subjectConsts from '~/lib/keyStageAndSubjects';
+import * as subjectConsts from '@/lib/keyStageAndSubjects';
 
 test('subject with sequences and additional data', async () => {
   const { caller } = authedCaller();

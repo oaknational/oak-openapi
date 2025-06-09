@@ -1,4 +1,4 @@
-// import { router } from '~/lib/trpc';
+// import { router } from '@/lib/trpc';
 // import { z } from 'zod';
 // import { TRPCError } from '@trpc/server';
 // import { protectedProcedure, getRateLimiter } from '../protect';
