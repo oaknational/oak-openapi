@@ -1,6 +1,6 @@
 'use client';
 
-import { OakLI, OakLink } from '@oaknational/oak-components';
+import { OakLI, OakLink, OakUL } from '@oaknational/oak-components';
 import styled from 'styled-components';
 
 import { OakAnchorTarget } from '@oaknational/oak-components';
@@ -8,6 +8,7 @@ import { OakAnchorTarget } from '@oaknational/oak-components';
 const StyledNav = styled.nav`
   outline: none;
 `;
+
 const StyledOakLink = styled(OakLink)`
   color: #222222;
   display: Flex;
@@ -19,14 +20,7 @@ const StyledOakLink = styled(OakLink)`
   }
 `;
 
-const StyledUL = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  text-decoration: none;
-`;
-
-const StyledOLItem = styled(OakLI)`
+const StyledULItem = styled(OakLI)`
   position: relative;
   counter-increment: list-counter;
   display: flex;
@@ -63,19 +57,19 @@ const Nav = ({
   return (
     <StyledNav aria-label={ariaLabel} {...rest}>
       {anchorTarget && <OakAnchorTarget id={anchorTarget} />}
-      <StyledUL role="list">
+      <OakUL role="list">
         {items.map((item, index) => (
-          <StyledOLItem $font={'heading-6'} key={index}>
+          <StyledULItem $font={'heading-6'} key={index}>
             <StyledOakLink
               onClick={onClick}
               href={item.href}
-              $textDecoration="none"
+              // $textDecoration="none"
             >
               {item.title}
             </StyledOakLink>
-          </StyledOLItem>
+          </StyledULItem>
         ))}
-      </StyledUL>
+      </OakUL>
     </StyledNav>
   );
 };
