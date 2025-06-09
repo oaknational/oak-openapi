@@ -1,6 +1,6 @@
 'use client';
 
-import { OakLI } from '@oaknational/oak-components';
+import { OakLI, OakLink } from '@oaknational/oak-components';
 import styled from 'styled-components';
 
 import { OakAnchorTarget } from '@oaknational/oak-components';
@@ -8,9 +8,15 @@ import { OakAnchorTarget } from '@oaknational/oak-components';
 const StyledNav = styled.nav`
   outline: none;
 `;
-const StyledOakLink = styled.a`
+const StyledOakLink = styled(OakLink)`
   color: #222222;
   display: Flex;
+  text-decoration: none;
+
+  &:visited,
+  &:visited:hover {
+    color: #222222;
+  }
 `;
 
 const StyledUL = styled.ul`
@@ -60,7 +66,11 @@ const Nav = ({
       <StyledUL role="list">
         {items.map((item, index) => (
           <StyledOLItem $font={'heading-6'} key={index}>
-            <StyledOakLink onClick={onClick} href={item.href}>
+            <StyledOakLink
+              onClick={onClick}
+              href={item.href}
+              $textDecoration="none"
+            >
               {item.title}
             </StyledOakLink>
           </StyledOLItem>
