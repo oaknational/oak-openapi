@@ -20,7 +20,7 @@ import {
 import styled from 'styled-components';
 import Feature from '@/components/Feature';
 import { OakAnchorTarget } from '@oaknational/oak-components';
-import React from 'react';
+
 import Logo from '@/components/Logo';
 
 import Footer from '@/components/Footer';

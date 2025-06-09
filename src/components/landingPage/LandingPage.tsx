@@ -1,5 +1,3 @@
-import React from 'react';
-
 import Footer from '@/components/Footer';
 import Banner from '@/components/landingPage/Banner';
 

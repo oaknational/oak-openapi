@@ -1,5 +1,4 @@
 'use client';
-import React from 'react';
 
 import { OakFlex, OakHeading, OakLink } from '@oaknational/oak-components';
 import styled from 'styled-components';

@@ -4,7 +4,6 @@ import { OakLI } from '@oaknational/oak-components';
 import styled from 'styled-components';
 
 import { OakAnchorTarget } from '@oaknational/oak-components';
-import React from 'react';
 
 const StyledNav = styled.nav`
   outline: none;
