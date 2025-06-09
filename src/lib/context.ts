@@ -1,4 +1,4 @@
-import { User, findUserByKey } from '~/lib/apikeys';
+import { User, findUserByKey } from '@/lib/apikeys';
 import { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
 import { RateLimitInfo } from './rateLimit';
 

@@ -1,7 +1,7 @@
-// import { protectedProcedure } from '~/lib/protect';
+// import { protectedProcedure } from '@/lib/protect';
 // // import { zodToJsonSchema } from 'zod-to-json-schema';
 
-// import { router } from '~/lib/trpc';
+// import { router } from '@/lib/trpc';
 // import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
 // import {
 //   QuestionTypeEnum,

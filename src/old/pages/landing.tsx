@@ -1,6 +1,6 @@
-import Footer from '~/components/Footer';
+import Footer from '@/components/Footer';
 import Head from 'next/head';
-import { Navigation } from '~/components/Nav';
+import { Navigation } from '@/components/Nav';
 import {
   OakBox,
   OakFlex,

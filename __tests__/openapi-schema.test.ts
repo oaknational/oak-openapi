@@ -1,7 +1,7 @@
 import { it, expect } from 'vitest';
 import Ajv, { ErrorObject } from 'ajv';
 import addFormats from 'ajv-formats';
-import { openApiDocument } from '~/lib/zod-openapi/schema/generateDocument';
+import { openApiDocument } from '@/lib/zod-openapi/schema/generateDocument';
 import type { OpenAPIV3 } from 'openapi-types';
 
 // this object is no longer the same document type annoyingly. paths isn't a readable object

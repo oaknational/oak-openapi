@@ -1,8 +1,8 @@
 import 'renvy';
 import { getLatestMajorVersion } from '../src/lib/handlers/changelog';
-import { SubjectsResult } from '~/lib/handlers/subjects';
+import { SubjectsResult } from '@/lib/handlers/subjects';
 import { promises as fs } from 'node:fs';
-import type { SourceRecord } from '~/lib/keyStageAndSubjects';
+import type { SourceRecord } from '@/lib/keyStageAndSubjects';
 
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';

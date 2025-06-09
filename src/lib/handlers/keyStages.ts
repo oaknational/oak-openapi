@@ -1,6 +1,6 @@
-// import { protectedProcedure } from '~/lib/protect';
-// import { router } from '~/lib/trpc';
-// import { keyStages } from '~/lib/keyStageAndSubjects';
+// import { protectedProcedure } from '@/lib/protect';
+// import { router } from '@/lib/trpc';
+// import { keyStages } from '@/lib/keyStageAndSubjects';
 // import { z } from 'zod';
 
 // export const getKeyStages = router({

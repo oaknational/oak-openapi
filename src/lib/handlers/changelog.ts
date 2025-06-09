@@ -1,4 +1,4 @@
-// import { publicProcedure, router } from '~/lib/trpc';
+// import { publicProcedure, router } from '@/lib/trpc';
 // import { z } from 'zod';
 
 export const versions = [

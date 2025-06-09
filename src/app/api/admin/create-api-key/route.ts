@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { addUser } from '~/lib/apikeys';
+import { addUser } from '@/lib/apikeys';
 
 async function handler(req: NextRequest) {
   if (req.method !== 'POST') {

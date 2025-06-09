@@ -1,7 +1,7 @@
-import router from '~/lib/router';
-import { createCallerFactory } from '~/lib/trpc';
+import router from '@/lib/router';
+import { createCallerFactory } from '@/lib/trpc';
 import { vitest } from 'vitest';
-import { User } from '~/lib/apikeys';
+import { User } from '@/lib/apikeys';
 import { NextRequest } from 'next/server';
 
 export function makeRes() {
