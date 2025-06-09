@@ -15,6 +15,7 @@ const StyledOakLink = styled(OakLink)`
   text-decoration: none;
 
   &:visited,
+  &:hover,
   &:visited:hover {
     color: #222222;
   }
