@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { imageSchema } from './shared/image.schema';
-import { blockTextSchema } from './shared/blockText.schema';
+import { imageSchema } from './shared/cms/image.schema';
+import { blockTextSchema } from './shared/cms/blockText.schema';
 
 export const curriculumApiLandingPageSchema = z.object({
   data: z.object({
