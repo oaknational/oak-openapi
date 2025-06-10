@@ -14,6 +14,7 @@ import { TRPCError } from '@trpc/server';
 import { assetBaseVideoUrl } from '@/lib/baseUrl';
 import { Context, withUser } from '@/lib/context';
 import codes from 'http-codes';
+
 export const dynamic = 'force-dynamic';
 
 let storage;
@@ -108,7 +109,10 @@ const handler = async (
       .file(bucket_path)
       .createReadStream();
 
-    const res = new NextResponse(stream);
+    // we need to convert the stream to a BodyInit even though it's a ReadableStream
+    // and ReadableStreams are allowed to be passed to new Response(s) - but there's
+    // something weird in the types that requires it to be converted to a BodyInit
+    const res = new NextResponse(stream as unknown as BodyInit);
     res.headers.set('Content-Type', 'application/octet-stream');
     res.headers.set(
       'Content-Disposition',
