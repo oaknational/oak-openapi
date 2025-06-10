@@ -1,19 +1,19 @@
-// import { protectedProcedure } from '@/lib/protect';
-// import { router } from '@/lib/trpc';
+import { protectedProcedure } from '@/lib/protect';
+import { router } from '@/lib/trpc';
 import { z } from 'zod';
-// import {
-//   currentCycle,
-//   getClient,
-//   gql,
-//   SubjectPhase,
-//   SubjectPhaseView,
-//   subjectPhaseView,
-// } from '../owaClient';
-// import { TRPCError } from '@trpc/server';
+import {
+  currentCycle,
+  getClient,
+  gql,
+  SubjectPhase,
+  SubjectPhaseView,
+  subjectPhaseView,
+} from '../owaClient';
+import { TRPCError } from '@trpc/server';
 
-// const input = z.object({
-//   subject: z.string(),
-// });
+const input = z.object({
+  subject: z.string(),
+});
 
 const numberArrayResult = z.array(z.number());
 const keyStagesResult = z.array(
@@ -34,7 +34,7 @@ const sequenceResult = z.object({
     .nullable(),
 });
 
-// type SequenceResult = z.infer<typeof sequenceResult>;
+type SequenceResult = z.infer<typeof sequenceResult>;
 
 const subjectResult = z.object({
   subjectTitle: z.string(),
@@ -47,465 +47,465 @@ const subjectResult = z.object({
 const subjectsResult = z.array(subjectResult);
 export type SubjectsResult = z.infer<typeof subjectsResult>;
 
-// export function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
-//   const keyStageLookup: Record<string, string[]> = {
-//     primary: ['ks1', 'ks2'],
-//     secondary: ['ks3', 'ks4'],
-//   };
-//   const sequences = subject.phases.reduce(
-//     (acc: SequenceResult[], { slug, title }) => {
-//       if (
-//         slug === 'secondary' &&
-//         subject.ks4_options &&
-//         subject.ks4_options.length
-//       ) {
-//         const keyStages = phaseToKeyStages(subject).filter((_) =>
-//           keyStageLookup[slug].includes(_.keyStageSlug),
-//         );
-//         acc.push(
-//           ...subject.ks4_options.map((examBoard) => ({
-//             sequenceSlug: `${subject.slug}-${slug}-${examBoard.slug}`,
-//             years: yearsFromKeyStages(keyStages),
-//             keyStages,
-//             phaseSlug: slug,
-//             phaseTitle: title,
-//             ks4Options: examBoard,
-//           })),
-//         );
-//       } else {
-//         const keyStages = phaseToKeyStages(subject).filter((_) =>
-//           keyStageLookup[slug].includes(_.keyStageSlug),
-//         );
-//         acc.push({
-//           sequenceSlug: `${subject.slug}-${slug}`,
-//           years: yearsFromKeyStages(keyStages),
-//           keyStages,
-//           phaseSlug: slug,
-//           phaseTitle: title,
-//           ks4Options: null,
-//         });
-//       }
+export function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
+  const keyStageLookup: Record<string, string[]> = {
+    primary: ['ks1', 'ks2'],
+    secondary: ['ks3', 'ks4'],
+  };
+  const sequences = subject.phases.reduce(
+    (acc: SequenceResult[], { slug, title }) => {
+      if (
+        slug === 'secondary' &&
+        subject.ks4_options &&
+        subject.ks4_options.length
+      ) {
+        const keyStages = phaseToKeyStages(subject).filter((_) =>
+          keyStageLookup[slug].includes(_.keyStageSlug),
+        );
+        acc.push(
+          ...subject.ks4_options.map((examBoard) => ({
+            sequenceSlug: `${subject.slug}-${slug}-${examBoard.slug}`,
+            years: yearsFromKeyStages(keyStages),
+            keyStages,
+            phaseSlug: slug,
+            phaseTitle: title,
+            ks4Options: examBoard,
+          })),
+        );
+      } else {
+        const keyStages = phaseToKeyStages(subject).filter((_) =>
+          keyStageLookup[slug].includes(_.keyStageSlug),
+        );
+        acc.push({
+          sequenceSlug: `${subject.slug}-${slug}`,
+          years: yearsFromKeyStages(keyStages),
+          keyStages,
+          phaseSlug: slug,
+          phaseTitle: title,
+          ks4Options: null,
+        });
+      }
 
-//       return acc;
-//     },
-//     [] as SequenceResult[],
-//   );
+      return acc;
+    },
+    [] as SequenceResult[],
+  );
 
-//   return sequences;
-// }
+  return sequences;
+}
 
-// export function phaseToKeyStages(subject: SubjectPhase) {
-//   return subject.keystages.map(({ slug, title }) => {
-//     return { keyStageSlug: slug, keyStageTitle: title };
-//   });
-// }
+export function phaseToKeyStages(subject: SubjectPhase) {
+  return subject.keystages.map(({ slug, title }) => {
+    return { keyStageSlug: slug, keyStageTitle: title };
+  });
+}
 
-// export function yearsFromKeyStages(
-//   keyStages: { keyStageSlug: string; keyStageTitle: string }[],
-// ) {
-//   const years = keyStages.reduce((acc: number[], { keyStageSlug }) => {
-//     switch (keyStageSlug) {
-//       case 'ks1':
-//         acc.push(1, 2);
-//         break;
-//       case 'ks2':
-//         acc.push(3, 4, 5, 6);
-//         break;
-//       case 'ks3':
-//         acc.push(7, 8, 9);
-//         break;
-//       case 'ks4':
-//         acc.push(10, 11);
-//         break;
-//     }
-//     return acc;
-//   }, []);
+export function yearsFromKeyStages(
+  keyStages: { keyStageSlug: string; keyStageTitle: string }[],
+) {
+  const years = keyStages.reduce((acc: number[], { keyStageSlug }) => {
+    switch (keyStageSlug) {
+      case 'ks1':
+        acc.push(1, 2);
+        break;
+      case 'ks2':
+        acc.push(3, 4, 5, 6);
+        break;
+      case 'ks3':
+        acc.push(7, 8, 9);
+        break;
+      case 'ks4':
+        acc.push(10, 11);
+        break;
+    }
+    return acc;
+  }, []);
 
-//   // RS we don't support this yet, because there's no endpoint to consume the value
-//   // if (years.length === 11) {
-//   //   years.push('all-years');
-//   // }
+  // RS we don't support this yet, because there's no endpoint to consume the value
+  // if (years.length === 11) {
+  //   years.push('all-years');
+  // }
 
-//   return years;
-// }
+  return years;
+}
 
-// async function getSubjectPhase(subject: string): Promise<SubjectPhase> {
-//   const client = getClient();
-//   const query = gql`
-//   query ($subject: String!, $currentCycle: String!) @cached(ttl: 300) {
-//     ${subjectPhaseView}(
-//       where: {
-//         cycle: { _eq: $currentCycle }
-//         slug: { _eq: $subject }
-//         _not: {slug: {_eq: "financial-education"}}
-//       }
-//     ) {
-//       title
-//       slug
-//       keystages
-//       phases
-//       ks4_options
-//       display_order
-//     }
-//   }`;
+async function getSubjectPhase(subject: string): Promise<SubjectPhase> {
+  const client = getClient();
+  const query = gql`
+  query ($subject: String!, $currentCycle: String!) @cached(ttl: 300) {
+    ${subjectPhaseView}(
+      where: {
+        cycle: { _eq: $currentCycle }
+        slug: { _eq: $subject }
+        _not: {slug: {_eq: "financial-education"}}
+      }
+    ) {
+      title
+      slug
+      keystages
+      phases
+      ks4_options
+      display_order
+    }
+  }`;
 
-//   const res: SubjectPhaseView = await client.request(query, {
-//     currentCycle,
-//     subject,
-//   });
+  const res: SubjectPhaseView = await client.request(query, {
+    currentCycle,
+    subject,
+  });
 
-//   if (
-//     !res ||
-//     !Array.isArray(res[subjectPhaseView]) ||
-//     res[subjectPhaseView].length === 0
-//   ) {
-//     throw new TRPCError({
-//       message: 'Subject not found',
-//       code: 'NOT_FOUND',
-//     });
-//   }
+  if (
+    !res ||
+    !Array.isArray(res[subjectPhaseView]) ||
+    res[subjectPhaseView].length === 0
+  ) {
+    throw new TRPCError({
+      message: 'Subject not found',
+      code: 'NOT_FOUND',
+    });
+  }
 
-//   if (res[subjectPhaseView].length !== 1) {
-//     throw new TRPCError({
-//       message: `There was a problem requesting ${subject}, more than one result was returned`,
-//       code: 'INTERNAL_SERVER_ERROR',
-//     });
-//   }
+  if (res[subjectPhaseView].length !== 1) {
+    throw new TRPCError({
+      message: `There was a problem requesting ${subject}, more than one result was returned`,
+      code: 'INTERNAL_SERVER_ERROR',
+    });
+  }
 
-//   return res[subjectPhaseView][0];
-// }
+  return res[subjectPhaseView][0];
+}
 
-// export const getSubjects = router({
-//   getAllSubjects: protectedProcedure
-//     .meta({
-//       openapi: {
-//         tags: ['lists'],
-//         method: 'GET',
-//         path: '/subjects',
-//         description:
-//           'This endpoint returns an array of all subjects and associated sequences, key stages and years that are currently available on Oak',
-//         example: {
-//           response: [
-//             {
-//               subjectTitle: 'Art and design',
-//               subjectSlug: 'art',
-//               sequenceSlugs: [
-//                 {
-//                   sequenceSlug: 'art-primary',
-//                   years: [1, 2, 3, 4, 5, 6],
-//                   keyStages: [
-//                     {
-//                       keyStageTitle: 'Key Stage 1',
-//                       keyStageSlug: 'ks1',
-//                     },
-//                     {
-//                       keyStageTitle: 'Key Stage 2',
-//                       keyStageSlug: 'ks2',
-//                     },
-//                   ],
-//                   phaseSlug: 'primary',
-//                   phaseTitle: 'Primary',
-//                   ks4Options: null,
-//                 },
-//                 {
-//                   sequenceSlug: 'art-secondary',
-//                   years: [7, 8, 9, 10, 11],
-//                   keyStages: [
-//                     {
-//                       keyStageTitle: 'Key Stage 3',
-//                       keyStageSlug: 'ks3',
-//                     },
-//                     {
-//                       keyStageTitle: 'Key Stage 4',
-//                       keyStageSlug: 'ks4',
-//                     },
-//                   ],
-//                   phaseSlug: 'secondary',
-//                   phaseTitle: 'Secondary',
-//                   ks4Options: null,
-//                 },
-//               ],
-//               years: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-//               keyStages: [
-//                 {
-//                   keyStageTitle: 'Key Stage 1',
-//                   keyStageSlug: 'ks1',
-//                 },
-//                 {
-//                   keyStageTitle: 'Key Stage 2',
-//                   keyStageSlug: 'ks2',
-//                 },
-//                 {
-//                   keyStageTitle: 'Key Stage 3',
-//                   keyStageSlug: 'ks3',
-//                 },
-//                 {
-//                   keyStageTitle: 'Key Stage 4',
-//                   keyStageSlug: 'ks4',
-//                 },
-//               ],
-//             },
-//           ],
-//         },
-//       },
-//     })
-//     .input(z.void())
-//     .output(subjectsResult)
-//     .query(async () => {
-//       const client = getClient();
-//       // slug: { _nin: $blocked }
-//       // filtering out financial education - this will be replaced once RHSE units are published
-//       const query = gql`
-//       query ($currentCycle: String!) @cached(ttl: 300) {
-//         ${subjectPhaseView}(
-//           where: {
-//             cycle: { _eq: $currentCycle }
-//             _not: {slug: {_eq: "financial-education"}}
-//           }
-//           order_by: { display_order: asc }
-//         ) {
-//           title
-//           slug
-//           keystages
-//           phases
-//           ks4_options
-//           display_order
-//         }
-//       }`;
+export const getSubjects = router({
+  getAllSubjects: protectedProcedure
+    .meta({
+      openapi: {
+        tags: ['lists'],
+        method: 'GET',
+        path: '/subjects',
+        description:
+          'This endpoint returns an array of all subjects and associated sequences, key stages and years that are currently available on Oak',
+        // example: {
+        //   response: [
+        //     {
+        //       subjectTitle: 'Art and design',
+        //       subjectSlug: 'art',
+        //       sequenceSlugs: [
+        //         {
+        //           sequenceSlug: 'art-primary',
+        //           years: [1, 2, 3, 4, 5, 6],
+        //           keyStages: [
+        //             {
+        //               keyStageTitle: 'Key Stage 1',
+        //               keyStageSlug: 'ks1',
+        //             },
+        //             {
+        //               keyStageTitle: 'Key Stage 2',
+        //               keyStageSlug: 'ks2',
+        //             },
+        //           ],
+        //           phaseSlug: 'primary',
+        //           phaseTitle: 'Primary',
+        //           ks4Options: null,
+        //         },
+        //         {
+        //           sequenceSlug: 'art-secondary',
+        //           years: [7, 8, 9, 10, 11],
+        //           keyStages: [
+        //             {
+        //               keyStageTitle: 'Key Stage 3',
+        //               keyStageSlug: 'ks3',
+        //             },
+        //             {
+        //               keyStageTitle: 'Key Stage 4',
+        //               keyStageSlug: 'ks4',
+        //             },
+        //           ],
+        //           phaseSlug: 'secondary',
+        //           phaseTitle: 'Secondary',
+        //           ks4Options: null,
+        //         },
+        //       ],
+        //       years: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+        //       keyStages: [
+        //         {
+        //           keyStageTitle: 'Key Stage 1',
+        //           keyStageSlug: 'ks1',
+        //         },
+        //         {
+        //           keyStageTitle: 'Key Stage 2',
+        //           keyStageSlug: 'ks2',
+        //         },
+        //         {
+        //           keyStageTitle: 'Key Stage 3',
+        //           keyStageSlug: 'ks3',
+        //         },
+        //         {
+        //           keyStageTitle: 'Key Stage 4',
+        //           keyStageSlug: 'ks4',
+        //         },
+        //       ],
+        //     },
+        //   ],
+        // },
+      },
+    })
+    .input(z.void())
+    .output(subjectsResult)
+    .query(async () => {
+      const client = getClient();
+      // slug: { _nin: $blocked }
+      // filtering out financial education - this will be replaced once RHSE units are published
+      const query = gql`
+      query ($currentCycle: String!) @cached(ttl: 300) {
+        ${subjectPhaseView}(
+          where: {
+            cycle: { _eq: $currentCycle }
+            _not: {slug: {_eq: "financial-education"}}
+          }
+          order_by: { display_order: asc }
+        ) {
+          title
+          slug
+          keystages
+          phases
+          ks4_options
+          display_order
+        }
+      }`;
 
-//       const res: SubjectPhaseView = await client.request(query, {
-//         currentCycle,
-//       });
+      const res: SubjectPhaseView = await client.request(query, {
+        currentCycle,
+      });
 
-//       if (
-//         !res ||
-//         !Array.isArray(res[subjectPhaseView]) ||
-//         res[subjectPhaseView].length === 0
-//       ) {
-//         throw new TRPCError({
-//           message: `There was a problem requesting the subjects and associated data`,
-//           code: 'INTERNAL_SERVER_ERROR',
-//         });
-//       }
+      if (
+        !res ||
+        !Array.isArray(res[subjectPhaseView]) ||
+        res[subjectPhaseView].length === 0
+      ) {
+        throw new TRPCError({
+          message: `There was a problem requesting the subjects and associated data`,
+          code: 'INTERNAL_SERVER_ERROR',
+        });
+      }
 
-//       const reply = res[subjectPhaseView].map((subject) => {
-//         const keyStages = phaseToKeyStages(subject);
-//         return {
-//           subjectTitle: subject.title,
-//           subjectSlug: subject.slug,
-//           sequenceSlugs: phaseToSequences(subject),
-//           keyStages,
-//           years: yearsFromKeyStages(keyStages),
-//         };
-//       });
+      const reply = res[subjectPhaseView].map((subject) => {
+        const keyStages = phaseToKeyStages(subject);
+        return {
+          subjectTitle: subject.title,
+          subjectSlug: subject.slug,
+          sequenceSlugs: phaseToSequences(subject),
+          keyStages,
+          years: yearsFromKeyStages(keyStages),
+        };
+      });
 
-//       return reply;
-//     }),
-//   getSubject: protectedProcedure
-//     .meta({
-//       openapi: {
-//         tags: ['lists'],
-//         method: 'GET',
-//         path: '/subjects/{subject}',
-//         description:
-//           'This endpoint returns a single subject and associated sequences, key stages and years.',
-//         example: {
-//           request: {
-//             subject: 'art',
-//           },
-//           response: {
-//             subjectTitle: 'Art and design',
-//             subjectSlug: 'art',
-//             sequenceSlugs: [
-//               {
-//                 sequenceSlug: 'art-primary',
-//                 years: [1, 2, 3, 4, 5, 6],
-//                 keyStages: [
-//                   {
-//                     keyStageTitle: 'Key Stage 1',
-//                     keyStageSlug: 'ks1',
-//                   },
-//                   {
-//                     keyStageTitle: 'Key Stage 2',
-//                     keyStageSlug: 'ks2',
-//                   },
-//                 ],
-//                 phaseSlug: 'primary',
-//                 phaseTitle: 'Primary',
-//                 ks4Options: null,
-//               },
-//               {
-//                 sequenceSlug: 'art-secondary',
-//                 years: [1, 2, 3, 4, 5, 6],
-//                 keyStages: [
-//                   {
-//                     keyStageTitle: 'Key Stage 1',
-//                     keyStageSlug: 'ks1',
-//                   },
-//                   {
-//                     keyStageTitle: 'Key Stage 2',
-//                     keyStageSlug: 'ks2',
-//                   },
-//                 ],
-//                 phaseSlug: 'secondary',
-//                 phaseTitle: 'Secondary',
-//                 ks4Options: null,
-//               },
-//             ],
-//             years: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-//             keyStages: [
-//               {
-//                 keyStageTitle: 'Key Stage 1',
-//                 keyStageSlug: 'ks1',
-//               },
-//               {
-//                 keyStageTitle: 'Key Stage 2',
-//                 keyStageSlug: 'ks2',
-//               },
-//               {
-//                 keyStageTitle: 'Key Stage 3',
-//                 keyStageSlug: 'ks3',
-//               },
-//               {
-//                 keyStageTitle: 'Key Stage 4',
-//                 keyStageSlug: 'ks4',
-//               },
-//             ],
-//           },
-//         },
-//       },
-//     })
-//     .input(input)
-//     .output(subjectResult)
-//     .query(async ({ input }) => {
-//       const subject = await getSubjectPhase(input.subject);
+      return reply;
+    }),
+  getSubject: protectedProcedure
+    .meta({
+      openapi: {
+        tags: ['lists'],
+        method: 'GET',
+        path: '/subjects/{subject}',
+        description:
+          'This endpoint returns a single subject and associated sequences, key stages and years.',
+        // example: {
+        //   request: {
+        //     subject: 'art',
+        //   },
+        //   response: {
+        //     subjectTitle: 'Art and design',
+        //     subjectSlug: 'art',
+        //     sequenceSlugs: [
+        //       {
+        //         sequenceSlug: 'art-primary',
+        //         years: [1, 2, 3, 4, 5, 6],
+        //         keyStages: [
+        //           {
+        //             keyStageTitle: 'Key Stage 1',
+        //             keyStageSlug: 'ks1',
+        //           },
+        //           {
+        //             keyStageTitle: 'Key Stage 2',
+        //             keyStageSlug: 'ks2',
+        //           },
+        //         ],
+        //         phaseSlug: 'primary',
+        //         phaseTitle: 'Primary',
+        //         ks4Options: null,
+        //       },
+        //       {
+        //         sequenceSlug: 'art-secondary',
+        //         years: [1, 2, 3, 4, 5, 6],
+        //         keyStages: [
+        //           {
+        //             keyStageTitle: 'Key Stage 1',
+        //             keyStageSlug: 'ks1',
+        //           },
+        //           {
+        //             keyStageTitle: 'Key Stage 2',
+        //             keyStageSlug: 'ks2',
+        //           },
+        //         ],
+        //         phaseSlug: 'secondary',
+        //         phaseTitle: 'Secondary',
+        //         ks4Options: null,
+        //       },
+        //     ],
+        //     years: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+        //     keyStages: [
+        //       {
+        //         keyStageTitle: 'Key Stage 1',
+        //         keyStageSlug: 'ks1',
+        //       },
+        //       {
+        //         keyStageTitle: 'Key Stage 2',
+        //         keyStageSlug: 'ks2',
+        //       },
+        //       {
+        //         keyStageTitle: 'Key Stage 3',
+        //         keyStageSlug: 'ks3',
+        //       },
+        //       {
+        //         keyStageTitle: 'Key Stage 4',
+        //         keyStageSlug: 'ks4',
+        //       },
+        //     ],
+        //   },
+        // },
+      },
+    })
+    .input(input)
+    .output(subjectResult)
+    .query(async ({ input }) => {
+      const subject = await getSubjectPhase(input.subject);
 
-//       const keyStages = phaseToKeyStages(subject);
-//       return {
-//         subjectTitle: subject.title,
-//         subjectSlug: subject.slug,
-//         sequenceSlugs: phaseToSequences(subject),
-//         keyStages,
-//         years: yearsFromKeyStages(keyStages),
-//       };
-//     }),
-//   getSubjectSequence: protectedProcedure
-//     .meta({
-//       openapi: {
-//         tags: ['lists', 'sequences'],
-//         method: 'GET',
-//         path: '/subjects/{subject}/sequences',
-//         description:
-//           'List of the sequences, including phase, key stage 4 options, years and key stages the sequence applies to for a subject.',
-//         example: {
-//           request: {
-//             subject: 'art',
-//           },
-//           response: [
-//             {
-//               sequenceSlug: 'art-primary',
-//               years: [1, 2, 3, 4, 5, 6],
-//               keyStages: [
-//                 {
-//                   keyStageTitle: 'Key Stage 1',
-//                   keyStageSlug: 'ks1',
-//                 },
-//                 {
-//                   keyStageTitle: 'Key Stage 2',
-//                   keyStageSlug: 'ks2',
-//                 },
-//               ],
-//               phaseSlug: 'primary',
-//               phaseTitle: 'Primary',
-//               ks4Options: null,
-//             },
-//             {
-//               sequenceSlug: 'art-secondary',
-//               years: [1, 2, 3, 4, 5, 6],
-//               keyStages: [
-//                 {
-//                   keyStageTitle: 'Key Stage 1',
-//                   keyStageSlug: 'ks1',
-//                 },
-//                 {
-//                   keyStageTitle: 'Key Stage 2',
-//                   keyStageSlug: 'ks2',
-//                 },
-//               ],
-//               phaseSlug: 'secondary',
-//               phaseTitle: 'Secondary',
-//               ks4Options: null,
-//             },
-//           ],
-//         },
-//       },
-//     })
-//     .input(
-//       z.object({
-//         subject: z.string(),
-//       }),
-//     )
-//     .output(z.array(sequenceResult))
-//     .query(async ({ input }) => {
-//       return phaseToSequences(await getSubjectPhase(input.subject));
-//     }),
-//   getSubjectKeyStages: protectedProcedure
-//     .meta({
-//       openapi: {
-//         tags: ['lists'],
-//         method: 'GET',
-//         path: '/subjects/{subject}/key-stages',
-//         description: 'List of the key stages a subject is taught in.',
-//         example: {
-//           request: {
-//             subject: 'art',
-//           },
-//           response: [
-//             {
-//               keyStageTitle: 'Key Stage 1',
-//               keyStageSlug: 'ks1',
-//             },
-//             {
-//               keyStageTitle: 'Key Stage 2',
-//               keyStageSlug: 'ks2',
-//             },
-//             {
-//               keyStageTitle: 'Key Stage 3',
-//               keyStageSlug: 'ks3',
-//             },
-//             {
-//               keyStageTitle: 'Key Stage 4',
-//               keyStageSlug: 'ks4',
-//             },
-//           ],
-//         },
-//       },
-//     })
-//     .input(input)
-//     .output(keyStagesResult)
-//     .query(async ({ input }) => {
-//       return phaseToKeyStages(await getSubjectPhase(input.subject));
-//     }),
-//   getSubjectYears: protectedProcedure
-//     .meta({
-//       openapi: {
-//         tags: ['lists'],
-//         method: 'GET',
-//         path: '/subjects/{subject}/years',
-//         description: 'List of the years a subject is taught in.',
-//         example: {
-//           request: {
-//             subject: 'art',
-//           },
-//           response: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-//         },
-//       },
-//     })
-//     .input(input)
-//     .output(numberArrayResult)
-//     .query(async ({ input }) => {
-//       return yearsFromKeyStages(
-//         phaseToKeyStages(await getSubjectPhase(input.subject)),
-//       );
-//     }),
-// });
+      const keyStages = phaseToKeyStages(subject);
+      return {
+        subjectTitle: subject.title,
+        subjectSlug: subject.slug,
+        sequenceSlugs: phaseToSequences(subject),
+        keyStages,
+        years: yearsFromKeyStages(keyStages),
+      };
+    }),
+  getSubjectSequence: protectedProcedure
+    .meta({
+      openapi: {
+        tags: ['lists', 'sequences'],
+        method: 'GET',
+        path: '/subjects/{subject}/sequences',
+        description:
+          'List of the sequences, including phase, key stage 4 options, years and key stages the sequence applies to for a subject.',
+        // example: {
+        //   request: {
+        //     subject: 'art',
+        //   },
+        //   response: [
+        //     {
+        //       sequenceSlug: 'art-primary',
+        //       years: [1, 2, 3, 4, 5, 6],
+        //       keyStages: [
+        //         {
+        //           keyStageTitle: 'Key Stage 1',
+        //           keyStageSlug: 'ks1',
+        //         },
+        //         {
+        //           keyStageTitle: 'Key Stage 2',
+        //           keyStageSlug: 'ks2',
+        //         },
+        //       ],
+        //       phaseSlug: 'primary',
+        //       phaseTitle: 'Primary',
+        //       ks4Options: null,
+        //     },
+        //     {
+        //       sequenceSlug: 'art-secondary',
+        //       years: [1, 2, 3, 4, 5, 6],
+        //       keyStages: [
+        //         {
+        //           keyStageTitle: 'Key Stage 1',
+        //           keyStageSlug: 'ks1',
+        //         },
+        //         {
+        //           keyStageTitle: 'Key Stage 2',
+        //           keyStageSlug: 'ks2',
+        //         },
+        //       ],
+        //       phaseSlug: 'secondary',
+        //       phaseTitle: 'Secondary',
+        //       ks4Options: null,
+        //     },
+        //   ],
+        // },
+      },
+    })
+    .input(
+      z.object({
+        subject: z.string(),
+      }),
+    )
+    .output(z.array(sequenceResult))
+    .query(async ({ input }) => {
+      return phaseToSequences(await getSubjectPhase(input.subject));
+    }),
+  getSubjectKeyStages: protectedProcedure
+    .meta({
+      openapi: {
+        tags: ['lists'],
+        method: 'GET',
+        path: '/subjects/{subject}/key-stages',
+        description: 'List of the key stages a subject is taught in.',
+        // example: {
+        //   request: {
+        //     subject: 'art',
+        //   },
+        //   response: [
+        //     {
+        //       keyStageTitle: 'Key Stage 1',
+        //       keyStageSlug: 'ks1',
+        //     },
+        //     {
+        //       keyStageTitle: 'Key Stage 2',
+        //       keyStageSlug: 'ks2',
+        //     },
+        //     {
+        //       keyStageTitle: 'Key Stage 3',
+        //       keyStageSlug: 'ks3',
+        //     },
+        //     {
+        //       keyStageTitle: 'Key Stage 4',
+        //       keyStageSlug: 'ks4',
+        //     },
+        //   ],
+        // },
+      },
+    })
+    .input(input)
+    .output(keyStagesResult)
+    .query(async ({ input }) => {
+      return phaseToKeyStages(await getSubjectPhase(input.subject));
+    }),
+  getSubjectYears: protectedProcedure
+    .meta({
+      openapi: {
+        tags: ['lists'],
+        method: 'GET',
+        path: '/subjects/{subject}/years',
+        description: 'List of the years a subject is taught in.',
+        // example: {
+        //   request: {
+        //     subject: 'art',
+        //   },
+        //   response: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+        // },
+      },
+    })
+    .input(input)
+    .output(numberArrayResult)
+    .query(async ({ input }) => {
+      return yearsFromKeyStages(
+        phaseToKeyStages(await getSubjectPhase(input.subject)),
+      );
+    }),
+});
