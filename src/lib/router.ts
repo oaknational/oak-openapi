@@ -8,7 +8,7 @@ import { getLessons } from './handlers/lesson/lesson';
 import { getQuestions } from './handlers/questions';
 import { getUnits } from './handlers/units';
 import { getSubjects } from './handlers/subjects';
-// import { getAssets } from './handlers/assets';
+import { getAssets } from './handlers/assets';
 import { searchTranscripts } from './handlers/searchTranscripts';
 import { getLessonTranscript } from './handlers/transcript';
 import { getSequences } from './handlers/sequences';
@@ -19,7 +19,7 @@ export default router({
   getSequences,
   getLessonTranscript,
   searchTranscripts,
-  // getAssets,
+  getAssets,
   getSubjects,
   getKeyStages,
   getKeyStageSubjectLessons,

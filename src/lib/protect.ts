@@ -6,6 +6,7 @@ import {
   rateLimits,
   defaultRateLimit,
 } from './rateLimit';
+import { Context } from './context';
 
 export const getRateLimiter = (userLimit: number | undefined | null) => {
   if (userLimit !== defaultRateLimit && typeof userLimit === 'number') {
@@ -16,42 +17,50 @@ export const getRateLimiter = (userLimit: number | undefined | null) => {
   }
 };
 
-export const protectedProcedure = t.procedure.use(
-  async ({ ctx, next, meta }) => {
-    const { user, resHeaders } = ctx;
-    const noCost: boolean = (meta?.noCost as boolean) || false;
+// Remove ProtectOpts interface and update protect to match t.procedure.use signature
 
-    if (!user) {
-      throw new TRPCError({
-        message: 'API token not provided or invalid',
-        code: 'UNAUTHORIZED',
-      });
-    }
+export const protect = async (opts: {
+  ctx: Context;
+  next: (opts: { ctx: Context }) => Promise<any>;
+  meta?: any;
+}) => {
+  const { ctx, next, meta } = opts;
+  const { user, resHeaders } = ctx;
 
-    // rate limit the user
-    let limit: RateLimitInfo | undefined;
+  const noCost: boolean = (meta?.noCost as boolean) || false;
 
-    if (user) {
-      const rateLimit = getRateLimiter(user.rateLimit);
-      limit = await rateLimit.check(user, noCost);
-      if (limit.isSubjectToRateLimiting) {
-        resHeaders.set('X-RateLimit-Limit', limit.limit.toString());
-        resHeaders.set('X-RateLimit-Remaining', limit.remaining.toString());
-        resHeaders.set('X-RateLimit-Reset', limit.reset.toString());
-        if (limit.remaining <= 0 && !noCost) {
-          resHeaders.set('X-Retry-After', limit.reset.toString());
-          // resHeaders.statusCode = 429; // not sure this is needed, but belt & braces
+  if (!user) {
+    throw new TRPCError({
+      message: 'API token not provided or invalid',
+      code: 'UNAUTHORIZED',
+    });
+  }
 
-          console.log('Rate limit exceeded for user %s', user.key);
+  // rate limit the user
+  let limit: RateLimitInfo | undefined;
 
-          throw new TRPCError({
-            message: 'Rate limited exceeded',
-            code: 'TOO_MANY_REQUESTS',
-          });
-        }
+  if (user) {
+    const rateLimit = getRateLimiter(user.rateLimit);
+    limit = await rateLimit.check(user, noCost);
+    if (limit.isSubjectToRateLimiting) {
+      resHeaders.set('X-RateLimit-Limit', limit.limit.toString());
+      resHeaders.set('X-RateLimit-Remaining', limit.remaining.toString());
+      resHeaders.set('X-RateLimit-Reset', limit.reset.toString());
+      if (limit.remaining <= 0 && !noCost) {
+        resHeaders.set('X-Retry-After', limit.reset.toString());
+        // resHeaders.statusCode = 429; // not sure this is needed, but belt & braces
+
+        console.log('Rate limit exceeded for user %s', user.key);
+
+        throw new TRPCError({
+          message: 'Rate limited exceeded',
+          code: 'TOO_MANY_REQUESTS',
+        });
       }
     }
+  }
 
-    return next({ ctx });
-  },
-);
+  return next({ ctx });
+};
+
+export const protectedProcedure = t.procedure.use(protect);
