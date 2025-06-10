@@ -8,8 +8,6 @@ import {
   Download,
   DownloadView,
   LessonView,
-  SignedAsset,
-  Video,
   UnitVariantLessonsView,
   downloadView,
   getClient,
@@ -20,23 +18,9 @@ import {
   SequenceView,
 } from '../owaClient';
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
-import { assetBaseVideoUrl, baseUrl } from '../baseUrl';
+import { baseUrl } from '../baseUrl';
 
 import { Storage } from '@google-cloud/storage';
-let storage;
-
-// Check if GOOGLE_APPLICATION_CREDENTIALS_JSON is set
-if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-  const credentials = JSON.parse(
-    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
-  );
-  // Initialize storage client with credentials
-  storage = new Storage({ credentials });
-} else {
-  // Use default method, which relies on GOOGLE_APPLICATION_CREDENTIALS path
-  storage = new Storage();
-}
-
 import {
   checkLessonAllowedAsset,
   isBlockedUnitOrSubject,
@@ -47,9 +31,8 @@ import {
 import { sequenceWhere } from './sequences';
 import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
 import { blockedSequenceSubjects } from '../blockedContent';
-// import { NextResponse } from 'next/server';
 
-const typeToMime = new Map([
+export const typeToMime = new Map([
   ['pdf', 'application/pdf'],
   [
     'pptx',
@@ -102,7 +85,7 @@ export type DownloadTypeEnum = z.infer<typeof downloadTypeEnum>;
 
 const graphqlClient = getClient();
 
-async function assetsForLesson(lessonSlug: string) {
+export async function assetsForLesson(lessonSlug: string) {
   const supported = await checkLessonAllowedAsset(graphqlClient, lessonSlug);
 
   if (!supported) {
@@ -804,137 +787,16 @@ export const getAssets = router({
         type: downloadTypeEnum,
       }),
     )
-    .output(z.undefined()) // no output, but file is streamed to the request
-    .query(async ({ input, ctx }) => {
-      const { lesson } = input;
-      let { type } = input;
-
-      const { assets } = await assetsForLesson(lesson);
-
-      const usePPTX = type === 'slideDeck';
-      if (usePPTX) {
-        type = type.replace('PPTX', '') as DownloadTypeEnum;
-      }
-
-      const asset = assets[type as DownloadTypeEnum];
-
-      if (type !== 'video') {
-        let { bucket_path } = asset as SignedAsset;
-        const { bucket_name } = asset as SignedAsset;
-
-        const list = await listFilesWithMimeType(
-          storage,
-          bucket_name,
-          bucket_path.split('/').slice(0, -1).join('/'),
-        );
-
-        const ext = usePPTX ? 'pptx' : bucket_path.split('.').pop() || 'pdf';
-
-        const mime = typeToMime.get(ext.toLowerCase());
-
-        if (!mime) {
-          throw new TRPCError({
-            message: 'Unsupported file type',
-            code: 'BAD_REQUEST',
-          });
-        }
-
-        // find the file with the correct extension (pptx) or file name for pdf
-        const found = list.find((file) => {
-          if (usePPTX) {
-            return file.mimeType === mime;
-          } else {
-            return file.name === bucket_path;
-          }
-        });
-
-        if (found) {
-          bucket_path = found.name;
-        }
-
-        const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext.toLowerCase()}`;
-
-        ctx.resHeaders.set('Content-Type', 'application/octet-stream');
-        ctx.resHeaders.set(
-          'Content-Disposition',
-          `attachment; filename="${filename}"`,
-        );
-
-        return new Promise((resolve, reject) => {
-          storage
-            .bucket(bucket_name)
-            .file(bucket_path)
-            .createReadStream()
-            .on('error', (err) => reject(err))
-            .on('end', () => resolve(undefined));
-          // .pipe(ctx.res); // Pipe the stream to the HTTP response
-        });
-      } else {
-        const { stream } = asset as Video;
-        let { download } = asset as Video;
-
-        if (!download) {
-          // test if the download is there as our db is often out of sync with mux
-          download = await getVideoFromMux(stream);
-        }
-
-        const response = await fetch(download || stream);
-
-        const url = new URL(download || stream);
-        const ext = url.pathname.split('.').pop();
-
-        if (ext === 'm3u8') {
-          // redirect to the video stream
-          url.hostname = new URL(assetBaseVideoUrl).hostname;
-          // res.status(302, { Location: url.toString() });
-          // res.end();
-          // return NextResponse.json({ status: 302, Location: url.toString() });
-          return undefined;
-        }
-
-        const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext}`;
-
-        if (!response.ok) {
-          throw new TRPCError({
-            message: `Failed to fetch: ${response.status} ${response.statusText}`,
-            code: 'INTERNAL_SERVER_ERROR',
-          });
-        }
-
-        // Set headers for streaming the file to the client
-        ctx.resHeaders.set(
-          'Content-Type',
-          response.headers.get('content-type') || 'application/octet-stream',
-        );
-        ctx.resHeaders.set(
-          'Content-Disposition',
-          `attachment; filename="${filename}"`,
-        );
-
-        if (response.body === null) {
-          throw new TRPCError({
-            message: 'Video could not be streamed',
-            code: 'INTERNAL_SERVER_ERROR',
-          });
-        }
-
-        // Stream the response body to the client's response
-        // const reader = response.body.getReader();
-        // const writer = res;
-
-        // const pump = async () => {
-        //   while (true) {
-        //     const { done, value } = await reader.read();
-        //     if (done) break;
-        //     writer.write(value);
-        //   }
-        //   writer.end(); // End the response stream
-        // };
-
-        // const data = iteratorToStream(reader);
-        // if (data) return data;
-        return undefined; // No JSON response
-      }
+    .output(z.any()) // no output, but file is streamed to the request
+    .query(async () => {
+      // IMPORTANT - this endpoint specific returns a stream of the
+      // file (video, slides, etc), but the actual execution isn't
+      // done here, but in the handler at:
+      // /src/app/api/v0/lessons/[lesson]/assets/[type]/route.ts
+      //
+      // this specific endpoint still exists to allow all the openapi
+      // metadata to be generated correctly.
+      return undefined;
     }),
 });
 
@@ -954,7 +816,7 @@ export async function getVideoFromMux(
   }
 }
 
-async function listFilesWithMimeType(
+export async function listFilesWithMimeType(
   storage: Storage,
   bucketName: string,
   prefix: string,
@@ -995,18 +857,3 @@ export function isApprovedLesson(
 
   if (lessonSlug) return false;
 }
-
-// https://developer.mozilla.org/docs/Web/API/ReadableStream#convert_async_iterator_to_stream
-// function iteratorToStream(iterator: any) {
-//   return new ReadableStream({
-//     async pull(controller) {
-//       const { value, done } = await iterator.next();
-
-//       if (done) {
-//         controller.close();
-//       } else {
-//         controller.enqueue(value);
-//       }
-//     },
-//   });
-// }

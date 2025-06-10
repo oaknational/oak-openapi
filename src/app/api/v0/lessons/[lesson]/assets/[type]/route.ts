@@ -1,0 +1,209 @@
+import { type NextRequest } from 'next/server';
+import {
+  assetsForLesson,
+  DownloadTypeEnum,
+  getVideoFromMux,
+  listFilesWithMimeType,
+  typeToMime,
+} from '@/lib/handlers/assets';
+import { SignedAsset, Video } from '@/lib/owaClient';
+import { protect } from '@/lib/protect';
+import { Storage } from '@google-cloud/storage';
+import { NextResponse } from 'next/server';
+import { TRPCError } from '@trpc/server';
+import { assetBaseVideoUrl } from '@/lib/baseUrl';
+import { Context, withUser } from '@/lib/context';
+import codes from 'http-codes';
+export const dynamic = 'force-dynamic';
+
+let storage;
+
+// Check if GOOGLE_APPLICATION_CREDENTIALS_JSON is set
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  const credentials = JSON.parse(
+    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
+  );
+  // Initialize storage client with credentials
+  storage = new Storage({ credentials });
+} else {
+  // Use default method, which relies on GOOGLE_APPLICATION_CREDENTIALS path
+  storage = new Storage();
+}
+
+const handler = async (
+  req: NextRequest,
+  { params }: { params: Promise<{ lesson: string; type: string }> },
+) => {
+  // 1. get the user
+
+  const user = await withUser(req);
+  const ctx = {
+    user,
+    resHeaders: req.headers,
+  } as Context;
+
+  // manually check the protect
+  await new Promise(async (resolve, reject) => {
+    try {
+      await protect({
+        ctx,
+        next: async () => resolve(void 0),
+        meta: { noCost: false },
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+
+  let { lesson, type } = await params;
+
+  const { assets } = await assetsForLesson(lesson);
+
+  const usePPTX = type === 'slideDeck';
+  if (usePPTX) {
+    type = type.replace('PPTX', '') as DownloadTypeEnum;
+  }
+
+  const asset = assets[type as DownloadTypeEnum];
+
+  if (type !== 'video') {
+    let { bucket_path } = asset as SignedAsset;
+    const { bucket_name } = asset as SignedAsset;
+
+    const list = await listFilesWithMimeType(
+      storage,
+      bucket_name,
+      bucket_path.split('/').slice(0, -1).join('/'),
+    );
+
+    const ext = usePPTX ? 'pptx' : bucket_path.split('.').pop() || 'pdf';
+
+    const mime = typeToMime.get(ext.toLowerCase());
+
+    if (!mime) {
+      throw new TRPCError({
+        message: 'Unsupported file type',
+        code: 'BAD_REQUEST',
+      });
+    }
+
+    // find the file with the correct extension (pptx) or file name for pdf
+    const found = list.find((file) => {
+      if (usePPTX) {
+        return file.mimeType === mime;
+      } else {
+        return file.name === bucket_path;
+      }
+    });
+
+    if (found) {
+      bucket_path = found.name;
+    }
+
+    const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext.toLowerCase()}`;
+
+    const stream = storage
+      .bucket(bucket_name)
+      .file(bucket_path)
+      .createReadStream();
+
+    const res = new NextResponse(stream);
+    res.headers.set('Content-Type', 'application/octet-stream');
+    res.headers.set(
+      'Content-Disposition',
+      `attachment; filename="${filename}"`,
+    );
+
+    return res;
+  } else {
+    const { stream } = asset as Video;
+    let { download } = asset as Video;
+
+    if (!download) {
+      // test if the download is there as our db is often out of sync with mux
+      download = await getVideoFromMux(stream);
+    }
+
+    const response = await fetch(download || stream);
+
+    const url = new URL(download || stream);
+    const ext = url.pathname.split('.').pop();
+
+    if (ext === 'm3u8') {
+      // redirect to the video stream
+      url.hostname = new URL(assetBaseVideoUrl).hostname;
+
+      // TODO test me
+      return NextResponse.json({ status: 302, Location: url.toString() });
+    }
+
+    const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext}`;
+
+    if (!response.ok) {
+      throw new TRPCError({
+        message: `Failed to fetch: ${response.status} ${response.statusText}`,
+        code: 'INTERNAL_SERVER_ERROR',
+      });
+    }
+
+    const res = new NextResponse(response.body);
+
+    // Set headers for streaming the file to the client
+    res.headers.set(
+      'Content-Type',
+      response.headers.get('content-type') || 'application/octet-stream',
+    );
+    res.headers.set(
+      'Content-Disposition',
+      `attachment; filename="${filename}"`,
+    );
+
+    if (response.body === null) {
+      throw new TRPCError({
+        message: 'Video could not be streamed',
+        code: 'INTERNAL_SERVER_ERROR',
+      });
+    }
+
+    return res;
+  }
+};
+
+async function handlerWrapper(
+  req: NextRequest,
+  { params }: { params: Promise<{ lesson: string; type: string }> },
+) {
+  try {
+    return await handler(req, { params });
+  } catch (e: unknown) {
+    const { code, message } = e as { code: string; message: string };
+
+    return new NextResponse(JSON.stringify({ message, code }), {
+      status: codes[code],
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+export {
+  handlerWrapper as GET,
+  handlerWrapper as POST,
+  handlerWrapper as PUT,
+  handlerWrapper as PATCH,
+  handlerWrapper as DELETE,
+  handlerWrapper as OPTIONS,
+  handlerWrapper as HEAD,
+};
+
+function iteratorToStream(stream: ReadableStream) {
+  return new ReadableStream({
+    start(controller) {
+      stream.on('data', (chunk) => {
+        controller.enqueue(chunk);
+      });
+      stream.on('end', () => {
+        controller.close();
+      });
+    },
+  });
+}
