@@ -40,7 +40,7 @@ export const socialMenuItems: SocialItem[] = [
 export const legalMenuItems: MenuItem[] = [
   {
     title: 'Terms & conditions',
-    href: 'https://www.thenational.academy/legal/terms-and-conditions',
+    href: 'https://www.thenational.academy/legal/terms-and-conditions-api-version',
     id: 'terms',
     target: '_blank',
   },
