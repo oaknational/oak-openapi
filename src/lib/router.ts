@@ -1,33 +1,33 @@
 import { router } from '@/lib/trpc';
 
-// import { getAllKeyStageAndSubjectUnits } from './handlers/allKeyStageAndSubjectUnits';
-// import { changelog } from './handlers/changelog';
-// import { getKeyStageSubjectLessons } from './handlers/keyStageSubjectLessons';
-// import { getKeyStages } from './handlers/keyStages';
+import { getAllKeyStageAndSubjectUnits } from './handlers/allKeyStageAndSubjectUnits';
+import { changelog } from './handlers/changelog';
+import { getKeyStageSubjectLessons } from './handlers/keyStageSubjectLessons';
+import { getKeyStages } from './handlers/keyStages';
 import { getLessons } from './handlers/lesson/lesson';
-// import { getQuestions } from './handlers/questions';
-// import { getUnits } from './handlers/units';
-// import { getSubjects } from './handlers/subjects';
+import { getQuestions } from './handlers/questions';
+import { getUnits } from './handlers/units';
+import { getSubjects } from './handlers/subjects';
 // import { getAssets } from './handlers/assets';
-// import { searchTranscripts } from './handlers/searchTranscripts';
-// import { getLessonTranscript } from './handlers/transcript';
-// import { getSequences } from './handlers/sequences';
-// import { getThreads } from './handlers/threads';
-// import { getRateLimit } from './handlers/rate';
+import { searchTranscripts } from './handlers/searchTranscripts';
+import { getLessonTranscript } from './handlers/transcript';
+import { getSequences } from './handlers/sequences';
+import { getThreads } from './handlers/threads';
+import { getRateLimit } from './handlers/rate';
 
 export default router({
-  // getSequences,
-  // getLessonTranscript,
-  // searchTranscripts,
+  getSequences,
+  getLessonTranscript,
+  searchTranscripts,
   // getAssets,
-  // getSubjects,
-  // getKeyStages,
-  // getKeyStageSubjectLessons,
-  // getAllKeyStageAndSubjectUnits,
-  // getQuestions,
+  getSubjects,
+  getKeyStages,
+  getKeyStageSubjectLessons,
+  getAllKeyStageAndSubjectUnits,
+  getQuestions,
   getLessons,
-  // getUnits,
-  // getThreads,
-  // changelog,
-  // getRateLimit,
+  getUnits,
+  getThreads,
+  changelog,
+  getRateLimit,
 });

@@ -18,7 +18,7 @@ importers:
         specifier: ^1.39.0
         version: 1.63.0(zod@3.25.51)
       '@prisma/client':
-        specifier: ^5.21.1
+        specifier: ^5.22.0
         version: 5.22.0(prisma@5.22.0)
       '@prisma/extension-accelerate':
         specifier: ^1.1.0
