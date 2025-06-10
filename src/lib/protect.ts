@@ -7,6 +7,7 @@ import {
   defaultRateLimit,
 } from './rateLimit';
 import { Context } from './context';
+import { OpenApiMeta } from 'trpc-to-openapi';
 
 export const getRateLimiter = (userLimit: number | undefined | null) => {
   if (userLimit !== defaultRateLimit && typeof userLimit === 'number') {
@@ -17,12 +18,10 @@ export const getRateLimiter = (userLimit: number | undefined | null) => {
   }
 };
 
-// Remove ProtectOpts interface and update protect to match t.procedure.use signature
-
 export const protect = async (opts: {
   ctx: Context;
-  next: (opts: { ctx: Context }) => Promise<any>;
-  meta?: any;
+  next: (opts: { ctx: Context }) => Promise<MiddlewareResult<unknown>>;
+  meta?: OpenApiMeta;
 }) => {
   const { ctx, next, meta } = opts;
   const { user, resHeaders } = ctx;

@@ -55,7 +55,8 @@ const handler = async (
     }
   });
 
-  let { lesson, type } = await params;
+  let { type } = await params;
+  const { lesson } = await params;
 
   const { assets } = await assetsForLesson(lesson);
 
@@ -178,8 +179,13 @@ async function handlerWrapper(
   } catch (e: unknown) {
     const { code, message } = e as { code: string; message: string };
 
+    const statusCode =
+      typeof code === 'string' && code in codes
+        ? codes[code as keyof typeof codes]
+        : 500;
+
     return new NextResponse(JSON.stringify({ message, code }), {
-      status: codes[code],
+      status: statusCode,
       headers: { 'Content-Type': 'application/json' },
     });
   }
@@ -194,16 +200,3 @@ export {
   handlerWrapper as OPTIONS,
   handlerWrapper as HEAD,
 };
-
-function iteratorToStream(stream: ReadableStream) {
-  return new ReadableStream({
-    start(controller) {
-      stream.on('data', (chunk) => {
-        controller.enqueue(chunk);
-      });
-      stream.on('end', () => {
-        controller.close();
-      });
-    },
-  });
-}
