@@ -9,9 +9,6 @@ import {
 import { Context } from './context';
 import { OpenApiMeta } from 'trpc-to-openapi';
 
-// I mean…
-import type { MiddlewareResult } from '@trpc/server/unstable-core-do-not-import';
-
 export const getRateLimiter = (userLimit: number | undefined | null) => {
   if (userLimit !== defaultRateLimit && typeof userLimit === 'number') {
     return rateLimiter(rateLimits.custom(userLimit));
@@ -21,12 +18,10 @@ export const getRateLimiter = (userLimit: number | undefined | null) => {
   }
 };
 
-export const protect = async (opts: {
-  ctx: Context;
-  next: (opts: { ctx: Context }) => Promise<MiddlewareResult<unknown>>;
-  meta?: OpenApiMeta;
-}) => {
-  const { ctx, next, meta } = opts;
+const protectLogic = async (
+  ctx: Context,
+  meta?: OpenApiMeta,
+): Promise<void> => {
   const { user, resHeaders } = ctx;
 
   const noCost: boolean = (meta?.noCost as boolean) || false;
@@ -61,8 +56,24 @@ export const protect = async (opts: {
       }
     }
   }
+};
 
+export const protect = async (opts: {
+  ctx: Context;
+  next: (opts?: { ctx?: Context }) => Promise<unknown>;
+  meta?: OpenApiMeta;
+}) => {
+  const { ctx, next, meta } = opts;
+  
+  await protectLogic(ctx, meta);
+  
   return next({ ctx });
 };
 
-export const protectedProcedure = t.procedure.use(protect);
+const protectMiddleware = t.middleware(async ({ ctx, next, meta }) => {
+  await protectLogic(ctx, meta);
+  
+  return next({ ctx });
+});
+
+export const protectedProcedure = t.procedure.use(protectMiddleware);
