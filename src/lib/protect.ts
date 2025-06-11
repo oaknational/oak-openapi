@@ -9,6 +9,9 @@ import {
 import { Context } from './context';
 import { OpenApiMeta } from 'trpc-to-openapi';
 
+// I mean…
+import type { MiddlewareResult } from '@trpc/server/unstable-core-do-not-import';
+
 export const getRateLimiter = (userLimit: number | undefined | null) => {
   if (userLimit !== defaultRateLimit && typeof userLimit === 'number') {
     return rateLimiter(rateLimits.custom(userLimit));
