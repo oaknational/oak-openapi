@@ -1,3 +1,6 @@
+import { GET as _getLessonAsset } from '@/app/api/v0/lessons/[lesson]/assets/[type]/route';
+
+import { NextRequest } from 'next/server';
 import { vi } from 'vitest';
 export * from './make-call';
 
@@ -14,3 +17,37 @@ vi.mock('@/lib/rateLimit', async (importOriginal: () => Promise<object>) => {
     }),
   };
 });
+
+export function mockWithUser() {
+  vi.mock('@/lib/context', () => {
+    return {
+      withUser: vi.fn().mockResolvedValue({ id: 1, name: 'Test User' }),
+      Context: vi.fn().mockImplementation(() => ({
+        user: { id: 1, name: 'Test User' },
+        resHeaders: new Headers(),
+      })),
+    };
+  });
+}
+
+// create getLessonAsset using the exports
+export async function getLessonAsset({
+  lesson,
+  type,
+}: {
+  lesson: string;
+  type: string;
+}): Promise<Response> {
+  const request = {
+    nextUrl: new URL(`http://localhost/lessons/${lesson}/assets/${type}`),
+    headers: new Headers({
+      authorization: 'Bearer 123',
+    }),
+  } as unknown as NextRequest;
+
+  const params = Promise.resolve({
+    lesson,
+    type,
+  });
+  return _getLessonAsset(request, { params });
+}

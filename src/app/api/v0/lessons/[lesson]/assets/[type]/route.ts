@@ -1,4 +1,5 @@
-import { type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
+import { type Context, withUser } from '@/lib/context';
 import {
   assetsForLesson,
   DownloadTypeEnum,
@@ -9,10 +10,8 @@ import {
 import { SignedAsset, Video } from '@/lib/owaClient';
 import { protect } from '@/lib/protect';
 import { Storage } from '@google-cloud/storage';
-import { NextResponse } from 'next/server';
 import { TRPCError } from '@trpc/server';
 import { assetBaseVideoUrl } from '@/lib/baseUrl';
-import { Context, withUser } from '@/lib/context';
 import codes from 'http-codes';
 
 export const dynamic = 'force-dynamic';
@@ -139,7 +138,7 @@ const handler = async (
       url.hostname = new URL(assetBaseVideoUrl).hostname;
 
       // TODO test me
-      return NextResponse.json({ status: 302, Location: url.toString() });
+      return NextResponse.redirect(url.toString(), 302);
     }
 
     const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext}`;
