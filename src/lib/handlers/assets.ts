@@ -447,12 +447,7 @@ export const getAssets = router({
           let mappedAttribution: string[] = [];
 
           if (attribution) {
-            mappedAttribution = [
-              ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
-              ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
-            ]
-              .filter((string) => string !== undefined)
-              .filter((string) => string !== '');
+            mappedAttribution = getAttribution(attribution);
           }
 
           return {
@@ -698,12 +693,7 @@ export const getAssets = router({
           let mappedAttribution: string[] = [];
 
           if (attribution) {
-            mappedAttribution = [
-              ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
-              ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
-            ]
-              .filter((string) => string !== undefined)
-              .filter((string) => string !== '');
+            mappedAttribution = getAttribution(attribution);
           }
 
           return {
@@ -992,4 +982,17 @@ export function isApprovedLesson(
   // TODO: If all else is not true, check the lesson slug
 
   if (lessonSlug) return false;
+}
+
+export function getAttribution(attribution: LessonView[typeof lessonView][0]) {
+  return Array.from(
+    new Set(
+      [
+        ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
+        ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
+      ]
+        .filter((string) => string !== undefined)
+        .filter(Boolean),
+    ),
+  );
 }
