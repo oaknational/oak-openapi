@@ -7,7 +7,7 @@ RUN corepack enable \
 WORKDIR /app
 
 # copy manifest & install deps
-COPY package.json pnpm-lock.yaml* ./
+COPY package.json pnpm-lock.yaml* schema.prisma ./
 RUN pnpm install --frozen-lockfile
 
 # copy the rest of your code
