@@ -30,7 +30,7 @@
     "**/*.mjs",
     "**/*.ts",
     "**/*.tsx",
-    ".eslintrc.cjs",
+    "eslint.config.js",
     "next-env.d.ts",
     "vite.config.mts",
     ".next/types/**/*.ts"
