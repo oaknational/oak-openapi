@@ -1,9 +1,9 @@
-import { baseUrl } from '~/lib/baseUrl';
-import router from '~/lib/router';
+import { baseUrl } from '@/lib/baseUrl';
+import router from '@/lib/router';
 import {
   getLatestVersion,
   getLatestMajorVersion,
-} from '~/lib/handlers/changelog';
+} from '@/lib/handlers/changelog';
 
 import { generateOpenApiDocument } from 'trpc-to-openapi';
 

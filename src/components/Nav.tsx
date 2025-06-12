@@ -10,7 +10,7 @@ import {
   OakSecondaryButton,
 } from '@oaknational/oak-components';
 
-import Logo from '~/components/Logo';
+import Logo from '@/components/Logo';
 import { useState } from 'react';
 
 const OakLinkLogo = styled(OakLink)`

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Lexend } from 'next/font/google';
-import { PostHogProvider } from '~/context/AnalyticsProvider';
-import StyleContext from '~/context/StyleContext';
+import { PostHogProvider } from '@/context/AnalyticsProvider';
+import StyleContext from '@/context/StyleContext';
 
 const lexend = Lexend({
   subsets: ['latin', 'latin-ext', 'vietnamese'],
