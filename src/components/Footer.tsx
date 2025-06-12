@@ -19,7 +19,19 @@ import SocialButtons, { OAK_SOCIALS } from './SocialButtons';
 import Logo from './Logo';
 import { StrongLinkNoUnderline } from './StrongSecondaryLink';
 import IconFeedback from './IconFeedback';
-// import { useRef, useState } from 'react';
+import { useState } from 'react';
+
+export type HubspotPayload = {
+  fields: {
+    name: string;
+    value: string | undefined;
+  }[];
+  context: {
+    pageUri: string;
+    pageName: string;
+    hutk?: string | undefined;
+  };
+};
 
 const TopOakHandDrawnHR = styled(OakHandDrawnHR)`
   position: relative;
@@ -280,30 +292,85 @@ const OakTextInput = styled(_OakTextInput)`
   height: fit-content;
 `;
 
-const ShownOnInvalid = styled(OakBox)`
-  display: none;
-
-  &:has(+ label + div input:not(:placeholder-shown):invalid) {
-    display: block;
-  }
-`;
-
 function GetUpdates() {
-  // const formRef = useRef<HTMLFormElement>(null);
-  // const [submitted, setSubmitted] = useState(false);
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [success, setSuccess] = useState(false);
 
-  // const handleSubmit = (e: React.FormEvent) => {
-  //   if (formRef.current) {
-  //     const valid = formRef.current.checkValidity();
-  //     if (!valid) {
-  //       setSubmitted(true);
-  //       e.preventDefault();
-  //     }
-  //   }
-  // };
+  const formId = 'ecd7b5fb-fceb-4342-8d60-a1938e3b5894';
+  const portalId = '19961797';
+  const hubspotUrl =
+    'https://hubspot-forms.thenational.academy/submissions/v3/integration/submit';
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    // Prevent default form submission
+    e.preventDefault();
+
+    // Check if the form is valid
+    const form = e.currentTarget;
+    if (!form.checkValidity()) {
+      console.log('>>>>');
+      setMessage('Enter a valid email to continue');
+      // form.reportValidity();
+      return;
+    }
+
+    // Handle successful submission logic here
+    const url = `${hubspotUrl}/${portalId}/${formId}`;
+
+    let res: Response;
+
+    try {
+      const body: HubspotPayload = {
+        fields: [
+          {
+            name: 'email',
+            value: email,
+          },
+        ],
+        context: {
+          pageUri: window.location.href,
+          pageName: document.title,
+        },
+      };
+
+      res = await fetch(url, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+      console.log({ res });
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      return;
+    }
+
+    const { inlineMessage } = await res.json();
+    if (inlineMessage) {
+      // If the submission was successful, show a success message
+      setMessage(inlineMessage);
+      setEmail(''); // Clear the email input
+      return;
+    }
+
+    setMessage('');
+    setSuccess(true);
+  };
 
   return (
-    <FlexedBox as="form" $action="/" $color="black" formNoValidate={true}>
+    <FlexedBox
+      as="form"
+      $action="/"
+      $color="black"
+      noValidate
+      onSubmit={handleSubmit}
+    >
       <OakBox $ma="0" $pa="0" as="fieldset" $ba="border-solid-none">
         <OakFlex as="h2" $font="heading-5" $gap="all-spacing-2">
           <OakIcon iconName="bell" />
@@ -314,25 +381,44 @@ function GetUpdates() {
           API.
         </OakP>
         <OakBox $mt="space-between-m">
-          <ShownOnInvalid $mb="space-between-m">
-            <OakFieldError>Enter a valid email to continue</OakFieldError>
-          </ShownOnInvalid>
-          <OakJauntyAngleLabel $background="lemon" htmlFor="email" as="label">
-            <strong>Email address</strong>{' '}
-            <span style={{ fontWeight: 400 }}>(required)</span>
-          </OakJauntyAngleLabel>
-          <OakTextInput
-            autoComplete="email"
-            id="email"
-            type="email"
-            $pa="inner-padding-m"
-            placeholder="Email address"
-            required={true}
-          />
+          {success && (
+            <OakFlex $flexDirection="row" $gap="space-between-xs">
+              <OakIcon iconName="success" />{' '}
+              <strong>Thank you, your request has been received.</strong>
+            </OakFlex>
+          )}
+          {message && (
+            <OakBox $mb="space-between-m">
+              <OakFieldError>{message}</OakFieldError>
+            </OakBox>
+          )}
+          {!success && (
+            <>
+              <OakJauntyAngleLabel
+                $background="lemon"
+                htmlFor="email"
+                as="label"
+              >
+                <strong>Email address</strong>{' '}
+                <span style={{ fontWeight: 400 }}>(required)</span>
+              </OakJauntyAngleLabel>
+              <OakTextInput
+                autoComplete="email"
+                id="email"
+                type="email"
+                $pa="inner-padding-m"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </>
+          )}
         </OakBox>
-        <OakBox $mt="space-between-m">
-          <OakPrimaryButton>Sign up for updates</OakPrimaryButton>
-        </OakBox>
+        {!success && (
+          <OakBox $mt="space-between-m">
+            <OakPrimaryButton>Sign up for updates</OakPrimaryButton>
+          </OakBox>
+        )}
       </OakBox>
     </FlexedBox>
   );
