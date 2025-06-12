@@ -1,5 +1,5 @@
 import { GraphQLClient } from 'graphql-request';
-import getServerConfig from '~/node-lib/serverConfig';
+import getServerConfig from '@/node-lib/serverConfig';
 
 const projectId = getServerConfig('sanityProjectId');
 const dataset = getServerConfig('sanityDataset');

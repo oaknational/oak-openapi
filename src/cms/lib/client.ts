@@ -1,5 +1,5 @@
 import { createClient } from 'next-sanity';
-import getServerConfig from '~/node-lib/serverConfig';
+import getServerConfig from '@/node-lib/serverConfig';
 
 export const apiVersion =
   process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2025-05-15';

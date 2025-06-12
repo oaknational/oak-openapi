@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request';
-import client from '~/cms/client';
+import client from '@/cms/client';
 
-import { CurriculumAPIDocumentationPage } from '~/cms/schemaTypes';
+import { CurriculumAPIDocumentationPage } from '@/cms/schemaTypes';
 import { documentationQuerySchema } from './documentationQuery.schema';
 
 const query = gql`

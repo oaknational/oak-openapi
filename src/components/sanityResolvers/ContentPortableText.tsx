@@ -8,7 +8,7 @@ import {
   OakSpan,
 } from '@oaknational/oak-components';
 
-import { PortableTextJSON } from '~/cms/schemaTypes/shared/portableText.schema';
+import { PortableTextJSON } from '@/cms/schemaTypes/shared/portableText.schema';
 
 const contentPortableTextComponents: PortableTextComponents = {
   block: {
