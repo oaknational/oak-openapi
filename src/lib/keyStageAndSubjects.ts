@@ -1,4 +1,4 @@
-import source from './keyStageAndSubjects.json' assert { type: 'json' };
+import source from './keyStageAndSubjects.json' with { type: 'json' };
 
 export const keyStageSlugs = getSource().map(({ slug }) => slug);
 export const keyStages = getSource().map(({ slug, title }) => ({
