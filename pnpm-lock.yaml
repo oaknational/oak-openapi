@@ -20,6 +20,9 @@ importers:
       '@oaknational/oak-curriculum-schema':
         specifier: ^1.39.0
         version: 1.63.0(zod@3.25.63)
+      '@portabletext/react':
+        specifier: ^3.2.1
+        version: 3.2.1(react@19.1.0)
       '@prisma/client':
         specifier: ^5.22.0
         version: 5.22.0(prisma@5.22.0)
