@@ -15,7 +15,7 @@ import {
   OakTypography,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
-import { footerSections } from '~/lib/footerSections';
+import { footerSections } from '@/lib/footerSections';
 import SocialButtons, { OAK_SOCIALS } from './SocialButtons';
 import Logo from './Logo';
 import Svg from './StyledSvg';

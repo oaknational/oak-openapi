@@ -122,8 +122,8 @@ function fixImports(ast, schemaFilePath, outputFilePath) {
     ImportDeclaration(path) {
       const source = path.node.source.value;
 
-      // Skip non-relative imports and aliases like '~'
-      if (!source.startsWith('.') || source.startsWith('~')) return;
+      // Skip non-relative imports and aliases like '@'
+      if (!source.startsWith('.') || source.startsWith('@')) return;
 
       try {
         const absImportPath = path.resolve(

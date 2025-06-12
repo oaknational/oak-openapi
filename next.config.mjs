@@ -25,7 +25,7 @@ const getConfig = async () => {
       styledComponents: true,
     },
     reactStrictMode: true,
-    swcMinify: true,
+    // swcMinify: true,
     images: {
       domains: ['oaknationalacademy-res.cloudinary.com'],
     },

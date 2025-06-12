@@ -18,12 +18,13 @@ import {
   OakUL,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
-import Feature from '~/components/Feature';
+import Feature from '@/components/Feature';
 import { OakAnchorTarget } from '@oaknational/oak-components';
-import React from 'react';
-import Logo from '~/components/Logo';
+import React, { useEffect } from 'react';
+import Logo from '@/components/Logo';
+import posthog from '@/lib/posthog';
 
-import Footer from '~/components/Footer';
+import Footer from '@/components/Footer';
 import Head from 'next/head';
 
 const OakLinkLogo = styled(OakLink)`
@@ -59,12 +60,18 @@ const navItems = [
   { title: 'About our open API', href: '#about-api' },
   { title: 'How to get started', href: '#get-started' },
   { title: 'What we offer', href: '#what-we-offer' },
-  { title: `What’s available`, href: `#whats-available` },
+  { title: `What's available`, href: `#whats-available` },
   { title: 'FAQs', href: '#faqs' },
   { title: 'Give feedback', href: '#give-feedback' },
 ];
 
 export default function Page() {
+  useEffect(() => {
+    posthog.capture('$pageview', {
+      page: 'Home',
+    });
+  }, []);
+
   return (
     <>
       <Head>
@@ -128,8 +135,9 @@ function Hero() {
             </OakHeading>
 
             <OakP $mb={'space-between-l'} $color="black" $font="body-2">
-              We’re offering a free API to share our high-quality educational
-              content with the broader education community, all under the{' '}
+              We&apos;re offering a free API to share our high-quality
+              educational content with the broader education community, all
+              under the{' '}
               <OakLink
                 href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
                 target="_blank"
@@ -211,9 +219,9 @@ function Features() {
               title="Why are we providing an API?"
             >
               <OakP $font={'body-2'}>
-                We’re here to support great teaching. We work to improve pupil
-                outcomes and close the disadvantage gap by supporting teachers
-                to teach, and enabling pupils to access a high-quality
+                We&apos;re here to support great teaching. We work to improve
+                pupil outcomes and close the disadvantage gap by supporting
+                teachers to teach, and enabling pupils to access a high-quality
                 curriculum.
               </OakP>
               <OakP $font={'body-2'}>
@@ -348,7 +356,7 @@ function Features() {
 
             <Feature anchorTarget="faqs" title="FAQs">
               <LeftAlignedChildButtons>
-                <OakAccordion header="What are ‘slugs’?" id="accordion-slugs">
+                <OakAccordion header="What are 'slugs'?" id="accordion-slugs">
                   <OakBox $pt="inner-padding-s">
                     <OakP $font="body-2">
                       Slugs are a way of uniquely identifying different lessons,
@@ -367,9 +375,10 @@ function Features() {
                     <OakP $font="body-2">
                       Every lesson has a starter quiz - testing pupils on the
                       prior knowledge they will need for the lesson, and an exit
-                      quiz - testing pupils’ understanding of the lesson’s
-                      content. Each quiz has six questions. You can get these on
-                      a per lesson or per subject/key stage basis.
+                      quiz - testing pupils&apos; understanding of the
+                      lesson&apos;s content. Each quiz has six questions. You
+                      can get these on a per lesson or per subject/key stage
+                      basis.
                     </OakP>
                   </OakBox>
                 </OakAccordion>
@@ -400,7 +409,7 @@ function Features() {
                 >
                   <OakBox $pt="inner-padding-s">
                     <OakP $font="body-2" $mb="space-between-xs">
-                      The lesson field ‘supervisionLevel’ returns the
+                      The lesson field &apos;supervisionLevel&apos; returns the
                       description of the highest level of suggested guidance, so
                       it is advised to use this field rather than rely on the
                       sub-guidance levels.
@@ -463,13 +472,13 @@ function Features() {
                       Oak database to do a similarity search on lesson titles.
                       The transcript search (/search/transcripts) uses our AI
                       experiments database, which contains video transcripts for
-                      each lesson and ‘snippets’ of those. The transcript search
-                      does a similarity search on the video transcript
-                      ‘snippets’ for each lesson, so the same query can result
-                      in a different set of lessons being returned than from the
-                      lesson search endpoint. However, it does not have the
-                      ability to filter by key stage, subject or unit that
-                      lesson search endpoint has.
+                      each lesson and &apos;snippets&apos; of those. The
+                      transcript search does a similarity search on the video
+                      transcript &apos;snippets&apos; for each lesson, so the
+                      same query can result in a different set of lessons being
+                      returned than from the lesson search endpoint. However, it
+                      does not have the ability to filter by key stage, subject
+                      or unit that lesson search endpoint has.
                     </OakP>
 
                     <OakP $font="body-2">
@@ -504,7 +513,7 @@ function Features() {
               </OakP>
               <OakP $font="body-2">
                 When using our API key, please ensure you comply with our{' '}
-                <OakLink href="https://www.thenational.academy/legal/terms-and-conditions">
+                <OakLink href="https://www.thenational.academy/legal/terms-and-conditions-api-version">
                   Terms and Conditions
                 </OakLink>
               </OakP>

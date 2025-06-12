@@ -5,7 +5,7 @@ import {
   OakGlobalStyle,
   OakThemeProvider,
 } from '@oaknational/oak-components';
-import StyledComponentsRegistry from '~/lib/registry';
+import StyledComponentsRegistry from '@/lib/registry';
 
 export default function StyleContext({
   // Layouts must accept a children prop.

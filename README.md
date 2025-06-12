@@ -50,7 +50,7 @@ To update the subjects list (say if there's a new cohort of lessons and subjects
 $ pnpm run build-subjects
 ```
 
-This will update the file `~/lib/keyStageAndSubjects.json` which will need to be committed to the repo.
+This will update the file `@/lib/keyStageAndSubjects.json` which will need to be committed to the repo.
 
 ### Errors
 

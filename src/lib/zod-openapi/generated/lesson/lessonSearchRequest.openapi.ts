@@ -1,6 +1,6 @@
 import 'zod-openapi/extend';
 import { z } from 'zod';
-import { keyStageSlugs, subjectSlugs } from '~/lib/keyStageAndSubjects';
+import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
 
 export const lessonSearchRequestOpenAPISchema = z.object({
   q: z.string().openapi({ example: 'gothic' }),

@@ -1,7 +1,7 @@
 import groupBy from 'object.groupby';
 import toSorted from 'array.prototype.tosorted';
-import { protectedProcedure } from '~/lib/protect';
-import { router } from '~/lib/trpc';
+import { protectedProcedure } from '@/lib/protect';
+import { router } from '@/lib/trpc';
 import { TRPCError } from '@trpc/server';
 import {
   LessonView,
@@ -14,7 +14,7 @@ import {
 import { z } from 'zod';
 
 import { blockLessonForCopyrightText } from '../../queryGate';
-import Timing from '~/lib/serverTimings';
+import Timing from '@/lib/serverTimings';
 
 import { LessonSearchResultType } from './schemas/lessonSearchResponse.schema';
 
@@ -25,7 +25,7 @@ import {
   lessonSearchResponseOpenAPISchema,
   lessonSummaryRequestOpenAPISchema,
   lessonSummaryResponseOpenAPISchema,
-} from '~/lib/zod-openapi/generated/lesson';
+} from '@/lib/zod-openapi/generated/lesson';
 
 toSorted.shim();
 groupBy.shim();

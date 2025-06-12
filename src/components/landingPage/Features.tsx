@@ -15,8 +15,7 @@ import {
   OakUL,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
-import Feature from '~/components/Feature';
-import React from 'react';
+import Feature from '@/components/Feature';
 import Nav from './Nav';
 
 const OakLiLink = styled(OakLink)`

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { parseSubjectPhaseSlug } from '~/lib/sequenceSlugParser';
+import { parseSubjectPhaseSlug } from '@/lib/sequenceSlugParser';
 
 test('parse sequence slug', () => {
   const slug = 'english-primary';
