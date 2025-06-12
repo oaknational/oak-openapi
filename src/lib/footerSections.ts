@@ -91,7 +91,7 @@ export const footerSections = {
     links: [
       {
         text: 'Terms & conditions',
-        href: 'https://www.thenational.academy/legal/terms-and-conditions',
+        href: 'https://www.thenational.academy/legal/terms-and-conditions-api-version',
       },
       {
         text: 'Privacy policy',
@@ -99,7 +99,7 @@ export const footerSections = {
       },
       {
         text: 'Cookie policy',
-        href: 'https://www.thenational.academy/legal/cookie-policy',
+        href: 'https://www.thenational.academy/legal/cookie-policy-api-version',
       },
       // { text: 'Manage cookie settings', type: 'consent-manager-toggle' },
 
