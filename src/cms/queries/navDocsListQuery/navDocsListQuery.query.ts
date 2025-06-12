@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request';
-import client from '~/cms/client';
+import client from '@/cms/client';
 
-// import { CurriculumAPIDocumentationPage } from '~/cms/schemaTypes';
+// import { CurriculumAPIDocumentationPage } from '@/cms/schemaTypes';
 
 import {
   NavDocsListGroup,
@@ -9,8 +9,8 @@ import {
   NavDocsListQuery,
   //   navDocsListQuerySchema,
 } from './navDocsListQuery.schema';
-import { curriculumApiDocsNavSchema } from '~/cms/schemaTypes/curriculumApiDocsNav.schema';
-import { NavItems } from '~/cms/schemaTypes/shared/components/NavItems.schema';
+import { curriculumApiDocsNavSchema } from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
+import { NavItems } from '@/cms/schemaTypes/shared/components/NavItems.schema';
 
 const query = gql`
   query getAllDocsNavGroups {
