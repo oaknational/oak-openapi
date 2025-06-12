@@ -10,6 +10,7 @@
     "build-subjects": "tsx bin/build-subjects-and-key-stages.ts",
     "dev": "pnpm with-env next dev --port 2727",
     "bulk": "NODE_OPTIONS='--max-old-space-size=4096' tsx bin/prepare-bulk.ts",
+    "postinstall": "prisma generate",
     "format:check": "prettier '**/*.{j,t}{s,sx}' --check",
     "format": "prettier '**/*.{j,t}{s,sx}' --write",
     "lint": "next lint .",
@@ -27,6 +28,7 @@
   "private": true,
   "dependencies": {
     "@google-cloud/storage": "^7.14.0",
+    "@next/eslint-plugin-next": "^15.3.3",
     "@oaknational/oak-components": "^1.111.1",
     "@oaknational/oak-curriculum-schema": "^1.39.0",
     "@prisma/client": "^5.22.0",
