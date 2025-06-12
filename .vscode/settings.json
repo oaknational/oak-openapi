@@ -9,6 +9,7 @@
     "hgetall",
     "hincrby",
     "hset",
+    "Hubspot",
     "keystage",
     "keystages",
     "langchain",
