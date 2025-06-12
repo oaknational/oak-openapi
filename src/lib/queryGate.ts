@@ -18,8 +18,8 @@ import {
   sequenceViewWhereInput,
 } from './owaClient';
 
-import supportedUnits from './queryGateData/supportedUnits.json' assert { type: 'json' };
-import supportedLessons from './queryGateData/supportedLessons.json' assert { type: 'json' };
+import supportedUnits from './queryGateData/supportedUnits.json' with { type: 'json' };
+import supportedLessons from './queryGateData/supportedLessons.json' with { type: 'json' };
 
 // TODO move these to JSON too
 const supportedSubjects = ['maths'];
