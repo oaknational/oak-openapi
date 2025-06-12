@@ -1,16 +1,16 @@
-// import { protectedProcedure } from '~/lib/protect';
-// import { router } from '~/lib/trpc';
-// import { TRPCError } from '@trpc/server';
+import { protectedProcedure } from '@/lib/protect';
+import { router } from '@/lib/trpc';
+import { TRPCError } from '@trpc/server';
 import {
   Sequence,
-  // SequenceView,
-  // getClient,
-  // gql,
-  // sequenceView,
-  // sequenceViewWhereInput,
+  SequenceView,
+  getClient,
+  gql,
+  sequenceView,
+  sequenceViewWhereInput,
 } from 'lib/owaClient';
 import { z } from 'zod';
-// import { blockUnitForCopyrightText } from '../queryGate';
+import { blockUnitForCopyrightText } from '../queryGate';
 
 const threadSchema = z.object({
   slug: z.string(),
@@ -59,119 +59,119 @@ export type UnitSchema = z.infer<typeof output> & {
   examboard?: string;
 };
 
-// export const getUnits = router({
-//   getUnit: protectedProcedure
+export const getUnits = router({
+  getUnit: protectedProcedure
 
-//     .meta({
-//       openapi: {
-//         method: 'GET',
-//         tags: ['units'],
-//         path: '/units/{unit}/summary',
-//         description:
-//           'This endpoint returns unit information for a given unit, including slug, title, number of lessons, prior knowledge requirements, national curriculum statements, prior unit details, future unit descriptions, and lesson titles that form the unit',
-//         example: {
-//           request: {
-//             unit: 'simple-compound-and-adverbial-complex-sentences',
-//           },
-//           response: {
-//             unitSlug: 'simple-compound-and-adverbial-complex-sentences',
-//             unitTitle: 'Simple, compound and adverbial complex sentences',
-//             yearSlug: 'year-3',
-//             year: 3,
-//             phaseSlug: 'primary',
-//             subjectSlug: 'english',
-//             keyStageSlug: 'ks2',
-//             threads: [
-//               {
-//                 slug: 'developing-grammatical-knowledge',
-//                 title: 'Developing grammatical knowledge',
-//                 order: 10,
-//               },
-//             ],
-//             unitLessons: [
-//               {
-//                 lessonSlug: 'four-types-of-simple-sentence',
-//                 lessonTitle: 'Four types of simple sentence',
-//                 lessonOrder: 1,
-//                 state: 'published',
-//               },
-//               {
-//                 lessonSlug:
-//                   'three-ways-for-co-ordination-in-compound-sentences',
-//                 lessonTitle:
-//                   'Three ways for co-ordination in compound sentences',
-//                 lessonOrder: 2,
-//                 state: 'new',
-//               },
-//             ],
-//           },
-//         },
-//       },
-//     })
-//     .output(output)
-//     .input(z.object({ unit: z.string({ description: 'The unit slug' }) }))
-//     .query(async ({ input }) => {
-//       const { unit: slug } = input;
-//       const client = getClient();
+    .meta({
+      openapi: {
+        method: 'GET',
+        tags: ['units'],
+        path: '/units/{unit}/summary',
+        description:
+          'This endpoint returns unit information for a given unit, including slug, title, number of lessons, prior knowledge requirements, national curriculum statements, prior unit details, future unit descriptions, and lesson titles that form the unit',
+        // example: {
+        //   request: {
+        //     unit: 'simple-compound-and-adverbial-complex-sentences',
+        //   },
+        //   response: {
+        //     unitSlug: 'simple-compound-and-adverbial-complex-sentences',
+        //     unitTitle: 'Simple, compound and adverbial complex sentences',
+        //     yearSlug: 'year-3',
+        //     year: 3,
+        //     phaseSlug: 'primary',
+        //     subjectSlug: 'english',
+        //     keyStageSlug: 'ks2',
+        //     threads: [
+        //       {
+        //         slug: 'developing-grammatical-knowledge',
+        //         title: 'Developing grammatical knowledge',
+        //         order: 10,
+        //       },
+        //     ],
+        //     unitLessons: [
+        //       {
+        //         lessonSlug: 'four-types-of-simple-sentence',
+        //         lessonTitle: 'Four types of simple sentence',
+        //         lessonOrder: 1,
+        //         state: 'published',
+        //       },
+        //       {
+        //         lessonSlug:
+        //           'three-ways-for-co-ordination-in-compound-sentences',
+        //         lessonTitle:
+        //           'Three ways for co-ordination in compound sentences',
+        //         lessonOrder: 2,
+        //         state: 'new',
+        //       },
+        //     ],
+        //   },
+        // },
+      },
+    })
+    .output(output)
+    .input(z.object({ unit: z.string({ description: 'The unit slug' }) }))
+    .query(async ({ input }) => {
+      const { unit: slug } = input;
+      const client = getClient();
 
-//       const blocked = await blockUnitForCopyrightText(client, slug);
+      const blocked = await blockUnitForCopyrightText(client, slug);
 
-//       if (blocked) {
-//         throw new TRPCError({
-//           message: 'Unit not available for this query (blocked copyright text)',
-//           code: 'NOT_FOUND',
-//         });
-//       }
+      if (blocked) {
+        throw new TRPCError({
+          message: 'Unit not available for this query (blocked copyright text)',
+          code: 'NOT_FOUND',
+        });
+      }
 
-//       const isUnitVariant = testIfUnitVariant(slug);
+      const isUnitVariant = testIfUnitVariant(slug);
 
-//       // Ensure that non-curriculum units don't come through
-//       const whereNonCurriculum = { non_curriculum: { _eq: false } };
+      // Ensure that non-curriculum units don't come through
+      const whereNonCurriculum = { non_curriculum: { _eq: false } };
 
-//       let whereSlug;
+      let whereSlug;
 
-//       if (isUnitVariant) {
-//         whereSlug = { slug: { _like: `${slug.replace(/-\d+$/, '-')}%` } };
-//       } else {
-//         whereSlug = { slug: { _eq: slug } };
-//       }
+      if (isUnitVariant) {
+        whereSlug = { slug: { _like: `${slug.replace(/-\d+$/, '-')}%` } };
+      } else {
+        whereSlug = { slug: { _eq: slug } };
+      }
 
-//       const where = { ...whereSlug, ...whereNonCurriculum };
+      const where = { ...whereSlug, ...whereNonCurriculum };
 
-//       const query = gql`
-//         query getUnit($where: ${sequenceViewWhereInput}) @cached(ttl: 300) {
-//           ${sequenceView}(where: $where) {
-//             title
-//             slug
-//             description
-//             keystage_slug
-//             lessons
-//             phase_slug
-//             subject_slug
-//             unit_options
-//             why_this_why_now
-//             threads
-//             year
-//             examboard
-//             examboard_slug
-//             subjectcategories
+      const query = gql`
+        query getUnit($where: ${sequenceViewWhereInput}) @cached(ttl: 300) {
+          ${sequenceView}(where: $where) {
+            title
+            slug
+            description
+            keystage_slug
+            lessons
+            phase_slug
+            subject_slug
+            unit_options
+            why_this_why_now
+            threads
+            year
+            examboard
+            examboard_slug
+            subjectcategories
 
-//             prior_knowledge_requirements
-//             national_curriculum_content
-//           }
-//         }
-//       `;
+            prior_knowledge_requirements
+            national_curriculum_content
+          }
+        }
+      `;
 
-//       const res: SequenceView = await client.request(query, { where });
-//       if (res[sequenceView].length === 0) {
-//         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
-//       }
+      const res: SequenceView = await client.request(query, { where });
+      if (res[sequenceView].length === 0) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
+      }
 
-//       const sequenceData = res[sequenceView][0];
+      const sequenceData = res[sequenceView][0];
 
-//       return formatUnitSummary(slug, sequenceData);
-//     }),
-// });
+      return formatUnitSummary(slug, sequenceData);
+    }),
+});
 
 export function testIfUnitVariant(slug: string): boolean {
   return /-\d+$/.test(slug);
