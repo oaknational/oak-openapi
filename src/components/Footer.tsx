@@ -6,7 +6,6 @@ import {
   OakJauntyAngleLabel as _OakJauntyAngleLabel,
   OakLI,
   OakLink,
-  OakMaxWidth,
   OakP,
   OakTextInput as _OakTextInput,
   OakPrimaryButton,
@@ -20,6 +19,7 @@ import Logo from './Logo';
 import { StrongLinkNoUnderline } from './StrongSecondaryLink';
 import IconFeedback from './IconFeedback';
 import { useState } from 'react';
+import { MaxWidth } from './MaxWidth';
 
 export type HubspotPayload = {
   fields: {
@@ -83,7 +83,7 @@ export default function Footer() {
     <footer>
       <TopOakHandDrawnHR $height="all-spacing-1" />
       <OakBox $background="mint30">
-        <OakMaxWidth
+        <MaxWidth
           $flexDirection={['column', 'row']}
           $pv="inner-padding-xl5"
           $ph="inner-padding-m"
@@ -92,7 +92,7 @@ export default function Footer() {
           <ContactUs />
           <GiveFeedback />
           <GetUpdates />
-        </OakMaxWidth>
+        </MaxWidth>
       </OakBox>
       <OakBox
         $overflow={'hidden'}
@@ -100,13 +100,13 @@ export default function Footer() {
         $color="text-primary"
         $position={'relative'}
       >
-        <OakMaxWidth
+        <MaxWidth
           as="nav"
           $justifyContent={'center'}
           $flexDirection={['column', 'column', 'row-reverse']}
           $gap="space-between-l"
-          $pv={['space-between-xl', 'space-between-l', 'inner-padding-xl8']}
-          $ph="space-between-s"
+          $pv={['inner-padding-xl5', 'inner-padding-xl4', 'inner-padding-xl8']}
+          $ph={'inner-padding-m'}
           $ma={'auto'}
           $position={'relative'}
           $width={'100%'}
@@ -160,7 +160,7 @@ export default function Footer() {
               </OakFlex>
             </OakFlex>
           </OakFlex>
-        </OakMaxWidth>
+        </MaxWidth>
       </OakBox>
     </footer>
   );
@@ -230,7 +230,7 @@ function ContactUs() {
     <FlexedBox $color="black">
       <OakFlex as="h2" $font="heading-5" $gap="all-spacing-2">
         <OakIcon iconName="send" />
-        Contact Us
+        Contact us
       </OakFlex>
       <OakP $mt="space-between-ssx">
         If you need help with using the API, get in touch.
@@ -309,7 +309,6 @@ function GetUpdates() {
     // Check if the form is valid
     const form = e.currentTarget;
     if (!form.checkValidity()) {
-      console.log('>>>>');
       setMessage('Enter a valid email to continue');
       // form.reportValidity();
       return;

@@ -1,3 +1,4 @@
+// note that API docs + bulk hidden for the short term
 export const footerSections = {
   pupils: {
     title: 'API',
@@ -6,19 +7,18 @@ export const footerSections = {
         text: 'Home',
         href: 'https://open-api.thenational.academy/',
       },
-      // API documentation
-      {
-        text: 'API documentation',
-        href: 'https://open-api.thenational.academy/docs',
-      },
+      // {
+      //   text: 'API documentation',
+      //   href: 'https://open-api.thenational.academy/docs',
+      // },
       {
         text: 'API playground',
         href: 'https://open-api.thenational.academy/playground',
       },
-      {
-        text: 'Bulk downloads',
-        href: 'https://open-api.thenational.academy/bulk-downloads',
-      },
+      // {
+      //   text: 'Bulk downloads',
+      //   href: 'https://open-api.thenational.academy/bulk-downloads',
+      // },
     ],
   },
   oak: {
