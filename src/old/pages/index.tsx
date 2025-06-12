@@ -21,8 +21,8 @@ import styled from 'styled-components';
 import Feature from '@/components/Feature';
 import { OakAnchorTarget } from '@oaknational/oak-components';
 import React, { useEffect } from 'react';
-import Logo from '~/components/Logo';
-import posthog from '~/lib/posthog';
+import Logo from '@/components/Logo';
+import posthog from '@/lib/posthog';
 
 import Footer from '@/components/Footer';
 import Head from 'next/head';
