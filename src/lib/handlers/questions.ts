@@ -33,7 +33,7 @@ import {
 } from '../queryGate';
 import allowedUnits from '../queryGateData/supportedUnits.json' with { type: 'json' };
 import { TRPCError } from '@trpc/server';
-import { sequenceWhere } from './sequences';
+import { sequenceWhere } from './sequences/sequences';
 import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
 import { blockedSequenceSubjects } from '../blockedContent';
 

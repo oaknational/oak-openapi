@@ -11,7 +11,7 @@ import { getSubjects } from './handlers/subjects';
 import { getAssets } from './handlers/assets';
 import { searchTranscripts } from './handlers/searchTranscripts';
 import { getLessonTranscript } from './handlers/transcript';
-import { getSequences } from './handlers/sequences';
+import { getSequences } from './handlers/sequences/sequences';
 import { getThreads } from './handlers/threads';
 import { getRateLimit } from './handlers/rate';
 
