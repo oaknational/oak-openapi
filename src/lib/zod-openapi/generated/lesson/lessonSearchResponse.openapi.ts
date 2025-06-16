@@ -81,3 +81,7 @@ export const lessonSearchResponseOpenAPISchema = z
       },
     ],
   });
+
+export type LessonSearchResponseType = z.infer<
+  typeof lessonSearchResponseSchema
+>;

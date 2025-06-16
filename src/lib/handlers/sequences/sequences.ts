@@ -13,7 +13,6 @@ import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
 import { examBoards } from '../../oakConsts';
 import { blockedSequenceSubjects } from '../../blockedContent';
 import { TRPCError } from '@trpc/server';
-import { sequenceUnitsRequestSchema } from './schemas/sequenceUnitsRequest.schema';
 import {
   Category,
   ExamSubjectsWithoutTiers,
@@ -22,7 +21,11 @@ import {
   YearSequence,
   Tier,
 } from '@/lib/types';
-import { sequenceUnitsResponseSchema } from './schemas/sequenceUnitsResponse.schema';
+
+import {
+  sequenceUnitsRequestOpenAPISchema,
+  sequenceUnitsResponseOpenAPISchema,
+} from '@/lib/zod-openapi/generated/sequence';
 
 toSorted.shim();
 
@@ -124,8 +127,8 @@ export const getSequences = router({
         description: '',
       },
     })
-    .input(sequenceUnitsRequestSchema)
-    .output(sequenceUnitsResponseSchema)
+    .input(sequenceUnitsRequestOpenAPISchema)
+    .output(sequenceUnitsResponseOpenAPISchema)
     .query(async ({ input }) => {
       const client = getClient();
 

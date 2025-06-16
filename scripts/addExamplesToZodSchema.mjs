@@ -233,20 +233,21 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
 
       const inferredTypeName = getInferredTypeName(baseName);
       const program = path.findParent((p) => p.isProgram());
+
       if (program && program.node.body) {
         program.node.body = program.node.body.filter(
           (node) =>
             !(
               t.isExportNamedDeclaration(node) &&
               t.isTSTypeAliasDeclaration(node.declaration) &&
-              node.declaration?.id?.name === inferredTypeName + 'Type'
+              node.declaration?.id?.name === inferredTypeName
             ),
         );
-      }
 
-      path.parentPath.insertAfter(
-        createInferredTypeAlias(openapiSchemaName, inferredTypeName),
-      );
+        path.parentPath.insertAfter(
+          createInferredTypeAlias(openapiSchemaName, inferredTypeName),
+        );
+      }
     },
   });
 
@@ -309,6 +310,7 @@ function formatWithPrettier(pathName) {
 function main() {
   const schemaFiles = findAllSchemaFiles('.');
   const jsonFiles = findAllExampleJsonFiles('.');
+
   const endpointMap = {};
 
   for (const schemaFile of schemaFiles) {
