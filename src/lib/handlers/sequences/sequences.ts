@@ -19,10 +19,10 @@ import {
   ExamSubjectsWithoutTiers,
   ExamSubjectsWithTiers,
   SequenceSchema,
-  sequenceUnitsResponseSchema,
   YearSequence,
   Tier,
-} from './schemas/sequenceUnitsResponse.schema';
+} from '@/lib/types';
+import { sequenceUnitsResponseSchema } from './schemas/sequenceUnitsResponse.schema';
 
 toSorted.shim();
 
