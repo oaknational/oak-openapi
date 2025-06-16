@@ -25,13 +25,17 @@ export const lessonSummaryResponseOpenAPISchema = z.object({
   ),
   misconceptionsAndCommonMistakes: z.array(
     z.object({
-      misconception: z.string().openapi({
-        example: 'Pupils may struggle to link related ideas together.',
-      }),
-      response: z.string().openapi({
-        example:
-          'Give some non-examples to show what it sounds like when two ideas are unrelated e.g. Dad baked bread and she missed her sister.',
-      }),
+      misconception: z
+        .string()
+        .openapi({
+          example: 'Pupils may struggle to link related ideas together.',
+        }),
+      response: z
+        .string()
+        .openapi({
+          example:
+            'Give some non-examples to show what it sounds like when two ideas are unrelated e.g. Dad baked bread and she missed her sister.',
+        }),
     }),
   ),
   pupilLessonOutcome: z
@@ -40,10 +44,12 @@ export const lessonSummaryResponseOpenAPISchema = z.object({
     .openapi({ example: "I can join two simple sentences with 'and'." }),
   teacherTips: z.array(
     z.object({
-      teacherTip: z.string().openapi({
-        example:
-          'In Learning Cycle 1, make sure pupils are given plenty of opportunities to say sentences orally and hear that they make complete sense.',
-      }),
+      teacherTip: z
+        .string()
+        .openapi({
+          example:
+            'In Learning Cycle 1, make sure pupils are given plenty of opportunities to say sentences orally and hear that they make complete sense.',
+        }),
     }),
   ),
   contentGuidance: z
