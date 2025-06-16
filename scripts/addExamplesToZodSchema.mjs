@@ -1,3 +1,4 @@
+// Combined full script with imported identifiers and unions handled
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
@@ -36,23 +37,12 @@ function findAllExampleJsonFiles(rootDir) {
 }
 
 function getMatchingJson(schemaPath, allJsonFiles) {
-  if (!schemaPath) {
-    console.error('❌ schemaPath is undefined');
-    return null;
-  }
-
   const baseName = path.basename(schemaPath).replace('.schema.ts', '');
-  const match = allJsonFiles.find(
+  return allJsonFiles.find(
     (jsonPath) =>
       path.basename(jsonPath).startsWith(baseName) &&
       path.basename(jsonPath).endsWith('Example.json'),
   );
-
-  if (!match) {
-    console.warn(`⚠️ No matching example JSON found for ${schemaPath}`);
-  }
-
-  return match;
 }
 
 function isFlatObject(obj) {
@@ -62,67 +52,76 @@ function isFlatObject(obj) {
   );
 }
 
-function attachOpenAPICalls(node, exampleValue) {
+function attachOpenAPICalls(node, exampleValue, importedIdents = new Set()) {
   if (t.isCallExpression(node)) {
     const callee = node.callee;
 
-    // z.object({...})
-    if (t.isMemberExpression(callee) && callee.property.name === 'object') {
-      const arg = node.arguments[0];
-      if (t.isObjectExpression(arg)) {
-        arg.properties.forEach((prop) => {
-          if (t.isObjectProperty(prop) && t.isIdentifier(prop.key)) {
-            const key = prop.key.name;
-            const example = exampleValue?.[key];
-            prop.value = attachOpenAPICalls(prop.value, example);
-          }
-        });
-      }
-      return node;
-    }
-
-    // z.array(z.object(...))
-    if (t.isMemberExpression(callee) && callee.property.name === 'array') {
-      const innerArg = node.arguments[0];
-      if (exampleValue && Array.isArray(exampleValue)) {
-        const exampleItem = exampleValue[0];
-        const updated = attachOpenAPICalls(innerArg, exampleItem);
-        node.arguments[0] = updated;
-      }
-      return node;
-    }
-
-    // Already has .openapi()
     if (t.isMemberExpression(callee) && callee.property.name === 'openapi') {
       return node;
     }
 
-    // Leaf node: string, number, etc.
-    if (exampleValue !== undefined) {
-      return t.callExpression(
-        t.memberExpression(node, t.identifier('openapi')),
-        [
-          t.objectExpression([
-            t.objectProperty(
-              t.identifier('example'),
-              t.valueToNode(exampleValue),
-            ),
-          ]),
-        ],
-      );
-    }
+    if (t.isMemberExpression(callee)) {
+      const propName = callee.property.name;
+      if (propName === 'object') {
+        const arg = node.arguments[0];
+        if (t.isObjectExpression(arg)) {
+          arg.properties.forEach((prop) => {
+            if (t.isObjectProperty(prop) && t.isIdentifier(prop.key)) {
+              prop.value = attachOpenAPICalls(
+                prop.value,
+                exampleValue?.[prop.key.name],
+                importedIdents,
+              );
+            }
+          });
+        }
+      } else if (propName === 'array') {
+        node.arguments[0] = attachOpenAPICalls(
+          node.arguments[0],
+          exampleValue?.[0],
+          importedIdents,
+        );
+      } else if (propName === 'union' || propName === 'discriminatedUnion') {
+        node.arguments[0] = t.isArrayExpression(node.arguments[0])
+          ? t.arrayExpression(
+              node.arguments[0].elements.map((e) =>
+                attachOpenAPICalls(e, exampleValue, importedIdents),
+              ),
+            )
+          : node.arguments[0];
+      }
 
-    return node;
+      if (exampleValue !== undefined) {
+        return t.callExpression(
+          t.memberExpression(node, t.identifier('openapi')),
+          [
+            t.objectExpression([
+              t.objectProperty(
+                t.identifier('example'),
+                t.valueToNode(exampleValue),
+              ),
+            ]),
+          ],
+        );
+      }
+    }
+  }
+
+  if (t.isIdentifier(node) && importedIdents.has(node.name)) {
+    return t.callExpression(t.memberExpression(node, t.identifier('openapi')), [
+      t.objectExpression([
+        t.objectProperty(t.identifier('example'), t.valueToNode(exampleValue)),
+      ]),
+    ]);
   }
 
   return node;
 }
+
 function fixImports(ast, schemaFilePath, outputFilePath) {
   traverse.default(ast, {
     ImportDeclaration(path) {
       const source = path.node.source.value;
-
-      // Skip non-relative imports and aliases like '@'
       if (!source.startsWith('.') || source.startsWith('@')) return;
 
       try {
@@ -134,11 +133,7 @@ function fixImports(ast, schemaFilePath, outputFilePath) {
           path.dirname(outputFilePath),
           absImportPath,
         );
-
-        if (!newRelPath.startsWith('.')) {
-          newRelPath = './' + newRelPath;
-        }
-
+        if (!newRelPath.startsWith('.')) newRelPath = './' + newRelPath;
         path.node.source.value = newRelPath.replace(/\\/g, '/');
       } catch (err) {
         console.warn(`⚠️ Failed to rewrite import: ${source}`, err.message);
@@ -166,134 +161,92 @@ function createInferredTypeAlias(varName, aliasName) {
     [],
   );
 }
+
 function getInferredTypeName(val) {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1);
 }
-function processSchemaFile(schemaFilePath, jsonFilePath) {
-  if (!schemaFilePath || !jsonFilePath) {
-    console.error('❌ Missing schema or JSON file path');
-    return null;
-  }
 
+function processSchemaFile(schemaFilePath, jsonFilePath) {
   const baseName = path.basename(schemaFilePath).replace('.schema.ts', '');
   const originalSchemaName = baseName + 'Schema';
   const openapiSchemaName = baseName + 'OpenAPISchema';
 
-  let inputCode;
-  try {
-    inputCode = fs.readFileSync(schemaFilePath, 'utf-8');
-  } catch (err) {
-    console.error(
-      `❌ Failed to read schema file: ${schemaFilePath}`,
-      err.message,
-    );
-    return null;
-  }
-
-  let exampleJson;
-  try {
-    exampleJson = JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'));
-  } catch (err) {
-    console.error(
-      `❌ Failed to parse example JSON: ${jsonFilePath}`,
-      err.message,
-    );
-    return null;
-  }
-
+  let inputCode = fs.readFileSync(schemaFilePath, 'utf-8');
+  const exampleJson = JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'));
   const exampleData = Array.isArray(exampleJson) ? exampleJson[0] : exampleJson;
 
-  let ast;
-  try {
-    // import zod-openapi module
-    ast = parser.parse(inputCode, {
-      sourceType: 'module',
-      plugins: ['typescript'],
-    });
-    const programNode = ast.program;
-    const importPath = 'zod-openapi/extend';
-
-    const alreadyExists = programNode.body.some(
+  const ast = parser.parse(inputCode, {
+    sourceType: 'module',
+    plugins: ['typescript'],
+  });
+  const programNode = ast.program;
+  const importPath = 'zod-openapi/extend';
+  if (
+    !programNode.body.some(
       (n) => t.isImportDeclaration(n) && n.source.value === importPath,
+    )
+  ) {
+    programNode.body.unshift(
+      t.noop(),
+      t.importDeclaration([], t.stringLiteral(importPath)),
     );
-
-    if (!alreadyExists) {
-      const importStatement = t.importDeclaration(
-        [],
-        t.stringLiteral(importPath),
-      );
-      const emptyLine = t.noop(); // This forces a blank line after the import
-
-      programNode.body.unshift(emptyLine);
-      programNode.body.unshift(importStatement);
-    }
-  } catch (err) {
-    console.error(
-      `❌ Failed to parse schema file: ${schemaFilePath}`,
-      err.message,
-    );
-    return null;
   }
+
+  const localImports = new Map();
+  traverse.default(ast, {
+    ImportDeclaration(path) {
+      const source = path.node.source.value;
+      path.node.specifiers.forEach((specifier) => {
+        if (t.isImportSpecifier(specifier)) {
+          localImports.set(specifier.local.name, source);
+        }
+      });
+    },
+  });
 
   traverse.default(ast, {
     VariableDeclarator(path) {
       if (path.node.id.name !== originalSchemaName) return;
+      path.node.id.name = openapiSchemaName;
 
-      try {
-        // Rename variable to OpenAPI name
-        path.node.id.name = openapiSchemaName;
+      const importedIdents = new Set(localImports.keys());
 
-        if (!t.isCallExpression(path.node.init)) return;
-
-        // Only add `.openapi({ example })` at top level if it's a top-level array
-        if (Array.isArray(exampleJson)) {
-          path.node.init = t.callExpression(
-            t.memberExpression(path.node.init, t.identifier('openapi')),
-            [
-              t.objectExpression([
-                t.objectProperty(
-                  t.identifier('example'),
-                  t.valueToNode(exampleJson),
-                ),
-              ]),
-            ],
-          );
-        }
-
-        // Inject `.openapi({ example })`
-        path.node.init = attachOpenAPICalls(
-          path.node.init,
-          exampleData,
-          isFlatObject(path.node),
+      if (Array.isArray(exampleJson)) {
+        path.node.init = t.callExpression(
+          t.memberExpression(path.node.init, t.identifier('openapi')),
+          [
+            t.objectExpression([
+              t.objectProperty(
+                t.identifier('example'),
+                t.valueToNode(exampleJson),
+              ),
+            ]),
+          ],
         );
+      }
 
-        // Remove any existing type declarations with the same name
-        const inferredTypeName = getInferredTypeName(baseName);
+      path.node.init = attachOpenAPICalls(
+        path.node.init,
+        exampleData,
+        importedIdents,
+      );
 
-        const program = path.findParent((p) => p.isProgram());
-        if (program && program.node.body) {
-          program.node.body = program.node.body.filter((node) => {
-            return !(
+      const inferredTypeName = getInferredTypeName(baseName);
+      const program = path.findParent((p) => p.isProgram());
+      if (program && program.node.body) {
+        program.node.body = program.node.body.filter(
+          (node) =>
+            !(
               t.isExportNamedDeclaration(node) &&
               t.isTSTypeAliasDeclaration(node.declaration) &&
               node.declaration?.id?.name === inferredTypeName + 'Type'
-            );
-          });
-        }
-
-        // ✅ Safely insert new inferred type alias
-        const typeAliasNode = createInferredTypeAlias(
-          openapiSchemaName,
-          inferredTypeName,
-        );
-
-        path.parentPath.insertAfter(typeAliasNode);
-      } catch (err) {
-        console.error(
-          `❌ Failed to process schema type in ${schemaFilePath}`,
-          err.message,
+            ),
         );
       }
+
+      path.parentPath.insertAfter(
+        createInferredTypeAlias(openapiSchemaName, inferredTypeName),
+      );
     },
   });
 
@@ -306,34 +259,29 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
 
   fixImports(ast, schemaFilePath, outputPath);
 
-  const outputDir = path.dirname(outputPath);
-  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
-
-  try {
-    fs.writeFileSync(
-      outputPath,
-      generate.default(ast, { retainLines: true }).code,
-    );
-    console.log(`✅ Generated: ${outputPath}`);
-  } catch (err) {
-    console.error(`❌ Failed to write output file: ${outputPath}`, err.message);
-    return null;
+  if (!fs.existsSync(path.dirname(outputPath))) {
+    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   }
+
+  fs.writeFileSync(
+    outputPath,
+    generate.default(ast, { retainLines: true }).code,
+  );
+  console.log(`✅ Generated: ${outputPath}`);
 
   return outputPath;
 }
 
 function generatePerEndpointIndexes(endpointMap) {
   for (const [endpoint, files] of Object.entries(endpointMap)) {
-    const exports = files.map((filePath) => {
-      const relativePath = './' + path.basename(filePath).replace(/\.ts$/, '');
-      return `export * from "${relativePath}";`;
-    });
-
-    const endpointIndexPath = path.join(GENERATED_DIR, endpoint, 'index.ts');
-    fs.writeFileSync(endpointIndexPath, exports.join('\n') + '\n');
-    formatWithPrettier(endpointIndexPath);
-    console.log(`📦 Generated: ${endpointIndexPath}`);
+    const exports = files.map(
+      (filePath) =>
+        `export * from "./${path.basename(filePath).replace(/\.ts$/, '')}";`,
+    );
+    const indexPath = path.join(GENERATED_DIR, endpoint, 'index.ts');
+    fs.writeFileSync(indexPath, exports.join('\n') + '\n');
+    formatWithPrettier(indexPath);
+    console.log(`📦 Generated: ${indexPath}`);
   }
 }
 
@@ -342,7 +290,6 @@ function generateGlobalIndex(endpointMap) {
   const indexExports = allEndpointDirs.map(
     (endpoint) => `export * as ${endpoint} from "./${endpoint}";`,
   );
-
   const indexPath = path.join(GENERATED_DIR, 'index.ts');
   fs.writeFileSync(indexPath, indexExports.join('\n') + '\n');
   formatWithPrettier(indexPath);
@@ -354,7 +301,6 @@ function formatWithPrettier(pathName) {
     execSync(`bash -c "pnpm prettier --write ${pathName}"`, {
       stdio: 'inherit',
     });
-    console.log('✨ Prettier formatted generated files');
   } catch (err) {
     console.error('❌ Prettier formatting failed:', err.message);
   }
@@ -368,7 +314,6 @@ function main() {
   for (const schemaFile of schemaFiles) {
     const jsonFile = getMatchingJson(schemaFile, jsonFiles);
     if (!jsonFile) continue;
-
     const outputPath = processSchemaFile(schemaFile, jsonFile);
     if (outputPath) {
       const endpoint = extractEndpointName(schemaFile);
