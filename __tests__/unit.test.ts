@@ -1,6 +1,10 @@
 import { expect, test } from 'vitest';
 import { makeCaller, makeRes } from './helper';
-import type { Unit, UnitWithOptions, YearSequence } from '@/lib/types';
+import type {
+  Unit,
+  UnitWithOptions,
+  YearSequence,
+} from '@/lib/handlers/sequences/types';
 
 test('get cycle 2 (2024-2025) unit', async () => {
   const caller = makeCaller({
