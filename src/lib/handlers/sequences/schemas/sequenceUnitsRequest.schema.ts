@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { years } from '@/lib/types';
+import { years } from '@/lib/handlers/sequences/types';
 
 export const sequenceUnitsRequestSchema = z.object({
   sequence: z.string(),

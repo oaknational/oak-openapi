@@ -1,4 +1,4 @@
-import { sequenceSchema } from '@/lib/types';
+import { sequenceSchema } from '@/lib/handlers/sequences/types';
 import { z } from 'zod';
 
 export const sequenceUnitsResponseSchema = z.array(sequenceSchema);
