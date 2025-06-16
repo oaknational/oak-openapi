@@ -24,18 +24,18 @@ import type {
   SequenceView,
 } from 'lib/owaClient';
 import { z } from 'zod';
-import { baseUrl } from '../baseUrl';
+import { baseUrl } from '../../baseUrl';
 import {
   blockedSubjects,
   getSubjectAndUnitForLesson,
   isBlockedUnitOrSubject,
   supportsImages,
-} from '../queryGate';
-import allowedUnits from '../queryGateData/supportedUnits.json' with { type: 'json' };
+} from '../../queryGate';
+import allowedUnits from '../../queryGateData/supportedUnits.json' with { type: 'json' };
 import { TRPCError } from '@trpc/server';
-import { sequenceWhere } from './sequences/sequences';
-import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
-import { blockedSequenceSubjects } from '../blockedContent';
+import { sequenceWhere } from '../sequences/sequences';
+import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
+import { blockedSequenceSubjects } from '../../blockedContent';
 import {
   ImageDataSchemaType,
   MatchAnswer,
@@ -45,9 +45,12 @@ import {
   questionsSchema,
   QuizKey,
   TextAnswer,
-} from './questions/types';
-import { questionForLessonsResponseSchema } from './questions/schemas/questionForLessonsResponse.schema';
-import { questionForLessonsRequestSchema } from './questions/schemas/questionForLessonsRequest.schema';
+} from './types';
+
+import {
+  questionForLessonsRequestOpenAPISchema,
+  questionForLessonsResponseOpenAPISchema,
+} from '@/lib/zod-openapi/generated/question';
 
 function emptyQuizResults(): Record<QuizKey, Question[]> {
   return {
@@ -293,8 +296,8 @@ export const getQuestions = router({
           'The endpoint returns the quiz questions and answers for a given lesson. The answers data indicates which answers are correct, and which are distractors.',
       },
     })
-    .input(questionForLessonsRequestSchema)
-    .output(questionForLessonsResponseSchema)
+    .input(questionForLessonsRequestOpenAPISchema)
+    .output(questionForLessonsResponseOpenAPISchema)
     .query(async ({ input }) => {
       const slug = decodeURIComponent(input.lesson);
 

@@ -1,5 +1,5 @@
 import z from 'zod';
-import { questionZod } from '../types';
+import { questionZod } from '@/lib/handlers/questions/types';
 
 export const questionForLessonsResponseSchema = z.object({
   starterQuiz: z.array(questionZod),
