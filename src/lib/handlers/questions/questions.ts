@@ -30,6 +30,10 @@ import {
   questionForLessonsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/question';
 import { questionsForQuiz } from './helpers';
+import {
+  questionsForSequenceRequestOpenAPISchema,
+  questionsForSequenceResponseOpenAPISchema,
+} from '@/lib/zod-openapi/generated/questions';
 
 export const getQuestions = router({
   getQuestionsForLessons: protectedProcedure
@@ -118,87 +122,11 @@ export const getQuestions = router({
         path: '/sequences/{sequence}/questions',
         description:
           'This endpoint returns the quiz questions and answers (and indicates which answers are correct and which are distractors) for a given sequence',
-        // example: {
-        //   response: [
-        //     {
-        //       lessonTitle: '3D shapes can be composed from 2D nets',
-        //       lessonSlug: '3d-shapes-can-be-composed-from-2d-nets',
-        //       starterQuiz: [
-        //         {
-        //           question:
-        //             'Select all of the names of shapes that are polygons.',
-        //           questionType: 'multiple-choice',
-        //           answers: [
-        //             {
-        //               type: 'text',
-        //               content: 'Cube ',
-        //               distractor: true,
-        //             },
-        //             {
-        //               type: 'text',
-        //               content: ' Square',
-        //               distractor: false,
-        //             },
-        //             {
-        //               type: 'text',
-        //               content: 'Triangle',
-        //               distractor: false,
-        //             },
-        //             {
-        //               type: 'text',
-        //               content: 'Semi-circle',
-        //               distractor: true,
-        //             },
-        //           ],
-        //         },
-        //       ],
-        //       exitQuiz: [
-        //         {
-        //           question: 'What is a net?',
-        //           questionType: 'multiple-choice',
-        //           answers: [
-        //             {
-        //               type: 'text',
-        //               content: 'A 3D shape made of 2D shapes folded together. ',
-        //               distractor: false,
-        //             },
-        //             {
-        //               type: 'text',
-        //               content: 'A 2D shape made of 3D shapes folded togehther.',
-        //               distractor: true,
-        //             },
-        //             {
-        //               type: 'text',
-        //               content: 'A type of cube.',
-        //               distractor: true,
-        //             },
-        //           ],
-        //         },
-        //       ],
-        //     },
-        //   ],
-        //   request: {
-        //     sequence: 'maths-secondary',
-        //   },
-        // },
+        errorResponses: [],
       },
     })
-    .input(
-      z.object({
-        sequence: z.string(),
-        year: z.number().optional(),
-
-        offset: z.number().optional().default(0),
-        limit: z
-          .number({
-            description: 'Limit the number of results returned, max 100',
-          })
-          .lte(100)
-          .optional()
-          .default(10),
-      }),
-    )
-    .output(z.any())
+    .input(questionsForSequenceRequestOpenAPISchema)
+    .output(questionsForSequenceResponseOpenAPISchema)
     .query(async ({ input, ctx }) => {
       const { limit, offset, sequence, year } = input;
       const client = getClient();
