@@ -1,7 +1,7 @@
 import { protectedProcedure } from '@/lib/protect';
 
 import { router } from '@/lib/trpc';
-import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
+
 import {
   getClient,
   gql,
@@ -10,7 +10,7 @@ import {
   sequenceViewWhereInput,
 } from 'lib/owaClient';
 import type { LessonView, SequenceView } from 'lib/owaClient';
-import { z } from 'zod';
+
 import { baseUrl } from '../../baseUrl';
 import {
   blockedSubjects,
@@ -23,7 +23,7 @@ import { TRPCError } from '@trpc/server';
 import { sequenceWhere } from '../sequences/sequences';
 import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
 import { blockedSequenceSubjects } from '../../blockedContent';
-import { Question, questionsSchema, QuizKey } from './types';
+import { Question, QuizKey } from './types';
 
 import {
   questionForLessonsRequestOpenAPISchema,
@@ -31,6 +31,8 @@ import {
 } from '@/lib/zod-openapi/generated/question';
 import { questionsForQuiz } from './helpers';
 import {
+  questionsForKeyStageAndSubjectRequestOpenAPISchema,
+  questionsForKeyStageAndSubjectResponseOpenAPISchema,
   questionsForSequenceRequestOpenAPISchema,
   questionsForSequenceResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/questions';
@@ -247,156 +249,13 @@ export const getQuestions = router({
         tags: ['questions'],
         method: 'GET',
         path: '/key-stages/{keyStage}/subject/{subject}/questions',
+        errorResponses: [],
         description:
           'This endpoint returns all the quiz questions and answers (and indicates which answers are correct and which are distractors), grouped by lesson, for a given key stage and subject',
-        // example: {
-        //   response: [
-        //     {
-        //       lessonSlug: 'predicting-the-size-of-a-product',
-        //       lessonTitle: 'Predicting the size of a product',
-        //       starterQuiz: [
-        //         {
-        //           question: 'Match the number to its written representation.',
-        //           questionType: 'match',
-        //           answers: [
-        //             {
-        //               matchOption: {
-        //                 type: 'text',
-        //                 content: 'seven tenths',
-        //               },
-        //               correctChoice: {
-        //                 type: 'text',
-        //                 content: '0.7',
-        //               },
-        //             },
-        //             {
-        //               matchOption: {
-        //                 type: 'text',
-        //                 content: 'nine tenths',
-        //               },
-        //               correctChoice: {
-        //                 type: 'text',
-        //                 content: '0.9',
-        //               },
-        //             },
-        //             {
-        //               matchOption: {
-        //                 type: 'text',
-        //                 content: 'seven ones',
-        //               },
-        //               correctChoice: {
-        //                 type: 'text',
-        //                 content: '7',
-        //               },
-        //             },
-        //             {
-        //               matchOption: {
-        //                 type: 'text',
-        //                 content: 'seven hundredths',
-        //               },
-        //               correctChoice: {
-        //                 type: 'text',
-        //                 content: '0.07',
-        //               },
-        //             },
-        //             {
-        //               matchOption: {
-        //                 type: 'text',
-        //                 content: 'nine hundredths',
-        //               },
-        //               correctChoice: {
-        //                 type: 'text',
-        //                 content: '0.09',
-        //               },
-        //             },
-        //           ],
-        //         },
-        //       ],
-        //       exitQuiz: [
-        //         {
-        //           question:
-        //             'Use the fact that 9 × 8 = 72, to match the expressions to their product.',
-        //           questionType: 'match',
-        //           answers: [
-        //             {
-        //               matchOption: {
-        //                 type: 'text',
-        //                 content: '9 × 80',
-        //               },
-        //               correctChoice: {
-        //                 type: 'text',
-        //                 content: '720',
-        //               },
-        //             },
-        //             {
-        //               matchOption: {
-        //                 type: 'text',
-        //                 content: '9 × 800 ',
-        //               },
-        //               correctChoice: {
-        //                 type: 'text',
-        //                 content: '7,200',
-        //               },
-        //             },
-        //             {
-        //               matchOption: {
-        //                 type: 'text',
-        //                 content: '9 × 0.8',
-        //               },
-        //               correctChoice: {
-        //                 type: 'text',
-        //                 content: '7.2',
-        //               },
-        //             },
-        //             {
-        //               matchOption: {
-        //                 type: 'text',
-        //                 content: '9 × 0',
-        //               },
-        //               correctChoice: {
-        //                 type: 'text',
-        //                 content: '0',
-        //               },
-        //             },
-        //             {
-        //               matchOption: {
-        //                 type: 'text',
-        //                 content: '9 × 0.08',
-        //               },
-        //               correctChoice: {
-        //                 type: 'text',
-        //                 content: '0.72',
-        //               },
-        //             },
-        //           ],
-        //         },
-        //       ],
-        //     },
-        //   ],
-        // },
       },
     })
-    .input(
-      z.object({
-        keyStage: z.enum(keyStageSlugs as [string], {
-          description:
-            "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
-        }),
-        subject: z.enum(subjectSlugs as [string], {
-          description:
-            "Subject slug to search by, e.g. 'science' - note that casing is important here",
-        }),
-        offset: z.number().optional().default(0),
-        limit: z
-          .number({
-            description: 'Limit the number of results returned, max 100',
-          })
-          .lte(100)
-          .optional()
-          .default(10),
-      }),
-    )
-    .output(questionsSchema)
+    .input(questionsForKeyStageAndSubjectRequestOpenAPISchema)
+    .output(questionsForKeyStageAndSubjectResponseOpenAPISchema)
     .query(async ({ input, ctx }) => {
       const keyStage = decodeURIComponent(input.keyStage);
       const subject = decodeURIComponent(input.subject);
