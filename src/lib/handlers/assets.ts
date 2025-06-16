@@ -28,7 +28,7 @@ import {
   isSubjectSupported,
   isUnitSupported,
 } from '@/lib/queryGate';
-import { sequenceWhere } from './sequences';
+import { sequenceWhere } from './sequences/sequences';
 import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
 import { blockedSequenceSubjects } from '../blockedContent';
 
