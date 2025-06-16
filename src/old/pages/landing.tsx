@@ -8,6 +8,7 @@ import {
   OakMaxWidth,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
+import Link from 'next/link';
 
 const BlockHeading = styled.h2`
   em {
@@ -53,7 +54,7 @@ function BlockAndText() {
         </p>
         <p>
           For more information, please refer to the{' '}
-          <a href="/docs">documentation</a>.
+          <Link href="/docs">documentation</Link>
         </p>
       </OakBox>
       <OakBox>
