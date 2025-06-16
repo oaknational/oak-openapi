@@ -196,3 +196,7 @@ export const lessonSummaryResponseOpenAPISchema = z
       downloadsAvailable: true,
     },
   });
+
+export type LessonSummaryResponseType = z.infer<
+  typeof lessonSummaryResponseSchema
+>;

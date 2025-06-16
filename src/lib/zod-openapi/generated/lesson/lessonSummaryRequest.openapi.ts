@@ -8,3 +8,7 @@ export const lessonSummaryRequestOpenAPISchema = z
       .openapi({ example: 'joining-using-and' }),
   })
   .openapi({ example: { lesson: 'joining-using-and' } });
+
+export type LessonSummaryRequestType = z.infer<
+  typeof lessonSummaryRequestSchema
+>;
