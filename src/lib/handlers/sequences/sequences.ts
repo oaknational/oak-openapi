@@ -26,21 +26,6 @@ import { sequenceUnitsResponseSchema } from './schemas/sequenceUnitsResponse.sch
 
 toSorted.shim();
 
-export const years = [
-  '1',
-  '2',
-  '3',
-  '4',
-  '5',
-  '6',
-  '7',
-  '8',
-  '9',
-  '10',
-  '11',
-  'all-years',
-];
-
 type WhereCondition = {
   _and: Array<{
     _or?: Array<{
