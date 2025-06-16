@@ -3,8 +3,9 @@ import { z } from 'zod';
 
 export const documentationContentPageBlockSchema = z.object({
   title: z.string(),
+  slug: z.object({ text: z.string() }),
   navGroupType: z.object({
-    slug: z.object({ current: z.string() }),
+    slug: z.object({ text: z.string() }),
     name: z.string(),
   }),
   contentRaw: z.array(

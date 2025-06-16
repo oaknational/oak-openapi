@@ -5,7 +5,7 @@ export const documentationBySlugQuerySchema = z.array(
   z.object({
     title: z.string(),
     slug: z.object({
-      slug: z.object({ text: z.string() }),
+      text: z.string(),
     }),
     navGroupType: z.object({
       slug: z.object({ text: z.string() }),
