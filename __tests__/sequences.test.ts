@@ -5,7 +5,7 @@ import {
   UnitWithoutOptions,
   YearSequence,
   yearSequenceKS4WithExamSubjects,
-} from '@/lib/types';
+} from '@/lib/handlers/sequences/types';
 
 test('sequence with subjects', async () => {
   const { caller } = authedCaller();
