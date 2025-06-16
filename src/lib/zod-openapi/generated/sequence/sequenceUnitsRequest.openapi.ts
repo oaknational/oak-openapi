@@ -1,6 +1,6 @@
 import 'zod-openapi/extend';
 import { z } from 'zod';
-import { years } from '@/lib/types';
+import { years } from '@/lib/handlers/sequences/types';
 
 export const sequenceUnitsRequestOpenAPISchema = z
   .object({

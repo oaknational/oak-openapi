@@ -1,5 +1,5 @@
 import 'zod-openapi/extend';
-import { sequenceSchema } from '@/lib/types';
+import { sequenceSchema } from '@/lib/handlers/sequences/types';
 import { z } from 'zod';
 
 export const sequenceUnitsResponseOpenAPISchema = z
