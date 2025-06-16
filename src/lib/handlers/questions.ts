@@ -36,138 +36,18 @@ import { TRPCError } from '@trpc/server';
 import { sequenceWhere } from './sequences/sequences';
 import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
 import { blockedSequenceSubjects } from '../blockedContent';
-
-const multipleChoiceLit = z.literal('multiple-choice');
-const shortAnswerLit = z.literal('short-answer');
-const matchAnswerLit = z.literal('match');
-const orderAnswerLit = z.literal('order');
-
-const availableQuestionTypes = z.union([
-  multipleChoiceLit,
-  shortAnswerLit,
-  matchAnswerLit,
-  orderAnswerLit,
-]);
-
-const imageContent = z.object({
-  url: z.string(),
-  width: z.number(),
-  height: z.number(),
-  alt: z.string().optional(),
-  text: z
-    .string({
-      description: 'Supplementary text for the image, if any',
-    })
-    .optional(),
-  // RS disabled license for now until we have final answer on how we deal
-  // with unknown/uncategorised licenses
-  attribution: z.string().optional(),
-
-  // license: z
-  //   .object({
-  //     source: z.string().optional(),
-  //     attribution_required: z.boolean().optional(),
-  //     usageRestrictions: z.string().optional(),
-  //     usage_notes: z.string().optional(),
-  //   })
-  //   .optional(),
-});
-
-const textAnswer = z.object({
-  type: z.literal('text'),
-  content: z.string(),
-});
-
-const imageAnswer = z.object({
-  type: z.literal('image'),
-  content: imageContent,
-});
-
-const multipleChoiceAnswer = z
-  .object({ distractor: z.boolean() })
-  .and(z.union([textAnswer, imageAnswer]));
-
-const shortAnswer = textAnswer;
-
-const matchAnswer = z.object({
-  matchOption: textAnswer,
-  correctChoice: textAnswer,
-});
-
-const orderAnswer = z
-  .object({
-    order: z.number(),
-  })
-  .and(textAnswer);
-
-const questionZod = z
-  .object({
-    question: z.string(),
-    questionType: availableQuestionTypes,
-    questionImage: imageContent.optional(),
-  })
-  .and(
-    z.discriminatedUnion('questionType', [
-      z.object(
-        {
-          questionType: multipleChoiceLit,
-          answers: z.array(multipleChoiceAnswer),
-        },
-        {
-          description:
-            'Multiple choice answer allows for one or more than one answer to be correct as defined by the distractor field being set to false',
-        },
-      ),
-      z.object(
-        {
-          questionType: shortAnswerLit,
-          answers: z.array(shortAnswer),
-        },
-        {
-          description:
-            'Short answers allow students to enter a free text answer, and the answers array contains a list of acceptable answers',
-        },
-      ),
-      z.object(
-        {
-          questionType: matchAnswerLit,
-          answers: z.array(matchAnswer),
-        },
-        {
-          description:
-            'The student is offered a list from the `match_option` field in the answers array, and must correctly match them to the `correct_choice` value',
-        },
-      ),
-      z.object(
-        {
-          questionType: orderAnswerLit,
-          answers: z.array(orderAnswer),
-        },
-        {
-          description:
-            'The student is offered a list of items to order, and must correctly order them according to the `order` field. When presenting the answer options to the student, you should randomise the order of the items',
-        },
-      ),
-    ]),
-  );
-
-const questionsSchema = z.array(
-  z.object({
-    lessonSlug: z.string(),
-    lessonTitle: z.string(),
-    // unitSlug: z.string(),
-    starterQuiz: z.array(questionZod),
-    exitQuiz: z.array(questionZod),
-  }),
-);
-
-type Question = z.infer<typeof questionZod>;
-type QuizKey = 'exitQuiz' | 'starterQuiz';
-type TextAnswer = z.infer<typeof textAnswer>;
-type MatchAnswer = z.infer<typeof matchAnswer>;
-type OrderAnswer = z.infer<typeof orderAnswer>;
-type MultipleChoiceAnswer = z.infer<typeof multipleChoiceAnswer>;
-type ImageDataSchemaType = z.infer<typeof imageContent>;
+import {
+  ImageDataSchemaType,
+  MatchAnswer,
+  MultipleChoiceAnswer,
+  OrderAnswer,
+  Question,
+  questionsSchema,
+  QuizKey,
+  TextAnswer,
+} from './questions/types';
+import { questionForLessonsResponseSchema } from './questions/schemas/questionForLessonsResponse.schema';
+import { questionForLessonsRequestSchema } from './questions/schemas/questionForLessonsRequest.schema';
 
 function emptyQuizResults(): Record<QuizKey, Question[]> {
   return {
@@ -408,84 +288,13 @@ export const getQuestions = router({
         method: 'GET',
         tags: ['lessons', 'questions'],
         path: '/lessons/{lesson}/quiz',
+        errorResponses: [],
         description:
           'The endpoint returns the quiz questions and answers for a given lesson. The answers data indicates which answers are correct, and which are distractors.',
-        // example: {
-        //   request: {
-        //     lesson: 'joining-using-and',
-        //   },
-        //   response: {
-        //     starterQuiz: [
-        //       {
-        //         question: 'Tick the sentence with the correct punctuation.',
-        //         questionType: 'multiple-choice',
-        //         answers: [
-        //           {
-        //             distractor: true,
-        //             type: 'text',
-        //             content: 'the baby cried',
-        //           },
-        //           {
-        //             distractor: true,
-        //             type: 'text',
-        //             content: 'The baby cried',
-        //           },
-        //           {
-        //             distractor: false,
-        //             type: 'text',
-        //             content: 'The baby cried.',
-        //           },
-        //           {
-        //             distractor: true,
-        //             type: 'text',
-        //             content: 'the baby cried.',
-        //           },
-        //         ],
-        //       },
-        //     ],
-        //     exitQuiz: [
-        //       {
-        //         question: 'Which word is a verb?',
-        //         questionType: 'multiple-choice',
-        //         answers: [
-        //           {
-        //             distractor: true,
-        //             type: 'text',
-        //             content: 'shops',
-        //           },
-        //           {
-        //             distractor: true,
-        //             type: 'text',
-        //             content: 'Jun',
-        //           },
-        //           {
-        //             distractor: true,
-        //             type: 'text',
-        //             content: 'I',
-        //           },
-        //           {
-        //             distractor: false,
-        //             type: 'text',
-        //             content: 'shout',
-        //           },
-        //         ],
-        //       },
-        //     ],
-        //   },
-        // },
       },
     })
-    .input(
-      z.object({
-        lesson: z.string(),
-      }),
-    )
-    .output(
-      z.object({
-        starterQuiz: z.array(questionZod),
-        exitQuiz: z.array(questionZod),
-      }),
-    )
+    .input(questionForLessonsRequestSchema)
+    .output(questionForLessonsResponseSchema)
     .query(async ({ input }) => {
       const slug = decodeURIComponent(input.lesson);
 

@@ -20,7 +20,7 @@ import {
   SequenceSchema,
   YearSequence,
   Tier,
-} from '@/lib/types';
+} from '@/lib/handlers/sequences/types';
 
 import {
   sequenceUnitsRequestOpenAPISchema,
@@ -125,6 +125,7 @@ export const getSequences = router({
         method: 'GET',
         path: '/sequences/{sequence}/units',
         description: '',
+        errorResponses: [],
       },
     })
     .input(sequenceUnitsRequestOpenAPISchema)
