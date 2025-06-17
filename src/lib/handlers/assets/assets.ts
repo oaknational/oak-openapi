@@ -3,7 +3,7 @@ import { gql } from 'graphql-request';
 import { z } from 'zod';
 
 import { protectedProcedure } from '@/lib/protect';
-import { router } from '../trpc';
+import { router } from '../../trpc';
 import {
   Download,
   DownloadView,
@@ -16,9 +16,9 @@ import {
   sequenceView,
   sequenceViewWhereInput,
   SequenceView,
-} from '../owaClient';
-import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
-import { baseUrl } from '../baseUrl';
+} from '../../owaClient';
+
+import { baseUrl } from '../../baseUrl';
 
 import {
   checkLessonAllowedAsset,
@@ -26,21 +26,24 @@ import {
   isSubjectSupported,
   isUnitSupported,
 } from '@/lib/queryGate';
-import { sequenceWhere } from './sequences/sequences';
-import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
-import { blockedSequenceSubjects } from '../blockedContent';
+import { sequenceWhere } from '../sequences/sequences';
+import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
+import { blockedSequenceSubjects } from '../../blockedContent';
 import {
   DownloadTypeEnum,
   downloadTypeEnum,
   LessonAssetsType,
   lessonAssetsType,
-  lessonsAssetsType,
-} from './assets/types';
-import { getAttribution } from './assets/helpers';
+} from './types';
+import { getAttribution } from './helpers';
 import {
   sequenceAssetsRequestOpenAPISchema,
   sequenceAssetsResponseOpenAPISchema,
-} from '../zod-openapi/generated/sequence';
+} from '../../zod-openapi/generated/sequence';
+import {
+  subjectAssetsRequestOpenAPISchema,
+  subjectAssetsResponseOpenAPISchema,
+} from '@/lib/zod-openapi/generated/subject';
 
 const graphqlClient = getClient();
 
@@ -398,60 +401,14 @@ export const getAssets = router({
       openapi: {
         method: 'GET',
         tags: ['assets'],
+        errorResponses: [],
         path: '/key-stages/{keyStage}/subject/{subject}/assets',
         description:
           'This endpoint returns signed download URLs and types for the assets currently available on Oak for a given key stage and subject, optionally filtered by type and unit, grouped by lesson',
-        // example: {
-        //   response: [
-        //     {
-        //       lessonSlug: 'using-numerals',
-        //       lessonTitle: 'Using numerals',
-        //       assets: [
-        //         {
-        //           label: 'Worksheet',
-        //           type: 'worksheet',
-        //           url: `${baseUrl}/lessons/using-numerals/assets/worksheet`,
-        //         },
-        //         {
-        //           label: 'Worksheet Answers',
-        //           type: 'worksheetAnswers',
-        //           url: `${baseUrl}/lessons/using-numerals/assets/worksheetAnswers`,
-        //         },
-        //         {
-        //           label: 'Video',
-        //           type: 'video',
-        //           url: `${baseUrl}/lessons/using-numerals/assets/video`,
-        //         },
-        //       ],
-        //     },
-        //   ],
-        //   request: {
-        //     keyStage: 'ks1',
-        //     subject: 'english',
-        //     unit: 'word-class',
-        //   },
-        // },
       },
     })
-    .input(
-      z.object({
-        keyStage: z.enum(keyStageSlugs as [string], {
-          description:
-            "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
-        }),
-        subject: z.enum(subjectSlugs as [string], {
-          description:
-            "Subject slug to search by, e.g. 'science' - note that casing is important here (always lowercase)",
-        }),
-        type: downloadTypeEnum.optional(),
-        unit: z
-          .string({
-            description: 'Optional unit slug to additionally filter by',
-          })
-          .optional(),
-      }),
-    )
-    .output(lessonsAssetsType)
+    .input(subjectAssetsRequestOpenAPISchema)
+    .output(subjectAssetsResponseOpenAPISchema)
     .query(async ({ input }) => {
       const keyStage = input.keyStage;
       const subject = input.subject;

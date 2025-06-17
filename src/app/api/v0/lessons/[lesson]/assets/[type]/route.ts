@@ -1,10 +1,9 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { type Context, withUser } from '@/lib/context';
 import {
-  assetsForLesson,
   getVideoFromMux,
   listFilesWithMimeType,
-} from '@/lib/handlers/assets';
+} from '@/lib/handlers/assets/helpers';
 import { typeToMime, DownloadTypeEnum } from '@/lib/handlers/assets/types';
 import { SignedAsset, Video } from '@/lib/owaClient';
 import { protect } from '@/lib/protect';
@@ -12,6 +11,7 @@ import { Storage } from '@google-cloud/storage';
 import { TRPCError } from '@trpc/server';
 import { assetBaseVideoUrl } from '@/lib/baseUrl';
 import codes from 'http-codes';
+import { assetsForLesson } from '@/lib/handlers/assets/assets';
 
 export const dynamic = 'force-dynamic';
 
