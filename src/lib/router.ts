@@ -1,7 +1,7 @@
 import { router } from '@/lib/trpc';
 
 import { getAllKeyStageAndSubjectUnits } from './handlers/allKeyStageAndSubjectUnits/allKeyStageAndSubjectUnits';
-import { changelog } from './handlers/changelog';
+import { changelog } from './handlers/changelog/changelog';
 import { getKeyStageSubjectLessons } from './handlers/keyStageSubjectLessons';
 import { getKeyStages } from './handlers/keyStages';
 import { getLessons } from './handlers/lesson/lesson';
