@@ -2,6 +2,7 @@ import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import { keyStages } from '@/lib/keyStageAndSubjects';
 import { z } from 'zod';
+import { keyStageResponseOpenAPISchema } from '@/lib/zod-openapi/generated/key';
 
 export const getKeyStages = router({
   getKeyStages: protectedProcedure
@@ -10,20 +11,13 @@ export const getKeyStages = router({
         tags: ['lists'],
         method: 'GET',
         path: '/key-stages',
+        errorResponses: [],
         description:
           'This endpoint returns all the key stages (titles and slugs) that are currently available on Oak',
-        // example: { response: [{ slug: 'ks1', title: 'Key Stage 1' }] },
       },
     })
     .input(z.void())
-    .output(
-      z.array(
-        z.object({
-          slug: z.string(),
-          title: z.string(),
-        }),
-      ),
-    )
+    .output(keyStageResponseOpenAPISchema)
     .query(() => keyStages),
 
   // 2025-01-24 disabling this endpoint, not sure it's useful
