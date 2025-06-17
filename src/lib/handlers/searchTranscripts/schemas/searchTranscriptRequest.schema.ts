@@ -1,0 +1,8 @@
+import z from 'zod';
+
+export const searchTranscriptRequestSchema = z.object({
+  q: z.string({
+    description:
+      'A snippet of text to search for in the lesson video transcripts',
+  }),
+});

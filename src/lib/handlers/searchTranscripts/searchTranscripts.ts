@@ -1,7 +1,10 @@
-import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
+import {
+  searchTranscriptRequestOpenAPISchema,
+  searchTranscriptResponseOpenAPISchema,
+} from '@/lib/zod-openapi/generated/searchTranscripts';
 
 export const searchTranscripts = router({
   searchTranscripts: protectedProcedure
@@ -10,56 +13,13 @@ export const searchTranscripts = router({
         method: 'GET',
         tags: ['search'],
         path: '/search/transcripts',
+        errorResponses: [],
         description:
           'Search for a term and find lessons that contain similar text in their video transcripts',
-        // example: {
-        //   request: {
-        //     q: 'Who were the romans?',
-        //   },
-        //   response: [
-        //     {
-        //       lessonTitle: 'The Roman invasion of Britain ',
-        //       lessonSlug: 'the-roman-invasion-of-britain',
-        //       transcriptSnippet: 'The Romans were ready,',
-        //     },
-        //     {
-        //       lessonTitle:
-        //         'The changes to life brought about by Roman settlement',
-        //       lessonSlug:
-        //         'the-changes-to-life-brought-about-by-roman-settlement',
-        //       transcriptSnippet: 'when the Romans came.',
-        //     },
-        //     {
-        //       lessonTitle: "Boudica's rebellion against Roman rule",
-        //       lessonSlug: 'boudicas-rebellion-against-roman-rule',
-        //       transcriptSnippet: 'kings who resisted the Romans were,',
-        //     },
-        //     {
-        //       lessonTitle: 'How far religion changed under Roman rule',
-        //       lessonSlug: 'how-far-religion-changed-under-roman-rule',
-        //       transcriptSnippet: 'for the Romans.',
-        //     },
-        //   ],
-        // },
       },
     })
-    .input(
-      z.object({
-        q: z.string({
-          description:
-            'A snippet of text to search for in the lesson video transcripts',
-        }),
-      }),
-    )
-    .output(
-      z.array(
-        z.object({
-          lessonTitle: z.string(),
-          lessonSlug: z.string(),
-          transcriptSnippet: z.string().optional(),
-        }),
-      ),
-    )
+    .input(searchTranscriptRequestOpenAPISchema)
+    .output(searchTranscriptResponseOpenAPISchema)
     .query(async ({ input }) => {
       const { q } = input;
 
