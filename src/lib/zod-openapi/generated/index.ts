@@ -7,3 +7,4 @@ export * as questions from './questions';
 export * as rate from './rate';
 export * as searchTranscripts from './searchTranscripts';
 export * as sequences from './sequences';
+export * as transcript from './transcript';
