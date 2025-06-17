@@ -1,14 +1,18 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
-import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
+
 import {
   UnitVariantLessonsView,
   getClient,
   gql,
   unitVariantLessonsView,
 } from 'lib/owaClient';
-import { z } from 'zod';
-import { baseUrl } from '../baseUrl';
+
+import { baseUrl } from '../../baseUrl';
+import {
+  keyStageSubjectLessonsRequestOpenAPISchema,
+  keyStageSubjectLessonsResponseOpenAPISchema,
+} from '@/lib/zod-openapi/generated/keyStageSubjectLessons';
 
 export const getKeyStageSubjectLessons = router({
   getKeyStageSubjectLessons: protectedProcedure
@@ -19,72 +23,11 @@ export const getKeyStageSubjectLessons = router({
         path: '/key-stages/{keyStage}/subject/{subject}/lessons',
         description:
           'This endpoint returns all the lessons (titles and slugs) that are currently available on Oak for a given subject and key stage, grouped by unit',
-        // example: {
-        //   response: [
-        //     {
-        //       unitSlug: 'simple-compound-and-adverbial-complex-sentences',
-        //       unitTitle: 'Simple, compound and adverbial complex sentences',
-        //       lessons: [
-        //         {
-        //           lessonSlug: 'four-types-of-simple-sentence',
-        //           lessonTitle: 'Four types of simple sentence',
-        //         },
-        //         {
-        //           lessonSlug:
-        //             'three-ways-for-co-ordination-in-compound-sentences',
-        //           lessonTitle:
-        //             'Three ways for co-ordination in compound sentences',
-        //         },
-        //       ],
-        //     },
-        //   ],
-        //   request: {
-        //     keyStage: 'ks1',
-        //     subject: 'english',
-        //     unit: 'word-class',
-        //   },
-        // },
+        errorResponses: [],
       },
     })
-    .input(
-      z.object({
-        keyStage: z.enum(keyStageSlugs as [string], {
-          description:
-            "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
-        }),
-        subject: z.enum(subjectSlugs as [string], {
-          description:
-            "Subject slug to filter by, e.g. 'english' - note that casing is important here, and should be lowercase",
-        }),
-        unit: z
-          .string({
-            description: 'Optional unit slug to additionally filter by',
-          })
-          .optional(),
-        offset: z.number().optional().default(0),
-        limit: z
-          .number({
-            description: 'Limit the number of results returned, max 100',
-          })
-          .lte(100)
-          .optional()
-          .default(10),
-      }),
-    )
-    .output(
-      z.array(
-        z.object({
-          unitSlug: z.string({ description: 'Unit slug' }),
-          unitTitle: z.string({ description: 'Unit title' }),
-          lessons: z.array(
-            z.object({
-              lessonSlug: z.string({ description: 'Lesson slug' }),
-              lessonTitle: z.string({ description: 'Lesson title' }),
-            }),
-          ),
-        }),
-      ),
-    )
+    .input(keyStageSubjectLessonsRequestOpenAPISchema)
+    .output(keyStageSubjectLessonsResponseOpenAPISchema)
     .query(async ({ input, ctx }) => {
       const keyStage = decodeURIComponent(input.keyStage);
       const subject = decodeURIComponent(input.subject);
