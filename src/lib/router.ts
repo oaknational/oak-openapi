@@ -13,7 +13,7 @@ import { searchTranscripts } from './handlers/searchTranscripts';
 import { getLessonTranscript } from './handlers/transcript';
 import { getSequences } from './handlers/sequences/sequences';
 import { getThreads } from './handlers/threads';
-import { getRateLimit } from './handlers/rate';
+import { getRateLimit } from './handlers/rate/rate';
 
 export default router({
   getSequences,

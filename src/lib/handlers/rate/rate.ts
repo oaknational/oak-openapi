@@ -1,7 +1,8 @@
 import { router } from '@/lib/trpc';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
-import { protectedProcedure, getRateLimiter } from '../protect';
+import { protectedProcedure, getRateLimiter } from '../../protect';
+import { rateLimitResponseOpenAPISchema } from '@/lib/zod-openapi/generated/rate';
 
 export const getRateLimit = router({
   getRateLimit: protectedProcedure
@@ -10,30 +11,13 @@ export const getRateLimit = router({
         method: 'GET',
         path: '/rate-limit',
         tags: ['internal'],
+        errorResponses: [],
         description:
           'Check your current rate limit status (note that your rate limit is also included in the headers of every response).\n\nThis specific endpoint does not cost any requests.',
-        // example: {
-        //   response: { limit: 1000, remaining: 953, reset: 1740164400000 },
-        // },
       },
       noCost: true,
     })
-    .output(
-      z.object({
-        limit: z.number({
-          description:
-            'The maximum number of requests you can make in the current window.',
-        }),
-        remaining: z.number({
-          description:
-            'The number of requests remaining in the current window.',
-        }),
-        reset: z.number({
-          description:
-            'The time at which the current window resets, in milliseconds since the Unix epoch.',
-        }),
-      }),
-    )
+    .output(rateLimitResponseOpenAPISchema)
     .input(z.undefined())
     .query(async ({ ctx }) => {
       const { user } = ctx;
