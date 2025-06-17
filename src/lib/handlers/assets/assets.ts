@@ -30,20 +30,17 @@ import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
 import { blockedSequenceSubjects } from '../../blockedContent';
 import { DownloadTypeEnum, downloadTypeEnum, LessonAssetsType } from './types';
 import { getAttribution } from './helpers';
-import {
-  sequenceAssetsRequestOpenAPISchema,
-  sequenceAssetsResponseOpenAPISchema,
-} from '../../zod-openapi/generated/sequence';
+
 import {
   subjectAssetsRequestOpenAPISchema,
   subjectAssetsResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/subject';
-import {
+  sequenceAssetsRequestOpenAPISchema,
+  sequenceAssetsResponseOpenAPISchema,
   lessonAssetRequestOpenAPISchema,
   lessonAssetResponseOpenAPISchema,
   lessonAssetsRequestOpenAPISchema,
   lessonAssetsResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/lesson';
+} from '@/lib/zod-openapi/generated/assets';
 
 const graphqlClient = getClient();
 

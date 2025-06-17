@@ -143,9 +143,11 @@ function fixImports(ast, schemaFilePath, outputFilePath) {
 }
 
 function extractEndpointName(filename) {
-  const base = path.basename(filename);
-  const match = base.match(/^([a-z]+)[A-Z]/);
-  return match ? match[1] : 'unknown';
+  // Can do some clever stuff for endpoint generation naming, but then imports become a nightmare
+  // const base = path.basename(filename);
+  // const match = base.match(/^([a-z]+)[A-Z]/);
+  // return match ? match[1] : 'unknown';
+  return filename.split('/')[3] ?? 'all';
 }
 
 function createInferredTypeAlias(varName, aliasName) {
