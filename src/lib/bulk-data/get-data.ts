@@ -23,7 +23,7 @@ import {
   subjectPhaseView,
   TitleSlug,
 } from '@/lib/owaClient';
-import { formatUnitSummary } from '@/lib/handlers/units';
+import { formatUnitSummary } from '@/lib/handlers/units/helpers';
 import { sequenceWhere } from '@/lib/handlers/sequences/sequences';
 import { runSQL } from './data-stores';
 
