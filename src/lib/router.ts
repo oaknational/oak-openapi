@@ -12,7 +12,7 @@ import { getAssets } from './handlers/assets/assets';
 import { searchTranscripts } from './handlers/searchTranscripts/searchTranscripts';
 import { getLessonTranscript } from './handlers/transcript/transcript';
 import { getSequences } from './handlers/sequences/sequences';
-import { getThreads } from './handlers/threads';
+import { getThreads } from './handlers/threads/threads';
 import { getRateLimit } from './handlers/rate/rate';
 
 export default router({
