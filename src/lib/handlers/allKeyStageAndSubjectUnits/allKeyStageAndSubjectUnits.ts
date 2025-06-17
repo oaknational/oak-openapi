@@ -3,7 +3,7 @@ import { router } from '@/lib/trpc';
 import {
   allKeyStageAndSubjectUnitsRequestOpenAPISchema,
   allKeyStageAndSubjectUnitsResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/all';
+} from '@/lib/zod-openapi/generated/allKeyStageAndSubjectUnits';
 import { gql } from 'graphql-request';
 
 import {
