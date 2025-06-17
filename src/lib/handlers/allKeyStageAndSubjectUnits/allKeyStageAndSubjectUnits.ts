@@ -1,13 +1,16 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
+import {
+  allKeyStageAndSubjectUnitsRequestOpenAPISchema,
+  allKeyStageAndSubjectUnitsResponseOpenAPISchema,
+} from '@/lib/zod-openapi/generated/all';
 import { gql } from 'graphql-request';
-import { keyStageSlugs, subjectSlugs } from 'lib/keyStageAndSubjects';
+
 import {
   UnitVariantLessonsView,
   getClient,
   unitVariantLessonsView,
 } from 'lib/owaClient';
-import { z } from 'zod';
 
 export const getAllKeyStageAndSubjectUnits = router({
   getAllKeyStageAndSubjectUnits: protectedProcedure
@@ -16,57 +19,13 @@ export const getAllKeyStageAndSubjectUnits = router({
         method: 'GET',
         tags: ['lists', 'units'],
         path: '/key-stages/{keyStage}/subject/{subject}/units',
+        errorResponses: [],
         description:
           'This endpoint returns all the units (titles and slugs) that are currently available on Oak for a given subject and key stage',
-        // example: {
-        //   response: [
-        //     {
-        //       units: [
-        //         {
-        //           unitSlug:
-        //             '2-4-and-8-times-tables-using-times-tables-to-solve-problems',
-        //           unitTitle:
-        //             '2, 4 and 8 times tables: using times tables to solve problems',
-        //         },
-        //         {
-        //           unitSlug:
-        //             'bridging-100-counting-on-and-back-in-10s-adding-subtracting-multiples-of-10',
-        //           unitTitle:
-        //             'Bridging 100: counting on and back in 10s, adding/subtracting multiples of 10',
-        //         },
-        //       ],
-        //       yearSlug: 'year-3',
-        //       yearTitle: 'Year 3',
-        //     },
-        //   ],
-        // },
       },
     })
-    .input(
-      z.object({
-        keyStage: z.enum(keyStageSlugs as [string], {
-          description: "Key stage slug to filter by, e.g. 'ks2'",
-        }),
-        subject: z.enum(subjectSlugs as [string], {
-          description:
-            "Subject slug to search by, e.g. 'science' - note that casing is important here (always lowercase)",
-        }),
-      }),
-    )
-    .output(
-      z.array(
-        z.object({
-          yearSlug: z.string({ description: 'Year group slug' }),
-          yearTitle: z.string({ description: 'Year group title' }),
-          units: z.array(
-            z.object({
-              unitSlug: z.string({ description: 'Unit slug' }),
-              unitTitle: z.string({ description: 'Unit title' }),
-            }),
-          ),
-        }),
-      ),
-    )
+    .input(allKeyStageAndSubjectUnitsRequestOpenAPISchema)
+    .output(allKeyStageAndSubjectUnitsResponseOpenAPISchema)
     .query(async ({ input }) => {
       const keyStage = decodeURIComponent(input.keyStage);
       const subject = decodeURIComponent(input.subject);
