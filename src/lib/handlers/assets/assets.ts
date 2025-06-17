@@ -29,12 +29,7 @@ import {
 import { sequenceWhere } from '../sequences/sequences';
 import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
 import { blockedSequenceSubjects } from '../../blockedContent';
-import {
-  DownloadTypeEnum,
-  downloadTypeEnum,
-  LessonAssetsType,
-  lessonAssetsType,
-} from './types';
+import { DownloadTypeEnum, downloadTypeEnum, LessonAssetsType } from './types';
 import { getAttribution } from './helpers';
 import {
   sequenceAssetsRequestOpenAPISchema,
@@ -44,6 +39,10 @@ import {
   subjectAssetsRequestOpenAPISchema,
   subjectAssetsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/subject';
+import {
+  lessonAssetsRequestOpenAPISchema,
+  lessonAssetsResponseOpenAPISchema,
+} from '@/lib/zod-openapi/generated/lesson';
 
 const graphqlClient = getClient();
 
@@ -581,47 +580,13 @@ export const getAssets = router({
         method: 'GET',
         tags: ['assets', 'lessons'],
         path: '/lessons/{lesson}/assets',
+        errorResponses: [],
         description:
           'This endpoint returns signed download URLS and types for the assets currently available on Oak for a given lesson',
-        // example: {
-        //   request: {
-        //     lesson: 'child-workers-in-the-victorian-era',
-        //   },
-        //   response: {
-        //     attribution: [
-        //       'Copyright XYZ Authors',
-        //       'Creative Commons Attribution Example 4.0',
-        //     ],
-        //     assets: [
-        //       {
-        //         label: 'Worksheet',
-        //         type: 'worksheet',
-        //         url: `${baseUrl}/lessons/using-numerals/assets/worksheet`,
-        //       },
-        //       {
-        //         label: 'Worksheet Answers',
-        //         type: 'worksheetAnswers',
-        //         url: `${baseUrl}/lessons/using-numerals/assets/worksheetAnswers`,
-        //       },
-        //       {
-        //         label: 'Video',
-        //         type: 'video',
-        //         url: `${baseUrl}/lessons/using-numerals/assets/video`,
-        //       },
-        //     ],
-        //   },
-        // },
       },
     })
-    .input(
-      z.object({
-        lesson: z.string({
-          description: 'The lesson slug',
-        }),
-        type: downloadTypeEnum.optional(),
-      }),
-    )
-    .output(lessonAssetsType)
+    .input(lessonAssetsRequestOpenAPISchema)
+    .output(lessonAssetsResponseOpenAPISchema)
     .query(async ({ input }) => {
       const { lesson: lessonSlug, type } = input;
 
