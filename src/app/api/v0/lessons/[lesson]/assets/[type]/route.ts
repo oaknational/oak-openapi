@@ -2,11 +2,10 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { type Context, withUser } from '@/lib/context';
 import {
   assetsForLesson,
-  DownloadTypeEnum,
   getVideoFromMux,
   listFilesWithMimeType,
-  typeToMime,
 } from '@/lib/handlers/assets';
+import { typeToMime, DownloadTypeEnum } from '@/lib/handlers/assets/types';
 import { SignedAsset, Video } from '@/lib/owaClient';
 import { protect } from '@/lib/protect';
 import { Storage } from '@google-cloud/storage';
