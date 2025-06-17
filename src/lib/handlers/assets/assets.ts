@@ -1,6 +1,5 @@
 import { TRPCError } from '@trpc/server';
 import { gql } from 'graphql-request';
-import { z } from 'zod';
 
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '../../trpc';
@@ -40,6 +39,8 @@ import {
   subjectAssetsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/subject';
 import {
+  lessonAssetRequestOpenAPISchema,
+  lessonAssetResponseOpenAPISchema,
   lessonAssetsRequestOpenAPISchema,
   lessonAssetsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/lesson';
@@ -606,26 +607,10 @@ export const getAssets = router({
         description:
           'This endpoint will stream the downloadable asset for the given lesson and type',
         contentTypes: ['application/octet-stream'],
-        // example: {
-        //   request: {
-        //     lesson: 'child-workers-in-the-victorian-era',
-        //     type: 'slideDeck',
-        //   },
-        //   // I don't like this, but there's no way in the library to say
-        //   // "this is a stream of bytes"
-        //   response: { 200: 'application/octet-stream' },
-        // },
       },
     })
-    .input(
-      z.object({
-        lesson: z.string({
-          description: 'The lesson slug',
-        }),
-        type: downloadTypeEnum,
-      }),
-    )
-    .output(z.any()) // no output, but file is streamed to the request
+    .input(lessonAssetRequestOpenAPISchema)
+    .output(lessonAssetResponseOpenAPISchema) // no output, but file is streamed to the request
     .query(async () => {
       // IMPORTANT - this endpoint specific returns a stream of the
       // file (video, slides, etc), but the actual execution isn't
