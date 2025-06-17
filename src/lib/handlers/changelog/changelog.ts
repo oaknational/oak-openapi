@@ -1,7 +1,7 @@
 import { publicProcedure, router } from '@/lib/trpc';
 import { z } from 'zod';
 import { changelogResponseSchema } from './schemas/changelogResponse.schema';
-import { changelogLatestSchema } from './schemas/changelogLatest.schema';
+import { changelogLatestSchema } from './schemas/changelogLatestResponse.schema';
 import { versions } from './helpers';
 
 export const changelog = router({
