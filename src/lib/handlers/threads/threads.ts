@@ -1,21 +1,13 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import { z } from 'zod';
-import { getClient, gql, ThreadWithUnits } from '../owaClient';
+import { getClient, gql, ThreadWithUnits } from '../../owaClient';
 import { TRPCError } from '@trpc/server';
-
-const threadSchema = z.object({
-  title: z.string(),
-  slug: z.string(),
-});
-
-const unitListSchema = z.array(
-  z.object({
-    unitTitle: z.string(),
-    unitSlug: z.string(),
-    unitOrder: z.number(),
-  }),
-);
+import {
+  allThreadsResponseOpenAPISchema,
+  threadUnitsRequestOpenAPISchema,
+  threadUnitsResponseOpenAPISchema,
+} from '@/lib/zod-openapi/generated/threads';
 
 export const getThreads = router({
   getAllThreads: protectedProcedure
@@ -25,17 +17,9 @@ export const getThreads = router({
         method: 'GET',
         path: '/threads',
         description: 'Get all threads that can be used as sequence filters.',
-        // example: {
-        //   response: [
-        //     {
-        //       title: 'A Midsummer Night’s Dream',
-        //       slug: 'a-midsummer-nights-dream-72',
-        //     },
-        //   ],
-        // },
       },
     })
-    .output(z.array(threadSchema))
+    .output(allThreadsResponseOpenAPISchema)
     .input(z.void())
     .query(async () => {
       const client = getClient();
@@ -62,33 +46,11 @@ export const getThreads = router({
         method: 'GET',
         path: '/threads/{threadSlug}/units',
         description: 'Get all units for a specific thread filter.',
-        // example: {
-        //   response: [
-        //     {
-        //       unitTitle:
-        //         "A Midsummer Night's Dream, Shakespeare (Introduction and Act 1)",
-        //       unitSlug:
-        //         'a-midsummer-nights-dream-shakespeare-introduction-and-act-1-2912',
-        //       unitOrder: 1,
-        //     },
-        //     {
-        //       unitTitle: "A Midsummer Night's Dream, Shakespeare (Act 2)",
-        //       unitSlug: 'a-midsummer-nights-dream-shakespeare-act-2-3c74',
-        //       unitOrder: 2,
-        //     },
-        //   ],
-        //   request: {
-        //     threadSlug: 'a-midsummer-nights-dream-72',
-        //   },
-        // },
+        errorResponses: [],
       },
     })
-    .output(unitListSchema)
-    .input(
-      z.object({
-        threadSlug: z.string(),
-      }),
-    )
+    .input(threadUnitsRequestOpenAPISchema)
+    .output(threadUnitsResponseOpenAPISchema)
     .query(async ({ input }) => {
       const client = getClient();
       const { threadSlug } = input;

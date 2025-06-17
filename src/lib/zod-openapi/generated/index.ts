@@ -7,5 +7,6 @@ export * as questions from './questions';
 export * as rate from './rate';
 export * as searchTranscripts from './searchTranscripts';
 export * as sequences from './sequences';
+export * as threads from './threads';
 export * as transcript from './transcript';
 export * as units from './units';
