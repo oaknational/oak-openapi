@@ -28,7 +28,7 @@ import { Question, QuizKey } from './types';
 import {
   questionForLessonsRequestOpenAPISchema,
   questionForLessonsResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/question';
+} from '@/lib/zod-openapi/generated/questions';
 import { questionsForQuiz } from './helpers';
 import {
   questionsForKeyStageAndSubjectRequestOpenAPISchema,
