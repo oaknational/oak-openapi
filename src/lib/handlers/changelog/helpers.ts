@@ -1,6 +1,3 @@
-import { publicProcedure, router } from '@/lib/trpc';
-import { z } from 'zod';
-
 export const versions = [
   {
     version: '0.5.0',
@@ -58,56 +55,3 @@ export const getLatestVersion = (major: string) => {
 export const getLatestMajorVersion = () => {
   return versions[0].version.split('.')[0];
 };
-
-export const changelog = router({
-  changelog: publicProcedure
-    .meta({
-      openapi: {
-        method: 'GET',
-        path: '/changelog',
-        tags: ['internal'],
-        description:
-          'History of significant changes to the API with associated dates and versions',
-        // example: {
-        //   response: versions.slice(0, 2),
-        // },
-      },
-    })
-    .output(
-      z.array(
-        z.object({
-          version: z.string(),
-          date: z.string(),
-          changes: z.array(z.string()),
-        }),
-      ),
-    )
-    .input(z.undefined())
-    .query(async () => {
-      return versions;
-    }),
-  latest: publicProcedure
-    .meta({
-      openapi: {
-        method: 'GET',
-        path: '/changelog/latest',
-        description:
-          'Get the latest version and latest change note for the API',
-        tags: ['internal'],
-        // example: {
-        //   response: versions[0],
-        // },
-      },
-    })
-    .output(
-      z.object({
-        version: z.string(),
-        date: z.string(),
-        changes: z.array(z.string()),
-      }),
-    )
-    .input(z.undefined())
-    .query(async () => {
-      return versions[0];
-    }),
-});

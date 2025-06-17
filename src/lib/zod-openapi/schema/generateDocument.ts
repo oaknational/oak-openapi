@@ -3,7 +3,7 @@ import router from '@/lib/router';
 import {
   getLatestVersion,
   getLatestMajorVersion,
-} from '@/lib/handlers/changelog';
+} from '@/lib/handlers/changelog/helpers';
 
 import { generateOpenApiDocument } from 'trpc-to-openapi';
 
