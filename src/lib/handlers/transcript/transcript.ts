@@ -7,8 +7,12 @@ import {
   LessonContentView,
   lessonContentView,
 } from 'lib/owaClient';
-import { z } from 'zod';
-import { checkLessonAllowedAsset } from '../queryGate';
+
+import { checkLessonAllowedAsset } from '../../queryGate';
+import {
+  transcriptRequestOpenAPISchema,
+  transcriptResponseOpenAPISchema,
+} from '@/lib/zod-openapi/generated/transcript';
 
 export const getLessonTranscript = router({
   getLessonTranscript: protectedProcedure
@@ -19,24 +23,11 @@ export const getLessonTranscript = router({
         path: '/lessons/{lesson}/transcript',
         description:
           'This endpoint returns the transcript from the video from a lesson',
-        // example: {
-        //   request: {
-        //     lesson: 'checking-understanding-of-basic-transformations',
-        //   },
-        //   response: {
-        //     transcript:
-        //       "Hello, I'm Mrs. Lashley. I'm looking forward to guiding you through your learning today...",
-        //     vtt: "WEBVTT\n\n1\n00:00:06.300 --> 00:00:08.070\n<v ->Hello, I'm Mrs. Lashley.</v>\n\n2\n00:00:08.070 --> 00:00:09.240\nI'm looking forward to guiding you\n\n3\n00:00:09.240 --> 00:00:10.980\nthrough your learning today...",
-        //   },
-        // },
+        errorResponses: [],
       },
     })
-    .input(
-      z.object({
-        lesson: z.string({ description: 'The slug of the lesson' }),
-      }),
-    )
-    .output(z.object({ transcript: z.string(), vtt: z.string() }))
+    .input(transcriptRequestOpenAPISchema)
+    .output(transcriptResponseOpenAPISchema)
     .query(async ({ input }) => {
       const slug = decodeURIComponent(input.lesson);
 
