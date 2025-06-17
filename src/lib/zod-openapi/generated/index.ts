@@ -4,4 +4,5 @@ export * as keyStageSubjectLessons from './keyStageSubjectLessons';
 export * as keyStages from './keyStages';
 export * as lesson from './lesson';
 export * as questions from './questions';
+export * as rate from './rate';
 export * as sequences from './sequences';
