@@ -1,7 +1,6 @@
-export * as all from './all';
+export * as allKeyStageAndSubjectUnits from './allKeyStageAndSubjectUnits';
+export * as assets from './assets';
+export * as keyStages from './keyStages';
 export * as lesson from './lesson';
-export * as sequence from './sequence';
-export * as subject from './subject';
-export * as key from './key';
-export * as question from './question';
 export * as questions from './questions';
+export * as sequences from './sequences';

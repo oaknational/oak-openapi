@@ -1,3 +1,5 @@
+export * from './questionForLessonsRequest.openapi';
+export * from './questionForLessonsResponse.openapi';
 export * from './questionsForKeyStageAndSubjectRequest.openapi';
 export * from './questionsForKeyStageAndSubjectResponse.openapi';
 export * from './questionsForSequenceRequest.openapi';
