@@ -9,7 +9,7 @@ import { getQuestions } from './handlers/questions/questions';
 import { getUnits } from './handlers/units';
 import { getSubjects } from './handlers/subjects';
 import { getAssets } from './handlers/assets/assets';
-import { searchTranscripts } from './handlers/searchTranscripts';
+import { searchTranscripts } from './handlers/searchTranscripts/searchTranscripts';
 import { getLessonTranscript } from './handlers/transcript';
 import { getSequences } from './handlers/sequences/sequences';
 import { getThreads } from './handlers/threads';
