@@ -6,7 +6,7 @@ import { getKeyStageSubjectLessons } from './handlers/keyStageSubjectLessons/key
 import { getKeyStages } from './handlers/keyStages/keyStages';
 import { getLessons } from './handlers/lesson/lesson';
 import { getQuestions } from './handlers/questions/questions';
-import { getUnits } from './handlers/units';
+import { getUnits } from './handlers/units/units';
 import { getSubjects } from './handlers/subjects';
 import { getAssets } from './handlers/assets/assets';
 import { searchTranscripts } from './handlers/searchTranscripts/searchTranscripts';
