@@ -25,7 +25,7 @@ import {
 import {
   sequenceUnitsRequestOpenAPISchema,
   sequenceUnitsResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/sequence';
+} from '@/lib/zod-openapi/generated/sequences';
 
 toSorted.shim();
 
