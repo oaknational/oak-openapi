@@ -20,10 +20,8 @@ import {
 import { keyStageSlugs, subjectSlugs } from '../keyStageAndSubjects';
 import { baseUrl } from '../baseUrl';
 
-import { Storage } from '@google-cloud/storage';
 import {
   checkLessonAllowedAsset,
-  isBlockedUnitOrSubject,
   isLessonSupported,
   isSubjectSupported,
   isUnitSupported,
@@ -31,57 +29,18 @@ import {
 import { sequenceWhere } from './sequences/sequences';
 import { parseSubjectPhaseSlug } from '../sequenceSlugParser';
 import { blockedSequenceSubjects } from '../blockedContent';
-
-export const typeToMime = new Map([
-  ['pdf', 'application/pdf'],
-  [
-    'pptx',
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-  ],
-  ['odp', 'application/vnd.oasis.opendocument.presentation'],
-]);
-
-export const downloadTypeEnum = z.enum(
-  [
-    'slideDeck',
-    'exitQuiz',
-    'exitQuizAnswers',
-    'starterQuiz', // note: graphql key is (currently) starter_quiz
-    'starterQuizAnswers',
-    'supplementaryResource',
-    'video',
-    'worksheet',
-    'worksheetAnswers',
-  ],
-  {
-    description:
-      'Use the this type and the lesson slug in conjunction to get a signed download URL to the asset type from the /api/lessons/{slug}/asset/{type} endpoint',
-  },
-);
-
-const assetType = z.object({
-  type: downloadTypeEnum,
-  label: z.string(),
-  url: z.string(),
-});
-
-export const lessonAssetsType = z.object({
-  attribution: z.array(z.string()).optional(),
-  assets: z.array(assetType).optional(),
-});
-
-type LessonAssetsType = z.infer<typeof lessonAssetsType>;
-
-export const lessonsAssetsType = z.array(
-  z.object({
-    lessonSlug: z.string(),
-    lessonTitle: z.string(),
-    attribution: z.array(z.string()).optional(),
-    assets: z.array(assetType),
-  }),
-);
-
-export type DownloadTypeEnum = z.infer<typeof downloadTypeEnum>;
+import {
+  DownloadTypeEnum,
+  downloadTypeEnum,
+  LessonAssetsType,
+  lessonAssetsType,
+  lessonsAssetsType,
+} from './assets/types';
+import { getAttribution } from './assets/helpers';
+import {
+  sequenceAssetsRequestOpenAPISchema,
+  sequenceAssetsResponseOpenAPISchema,
+} from '../zod-openapi/generated/sequence';
 
 const graphqlClient = getClient();
 
@@ -264,46 +223,13 @@ export const getAssets = router({
         method: 'GET',
         tags: ['assets', 'sequences'],
         path: '/sequences/{sequence}/assets',
+        errorResponses: [],
         description:
           'This endpoint returns signed download URLs and types for the assets currently available on Oak for a given sequence',
-        // example: {
-        //   response: [
-        //     {
-        //       lessonSlug: 'using-numerals',
-        //       lessonTitle: 'Using numerals',
-        //       assets: [
-        //         {
-        //           label: 'Worksheet',
-        //           type: 'worksheet',
-        //           url: `${baseUrl}/lessons/using-numerals/assets/worksheet`,
-        //         },
-        //         {
-        //           label: 'Worksheet Answers',
-        //           type: 'worksheetAnswers',
-        //           url: `${baseUrl}/lessons/using-numerals/assets/worksheetAnswers`,
-        //         },
-        //         {
-        //           label: 'Video',
-        //           type: 'video',
-        //           url: `${baseUrl}/lessons/using-numerals/assets/video`,
-        //         },
-        //       ],
-        //     },
-        //   ],
-        //   request: {
-        //     sequence: 'maths-secondary',
-        //   },
-        // },
       },
     })
-    .input(
-      z.object({
-        sequence: z.string(),
-        year: z.number().optional(),
-        type: downloadTypeEnum.optional(),
-      }),
-    )
-    .output(lessonsAssetsType)
+    .input(sequenceAssetsRequestOpenAPISchema)
+    .output(sequenceAssetsResponseOpenAPISchema)
     .query(async ({ input }) => {
       // FIXME year was never being used to filter
       const { sequence, type } = input;
@@ -789,74 +715,3 @@ export const getAssets = router({
       return undefined;
     }),
 });
-
-export async function getVideoFromMux(
-  sourceUrl: string,
-  level: 'high' | 'medium' | 'low' = 'high',
-): Promise<string> {
-  const url = sourceUrl.replace(/\.m3u8$/, `/${level}.mp4`);
-  const response = await fetch(url);
-  if (response.status === 200) {
-    return url;
-  } else if (level === 'low') {
-    return '';
-  } else {
-    const nextLevel = level === 'high' ? 'medium' : 'low';
-    return getVideoFromMux(sourceUrl, nextLevel);
-  }
-}
-
-export async function listFilesWithMimeType(
-  storage: Storage,
-  bucketName: string,
-  prefix: string,
-) {
-  // make sure to get a listing for the directory (requires trailing slash)
-  if (!prefix.endsWith('/')) {
-    prefix += '/';
-  }
-
-  const [files] = await storage
-    .bucket(bucketName)
-    .getFiles({ prefix, delimiter: '/' });
-
-  return files.map((file) => ({
-    name: file.name,
-    mimeType: file.metadata.contentType || 'unknown',
-  }));
-}
-
-export function isApprovedLesson(
-  subjectSlug: string,
-  unitSlug: string,
-  lessonSlug: string,
-) {
-  // Return false immediately if a blocked subject
-  if (isBlockedUnitOrSubject({ unitSlug, subjectSlug })) {
-    return false;
-  }
-  // If it's a supported subject, all good
-  if (isSubjectSupported(subjectSlug)) {
-    return true;
-  }
-  // If it's a supported unit, even better - all lessons are valid
-  if (isUnitSupported(unitSlug)) {
-    return true;
-  }
-  // TODO: If all else is not true, check the lesson slug
-
-  if (lessonSlug) return false;
-}
-
-export function getAttribution(attribution: LessonView[typeof lessonView][0]) {
-  return Array.from(
-    new Set(
-      [
-        ...(attribution.tpcWorks?.map((_) => _.attribution) || []),
-        ...(attribution.tpcMedia?.map((_) => _.attribution) || []),
-      ]
-        .filter((string) => string !== undefined)
-        .filter(Boolean),
-    ),
-  );
-}
