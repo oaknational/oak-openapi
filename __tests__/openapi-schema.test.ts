@@ -5,7 +5,8 @@ import { openApiDocument } from '@/lib/zod-openapi/schema/generateDocument';
 import type { OpenAPIV3 } from 'openapi-types';
 
 // this object is no longer the same document type annoyingly. paths isn't a readable object
-const swaggerData: OpenAPIV3.Document = openApiDocument;
+const swaggerData: OpenAPIV3.Document =
+  openApiDocument as unknown as OpenAPIV3.Document;
 
 const ajv = new Ajv({ allErrors: true, strict: false });
 addFormats(ajv);
@@ -131,7 +132,7 @@ for (const [path, methods] of Object.entries(swaggerData.paths)) {
       // complicated than any quick fix. For now, I've manually verified that the
       // examples match the schema, so I'm just going prevent these tests from
       // running for now.
-      continue;
+      // continue;
 
       it(`${method.toUpperCase()} ${path} response example should match schema`, () => {
         if (!schemaRef) {
