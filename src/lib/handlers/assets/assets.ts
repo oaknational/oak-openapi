@@ -604,6 +604,7 @@ export const getAssets = router({
         description:
           'This endpoint will stream the downloadable asset for the given lesson and type',
         contentTypes: ['application/octet-stream'],
+        errorResponses: [],
       },
     })
     .input(lessonAssetRequestOpenAPISchema)
