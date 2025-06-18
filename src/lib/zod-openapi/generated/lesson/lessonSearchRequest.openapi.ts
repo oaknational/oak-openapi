@@ -25,5 +25,3 @@ export const lessonSearchRequestOpenAPISchema = z
       .optional(),
   })
   .openapi({ example: { q: 'gothic', subject: 'english' } });
-
-export type LessonSearchRequestType = z.infer<typeof lessonSearchRequestSchema>;

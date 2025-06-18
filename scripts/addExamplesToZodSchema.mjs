@@ -75,20 +75,16 @@ function attachOpenAPICalls(node, exampleValue, importedIdents = new Set()) {
             }
           });
         }
-      } else if (propName === 'array') {
+      }
+      if (propName === 'array') {
         node.arguments[0] = attachOpenAPICalls(
           node.arguments[0],
           exampleValue?.[0],
           importedIdents,
         );
-      } else if (propName === 'union' || propName === 'discriminatedUnion') {
-        node.arguments[0] = t.isArrayExpression(node.arguments[0])
-          ? t.arrayExpression(
-              node.arguments[0].elements.map((e) =>
-                attachOpenAPICalls(e, exampleValue, importedIdents),
-              ),
-            )
-          : node.arguments[0];
+      }
+      if (propName === 'enum') {
+        return node;
       }
 
       if (exampleValue !== undefined) {
@@ -235,14 +231,17 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
 
       const inferredTypeName = getInferredTypeName(baseName);
       const program = path.findParent((p) => p.isProgram());
-
+      // Ignore all types, we only want schemas!
+      // TODO add a generator for the schema type if needed
       if (program && program.node.body) {
         program.node.body = program.node.body.filter(
           (node) =>
             !(
-              t.isExportNamedDeclaration(node) &&
-              t.isTSTypeAliasDeclaration(node.declaration) &&
-              node.declaration?.id?.name === inferredTypeName
+              (
+                t.isExportNamedDeclaration(node) &&
+                t.isTSTypeAliasDeclaration(node.declaration)
+              )
+              // && node.declaration?.id?.name === inferredTypeName
             ),
         );
 
