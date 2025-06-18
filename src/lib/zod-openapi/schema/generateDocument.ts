@@ -25,7 +25,14 @@ export const openApiDocument = generateOpenApiDocument(router, {
   securitySchemes: {
     bearerAuth,
   },
+  tags: [
+    'internal',
+    'lists',
+    'assets',
+    'lessons',
+    'questions',
+    'units',
+    'search',
+    'sequences',
+  ],
 });
-
-// to do:
-// - make alphabetical
