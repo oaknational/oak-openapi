@@ -33,7 +33,6 @@
     "src/**/*.stories.tsx",
     "eslint.config.js",
     "next-env.d.ts",
-    "vite.config.mts",
     ".next/types/**/*.ts",
     "**/*.mts",
     ".storybook/**/*.ts",
