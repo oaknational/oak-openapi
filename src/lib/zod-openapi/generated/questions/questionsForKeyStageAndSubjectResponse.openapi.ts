@@ -66,4 +66,5 @@ export const questionsForKeyStageAndSubjectResponseOpenAPISchema =
         ],
       },
     ],
+    ref: 'QuestionsForKeyStageAndSubjectResponseSchema',
   });

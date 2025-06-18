@@ -40,4 +40,5 @@ export const allSubjectsResponseOpenAPISchema = z.array(subjectResult).openapi({
       ],
     },
   ],
+  ref: 'AllSubjectsResponseSchema',
 });

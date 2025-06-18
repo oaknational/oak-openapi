@@ -31,4 +31,5 @@ export const keyStageSubjectLessonsResponseOpenAPISchema = z
         ],
       },
     ],
+    ref: 'KeyStageSubjectLessonsResponseSchema',
   });

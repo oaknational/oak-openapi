@@ -29,4 +29,5 @@ export const subjectSequenceResponseOpenAPISchema = z
         ks4Options: null,
       },
     ],
+    ref: 'SubjectSequenceResponseSchema',
   });

@@ -16,4 +16,5 @@ export const threadUnitsResponseOpenAPISchema = unitListSchema.openapi({
       unitOrder: 2,
     },
   ],
+  ref: 'ThreadUnitsResponseSchema',
 });

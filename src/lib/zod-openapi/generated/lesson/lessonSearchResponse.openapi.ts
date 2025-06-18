@@ -78,4 +78,5 @@ export const lessonSearchResponseOpenAPISchema = z
         ],
       },
     ],
+    ref: 'LessonSearchResponseSchema',
   });

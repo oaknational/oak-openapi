@@ -25,4 +25,5 @@ export const sequenceAssetsResponseOpenAPISchema = lessonsAssetsType.openapi({
       ],
     },
   ],
+  ref: 'SequenceAssetsResponseSchema',
 });

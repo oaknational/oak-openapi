@@ -32,4 +32,5 @@ export const searchTranscriptResponseOpenAPISchema = z
         transcriptSnippet: 'for the Romans.',
       },
     ],
+    ref: 'SearchTranscriptResponseSchema',
   });

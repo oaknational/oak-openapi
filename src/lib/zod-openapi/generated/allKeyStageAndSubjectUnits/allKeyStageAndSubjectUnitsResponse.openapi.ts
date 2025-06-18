@@ -35,4 +35,5 @@ export const allKeyStageAndSubjectUnitsResponseOpenAPISchema = z
         yearTitle: 'Year 3',
       },
     ],
+    ref: 'AllKeyStageAndSubjectUnitsResponseSchema',
   });

@@ -18,9 +18,9 @@ export const subjectAssetsRequestOpenAPISchema = z
       .string({
         description: 'Optional unit slug to additionally filter by',
       })
-      .optional()
-      .openapi({ example: 'word-class' }),
+      .optional(),
   })
   .openapi({
     example: { keyStage: 'ks1', subject: 'english', unit: 'word-class' },
+    ref: 'SubjectAssetsRequestSchema',
   });

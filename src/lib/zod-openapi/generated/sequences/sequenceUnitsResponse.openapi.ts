@@ -25,4 +25,5 @@ export const sequenceUnitsResponseOpenAPISchema = z
         ],
       },
     ],
+    ref: 'SequenceUnitsResponseSchema',
   });

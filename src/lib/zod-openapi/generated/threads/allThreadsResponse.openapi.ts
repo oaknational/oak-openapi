@@ -11,4 +11,5 @@ export const allThreadsResponseOpenAPISchema = z
         slug: 'a-midsummer-nights-dream-72',
       },
     ],
+    ref: 'AllThreadsResponseSchema',
   });
