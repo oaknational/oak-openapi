@@ -12,4 +12,7 @@ export const allKeyStageAndSubjectUnitsRequestOpenAPISchema = z
         "Subject slug to search by, e.g. 'science' - note that casing is important here (always lowercase)",
     }),
   })
-  .openapi({ example: { keyStage: 'ks1', subject: 'art' } });
+  .openapi({
+    example: { keyStage: 'ks1', subject: 'art' },
+    ref: 'AllKeyStageAndSubjectUnitsRequestSchema',
+  });

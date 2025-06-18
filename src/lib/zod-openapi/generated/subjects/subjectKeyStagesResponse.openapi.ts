@@ -8,4 +8,5 @@ export const subjectKeyStagesResponseOpenAPISchema = keyStagesResult.openapi({
     { keyStageTitle: 'Key Stage 3', keyStageSlug: 'ks3' },
     { keyStageTitle: 'Key Stage 4', keyStageSlug: 'ks4' },
   ],
+  ref: 'SubjectKeyStagesResponseSchema',
 });

@@ -8,4 +8,7 @@ export const keyStageResponseOpenAPISchema = z
       title: z.string(),
     }),
   )
-  .openapi({ example: [{ slug: 'ks1', title: 'Key Stage 1' }] });
+  .openapi({
+    example: [{ slug: 'ks1', title: 'Key Stage 1' }],
+    ref: 'KeyStageResponseSchema',
+  });

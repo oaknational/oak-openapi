@@ -16,8 +16,7 @@ export const keyStageSubjectLessonsRequestOpenAPISchema = z
       .string({
         description: 'Optional unit slug to additionally filter by',
       })
-      .optional()
-      .openapi({ example: 'word-class' }),
+      .optional(),
     offset: z.number().optional().default(0),
     limit: z
       .number({
@@ -29,4 +28,5 @@ export const keyStageSubjectLessonsRequestOpenAPISchema = z
   })
   .openapi({
     example: { keyStage: 'ks1', subject: 'english', unit: 'word-class' },
+    ref: 'KeyStageSubjectLessonsRequestSchema',
   });

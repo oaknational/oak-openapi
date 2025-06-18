@@ -25,4 +25,5 @@ export const lessonAssetsResponseOpenAPISchema = lessonAssetsType.openapi({
       },
     ],
   },
+  ref: 'LessonAssetsResponseSchema',
 });

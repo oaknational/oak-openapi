@@ -39,4 +39,5 @@ export const questionsForSequenceResponseOpenAPISchema = z.any().openapi({
       ],
     },
   ],
+  ref: 'QuestionsForSequenceResponseSchema',
 });
