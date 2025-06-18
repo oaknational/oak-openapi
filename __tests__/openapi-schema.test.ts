@@ -4,7 +4,7 @@ import addFormats from 'ajv-formats';
 import { openApiDocument } from '@/lib/zod-openapi/schema/generateDocument';
 import type { OpenAPIV3 } from 'openapi-types';
 
-// this object is no longer the same document type annoyingly. paths isn't a readable object
+// this object is no longer the same document type annoyingly, so casting as they are the same object
 const swaggerData: OpenAPIV3.Document =
   openApiDocument as unknown as OpenAPIV3.Document;
 
@@ -64,6 +64,10 @@ function validateExample(
   return [res, validate.errors ? validate.errors : undefined];
 }
 
+if (!swaggerData.paths) {
+  throw new Error(`Paths object undefined`);
+}
+
 for (const [path, methods] of Object.entries(swaggerData.paths)) {
   if (!methods) continue;
 
@@ -86,7 +90,7 @@ for (const [path, methods] of Object.entries(swaggerData.paths)) {
     for (const [statusCode, response] of Object.entries(details.responses)) {
       if (statusCode === 'default') continue;
       let resolvedResponse: typeof response | null = response;
-
+      console.log(response);
       // Resolve references in responses
       if ('$ref' in response) {
         resolvedResponse = resolveRef(response.$ref);
@@ -111,13 +115,14 @@ for (const [path, methods] of Object.entries(swaggerData.paths)) {
 
       if (!content) continue;
 
-      const schemaRef =
+      const schemaRef = (
         content.schema && '$ref' in content.schema
           ? getSchema(content.schema.$ref)
-          : content.schema;
-      const example = content.example;
+          : content.schema
+      ) as OpenAPIV3.SchemaObject;
 
-      it.skip(`${method.toUpperCase()} ${path} should have a response example`, () => {
+      let example = content.example ? content.example : schemaRef?.example;
+      it(`${method.toUpperCase()} ${path} should have a response example`, () => {
         if (!example) {
           expect.fail(`${method.toUpperCase()} ${path} missing example`);
         }
