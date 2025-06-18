@@ -20,10 +20,10 @@
     "test:vscode": "pnpm with-env vitest --no-file-parallelism --test-timeout=0",
     "with-env": "dotenv -e ./.env --",
     "generate:openapi": "node scripts/addExamplesToZodSchema.mjs",
-    "dev:inspect": "NODE_OPTIONS='--inspect' next dev",
     "test:all": "pnpm -r test",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "storybook:static-serve": "storybook build --quiet && http-server ./storybook-static --port=6006"
   },
   "keywords": [],
   "author": "",
