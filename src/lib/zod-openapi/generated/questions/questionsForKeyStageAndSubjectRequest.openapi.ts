@@ -19,6 +19,7 @@ export const questionsForKeyStageAndSubjectRequestOpenAPISchema = z
       })
       .lte(100)
       .optional()
-      .default(10),
+      .default(10)
+      .openapi({ example: 10 }),
   })
-  .openapi({ example: {} });
+  .openapi({ example: { keyStage: 'ks1', subject: 'art', limit: 10 } });
