@@ -171,7 +171,7 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
 
   let inputCode = fs.readFileSync(schemaFilePath, 'utf-8');
   const exampleJson = JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'));
-  const exampleData = Array.isArray(exampleJson) ? exampleJson[0] : exampleJson;
+  // const exampleData = Array.isArray(exampleJson) ? exampleJson[0] : exampleJson;
 
   const ast = parser.parse(inputCode, {
     sourceType: 'module',
@@ -207,27 +207,30 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
       if (path.node.id.name !== originalSchemaName) return;
       path.node.id.name = openapiSchemaName;
 
-      const importedIdents = new Set(localImports.keys());
+      // const importedIdents = new Set(localImports.keys());
 
-      if (Array.isArray(exampleJson)) {
-        path.node.init = t.callExpression(
-          t.memberExpression(path.node.init, t.identifier('openapi')),
-          [
-            t.objectExpression([
-              t.objectProperty(
-                t.identifier('example'),
-                t.valueToNode(exampleJson),
-              ),
-            ]),
-          ],
-        );
-      }
-
-      path.node.init = attachOpenAPICalls(
-        path.node.init,
-        exampleData,
-        importedIdents,
+      // // if (Array.isArray(exampleJson)) {
+      const refName = originalSchemaName.charAt(0).toUpperCase();
+      const ref = t.objectProperty(t.identifier('ref'), t.valueToNode(refName));
+      path.node.init = t.callExpression(
+        t.memberExpression(path.node.init, t.identifier('openapi')),
+        [
+          t.objectExpression([
+            t.objectProperty(
+              t.identifier('example'),
+              t.valueToNode(exampleJson),
+            ),
+            ref,
+          ]),
+        ],
       );
+      // }
+
+      // path.node.init = attachOpenAPICalls(
+      //   path.node.init,
+      //   exampleData,
+      //   importedIdents,
+      // );
 
       const inferredTypeName = getInferredTypeName(baseName);
       const program = path.findParent((p) => p.isProgram());
