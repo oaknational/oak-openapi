@@ -1,13 +1,9 @@
 import Footer from '~/components/Footer';
 import Head from 'next/head';
 import { Navigation } from '~/components/Nav';
-import {
-  OakBox,
-  OakFlex,
-  OakImage,
-  OakMaxWidth,
-} from '@oaknational/oak-components';
+import { OakBox, OakFlex } from '@oaknational/oak-components';
 import styled from 'styled-components';
+import { MaxWidth } from '~/components/MaxWidth';
 
 const BlockHeading = styled.h2`
   em {
@@ -26,13 +22,13 @@ export default function Page() {
         <title>Oak Curriculum API - Oak National Academy</title>
       </Head>
       <Navigation />
-      <OakMaxWidth
+      <MaxWidth
         $ph="inner-padding-m"
         $flexDirection={'row'}
         $pv="inner-padding-xl6"
       >
         <BlockAndText></BlockAndText>
-      </OakMaxWidth>
+      </MaxWidth>
       <Footer />
     </>
   );
@@ -57,12 +53,12 @@ function BlockAndText() {
         </p>
       </OakBox>
       <OakBox>
-        <OakImage
+        {/* <OakImage
           sizes="width: 2228px, height: 1472px"
           src={{ src: '/images/api_1.png', width: 2228, height: 1472 }}
           alt=""
           $height="all-spacing-20"
-        ></OakImage>
+        ></OakImage> */}
       </OakBox>
     </OakFlex>
   );
