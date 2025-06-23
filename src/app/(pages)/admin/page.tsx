@@ -14,12 +14,14 @@ import {
 } from '@oaknational/oak-components';
 import { useState } from 'react';
 import { MaxWidth } from '@/components/MaxWidth';
-import Head from 'next/head';
+// import Head from 'next/head';
+{
+  /* <Head>Oak OpenAPI - Oak National Academy</Head> */
+}
 
 export default function AdminPage() {
   return (
     <>
-      <Head>Oak OpenAPI - Oak National Academy</Head>
       <OakBox $width="100%" $background="white" $color="text-primary">
         <MaxWidth
           $ph="inner-padding-m"
