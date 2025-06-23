@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "engines": {
     "node": ">=20.6.0 <21",
-    "pnpm": ">=10"
+    "pnpm": ">=9"
   },
   "scripts": {
     "build": "next build",
