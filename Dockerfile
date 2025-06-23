@@ -2,7 +2,7 @@ FROM node:22
 
 # enable Corepack & activate pnpm
 RUN corepack enable \
- && corepack prepare pnpm@8 --activate
+ && corepack prepare pnpm@10 --activate
 
 WORKDIR /app
 

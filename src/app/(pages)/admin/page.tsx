@@ -5,7 +5,6 @@ import {
   OakGrid,
   OakGridArea,
   OakHeading,
-  OakMaxWidth,
   OakLabel,
   OakTextInput,
   OakPrimaryButton,
@@ -14,12 +13,17 @@ import {
   OakFieldError,
 } from '@oaknational/oak-components';
 import { useState } from 'react';
+import { MaxWidth } from '@/components/MaxWidth';
+// import Head from 'next/head';
+{
+  /* <Head>Oak OpenAPI - Oak National Academy</Head> */
+}
 
 export default function AdminPage() {
   return (
     <>
-      <OakBox $width="100%" $background="white">
-        <OakMaxWidth
+      <OakBox $width="100%" $background="white" $color="text-primary">
+        <MaxWidth
           $ph="inner-padding-m"
           $flexDirection={'row'}
           $pv={['inner-padding-xl2', 'inner-padding-xl6']}
@@ -48,7 +52,7 @@ export default function AdminPage() {
               <CreateAPIKey />
             </OakGridArea>
           </OakGrid>
-        </OakMaxWidth>
+        </MaxWidth>
       </OakBox>
     </>
   );
