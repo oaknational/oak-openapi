@@ -5,13 +5,13 @@ import {
   OakSpan,
   OakHeading,
   OakLink,
-  OakMaxWidth,
   OakModal,
   OakSecondaryButton,
 } from '@oaknational/oak-components';
 
 import Logo from '@/components/Logo';
 import { useState } from 'react';
+import { MaxWidth } from './MaxWidth';
 
 const OakLinkLogo = styled(OakLink)`
   margin: 0;
@@ -58,7 +58,7 @@ const SecondaryButtonWithoutText = styled(OakSecondaryButton)`
 export function Navigation() {
   return (
     <MenuContainer $bb={'border-solid-s'} $borderColor="grey40">
-      <OakMaxWidth
+      <MaxWidth
         as="header"
         $alignItems={'center'}
         $gap={'all-spacing-9'}
@@ -82,7 +82,7 @@ export function Navigation() {
         <Menu className="menu-contents">
           <MenuContents wide={false} />
         </Menu>
-      </OakMaxWidth>
+      </MaxWidth>
     </MenuContainer>
   );
 }
