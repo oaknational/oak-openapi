@@ -3,14 +3,10 @@ import {
   OakFlex,
   OakHeading,
   OakIcon,
-  OakJauntyAngleLabel as _OakJauntyAngleLabel,
   OakLI,
   OakLink,
   OakP,
-  OakTextInput as _OakTextInput,
-  OakPrimaryButton,
   OakHandDrawnHR,
-  OakFieldError,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
 import { footerSections } from '@/lib/footerSections';
@@ -18,20 +14,8 @@ import SocialButtons, { OAK_SOCIALS } from './SocialButtons';
 import Logo from './Logo';
 import { StrongLinkNoUnderline } from './StrongSecondaryLink';
 import IconFeedback from './IconFeedback';
-import { useState } from 'react';
 import { MaxWidth } from './MaxWidth';
-
-export type HubspotPayload = {
-  fields: {
-    name: string;
-    value: string | undefined;
-  }[];
-  context: {
-    pageUri: string;
-    pageName: string;
-    hutk?: string | undefined;
-  };
-};
+import { GetUpdates } from './FooterGetUpdates';
 
 const TopOakHandDrawnHR = styled(OakHandDrawnHR)`
   position: relative;
@@ -262,162 +246,6 @@ function GiveFeedback() {
         <StrongLinkNoUnderline iconName="arrow-right" href="/" isTrailingIcon>
           Give feedback
         </StrongLinkNoUnderline>
-      </OakBox>
-    </FlexedBox>
-  );
-}
-
-const OakJauntyAngleLabel = styled(_OakJauntyAngleLabel)`
-  width: fit-content;
-  background: #ffe555;
-  border-radius: 0;
-  z-index: 10;
-  cursor: pointer;
-  position: absolute;
-  padding: 4px 8px;
-  transform: rotate(-1.5deg) translateY(-15px) translateX(8px);
-
-  strong {
-    font-weight: 600;
-  }
-
-  &:has(+ div input:not(:placeholder-shown):invalid) {
-    background: #dd0035;
-    color: white;
-  }
-`;
-
-const OakTextInput = styled(_OakTextInput)`
-  padding: 16px 0;
-  height: fit-content;
-`;
-
-function GetUpdates() {
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-  const [success, setSuccess] = useState(false);
-
-  const formId = 'ecd7b5fb-fceb-4342-8d60-a1938e3b5894';
-  const portalId = '19961797';
-  const hubspotUrl =
-    'https://hubspot-forms.thenational.academy/submissions/v3/integration/submit';
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    // Prevent default form submission
-    e.preventDefault();
-
-    // Check if the form is valid
-    const form = e.currentTarget;
-    if (!form.checkValidity()) {
-      setMessage('Enter a valid email to continue');
-      // form.reportValidity();
-      return;
-    }
-
-    // Handle successful submission logic here
-    const url = `${hubspotUrl}/${portalId}/${formId}`;
-
-    let res: Response;
-
-    try {
-      const body: HubspotPayload = {
-        fields: [
-          {
-            name: 'email',
-            value: email,
-          },
-        ],
-        context: {
-          pageUri: window.location.href,
-          pageName: document.title,
-        },
-      };
-
-      res = await fetch(url, {
-        method: 'POST',
-        mode: 'cors',
-        cache: 'no-cache',
-        credentials: 'same-origin',
-
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-      console.log({ res });
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      return;
-    }
-
-    const { inlineMessage } = await res.json();
-    if (inlineMessage) {
-      // If the submission was successful, show a success message
-      setMessage(inlineMessage);
-      setEmail(''); // Clear the email input
-      return;
-    }
-
-    setMessage('');
-    setSuccess(true);
-  };
-
-  return (
-    <FlexedBox
-      as="form"
-      $action="/"
-      $color="black"
-      noValidate
-      onSubmit={handleSubmit}
-    >
-      <OakBox $ma="0" $pa="0" as="fieldset" $ba="border-solid-none">
-        <OakFlex as="h2" $font="heading-5" $gap="all-spacing-2">
-          <OakIcon iconName="bell" />
-          Receive updates
-        </OakFlex>
-        <OakP $mt="space-between-ssx" $mb="all-spacing-7">
-          Sign up to our mailing list to receive important updates about the
-          API.
-        </OakP>
-        <OakBox $mt="space-between-m">
-          {success && (
-            <OakFlex $flexDirection="row" $gap="space-between-xs">
-              <OakIcon iconName="success" />{' '}
-              <strong>Thank you, your request has been received.</strong>
-            </OakFlex>
-          )}
-          {message && (
-            <OakBox $mb="space-between-m">
-              <OakFieldError>{message}</OakFieldError>
-            </OakBox>
-          )}
-          {!success && (
-            <>
-              <OakJauntyAngleLabel
-                $background="lemon"
-                htmlFor="email"
-                as="label"
-              >
-                <strong>Email address</strong>{' '}
-                <span style={{ fontWeight: 400 }}>(required)</span>
-              </OakJauntyAngleLabel>
-              <OakTextInput
-                autoComplete="email"
-                id="email"
-                type="email"
-                $pa="inner-padding-m"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </>
-          )}
-        </OakBox>
-        {!success && (
-          <OakBox $mt="space-between-m">
-            <OakPrimaryButton>Sign up for updates</OakPrimaryButton>
-          </OakBox>
-        )}
       </OakBox>
     </FlexedBox>
   );
