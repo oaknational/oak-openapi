@@ -5,9 +5,10 @@ export default function Logo({
   width = '100%',
   height = '100%',
   fill = 'currentColor' as OakColorToken,
+  name = 'logo',
 }) {
   return Svg({
-    name: 'logo',
+    name,
     width,
     height,
     fill,

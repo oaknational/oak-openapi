@@ -7,7 +7,6 @@ import {
   OakImage,
   OakLI,
   OakLink,
-  OakMaxWidth,
   OakOL,
   OakAccordion,
   OakP,
@@ -20,14 +19,13 @@ import {
 import styled from 'styled-components';
 import Feature from '@/components/Feature';
 import { OakAnchorTarget } from '@oaknational/oak-components';
-
-import Logo from '@/components/Logo';
 import React, { useEffect } from 'react';
-
+import Logo from '@/components/Logo';
 import posthog from '@/lib/posthog';
 
 import Footer from '@/components/Footer';
 import Head from 'next/head';
+import { MaxWidth } from '@/components/MaxWidth';
 
 const OakLinkLogo = styled(OakLink)`
   margin: 0;
@@ -114,10 +112,10 @@ function Banner() {
 function Hero() {
   return (
     <OakBox $background="mint" $color="text-primary">
-      <OakMaxWidth
+      <MaxWidth
         $ph="inner-padding-m"
-        $flexDirection={'row'}
         $pv="inner-padding-xl6"
+        $flexDirection={'row'}
       >
         <OakGrid $cg="space-between-m" $rg="space-between-m">
           <OakGridArea $colSpan={[12, 7]} $flexDirection={'column'}>
@@ -177,14 +175,14 @@ function Hero() {
             </OakFlex>
           </OakGridArea>
         </OakGrid>
-      </OakMaxWidth>
+      </MaxWidth>
     </OakBox>
   );
 }
 function Features() {
   return (
     <OakBox $width="100%" $background="white" $color="text-primary">
-      <OakMaxWidth
+      <MaxWidth
         $ph="inner-padding-m"
         $flexDirection={'row'}
         $pv={['inner-padding-xl2', 'inner-padding-xl6']}
@@ -544,7 +542,7 @@ function Features() {
             </Feature>
           </OakGridArea>
         </OakGrid>
-      </OakMaxWidth>
+      </MaxWidth>
     </OakBox>
   );
 }

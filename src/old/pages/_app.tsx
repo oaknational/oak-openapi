@@ -5,15 +5,18 @@ import {
   OakGlobalStyle,
 } from '@oaknational/oak-components';
 import { PostHogProvider } from '@/context/AnalyticsProvider';
+import { HubspotProvider } from 'next-hubspot';
 
 export default function OakOpenAPIApp({ Component }: AppProps) {
   return (
     <>
       <OakGlobalStyle />
       <PostHogProvider>
-        <OakThemeProvider theme={oakDefaultTheme}>
-          <Component />
-        </OakThemeProvider>
+        <HubspotProvider>
+          <OakThemeProvider theme={oakDefaultTheme}>
+            <Component />
+          </OakThemeProvider>
+        </HubspotProvider>
       </PostHogProvider>
     </>
   );

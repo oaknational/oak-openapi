@@ -1,53 +1,24 @@
+// note that API docs + bulk hidden for the short term
 export const footerSections = {
   pupils: {
-    title: 'Pupils',
+    title: 'API',
     links: [
       {
-        text: 'Learn online',
-        href: 'https://www.thenational.academy/pupils/years',
+        text: 'Home',
+        href: 'https://open-api.thenational.academy/',
       },
-    ],
-  },
-  teachers: {
-    title: 'Teachers',
-    links: [
+      // {
+      //   text: 'API documentation',
+      //   href: 'https://open-api.thenational.academy/docs',
+      // },
       {
-        text: 'EYFS',
-        href: 'https://www.thenational.academy/teachers/key-stages/early-years-foundation-stage/subjects',
+        text: 'API playground',
+        href: 'https://open-api.thenational.academy/playground',
       },
-      {
-        text: 'Specialist',
-        href: 'https://www.thenational.academy/teachers/specialist/subjects',
-      },
-      {
-        text: 'Key stage 1',
-        href: 'https://www.thenational.academy/teachers/key-stages/ks1/subjects',
-      },
-      {
-        text: 'Key stage 2',
-        href: 'https://www.thenational.academy/teachers/key-stages/ks2/subjects',
-      },
-      {
-        text: 'Key stage 3',
-        href: 'https://www.thenational.academy/teachers/key-stages/ks3/subjects',
-      },
-      {
-        text: 'Key stage 4',
-        href: 'https://www.thenational.academy/teachers/key-stages/ks4/subjects',
-      },
-
-      {
-        text: 'Curriculum plans',
-        href: 'https://www.thenational.academy/teachers/curriculum',
-      },
-      {
-        text: 'Plan a lesson',
-        href: 'https://www.thenational.academy/lesson-planning',
-      },
-      {
-        text: 'Support your team',
-        href: 'https://www.thenational.academy/support-your-team',
-      },
+      // {
+      //   text: 'Bulk downloads',
+      //   href: 'https://open-api.thenational.academy/bulk-downloads',
+      // },
     ],
   },
   oak: {
@@ -64,25 +35,25 @@ export const footerSections = {
         icon: 'external',
         ariaLabel: 'Careers (opens in a new tab)',
       },
-      {
-        text: 'Contact us',
-        href: 'https://www.thenational.academy/contact-us',
-      },
-      {
-        text: 'Help',
-        type: 'page',
-        href: 'https://support.thenational.academy/',
-        icon: 'external',
-        ariaLabel: 'Help (opens in a new tab)',
-      },
-      { text: 'Blog', href: 'https://www.thenational.academy/blog' },
-      { text: 'Webinars', href: 'https://www.thenational.academy/webinars' },
-      {
-        text: 'Status',
-        href: 'https://status.thenational.academy',
-        icon: 'external',
-        ariaLabel: 'Status (opens in a new tab)',
-      },
+      // {
+      //   text: 'Contact us',
+      //   href: 'https://www.thenational.academy/contact-us',
+      // },
+      // {
+      //   text: 'Help',
+      //   type: 'page',
+      //   href: 'https://support.thenational.academy/',
+      //   icon: 'external',
+      //   ariaLabel: 'Help (opens in a new tab)',
+      // },
+      // { text: 'Blog', href: 'https://www.thenational.academy/blog' },
+      // { text: 'Webinars', href: 'https://www.thenational.academy/webinars' },
+      // {
+      //   text: 'Status',
+      //   href: 'https://status.thenational.academy',
+      //   icon: 'external',
+      //   ariaLabel: 'Status (opens in a new tab)',
+      // },
     ],
   },
 
