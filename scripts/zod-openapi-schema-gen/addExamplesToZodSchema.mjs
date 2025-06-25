@@ -1,4 +1,3 @@
-// Combined full script with imported identifiers and unions handled
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
@@ -11,6 +10,7 @@ const SCHEMA_PATTERN = /(Request|Response)\.schema\.ts$/;
 const JSON_PATTERN = /(Request|Response)Example\.json$/;
 const GENERATED_DIR = './src/lib/zod-openapi/generated';
 
+// Get all directory files
 function getAllFiles(dir, files = []) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
@@ -24,6 +24,7 @@ function getAllFiles(dir, files = []) {
   return files;
 }
 
+// Find all the `schema.ts` files
 function findAllSchemaFiles(rootDir) {
   return getAllFiles(rootDir).filter(
     (file) =>
@@ -32,10 +33,12 @@ function findAllSchemaFiles(rootDir) {
   );
 }
 
+// Find all the EXAMPLE.json files
 function findAllExampleJsonFiles(rootDir) {
   return getAllFiles(rootDir).filter((file) => JSON_PATTERN.test(file));
 }
 
+// Match the example JSON file to the schema file.
 function getMatchingJson(schemaPath, allJsonFiles) {
   const baseName = path.basename(schemaPath).replace('.schema.ts', '');
   return allJsonFiles.find(
@@ -45,21 +48,13 @@ function getMatchingJson(schemaPath, allJsonFiles) {
   );
 }
 
-function isFlatObject(obj) {
-  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return false;
-  return Object.values(obj).every(
-    (val) => typeof val !== 'object' || val === null,
-  );
-}
-
+// Recursively add the `openapi` meta object onto nested object properties.
+// This is only really needed for Request objects.
 function attachOpenAPICalls(node, exampleValue, importedIdents = new Set()) {
   if (t.isCallExpression(node)) {
     const callee = node.callee;
 
-    // if (t.isMemberExpression(callee) && callee.property.name === 'openapi') {
-    //   return node;
-    // }
-
+    // for nested objects
     if (t.isMemberExpression(callee)) {
       const propName = callee.property.name;
       if (propName === 'object') {
@@ -76,16 +71,11 @@ function attachOpenAPICalls(node, exampleValue, importedIdents = new Set()) {
           });
         }
       }
-      // if (propName === 'array') {
-      //   node.arguments[0] = attachOpenAPICalls(
-      //     node.arguments[0],
-      //     exampleValue?.[0],
-      //     importedIdents,
-      //   );
-      // }
-      // if (propName === 'enum') {
-      //   return node;
-      // }
+
+      // if already has a meta object, ignore
+      if (t.isMemberExpression(callee) && callee.property.name === 'openapi') {
+        return node;
+      }
 
       if (exampleValue !== undefined) {
         return t.callExpression(
@@ -103,6 +93,7 @@ function attachOpenAPICalls(node, exampleValue, importedIdents = new Set()) {
     }
   }
 
+  // Leaf nodes
   if (t.isIdentifier(node) && importedIdents.has(node.name)) {
     return t.callExpression(t.memberExpression(node, t.identifier('openapi')), [
       t.objectExpression([
@@ -114,6 +105,7 @@ function attachOpenAPICalls(node, exampleValue, importedIdents = new Set()) {
   return node;
 }
 
+// We want to make sure imports are maintained, especially in Response files
 function fixImports(ast, schemaFilePath, outputFilePath) {
   traverse.default(ast, {
     ImportDeclaration(path) {
@@ -138,8 +130,11 @@ function fixImports(ast, schemaFilePath, outputFilePath) {
   });
 }
 
+// This is to find the name of the generated folder. For now, it matches the `handler` folder name
+// This also makes imports easier in the specified handler
 function extractEndpointName(filename) {
   // Can do some clever stuff for endpoint generation naming, but then imports become a nightmare
+  // Keep this in there if wanting to better structure the generated files
   // const base = path.basename(filename);
   // const match = base.match(/^([a-z]+)[A-Z]/);
   // return match ? match[1] : 'unknown';
@@ -171,7 +166,6 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
 
   let inputCode = fs.readFileSync(schemaFilePath, 'utf-8');
   const exampleJson = JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'));
-  // const exampleData = Array.isArray(exampleJson) ? exampleJson[0] : exampleJson;
 
   const ast = parser.parse(inputCode, {
     sourceType: 'module',
@@ -202,6 +196,7 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
     },
   });
 
+  // Traverse the original file
   traverse.default(ast, {
     VariableDeclarator(path) {
       if (path.node.id.name !== originalSchemaName) return;
@@ -209,7 +204,7 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
 
       const importedIdents = new Set(localImports.keys());
 
-      // if response schema
+      // if is a response schema, then tack the openapi meta object to the end
       const refName =
         originalSchemaName.charAt(0).toUpperCase() +
         originalSchemaName.slice(1);
@@ -232,7 +227,8 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
         );
       } else if (originalSchemaName.includes('Request')) {
         console.log(originalSchemaName);
-        // if request schema we want to nest the param examples
+        // if request schema we want to nest the param examples inside the object to maintain the
+        // path param examples
         path.node.init = attachOpenAPICalls(
           path.node.init,
           exampleJson,
@@ -243,16 +239,13 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
       const inferredTypeName = getInferredTypeName(baseName);
       const program = path.findParent((p) => p.isProgram());
       // Ignore all types, we only want schemas!
-      // TODO add a generator for the schema type if needed
+      // Remove any existing type declarations / exports which might clash with the existing file
       if (program && program.node.body) {
         program.node.body = program.node.body.filter(
           (node) =>
             !(
-              (
-                t.isExportNamedDeclaration(node) &&
-                t.isTSTypeAliasDeclaration(node.declaration)
-              )
-              // && node.declaration?.id?.name === inferredTypeName
+              t.isExportNamedDeclaration(node) &&
+              t.isTSTypeAliasDeclaration(node.declaration)
             ),
         );
 
@@ -264,6 +257,7 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
   });
 
   const endpointName = extractEndpointName(schemaFilePath);
+
   const outputPath = path.join(
     GENERATED_DIR,
     endpointName,
@@ -280,6 +274,7 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
     outputPath,
     generate.default(ast, { retainLines: true }).code,
   );
+
   console.log(`✅ Generated: ${outputPath}`);
 
   return outputPath;
