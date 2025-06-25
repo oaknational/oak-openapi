@@ -1,5 +1,3 @@
-'use client';
-
 import {
   OakBox,
   OakFlex,
@@ -13,6 +11,7 @@ import {
   OakPrimaryButton,
   OakHandDrawnHR,
   OakFieldError,
+  OakHandDrawnHR,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
 import { footerSections } from '@/lib/footerSections';
@@ -34,6 +33,8 @@ export type HubspotPayload = {
     hutk?: string | undefined;
   };
 };
+
+import { GetUpdates } from './FooterGetUpdates';
 
 const TopOakHandDrawnHR = styled(OakHandDrawnHR)`
   position: relative;
