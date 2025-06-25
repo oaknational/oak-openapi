@@ -1,6 +1,6 @@
 import { User, findUserByKey } from '@/lib/apikeys';
 import { RateLimitInfo } from './rateLimit';
-// @ts-expect-error this is exporting the type we need
+// note that ignoring this works locally, but not in production, Vercel blocks the build 🤦
 import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
 
 export type Context = Awaited<Promise<ReturnType<typeof createContext>>>;
