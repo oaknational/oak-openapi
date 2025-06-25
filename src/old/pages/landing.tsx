@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { Navigation } from '@/components/Nav';
 import { OakBox, OakFlex } from '@oaknational/oak-components';
 import styled from 'styled-components';
+import Link from 'next/link';
 import { MaxWidth } from '@/components/MaxWidth';
 
 const BlockHeading = styled.h2`
@@ -49,7 +50,7 @@ function BlockAndText() {
         </p>
         <p>
           For more information, please refer to the{' '}
-          <a href="/docs">documentation</a>.
+          <Link href="/docs">documentation</Link>
         </p>
       </OakBox>
       <OakBox>
