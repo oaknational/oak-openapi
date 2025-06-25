@@ -1,0 +1,12 @@
+query getAllDocs {
+  allCurriculumApiDocumentationPage {
+    title
+    navGroupType {
+      slug {
+        current
+      }
+      name
+    }
+    contentRaw
+  }
+}
