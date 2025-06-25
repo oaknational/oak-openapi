@@ -13,7 +13,7 @@ const __dirname = dirname(__filename);
 export default [
   {
     ignores: ['**/*.md', 'generated/**/*', 'tmp/**/*', 'dist/**/*'],
-    files: ['**/*.{js,jsx,ts,tsx}'],
+    files: ['**/*.{js,jsx,ts,tsx}', '**/*.stories.tsx'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
