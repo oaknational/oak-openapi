@@ -1,3 +1,5 @@
-import { inputSchema } from '@/lib/handlers/subjects/types';
+import z from 'zod';
 
-export const subjectRequestSchema = inputSchema;
+export const subjectRequestSchema = z.object({
+  subject: z.string(),
+});

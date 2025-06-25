@@ -3,7 +3,7 @@ import z from 'zod';
 
 export const questionsForSequenceRequestOpenAPISchema = z
   .object({
-    sequence: z.string(),
+    sequence: z.string().openapi({ example: 'maths-secondary' }),
     year: z.number().optional(),
 
     offset: z.number().optional().default(0),
@@ -15,7 +15,4 @@ export const questionsForSequenceRequestOpenAPISchema = z
       .optional()
       .default(10),
   })
-  .openapi({
-    example: { sequence: 'maths-secondary' },
-    ref: 'QuestionsForSequenceRequestSchema',
-  });
+  .openapi({ example: { sequence: 'maths-secondary' } });

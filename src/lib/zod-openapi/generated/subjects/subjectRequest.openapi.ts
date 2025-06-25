@@ -1,7 +1,8 @@
 import 'zod-openapi/extend';
-import { inputSchema } from '@/lib/handlers/subjects/types';
+import z from 'zod';
 
-export const subjectRequestOpenAPISchema = inputSchema.openapi({
-  example: { subject: 'art' },
-  ref: 'SubjectRequestSchema',
-});
+export const subjectRequestOpenAPISchema = z
+  .object({
+    subject: z.string().openapi({ example: 'art' }),
+  })
+  .openapi({ example: { subject: 'art' } });
