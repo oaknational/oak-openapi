@@ -77,6 +77,7 @@ function attachOpenAPICalls(node, exampleValue, importedIdents = new Set()) {
         return node;
       }
 
+      // leaf nodes
       if (exampleValue !== undefined) {
         return t.callExpression(
           t.memberExpression(node, t.identifier('openapi')),
@@ -93,7 +94,7 @@ function attachOpenAPICalls(node, exampleValue, importedIdents = new Set()) {
     }
   }
 
-  // Leaf nodes
+  // Leaf nodes for imported schemas
   if (t.isIdentifier(node) && importedIdents.has(node.name)) {
     return t.callExpression(t.memberExpression(node, t.identifier('openapi')), [
       t.objectExpression([
@@ -226,7 +227,6 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
           ],
         );
       } else if (originalSchemaName.includes('Request')) {
-        console.log(originalSchemaName);
         // if request schema we want to nest the param examples inside the object to maintain the
         // path param examples
         path.node.init = attachOpenAPICalls(

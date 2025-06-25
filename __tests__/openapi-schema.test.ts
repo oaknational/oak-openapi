@@ -90,7 +90,7 @@ for (const [path, methods] of Object.entries(swaggerData.paths)) {
     for (const [statusCode, response] of Object.entries(details.responses)) {
       if (statusCode === 'default') continue;
       let resolvedResponse: typeof response | null = response;
-      console.log(response);
+
       // Resolve references in responses
       if ('$ref' in response) {
         resolvedResponse = resolveRef(response.$ref);
@@ -137,7 +137,6 @@ for (const [path, methods] of Object.entries(swaggerData.paths)) {
       // complicated than any quick fix. For now, I've manually verified that the
       // examples match the schema, so I'm just going prevent these tests from
       // running for now.
-      // continue;
 
       it(`${method.toUpperCase()} ${path} response example should match schema`, () => {
         if (!schemaRef) {
