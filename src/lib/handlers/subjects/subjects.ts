@@ -158,11 +158,9 @@ export const getSubjects = router({
     })
     // TODO: put these examples in their own file
     .input(
-      z
-        .object({
-          subject: z.string(),
-        })
-        .openapi({ example: { subject: 'art' } }),
+      z.object({
+        subject: z.string().openapi({ example: 'art' }),
+      }),
     )
     .output(
       numberArrayResult.openapi({
