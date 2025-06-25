@@ -1,19 +1,19 @@
 import { router } from '@/lib/trpc';
 
-import { getAllKeyStageAndSubjectUnits } from './handlers/allKeyStageAndSubjectUnits';
-import { changelog } from './handlers/changelog';
-import { getKeyStageSubjectLessons } from './handlers/keyStageSubjectLessons';
-import { getKeyStages } from './handlers/keyStages';
+import { getAllKeyStageAndSubjectUnits } from './handlers/allKeyStageAndSubjectUnits/allKeyStageAndSubjectUnits';
+import { changelog } from './handlers/changelog/changelog';
+import { getKeyStageSubjectLessons } from './handlers/keyStageSubjectLessons/keyStageSubjectLessons';
+import { getKeyStages } from './handlers/keyStages/keyStages';
 import { getLessons } from './handlers/lesson/lesson';
-import { getQuestions } from './handlers/questions';
-import { getUnits } from './handlers/units';
-import { getSubjects } from './handlers/subjects';
-import { getAssets } from './handlers/assets';
-import { searchTranscripts } from './handlers/searchTranscripts';
-import { getLessonTranscript } from './handlers/transcript';
-import { getSequences } from './handlers/sequences';
-import { getThreads } from './handlers/threads';
-import { getRateLimit } from './handlers/rate';
+import { getQuestions } from './handlers/questions/questions';
+import { getUnits } from './handlers/units/units';
+import { getSubjects } from './handlers/subjects/subjects';
+import { getAssets } from './handlers/assets/assets';
+import { searchTranscripts } from './handlers/searchTranscripts/searchTranscripts';
+import { getLessonTranscript } from './handlers/transcript/transcript';
+import { getSequences } from './handlers/sequences/sequences';
+import { getThreads } from './handlers/threads/threads';
+import { getRateLimit } from './handlers/rate/rate';
 
 export default router({
   getSequences,

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "engines": {
     "node": ">=20.6.0 <21",
-    "pnpm": ">=8"
+    "pnpm": ">=9"
   },
   "scripts": {
     "build": "next build",
@@ -19,7 +19,7 @@
     "test": "pnpm with-env vitest",
     "test:vscode": "pnpm with-env vitest --no-file-parallelism --test-timeout=0",
     "with-env": "dotenv -e ./.env --",
-    "generate:openapi": "node scripts/addExamplesToZodSchema.mjs",
+    "generate:openapi": "node scripts/zod-openapi-schema-gen/addExamplesToZodSchema.mjs",
     "test:all": "pnpm -r test",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
