@@ -4,10 +4,7 @@ import { years } from '@/lib/handlers/sequences/types';
 
 export const sequenceUnitsRequestOpenAPISchema = z
   .object({
-    sequence: z.string(),
+    sequence: z.string().openapi({ example: 'english-primary' }),
     year: z.enum(years as [string]).optional(),
   })
-  .openapi({
-    example: { sequence: 'english-primary' },
-    ref: 'SequenceUnitsRequestSchema',
-  });
+  .openapi({ example: { sequence: 'english-primary' } });

@@ -3,9 +3,6 @@ import z from 'zod';
 
 export const questionForLessonsRequestOpenAPISchema = z
   .object({
-    lesson: z.string(),
+    lesson: z.string().openapi({ example: 'joining-using-and' }),
   })
-  .openapi({
-    example: { lesson: 'joining-using-and' },
-    ref: 'QuestionForLessonsRequestSchema',
-  });
+  .openapi({ example: { lesson: 'joining-using-and' } });

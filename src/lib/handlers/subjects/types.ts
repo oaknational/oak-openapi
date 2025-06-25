@@ -29,7 +29,3 @@ export const subjectResult = z.object({
   years: numberArrayResult,
   keyStages: keyStagesResult,
 });
-
-export const inputSchema = z.object({
-  subject: z.string(),
-});

@@ -4,14 +4,18 @@ import z from 'zod';
 
 export const questionsForKeyStageAndSubjectRequestOpenAPISchema = z
   .object({
-    keyStage: z.enum(keyStageSlugs as [string], {
-      description:
-        "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
-    }),
-    subject: z.enum(subjectSlugs as [string], {
-      description:
-        "Subject slug to search by, e.g. 'science' - note that casing is important here",
-    }),
+    keyStage: z
+      .enum(keyStageSlugs as [string], {
+        description:
+          "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
+      })
+      .openapi({ example: 'ks1' }),
+    subject: z
+      .enum(subjectSlugs as [string], {
+        description:
+          "Subject slug to search by, e.g. 'science' - note that casing is important here",
+      })
+      .openapi({ example: 'art' }),
     offset: z.number().optional().default(0),
     limit: z
       .number({
@@ -19,9 +23,7 @@ export const questionsForKeyStageAndSubjectRequestOpenAPISchema = z
       })
       .lte(100)
       .optional()
-      .default(10),
+      .default(10)
+      .openapi({ example: 10 }),
   })
-  .openapi({
-    example: { keyStage: 'ks1', subject: 'art', limit: 10 },
-    ref: 'QuestionsForKeyStageAndSubjectRequestSchema',
-  });
+  .openapi({ example: { keyStage: 'ks1', subject: 'art', limit: 10 } });

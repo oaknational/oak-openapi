@@ -15,7 +15,7 @@ import {
   phaseToSequences,
   yearsFromKeyStages,
 } from './helpers';
-import { inputSchema, numberArrayResult } from './types';
+import { numberArrayResult } from './types';
 import {
   allSubjectsResponseOpenAPISchema,
   subjectKeyStagesRequestOpenAPISchema,
@@ -157,7 +157,13 @@ export const getSubjects = router({
       },
     })
     // TODO: put these examples in their own file
-    .input(inputSchema.openapi({ example: { subject: 'art' } }))
+    .input(
+      z
+        .object({
+          subject: z.string(),
+        })
+        .openapi({ example: { subject: 'art' } }),
+    )
     .output(
       numberArrayResult.openapi({
         example: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
