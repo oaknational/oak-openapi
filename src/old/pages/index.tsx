@@ -25,7 +25,7 @@ import posthog from '@/lib/posthog';
 
 import Footer from '@/components/Footer';
 import Head from 'next/head';
-import { MaxWidth } from '~/components/MaxWidth';
+import { MaxWidth } from '@/components/MaxWidth';
 
 const OakLinkLogo = styled(OakLink)`
   margin: 0;
