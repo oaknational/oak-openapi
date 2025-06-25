@@ -19,7 +19,7 @@
     "test": "pnpm with-env vitest",
     "test:vscode": "pnpm with-env vitest --no-file-parallelism --test-timeout=0",
     "with-env": "dotenv -e ./.env --",
-    "generate:openapi": "node scripts/zod-openapi-schema-gen/addExamplesToZodSchema.mjs"
+    "generate:openapi": "node scripts/zod-openapi-schema-gen/addExamplesToZodSchema.mjs",
     "build-storybook": "exit 0"
   },
   "keywords": [],
