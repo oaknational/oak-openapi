@@ -1,6 +1,7 @@
 import { User, findUserByKey } from '@/lib/apikeys';
-import { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
 import { RateLimitInfo } from './rateLimit';
+// @ts-expect-error this is exporting the type we need
+import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
 
 export type Context = Awaited<Promise<ReturnType<typeof createContext>>>;
 
@@ -9,6 +10,11 @@ const createContextWithUser = async ({
   info,
   resHeaders,
 }: FetchCreateContextFnOptions) => {
+  // low fat cors
+  resHeaders.set('access-control-allow-origin', '*');
+  resHeaders.set('access-control-allow-methods', 'GET, POST, OPTIONS');
+  resHeaders.set('access-control-allow-headers', 'Content-Type, Authorization');
+
   const user = await withUser(req);
   // Log the request which is forwarded to datadog
   console.info(
