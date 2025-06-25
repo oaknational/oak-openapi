@@ -1,4 +1,4 @@
-import { getLatestMajorVersion } from './handlers/changelog';
+import { getLatestMajorVersion } from '@/lib/handlers/changelog/helpers';
 
 let domain = 'http://localhost:2727';
 
