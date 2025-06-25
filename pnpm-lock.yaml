@@ -50,6 +50,9 @@ importers:
       next:
         specifier: ^15.3.2
         version: 15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      next-hubspot:
+        specifier: ^2.0.0
+        version: 2.0.0(next@15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
       object.groupby:
         specifier: ^1.0.3
         version: 1.0.3
@@ -3481,6 +3484,13 @@ packages:
     peerDependencies:
       next: ^12 || ^13 || ^14 || >=15.0.0-rc || ^15
       react: ^17 || ^18 || >=19.0.0-beta || ^19
+
+  next-hubspot@2.0.0:
+    resolution: {integrity: sha512-ZfvU4JIVtTDYUSuvJeSK+ea/6GBkKIRl/qfUIhkbukrO/bammQPrOy5AH7ZxoCio66JHDEKjI73bO+yo7IMarQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      next: ^13 || ^14 || ^15
+      react: ^18 || ^19
 
   next@15.3.3:
     resolution: {integrity: sha512-JqNj29hHNmCLtNvd090SyRbXJiivQ+58XjCcrC50Crb5g5u2zi7Y2YivbsEfzk6AtVI80akdOQbaMZwWB1Hthw==}
@@ -8543,6 +8553,11 @@ snapshots:
       '@cloudinary-util/types': 1.5.10
       '@cloudinary-util/url-loader': 5.10.4
       '@cloudinary-util/util': 4.0.0
+      next: 15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react: 19.1.0
+
+  next-hubspot@2.0.0(next@15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0):
+    dependencies:
       next: 15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react: 19.1.0
 
