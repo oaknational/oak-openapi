@@ -2,7 +2,7 @@ import { vi, expect, test } from 'vitest';
 import { getLessonAsset } from './helper';
 
 vi.mock(
-  '@/lib/handlers/assets',
+  '@/lib/handlers/assets/helpers',
   async (importOriginal: () => Promise<object>) => {
     const actual = await importOriginal();
     return {

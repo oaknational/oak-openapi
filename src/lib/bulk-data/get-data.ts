@@ -23,8 +23,8 @@ import {
   subjectPhaseView,
   TitleSlug,
 } from '@/lib/owaClient';
-import { formatUnitSummary } from '@/lib/handlers/units';
-import { sequenceWhere } from '@/lib/handlers/sequences';
+import { formatUnitSummary } from '@/lib/handlers/units/helpers';
+import { sequenceWhere } from '@/lib/handlers/sequences/sequences';
 import { runSQL } from './data-stores';
 
 export async function getAllSubjects(

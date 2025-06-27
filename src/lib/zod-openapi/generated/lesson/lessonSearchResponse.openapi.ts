@@ -16,8 +16,6 @@ export const lessonSearchResultSchema = z.object({
   ),
 });
 
-export type LessonSearchResultType = z.infer<typeof lessonSearchResultSchema>;
-
 export const lessonSearchResponseOpenAPISchema = z
   .array(
     z.object({
@@ -80,4 +78,5 @@ export const lessonSearchResponseOpenAPISchema = z
         ],
       },
     ],
+    ref: 'LessonSearchResponseSchema',
   });

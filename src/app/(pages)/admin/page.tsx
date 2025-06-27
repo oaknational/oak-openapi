@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import {
   OakBox,
   OakFlex,
@@ -12,12 +12,9 @@ import {
   OakSecondaryButton,
   OakFieldError,
 } from '@oaknational/oak-components';
-import { useState } from 'react';
-import { MaxWidth } from '@/components/MaxWidth';
-// import Head from 'next/head';
-{
-  /* <Head>Oak OpenAPI - Oak National Academy</Head> */
-}
+
+import { useState } from "react";
+import { MaxWidth } from "@/components/MaxWidth";
 
 export default function AdminPage() {
   return (
@@ -25,29 +22,29 @@ export default function AdminPage() {
       <OakBox $width="100%" $background="white" $color="text-primary">
         <MaxWidth
           $ph="inner-padding-m"
-          $flexDirection={'row'}
-          $pv={['inner-padding-xl2', 'inner-padding-xl6']}
+          $flexDirection={"row"}
+          $pv={["inner-padding-xl2", "inner-padding-xl6"]}
         >
           <OakGrid $cg="space-between-m" $rg="space-between-m">
             <OakGridArea
               $colSpan={[12, 3]}
-              $alignSelf={'start'}
-              $position={['static', 'sticky', 'sticky']}
-              $top={'all-spacing-10'}
-              $display={['none', 'block', 'block']}
+              $alignSelf={"start"}
+              $position={["static", "sticky", "sticky"]}
+              $top={"all-spacing-10"}
+              $display={["none", "block", "block"]}
             ></OakGridArea>
             <OakGridArea
               $colSpan={[12]}
-              $position={['static', 'static', 'sticky']}
-              $display={['block', 'none', 'none']}
+              $position={["static", "static", "sticky"]}
+              $display={["block", "none", "none"]}
               $pt="inner-padding-m"
               $pb="inner-padding-m"
             ></OakGridArea>
 
             <OakGridArea
-              $width={'100%'}
+              $width={"100%"}
               $colSpan={[12, 7]}
-              $gap={'all-spacing-9'}
+              $gap={"all-spacing-9"}
             >
               <CreateAPIKey />
             </OakGridArea>
@@ -59,18 +56,18 @@ export default function AdminPage() {
 }
 
 function CreateAPIKey() {
-  const [name, setName] = useState('');
-  const [company, setCompany] = useState('');
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
-  const [key, setKey] = useState('');
+  const [name, setName] = useState("");
+  const [company, setCompany] = useState("");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const [key, setKey] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const response = await fetch('/api/admin/create-api-key', {
-      method: 'POST',
+    const response = await fetch("/api/admin/create-api-key", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ name, company, email }),
     });
