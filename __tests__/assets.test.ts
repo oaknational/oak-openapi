@@ -1,6 +1,6 @@
 import { vi, expect, test } from 'vitest';
 import { getLessonAsset, makeCaller, mockWithUser } from './helper';
-import { getVideoFromMux } from '@/lib/handlers/assets';
+import { getVideoFromMux } from '@/lib/handlers/assets/helpers';
 
 mockWithUser();
 

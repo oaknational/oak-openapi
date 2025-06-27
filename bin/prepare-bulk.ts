@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import 'renvy';
 import { getClient } from '@/lib/owaClient';
 
-import { getVideoFromMux } from '@/lib/handlers/assets';
+import { getVideoFromMux } from '@/lib/handlers/assets/helpers';
 import {
   isLessonSupported,
   isSubjectSupported,
