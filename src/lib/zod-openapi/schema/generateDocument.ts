@@ -3,7 +3,7 @@ import router from '@/lib/router';
 import {
   getLatestVersion,
   getLatestMajorVersion,
-} from '@/lib/handlers/changelog';
+} from '@/lib/handlers/changelog/helpers';
 
 import { generateOpenApiDocument } from 'trpc-to-openapi';
 
@@ -25,7 +25,14 @@ export const openApiDocument = generateOpenApiDocument(router, {
   securitySchemes: {
     bearerAuth,
   },
+  tags: [
+    'internal',
+    'lists',
+    'assets',
+    'lessons',
+    'questions',
+    'units',
+    'search',
+    'sequences',
+  ],
 });
-
-// to do:
-// - make alphabetical

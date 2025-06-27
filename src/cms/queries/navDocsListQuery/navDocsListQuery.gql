@@ -1,0 +1,19 @@
+query getAllDocsNavGroups {
+  groups: allNavGroup {
+    name
+    slug {
+      text: current
+    }
+  }
+  pages: allCurriculumApiDocumentationPage {
+    title
+    slug {
+      text: current
+    }
+    navGroupType {
+      slug {
+        text: current
+      }
+    }
+  }
+}
