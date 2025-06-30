@@ -1,9 +1,8 @@
 import { vi, expect, test } from 'vitest';
-import { makeCaller, makeRes } from './helper';
-import {
-  getVideoFromMux,
-  // isApprovedLesson,
-} from '~/lib/handlers/assets';
+import { getLessonAsset, makeCaller, mockWithUser } from './helper';
+import { getVideoFromMux } from '@/lib/handlers/assets/helpers';
+
+mockWithUser();
 
 vi.mock('@google-cloud/storage', async () => {
   const { EventEmitter } = await import('events');
@@ -62,118 +61,55 @@ test('get asset urls for maths lesson', async () => {
 });
 
 test('read a single asset (pdf)', async () => {
-  const request = makeRes();
-  const caller = makeCaller(
-    {
-      user: 1,
-    },
-    request,
-  );
-
-  const res = await caller.getAssets.getLessonAsset({
+  const res = await getLessonAsset({
     lesson: 'checking-understanding-of-perimeter',
     type: 'slideDeck',
   });
 
-  expect(typeof res).toBe('undefined');
-
-  expect(request.write).toHaveBeenCalled();
-  const call = request.write.mock.calls[0][0];
-  expect(call).toBeInstanceOf(Buffer);
-  const header = call.toString('ascii', 0, 5);
-  expect(header).toBe('%PDF-');
+  expect(res.status).toBe(200);
+  expect(res.headers.get('content-type')).toBe('application/octet-stream');
+  expect(res.headers.get('content-disposition')).toBe(
+    'attachment; filename="checking-understanding-of-perimeter_slidedeck.pptx"',
+  );
 });
 
 test('request power point', async () => {
-  const request = makeRes();
-  const caller = makeCaller(
-    {
-      user: 1,
-    },
-    request,
-  );
-
-  await caller.getAssets.getLessonAsset({
+  const res1 = await getLessonAsset({
     lesson: 'checking-understanding-of-perimeter',
     type: 'slideDeck',
   });
 
-  // expects the content disposition to be set last (i.e. after the content type)
-  expect(request.setHeader.mock.lastCall[1].endsWith('.pptx"')).toBe(true);
+  expect(res1.headers.get('content-disposition')).to.match(/.pptx"$/);
 
-  await caller.getAssets.getLessonAsset({
+  const res2 = await getLessonAsset({
     lesson: 'checking-understanding-of-perimeter',
     type: 'exitQuiz',
   });
 
-  expect(request.setHeader.mock.lastCall[1].endsWith('.pdf"')).toBe(true);
-});
-
-// this can be stored when we have more lessons that do actually redirect
-// ideally we don't ever redirect, but I've kept this for the future
-test.skip('read a video redirect', async () => {
-  const request = makeRes();
-  const caller = makeCaller(
-    {
-      user: 1,
-    },
-    request,
-  );
-
-  const res = await caller.getAssets.getLessonAsset({
-    lesson: 'checking-understanding-of-perimeter',
-    type: 'video',
-  });
-
-  expect(typeof res).toBe('undefined');
-
-  expect(request.writeHead).toHaveBeenCalled();
-  const call = request.writeHead.mock.calls[0];
-
-  expect(call[0]).toBe(302);
-  let key = 'Location';
-  if (!call[1].hasOwnProperty(key)) {
-    key = 'location';
-  }
-  expect(call[1]).toHaveProperty(key);
-  expect(call[1][key]).toMatch(/https:\/\/stream\.video\.thenational\.academy/);
+  expect(res2.headers.get('content-disposition')).to.match(/.pdf"$/);
 });
 
 test('lessons in the supported lessons array are allowed', async () => {
-  const request = makeRes();
-  const caller = makeCaller(
-    {
-      user: 1,
-    },
-    request,
-  );
-
   // this will throw if the lesson is not allowed, which
   // is all we're testing for
-  const res = await caller.getAssets.getLessonAsset({
+  const res = await getLessonAsset({
     lesson: 'identifying-unknown-substances-including-barium',
     type: 'slideDeck',
   });
 
-  expect(typeof res).toBe('undefined');
+  expect(res).toBeInstanceOf(Response);
 });
 
 test('lessons not in the supported lessons array are not allowed', async () => {
-  const request = makeRes();
-  const caller = makeCaller(
-    {
-      user: 1,
-    },
-    request,
-  );
+  const res = await getLessonAsset({
+    lesson: 'made up lesson for testing',
+    type: 'video',
+  });
 
-  await expect(
-    async () =>
-      await caller.getAssets.getLessonAsset({
-        lesson: 'made up lesson for testing',
-        type: 'video',
-      }),
-  ).rejects.toThrow('Lesson not available');
+  expect(res.status).toBe(404);
+  const body = await res.json();
+  expect(body).toHaveProperty('message');
+  expect(body.message).toBe('Lesson not available');
 });
 
 test('cycling down the quality of videos against mux', async () => {
@@ -187,23 +123,17 @@ test('cycling down the quality of videos against mux', async () => {
 });
 
 test('blocked lesson: growing-rearing-and-catching-our-food', async () => {
-  const request = makeRes();
-  const caller = makeCaller(
-    {
-      user: 1,
-    },
-    request,
-  );
+  const caller = makeCaller({
+    user: 1,
+  });
 
   const slug = 'growing-rearing-and-catching-our-food';
 
-  await expect(
-    async () =>
-      await caller.getAssets.getLessonAsset({
-        lesson: slug,
-        type: 'slideDeck',
-      }),
-  ).rejects.toThrow('Lesson not available');
+  const res404 = await getLessonAsset({
+    lesson: slug,
+    type: 'slideDeck',
+  });
+  expect(res404.status).toBe(404);
 
   // make sure it doesn't also turn up in the sequence assets
   const res = await caller.getAssets.getSequenceAssets({
@@ -222,18 +152,14 @@ test('blocked lesson: growing-rearing-and-catching-our-food', async () => {
 });
 
 test('unblocked lesson: making-yakisoba-noodles', async () => {
-  const request = makeRes();
-  const caller = makeCaller(
-    {
-      user: 1,
-    },
-    request,
-  );
+  const caller = makeCaller({
+    user: 1,
+  });
 
   const slug = 'making-yakisoba-noodles';
 
   // if this throws then the lesson is blocked
-  await caller.getAssets.getLessonAsset({
+  await getLessonAsset({
     lesson: slug,
     type: 'slideDeck',
   });
@@ -255,13 +181,9 @@ test('unblocked lesson: making-yakisoba-noodles', async () => {
 });
 
 test('financial education is hidden: returns invalid enum value', async () => {
-  const request = makeRes();
-  const caller = makeCaller(
-    {
-      user: 1,
-    },
-    request,
-  );
+  const caller = makeCaller({
+    user: 1,
+  });
 
   const slug = 'financial-education';
 

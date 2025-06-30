@@ -4,7 +4,7 @@ import type {
   Unit,
   UnitWithOptions,
   YearSequence,
-} from '~/lib/handlers/sequences';
+} from '@/lib/handlers/sequences/types';
 
 test('get cycle 2 (2024-2025) unit', async () => {
   const caller = makeCaller({

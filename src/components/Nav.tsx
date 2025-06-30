@@ -9,7 +9,7 @@ import {
   OakSecondaryButton,
 } from '@oaknational/oak-components';
 
-import Logo from '~/components/Logo';
+import Logo from '@/components/Logo';
 import { useState } from 'react';
 import { MaxWidth } from './MaxWidth';
 

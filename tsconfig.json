@@ -16,17 +16,26 @@
     "incremental": true,
     "baseUrl": "./src",
     "paths": {
-      "~/*": ["./*"]
-    }
+      "@/*": ["./*"]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "exclude": [],
+  "exclude": ["node_modules"],
   "include": [
-    ".eslintrc.cjs",
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
     "**/*.cjs",
     "**/*.mjs",
-    "vite.config.mts"
+    "**/*.ts",
+    "**/*.tsx",
+    "src/**/*.stories.tsx",
+    "eslint.config.js",
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "**/*.mts",
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx"
   ]
 }

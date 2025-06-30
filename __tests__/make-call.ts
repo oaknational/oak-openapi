@@ -1,8 +1,8 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import router from '~/lib/router';
-import { createCallerFactory } from '~/lib/trpc';
+import router from '@/lib/router';
+import { createCallerFactory } from '@/lib/trpc';
 import { vitest } from 'vitest';
-import { User } from '~/lib/apikeys';
+import { User } from '@/lib/apikeys';
+import { NextRequest } from 'next/server';
 
 export function makeRes() {
   return {
@@ -18,11 +18,18 @@ export function makeRes() {
   };
 }
 
+export function makeResHeaders() {
+  return {
+    get: vitest.fn(),
+    set: vitest.fn(),
+  } as unknown as Headers;
+}
+
 export function makeCaller(opts = {}, res = makeRes()) {
   const createCaller = createCallerFactory(router);
   const callerOptions = {
-    req: {} as NextApiRequest,
-    res: res as unknown as NextApiResponse,
+    req: {} as NextRequest,
+    resHeaders: makeResHeaders(),
     rateLimit: undefined,
     user: null,
     ...opts,

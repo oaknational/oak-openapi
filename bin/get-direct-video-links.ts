@@ -1,5 +1,5 @@
 import 'renvy';
-import { DownloadView, downloadView, getClient, gql } from '~/lib/owaClient';
+import { DownloadView, downloadView, getClient, gql } from '@/lib/owaClient';
 import { promises as fs, existsSync } from 'fs';
 import { exec } from 'child_process';
 

@@ -61,21 +61,23 @@ const SOCIAL_BUTTON_CONFIGS: Record<SocialNetwork, SocialButtonConfig> = {
 
 type SocialUrls = Partial<Record<SocialNetwork, string | null | undefined>>;
 type ResponsiveValues<Value> = (Value | null) | (Value | null)[];
-type SocialButtonsProps = OakFlexProps &
-  SocialUrls & {
-    /**
-     * for: who's social media accounts are being linekd
-     * @example Oak National Academy
-     * @example Joan Baez
-     */
-    for: string;
-    size?: 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge' | 'xxxlarge';
-    spaceBetween?: ResponsiveValues<number>;
-  };
+type SocialButtonsProps = OakFlexProps & {
+  /**
+   * for: who's social media accounts are being linekd
+   * @example Oak National Academy
+   * @example Joan Baez
+   */
+  socialNetworks: SocialUrls;
+  for: string;
+  size?: 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge' | 'xxxlarge';
+  spaceBetween?: ResponsiveValues<number>;
+};
 const SocialButtons: FC<SocialButtonsProps> = (props) => {
-  const { for: accountHolder, ...flexProps } = props;
+  const { for: accountHolder, socialNetworks, ...flexProps } = props;
   const id = useId();
-  const socialsToShow = SOCIAL_NETWORKS.filter((network) => props[network]);
+  const socialsToShow = SOCIAL_NETWORKS.filter(
+    (network) => socialNetworks[network],
+  );
 
   if (socialsToShow.length === 0) {
     return null;
@@ -85,7 +87,7 @@ const SocialButtons: FC<SocialButtonsProps> = (props) => {
     <OakFlex $gap={'all-spacing-4'} {...flexProps}>
       {socialsToShow.map((network) => {
         const { label, icon } = SOCIAL_BUTTON_CONFIGS[network];
-        const profile = props[network];
+        const profile = socialNetworks[network];
         if (!profile) {
           return null;
         }

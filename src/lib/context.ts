@@ -1,36 +1,45 @@
-import { User, findUserByKey } from '~/lib/apikeys';
-import { type CreateNextContextOptions } from '@trpc/server/adapters/next';
-import { inferAsyncReturnType } from '@trpc/server';
-import type { NextApiRequest } from 'next';
+import { User, findUserByKey } from '@/lib/apikeys';
 import { RateLimitInfo } from './rateLimit';
+// note that ignoring this works locally, but not in production, Vercel blocks the build 🤦
+import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
 
-export type Context = inferAsyncReturnType<typeof createContext>;
+export type Context = Awaited<Promise<ReturnType<typeof createContext>>>;
 
-const createContextWithUser = async (opts: CreateNextContextOptions) => {
-  const user = await withUser(opts.req);
+const createContextWithUser = async ({
+  req,
+  info,
+  resHeaders,
+}: FetchCreateContextFnOptions) => {
+  // low fat cors
+  resHeaders.set('access-control-allow-origin', '*');
+  resHeaders.set('access-control-allow-methods', 'GET, POST, OPTIONS');
+  resHeaders.set('access-control-allow-headers', 'Content-Type, Authorization');
 
+  const user = await withUser(req);
   // Log the request which is forwarded to datadog
   console.info(
     JSON.stringify({
       userId: user?.id,
-      url: opts.req.url,
-      query: opts.req.query,
+      url: req.url,
+      query: info.url?.searchParams.toString(),
     }),
   );
 
   return {
-    req: opts.req,
-    res: opts.res,
+    req,
+    resHeaders,
     rateLimit: undefined as RateLimitInfo | undefined,
     user,
   };
 };
 
-export const withUser = async (req: NextApiRequest) => {
+export const withUser = async (req: Request) => {
   let user: User | null = null;
 
-  if (req.headers.authorization) {
-    const token = req.headers.authorization?.split(' ')[1];
+  const authorization = req.headers.get('authorization');
+
+  if (authorization) {
+    const token = authorization?.split(' ')[1];
     if (token) {
       user = await findUserByKey(token);
     }
