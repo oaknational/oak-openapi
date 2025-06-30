@@ -1,11 +1,12 @@
 import 'renvy';
-import { getLatestMajorVersion } from '../src/lib/handlers/changelog';
-import { SubjectsResult } from '~/lib/handlers/subjects';
+import { getLatestMajorVersion } from '@/lib/handlers/changelog/helpers';
+
 import { promises as fs } from 'node:fs';
-import type { SourceRecord } from '~/lib/keyStageAndSubjects';
+import type { SourceRecord } from '@/lib/keyStageAndSubjects';
 
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { SubjectsResult } from '@/lib/handlers/subjects/schemas/responses/allSubjectsResponse.schema';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const port = process.env.PORT || '2727';

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { authedCaller } from './make-call';
-import { User } from '~/lib/apikeys';
+import { User } from '@/lib/apikeys';
 
 test('rate limit reduces', async () => {
   const user: User = {

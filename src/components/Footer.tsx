@@ -13,7 +13,7 @@ import {
   OakFieldError,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
-import { footerSections } from '~/lib/footerSections';
+import { footerSections } from '@/lib/footerSections';
 import SocialButtons, { OAK_SOCIALS } from './SocialButtons';
 import Logo from './Logo';
 import { StrongLinkNoUnderline } from './StrongSecondaryLink';
@@ -146,7 +146,7 @@ export default function Footer() {
                 <SocialButtons
                   $display={['flex']}
                   for="Oak National Academy"
-                  {...OAK_SOCIALS}
+                  socialNetworks={OAK_SOCIALS}
                 />
 
                 <OakBox>

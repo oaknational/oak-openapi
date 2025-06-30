@@ -1,4 +1,4 @@
-import { redis } from '~/lib/redis';
+import { redis } from '@/lib/redis';
 import { defaultRateLimit } from './rateLimit';
 import { v4 as uuid } from 'uuid';
 

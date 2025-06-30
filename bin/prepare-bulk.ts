@@ -1,14 +1,14 @@
 // See README_BULK_DOWNLOAD.md for details
 import fs from 'node:fs/promises';
 import 'renvy';
-import { getClient } from '~/lib/owaClient';
+import { getClient } from '@/lib/owaClient';
 
-import { getVideoFromMux } from '~/lib/handlers/assets';
+import { getVideoFromMux } from '@/lib/handlers/assets/helpers';
 import {
   isLessonSupported,
   isSubjectSupported,
   isUnitSupported,
-} from '~/lib/queryGate';
+} from '@/lib/queryGate';
 import assert from 'node:assert';
 import { log, logError } from '../src/lib/bulk-data/logger';
 import {
