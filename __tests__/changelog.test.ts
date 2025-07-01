@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { makeCaller } from './helper';
-import { getLatestVersion } from '@/lib/handlers/changelog';
+import { getLatestVersion } from '@/lib/handlers/changelog/helpers';
 
 test('change log', async () => {
   const caller = makeCaller();
