@@ -90,7 +90,7 @@ test('request power point', async () => {
   expect(res2.headers.get('content-disposition')).to.match(/.pdf"$/);
 });
 
-test.only('blocked videos return 404', async () => {
+test('blocked videos return 404', async () => {
   const lessonSlug = placeholderVideos[5];
 
   const res = await getLessonAsset({
