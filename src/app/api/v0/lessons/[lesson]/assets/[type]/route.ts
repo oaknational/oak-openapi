@@ -12,6 +12,7 @@ import { TRPCError } from '@trpc/server';
 import { assetBaseVideoUrl } from '@/lib/baseUrl';
 import codes from 'http-codes';
 import { assetsForLesson } from '@/lib/handlers/assets/assets';
+import placeholderVideoLessons from '@/lib/queryGateData/placeholderVideoLessons.json' with { type: 'json' };
 
 export const dynamic = 'force-dynamic';
 
@@ -121,6 +122,13 @@ const handler = async (
   } else {
     const { stream } = asset as Video;
     let { download } = asset as Video;
+
+    if (placeholderVideoLessons.includes(lesson)) {
+      throw new TRPCError({
+        message: `Failed to fetch: ${lesson} - video is not available`,
+        code: 'NOT_FOUND',
+      });
+    }
 
     if (!download) {
       // test if the download is there as our db is often out of sync with mux

@@ -42,6 +42,8 @@ import {
   lessonAssetsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/assets';
 
+import placeholderVideoLessons from '@/lib/queryGateData/placeholderVideoLessons.json' with { type: 'json' };
+
 const graphqlClient = getClient();
 
 export async function assetsForLesson(lessonSlug: string) {
@@ -204,11 +206,13 @@ function assetDownloads(
   }
 
   if (download.video && (download.video.download || download.video.stream)) {
-    assetUrls.push({
-      label: download.video.label,
-      type: downloadTypeEnum.enum.video,
-      url: `${baseUrl}/lessons/${lessonSlug}/assets/video`,
-    });
+    if (!placeholderVideoLessons.includes(lessonSlug)) {
+      assetUrls.push({
+        label: download.video.label,
+        type: downloadTypeEnum.enum.video,
+        url: `${baseUrl}/lessons/${lessonSlug}/assets/video`,
+      });
+    }
   }
 
   const result = assetUrls.filter((asset) => !filter || asset.type === filter);
