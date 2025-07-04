@@ -57,16 +57,21 @@ const query = gql`
   }
 `;
 
+type CurriculumApiLandingPageQueryResponse = {
+  allCurriculumApiLandingPage: CurriculumApiLandingPage;
+};
+
 const documentationQuery = async () => {
   const res = await client.request(query);
 
-  const { allCurriculumApiLandingPage } = res as CurriculumApiLandingPage;
+  const { allCurriculumApiLandingPage } =
+    res as CurriculumApiLandingPageQueryResponse;
 
   if (!allCurriculumApiLandingPage) {
     throw new Error('No documentation found :O( ');
   }
 
-  //   return documentationQuerySchema.parse(allCurriculumApiDocumentationPage);
+  return allCurriculumApiLandingPage;
 };
 
 export default documentationQuery;
