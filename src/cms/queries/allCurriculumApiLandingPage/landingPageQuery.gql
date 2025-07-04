@@ -1,16 +1,5 @@
 query {
   allCurriculumApiLandingPage {
-    heroBlock {
-      body
-      titlePortableTextRaw
-      image {
-        isPresentational
-        asset {
-          _id
-          url
-        }
-      }
-    }
     content {
       textAndMedia {
         title
