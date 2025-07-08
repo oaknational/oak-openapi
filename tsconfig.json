@@ -36,6 +36,7 @@
     ".next/types/**/*.ts",
     "**/*.mts",
     ".storybook/**/*.ts",
-    ".storybook/**/*.tsx"
+    ".storybook/**/*.tsx",
+    "src/loaders/gql.js"
   ]
 }

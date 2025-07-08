@@ -1,40 +1,50 @@
 import {
+  CMSCta,
+  CMSImage,
+  CMSRaw,
   CurriculumApiLandingPage,
-  CurriculumApiLandingPageContentBlock,
-  CurriculumApiLandingPageHeroBlock,
 } from '@/cms/schemaTypes';
+import React from 'react'; // required for tests
 import { OakP } from '@oaknational/oak-components';
+
+type Link =
+  | {
+      text: string;
+      href: string;
+    }
+  | undefined;
+
+type Image = {
+  src: string;
+  width?: number;
+  height?: number;
+};
+
+type Block = {
+  title: React.ReactNode;
+  description: React.ReactNode | string;
+  link: Link;
+};
 
 export type LandingPageContent = {
   title: React.ReactNode;
   description: React.ReactNode | string;
-  image: {
-    src: string;
-    width?: number;
-    height?: number;
-  };
-  link?: {
-    text: string;
-    href: string;
-  };
+  image: Image;
+  link?: Link;
 };
 
-function parseTitle(
-  data:
-    | CurriculumApiLandingPageHeroBlock
-    | CurriculumApiLandingPageContentBlock,
-): React.ReactNode | string {
-  if ('textAndMedia' in data && data.textAndMedia?.title) {
-    return data.textAndMedia.title;
-  }
-  if (
-    'titlePortableTextRaw' in data &&
-    data.titlePortableTextRaw &&
-    data.titlePortableTextRaw.length > 0
-  ) {
+export type UsingTheApiSection = {
+  title: React.ReactNode;
+  image: Image;
+  link?: Link;
+  blocks: Block[];
+};
+
+function parseTitle(data: CMSRaw): React.ReactNode | string {
+  if (data.length > 0) {
     return (
       <>
-        {data.titlePortableTextRaw[0].children.map((child) => {
+        {data[0].children.map((child) => {
           if (child.marks.includes('highlight')) {
             return <em key={child._key}>{child.text}</em>;
           }
@@ -46,61 +56,77 @@ function parseTitle(
   return '';
 }
 
-function parseDescription(
-  data:
-    | CurriculumApiLandingPageHeroBlock
-    | CurriculumApiLandingPageContentBlock,
-): React.ReactNode | string {
-  if ('textAndMedia' in data && data.textAndMedia?.bodyRaw) {
+function parseDescription(data: CMSRaw): React.ReactNode | string {
+  if (data) {
     return (
       <>
-        {data.textAndMedia.bodyRaw[0].children.map((child) => (
+        {data[0].children.map((child) => (
           <OakP key={child._key}>{child.text}</OakP>
         ))}
       </>
     );
   }
-  if ('body' in data && data.body) {
-    return data.body;
-  }
   return '';
 }
 
-function parseImage(
-  data:
-    | CurriculumApiLandingPageHeroBlock
-    | CurriculumApiLandingPageContentBlock,
-): { src: string; width?: number; height?: number } | null {
-  if ('textAndMedia' in data && data.textAndMedia?.image) {
-    return {
-      src: data.textAndMedia.image.asset.url,
-    };
-  }
-  return null;
+function parseImage(data: CMSImage): {
+  src: string;
+  width?: number; // these are never on there… not yet at least
+  height?: number;
+} {
+  return {
+    src: data.asset.url,
+  };
 }
 
-export function transform(
+function parseLink(data: CMSCta): Link | undefined {
+  if (!data || !data.externalLink || !data.label) {
+    return;
+  }
+  return {
+    text: data.label,
+    href: data.externalLink,
+  };
+}
+
+export function transformContentBlocks(
   root: CurriculumApiLandingPage,
 ): LandingPageContent[] {
-  console.log(root);
-  const data = [
-    ...root[0].content,
-    // root[0].usingTheApiSection,
-  ].map((data) => {
-    const title = parseTitle(data);
-    const description = parseDescription(data);
-    const image = parseImage(data);
-    // const link = parseLink(data)
-    //
-    console.log({ image });
+  const data = [...root[0].content].map((data) => {
+    const title = parseTitle(data.titleRaw);
+    const description = parseDescription(data.bodyRaw);
+    const image = parseImage(data.image);
+    const link = data.cta ? parseLink(data.cta) : null;
 
     return {
       title,
       description,
       image,
-      // link,
+      link,
     };
   });
 
   return data as LandingPageContent[];
+}
+
+export function transformUsingTheAPI(
+  root: CurriculumApiLandingPage,
+): UsingTheApiSection {
+  const input = root[0].usingTheApiSection;
+  const title = parseTitle(input.mainBlock.titleRaw);
+  const image = parseImage(input.mainBlock.image);
+  const link: Link | undefined = parseLink(input.mainBlock.cta);
+
+  return {
+    title,
+    image,
+    link,
+    blocks: input.siblingBlocks.map((block): Block => {
+      return {
+        title: parseTitle(block.titleRaw),
+        description: parseDescription(block.bodyRaw),
+        link: parseLink(block.cta),
+      };
+    }),
+  };
 }
