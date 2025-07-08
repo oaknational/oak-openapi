@@ -1,23 +1,7 @@
-import { gql } from 'graphql-request';
 import client from '@/cms/client';
-
 import { CurriculumAPIDocumentationPage } from '@/cms/schemaTypes';
 import { documentationQuerySchema } from './documentationQuery.schema';
-
-const query = gql`
-  query documentationQuery {
-    allCurriculumApiDocumentationPage {
-      title
-      navGroupType {
-        slug {
-          current
-        }
-        name
-      }
-      contentRaw
-    }
-  }
-`;
+import query from './documentationQuery.gql';
 
 const documentationQuery = async () => {
   const res = await client.request(query);
