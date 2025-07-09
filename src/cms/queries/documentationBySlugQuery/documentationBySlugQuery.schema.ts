@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { portableTextContentSchema } from '../../schemaTypes/shared/cms/portableText.schema';
+import { portableTextContentSchema } from '@/cms/schemaTypes/shared/cms/portableText.schema';
 
 export const documentationBySlugQuerySchema = z.array(
   z.object({

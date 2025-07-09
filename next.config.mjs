@@ -27,7 +27,7 @@ const getConfig = async () => {
     reactStrictMode: true,
     // swcMinify: true,
     images: {
-      domains: ['oaknationalacademy-res.cloudinary.com'],
+      domains: ['oaknationalacademy-res.cloudinary.com', 'cdn.sanity.io'],
     },
     eslint: {
       ignoreDuringBuilds: !!process.env.CI,
