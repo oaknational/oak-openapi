@@ -7,11 +7,11 @@ query getDocsBySlug($navGroupSlug: String, $docSlug: String) {
   ) {
     title
     slug {
-      current
+      text: current
     }
     navGroupType {
       slug {
-        current
+        text: current
       }
       name
     }

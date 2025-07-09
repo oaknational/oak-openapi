@@ -1,6 +1,6 @@
 query getAllDocsNavGroups {
   groups: allNavGroup {
-    name
+    title: name
     slug {
       text: current
     }
@@ -10,7 +10,7 @@ query getAllDocsNavGroups {
     slug {
       text: current
     }
-    navGroupType {
+    parentGroup: navGroupType {
       slug {
         text: current
       }

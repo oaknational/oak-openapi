@@ -11,7 +11,10 @@ import {
   OakP as _OakP,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
-import { transform } from '@/cms/queries/allCurriculumApiLandingPage/landingPageTransform';
+import {
+  transformContentBlocks,
+  transformUsingTheAPI,
+} from '@/cms/queries/allCurriculumApiLandingPage/landingPageTransform';
 import { CurriculumApiLandingPage } from '@/cms/schemaTypes';
 import { MaxWidth } from '../MaxWidth';
 
@@ -34,7 +37,10 @@ export default function Page({
 }: {
   documentationData: CurriculumApiLandingPage;
 }) {
-  const data = transform(documentationData);
+  const data = transformContentBlocks(documentationData);
+  const usingTheAPI = transformUsingTheAPI(documentationData);
+
+  console.log(usingTheAPI);
   return (
     <>
       <Head>
@@ -56,7 +62,7 @@ export default function Page({
               image={data.image}
               link={data.link}
               align={
-                index === 0 ? undefined : index % 2 == 0 ? 'right' : 'left'
+                index === 0 ? undefined : index % 2 == 0 ? 'left' : 'right'
               }
             />
           );
@@ -137,7 +143,7 @@ function BlockAndText1({
       {image && (
         <OakFlex $flexGrow={1} $background="transparent">
           <OakImage
-            sizes={`width: ${image.width}px, height: ${image.height}px`}
+            sizes={`width: ${2228}px, height: ${1472}px`}
             src={image.src}
             alt=""
             $height={['all-spacing-20', 'all-spacing-21']}

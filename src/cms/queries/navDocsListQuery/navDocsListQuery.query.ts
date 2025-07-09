@@ -1,8 +1,4 @@
-import { gql } from 'graphql-request';
 import client from '@/cms/client';
-
-// import { CurriculumAPIDocumentationPage } from '@/cms/schemaTypes';
-
 import {
   NavDocsListGroup,
   NavDocsListPage,
@@ -11,28 +7,7 @@ import {
 } from './navDocsListQuery.schema';
 import { curriculumApiDocsNavSchema } from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
 import { NavItems } from '@/cms/schemaTypes/shared/components/NavItems.schema';
-
-const query = gql`
-  query getAllDocsNavGroups {
-    groups: allNavGroup {
-      title: name
-      slug {
-        text: current
-      }
-    }
-    pages: allCurriculumApiDocumentationPage {
-      title
-      slug {
-        text: current
-      }
-      parentGroup: navGroupType {
-        slug {
-          text: current
-        }
-      }
-    }
-  }
-`;
+import query from './navDocsListQuery.gql';
 
 const navDocsListQuery = async () => {
   const res = await client.request(query);
