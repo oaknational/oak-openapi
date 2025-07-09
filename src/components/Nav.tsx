@@ -1,3 +1,4 @@
+'use client';
 import styled from 'styled-components';
 import { OakAPINavigationLink as _OakAPINavigationLink } from './OakAPINavigationLink';
 import {
