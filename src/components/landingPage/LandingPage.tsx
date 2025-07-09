@@ -7,6 +7,7 @@ import {
   OakFlex,
   OakHeading,
   OakImage,
+  OakPrimaryButton,
   OakSecondaryButton,
   OakP as _OakP,
 } from '@oaknational/oak-components';
@@ -14,6 +15,7 @@ import styled from 'styled-components';
 import {
   transformContentBlocks,
   transformUsingTheAPI,
+  UsingTheApiSection,
 } from '@/cms/queries/allCurriculumApiLandingPage/landingPageTransform';
 import { CurriculumApiLandingPage } from '@/cms/schemaTypes';
 import { MaxWidth } from '../MaxWidth';
@@ -39,8 +41,6 @@ export default function Page({
 }) {
   const data = transformContentBlocks(documentationData);
   const usingTheAPI = transformUsingTheAPI(documentationData);
-
-  console.log(usingTheAPI);
   return (
     <>
       <Head>
@@ -67,28 +67,88 @@ export default function Page({
             />
           );
         })}
-        {/* <BlockAndText1
-          title={data[0].title}
-          description={data[0].description}
-          image={data[0].image}
-        />
-        <BlockAndText1
-          title={data[1].title}
-          description={data[1].description}
-          image={data[1].image}
-          link={data[1].link}
-          align="right"
-        />
-        <BlockAndText1
-          title={data[2].title}
-          description={data[2].description}
-          image={data[2].image}
-          link={data[2].link}
-          align="right"
-        /> */}
+        <UsingTheAPI {...usingTheAPI} />
       </MaxWidth>
       <Footer />
     </>
+  );
+}
+
+function UsingTheAPI({ title, image, link, blocks }: UsingTheApiSection) {
+  return (
+    <OakFlex
+      $alignItems="center"
+      $flexDirection={['column', 'row']}
+      $gap="all-spacing-16"
+    >
+      <OakFlex
+        $flexGrow={1}
+        $flexDirection="column"
+        $gap={['all-spacing-6', 'all-spacing-7']}
+      >
+        <BlockHeading tag="h1" $font={['heading-4', 'heading-3', 'heading-2']}>
+          {title}
+        </BlockHeading>
+        {link && (
+          <OakPrimaryButton
+            isTrailingIcon={true}
+            iconName="send"
+            element="a"
+            href={link.href}
+          >
+            {link.text}
+          </OakPrimaryButton>
+        )}
+        <OakBox>
+          {image && (
+            <OakImage
+              sizes={`width: ${343}px, height: ${288}px`}
+              src={image.src}
+              alt=""
+              $height={['all-spacing-20', 'all-spacing-21']}
+              $width={['all-spacing-20', 'all-spacing-21']}
+            />
+          )}
+        </OakBox>
+      </OakFlex>
+      <OakFlex
+        $flexDirection="column"
+        $gap={['all-spacing-6', 'all-spacing-9']}
+        $alignSelf="baseline"
+      >
+        {blocks.map((block, index) => (
+          <OakFlex
+            key={index}
+            $flexGrow={1}
+            $flexDirection="column"
+            $gap={['all-spacing-6', 'all-spacing-7']}
+            $pa={['all-spacing-6', 'all-spacing-7']}
+            $background="mint30"
+          >
+            <BlockHeading tag="h2" $font={['heading-5', 'heading-4']}>
+              {block.title}
+            </BlockHeading>
+            <OakBox>
+              {typeof block.description === 'string' ? (
+                <OakP>{block.description}</OakP>
+              ) : (
+                block.description
+              )}
+            </OakBox>
+            {block.link && (
+              <OakSecondaryButton
+                isTrailingIcon={true}
+                iconName="arrow-right"
+                element="a"
+                href={block.link.href}
+              >
+                {block.link.text}
+              </OakSecondaryButton>
+            )}
+          </OakFlex>
+        ))}
+      </OakFlex>
+    </OakFlex>
   );
 }
 
