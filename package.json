@@ -64,6 +64,7 @@
     "tar-stream": "^3.1.7",
     "trpc-to-openapi": "2.1.5",
     "uuid": "^10.0.0",
+    "vite-plugin-graphql-loader": "^4.0.4",
     "zod": "^3.22.4",
     "zod-openapi": "^4.2.4"
   },
