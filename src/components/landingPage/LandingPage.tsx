@@ -128,13 +128,13 @@ function UsingTheAPI({ title, image, link, blocks }: UsingTheApiSection) {
             <BlockHeading tag="h2" $font={['heading-5', 'heading-4']}>
               {block.title}
             </BlockHeading>
-            <OakBox>
+            <OakFlex $gap={['all-spacing-4']} $flexDirection="column">
               {typeof block.description === 'string' ? (
                 <OakP>{block.description}</OakP>
               ) : (
                 block.description
               )}
-            </OakBox>
+            </OakFlex>
             {block.link && (
               <OakSecondaryButton
                 isTrailingIcon={true}
@@ -181,13 +181,13 @@ function BlockAndText1({
         <BlockHeading tag="h1" $font={['heading-4', 'heading-3', 'heading-2']}>
           {title}
         </BlockHeading>
-        <OakBox>
+        <OakFlex $gap={['all-spacing-4']} $flexDirection="column">
           {typeof description === 'string' ? (
             <OakP>{description}</OakP>
           ) : (
             description
           )}
-        </OakBox>
+        </OakFlex>
         {/* links are styled as SecondaryButtons */}
         {link && (
           <OakSecondaryButton

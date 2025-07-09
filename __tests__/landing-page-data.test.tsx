@@ -33,23 +33,25 @@ const output: LandingPageContent[] = [
     },
   },
   {
-    title: 'Why are we providing an API?',
+    title: <>{['Why are we providing an API?']}</>,
     description: (
       <>
-        <OakP key="97eb46f1095a">
-          We’re here to support great teaching. We work to improve pupil
-          outcomes and close the disadvantage gap by supporting teachers to
-          teach, and enabling pupils to access a high-quality curriculum.
-        </OakP>
-        <OakP key="97eb46f1095b">
-          As part of this mission, we are providing an API to make our
-          high-quality content available to the wider education market for free
-          on the Open Government Licence. Whether you’re an emerging EdTech
-          start-up, an established learning tool, or a quiz-based gaming
-          platform, you can use our content with assurance that it has been
-          created in line with the latest pedagogical research and aligned with
-          our curriculum design principles.
-        </OakP>
+        {[
+          <OakP key="b243f2bb602f">
+            We’re here to support great teaching. We work to improve pupil
+            outcomes and close the disadvantage gap by supporting teachers to
+            teach, and enabling pupils to access a high-quality curriculum.
+          </OakP>,
+          <OakP key="778ca67516c0">
+            As part of this mission, we are providing an API to make our
+            high-quality content available to the wider education market for
+            free on the Open Government Licence. Whether you're an emerging
+            EdTech start-up, an established learning tool, or a quiz-based
+            gaming platform, you can use our content with assurance that it has
+            been created in line with the latest pedagogical research and
+            aligned with our curriculum design principles.
+          </OakP>,
+        ]}
       </>
     ),
     image: {
@@ -78,7 +80,10 @@ const output: LandingPageContent[] = [
   },
 ];
 
-test('landing page data transformation', async () => {
+// this test is skipped because the output is not deterministic (i.e. if Sanity
+// changes the data, this test will fail). but I've kept it here so we can
+// validate the transform process.
+test.skip('landing page data transformation', async () => {
   const input = await documentationQuery();
   const transformed = transformContentBlocks(input);
 
