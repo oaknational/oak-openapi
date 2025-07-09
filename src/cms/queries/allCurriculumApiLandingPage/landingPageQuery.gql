@@ -1,24 +1,25 @@
 query {
   allCurriculumApiLandingPage {
     content {
-      textAndMedia {
-        title
-        bodyRaw
-        image {
-          isPresentational
-          asset {
-            _id
-            url
-          }
+      titleRaw
+      bodyRaw
+      image {
+        asset {
+          url
         }
-        alignMedia
+      }
+      cta {
+        externalLink
+        label
       }
     }
+
     usingTheApiSection {
       mainBlock {
-        title
-        buttonLink {
-          external
+        titleRaw
+        cta {
+          label
+          externalLink
         }
         image {
           isPresentational
@@ -29,11 +30,12 @@ query {
         }
       }
       siblingBlocks {
-        title
-        buttonLink {
-          external
+        titleRaw
+        cta {
+          externalLink
+          label
         }
-        body
+        bodyRaw
       }
     }
   }

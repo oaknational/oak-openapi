@@ -47,6 +47,9 @@ importers:
       '@upstash/redis':
         specifier: ^1.30.0
         version: 1.35.0
+      graphql:
+        specifier: ^16.11.0
+        version: 16.11.0
       graphql-request:
         specifier: ^6.1.0
         version: 6.1.0(graphql@16.11.0)
