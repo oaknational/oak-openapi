@@ -187,7 +187,7 @@ function MenuContents({
       >
         <OakAPINavigationLink
           role="listitem"
-          href="mailto:xxx@yyy.com"
+          href="https://share.hsforms.com/1gQQFsrHDRf-eZUDajj6NzQbvumd"
           isTrailingIcon
           iconName="send"
         >
