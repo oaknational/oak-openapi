@@ -1,5 +1,5 @@
 query getAllDocs {
-  allCurriculumApiDocumentationPage {
+  allApiContentPage {
     title
     navGroupType {
       slug {
@@ -7,6 +7,6 @@ query getAllDocs {
       }
       name
     }
-    contentRaw
+    docsBlocksRaw
   }
 }
