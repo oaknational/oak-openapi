@@ -5,7 +5,7 @@ query getAllDocsNavGroups {
       text: current
     }
   }
-  pages: allCurriculumApiDocumentationPage {
+  pages: allApiContentPage {
     title
     slug {
       text: current

@@ -24,7 +24,7 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
           {docs.map((doc) => (
             <ContentPortableText
               key={doc.title}
-              portableText={doc.contentRaw}
+              portableText={doc.docsBlocksRaw}
             />
           ))}
         </OakBox>

@@ -9,7 +9,7 @@ import {
 } from '@oaknational/oak-components';
 
 import { PortableTextJSON } from '@/cms/schemaTypes/shared/cms/portableText.schema';
-
+import { Table } from '@/components/Table';
 const contentPortableTextComponents: PortableTextComponents = {
   block: {
     normal: (props) => <OakP>{props.children}</OakP>,
@@ -107,6 +107,9 @@ const contentPortableTextComponents: PortableTextComponents = {
     em: (props) => {
       return <OakSpan as="em">{props.children}</OakSpan>;
     },
+  },
+  types: {
+    table: Table,
   },
 };
 

@@ -1,5 +1,5 @@
 query getDocsBySlug($navGroupSlug: String, $docSlug: String) {
-  allCurriculumApiDocumentationPage(
+  allApiContentPage(
     where: {
       navGroupType: { slug: { current: { eq: $navGroupSlug } } }
       slug: { current: { eq: $docSlug } }
@@ -15,6 +15,6 @@ query getDocsBySlug($navGroupSlug: String, $docSlug: String) {
       }
       name
     }
-    contentRaw
+    docsBlocksRaw
   }
 }
