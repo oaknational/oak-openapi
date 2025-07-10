@@ -20,11 +20,6 @@ export type NavProps = {
   onClick?: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
 };
 
-const isParent = (item: NavItem) => {
-  const splitHref = item.href.split('/').slice(1);
-  return splitHref.length < 2;
-};
-
 const StyledNav = styled.nav`
   outline: none;
   min-width: 20%;
@@ -61,6 +56,11 @@ const StyledULItem = styled(OakLI)`
   }
 `;
 
+function isParent(item: NavItem) {
+  const splitHref = item.href.split('/').slice(1);
+  return splitHref.length < 2;
+}
+
 const createNavItem = (
   title: string,
   index: number,
@@ -90,7 +90,13 @@ export default function DocsNav({
           const parent: boolean = isParent(item);
           // Get the next slug if a parent
           // Remove this if group headings aren't clickable
-          const href = parent ? items[index + 1].href : item.href;
+          let href = item.href;
+          if (parent) {
+            const nextItem = items[index + 1];
+            if (nextItem && nextItem.href) {
+              href = nextItem.href;
+            }
+          }
           return createNavItem(item.title, index, href, parent, onClick);
         })}
       </OakUL>
