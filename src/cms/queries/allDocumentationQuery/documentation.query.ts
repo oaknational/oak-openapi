@@ -6,14 +6,13 @@ import query from './documentationQuery.gql';
 const documentationQuery = async () => {
   const res = await client.request(query);
 
-  const { allCurriculumApiDocumentationPage } =
-    res as CurriculumAPIDocumentationPage;
+  const { allApiContentPage } = res as CurriculumAPIDocumentationPage;
 
-  if (!allCurriculumApiDocumentationPage) {
+  if (!allApiContentPage) {
     throw new Error('No documentation found :O( ');
   }
 
-  return documentationQuerySchema.parse(allCurriculumApiDocumentationPage);
+  return documentationQuerySchema.parse(allApiContentPage);
 };
 
 export default documentationQuery;
