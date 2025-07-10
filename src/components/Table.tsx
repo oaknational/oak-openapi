@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import Markdown from 'react-markdown';
 
 const OakTable = styled.table`
   width: 100%;
@@ -71,9 +70,7 @@ export const TableRow = ({ row }: { row: TableRowData }) => {
   return (
     <tr>
       {row.cells.map((cell, index) => (
-        <td key={index}>
-          <Markdown>{cell}</Markdown>
-        </td>
+        <td key={index}>{cell}</td>
       ))}
     </tr>
   );
