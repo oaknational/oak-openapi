@@ -31,6 +31,10 @@ This can also be used to request against production:
 bin/g prod /subjects/maths
 ```
 
+## Documentation and CMS
+
+See the [CMS readme](/blob/main/src/cms/README.md) for detail.
+
 ## API keys
 
 Currently these are managed by Oak through an admin tool (found in this repo: `src/pages/admin/index.tsx`).

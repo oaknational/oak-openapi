@@ -1,10 +1,18 @@
 import { readFileSync, existsSync } from 'fs';
-import { parse, visit, OperationDefinitionNode, SelectionSetNode, FieldNode } from 'graphql';
-import { basename } from 'path';
+import {
+  parse,
+  visit,
+  OperationDefinitionNode,
+  SelectionSetNode,
+  FieldNode,
+} from 'graphql';
+import { basename, relative } from 'path';
 import glob from 'fast-glob';
 
 if (!process.argv[2]) {
-  console.error('Usage: tsx bin/zod-from-gql.ts <query-file.gql|partial-filename>');
+  console.error(
+    'Usage: tsx bin/zod-from-gql.ts <query-file.gql|partial-filename>',
+  );
   process.exit(1);
 }
 
@@ -20,39 +28,43 @@ if (existsSync(input)) {
     `**/*${input}*.gql`,
     `**/*${input}*.graphql`,
     `**/${input}.gql`,
-    `**/${input}.graphql`
+    `**/${input}.graphql`,
   ];
-  
+
   let matchingFiles: string[] = [];
-  
+
   for (const pattern of patterns) {
-    const files = glob.sync(pattern);
+    const files = glob.sync(pattern, { ignore: ['**/node_modules/**'] });
     matchingFiles = matchingFiles.concat(files);
   }
-  
+
   // Remove duplicates
   matchingFiles = [...new Set(matchingFiles)];
-  
+
   if (matchingFiles.length === 0) {
     console.error(`No .gql or .graphql files found matching "${input}"`);
     process.exit(1);
   }
-  
+
   if (matchingFiles.length > 1) {
     console.error(`Multiple files found matching "${input}":`);
-    matchingFiles.forEach(file => console.error(`  - ${file}`));
+    matchingFiles.forEach((file) => console.error(`  - ${file}`));
     console.error('Please be more specific or use the full path.');
     process.exit(1);
   }
-  
+
   gqlFilePath = matchingFiles[0];
 }
 
 console.log(`// Generated from: ${gqlFilePath}`);
+console.log(`// using ${relative(process.cwd(), process.argv[1])}\n`);
 const gqlFile = readFileSync(gqlFilePath, 'utf-8');
 const ast = parse(gqlFile);
 
-function generateZodSchemaFromSelectionSet(selectionSet: SelectionSetNode, depth = 0): string {
+function generateZodSchemaFromSelectionSet(
+  selectionSet: SelectionSetNode,
+  depth = 0,
+): string {
   const fields: string[] = [];
   const indent = '  '.repeat(depth + 1);
 
@@ -60,11 +72,16 @@ function generateZodSchemaFromSelectionSet(selectionSet: SelectionSetNode, depth
     if (selection.kind === 'Field') {
       const fieldNode = selection as FieldNode;
       const fieldName = fieldNode.name.value;
-      
+
       if (fieldNode.selectionSet) {
         // This field has nested selections, so it's an object or array of objects
-        const nestedSchema = generateZodSchemaFromSelectionSet(fieldNode.selectionSet, depth + 1);
-        fields.push(`${indent}${fieldName}: z.object({\n${nestedSchema}\n${indent}})`);
+        const nestedSchema = generateZodSchemaFromSelectionSet(
+          fieldNode.selectionSet,
+          depth + 1,
+        );
+        fields.push(
+          `${indent}${fieldName}: z.object({\n${nestedSchema}\n${indent}})`,
+        );
       } else {
         // This is a scalar field - we'll make it optional by default since GraphQL can return null
         fields.push(`${indent}${fieldName}: z.string().optional()`);
@@ -80,16 +97,18 @@ visit(ast, {
     if (node.operation === 'query' && node.selectionSet) {
       const fileName = basename(gqlFilePath, '.gql').replace('.graphql', '');
       const schemaName = fileName.replace(/[^a-zA-Z0-9]/g, '') + 'Schema';
-      
+
       // Check if this is a root query that returns an array
       const rootField = node.selectionSet.selections[0] as FieldNode;
       const rootFieldName = rootField.name.value;
-      
+
       let zodSchema: string;
-      
+
       if (rootField.selectionSet) {
-        const objectSchema = generateZodSchemaFromSelectionSet(rootField.selectionSet);
-        
+        const objectSchema = generateZodSchemaFromSelectionSet(
+          rootField.selectionSet,
+        );
+
         // Assume array return type for plural field names or if it contains 'all'
         if (rootFieldName.includes('all') || rootFieldName.endsWith('s')) {
           zodSchema = `export const ${schemaName} = z.array(z.object({\n${objectSchema}\n}));\n`;
@@ -99,10 +118,12 @@ visit(ast, {
       } else {
         zodSchema = `export const ${schemaName} = z.string().optional();\n`;
       }
-      
+
       console.log(`import { z } from 'zod';\n`);
       console.log(zodSchema);
-      console.log(`export type ${schemaName.replace('Schema', '')} = z.infer<typeof ${schemaName}>;`);
+      console.log(
+        `export type ${schemaName.replace('Schema', '')} = z.infer<typeof ${schemaName}>;`,
+      );
     }
   },
 });
