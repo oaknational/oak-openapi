@@ -4,7 +4,8 @@ import { NavItems } from '@/cms/schemaTypes';
 import DocsNav from '@/components/documentationPages/DocsNav';
 
 import Footer from '@/components/Footer';
-import Banner from '@/components/landingPage/Banner';
+
+import { Navigation } from '@/components/Nav';
 import { OakFlex } from '@oaknational/oak-components';
 
 export default function DocsLayout({
@@ -16,7 +17,7 @@ export default function DocsLayout({
 }) {
   return (
     <>
-      <Banner />
+      <Navigation />
       <OakFlex
         $flexDirection="row"
         $mh={'auto'}
