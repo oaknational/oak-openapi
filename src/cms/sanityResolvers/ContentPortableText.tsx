@@ -6,10 +6,21 @@ import {
   OakOL,
   OakP,
   OakSpan,
+  OakUL as _OakUL,
 } from '@oaknational/oak-components';
-
 import { PortableTextJSON } from '@/cms/schemaTypes/shared/cms/portableText.schema';
 import { Table } from '@/components/Table';
+import styled from 'styled-components';
+
+const OakUL = styled(_OakUL)`
+  list-style-type: disc;
+  margin: 1em 0;
+
+  li {
+    display: list-item;
+  }
+`;
+
 const contentPortableTextComponents: PortableTextComponents = {
   block: {
     normal: (props) => <OakP>{props.children}</OakP>,
@@ -23,9 +34,31 @@ const contentPortableTextComponents: PortableTextComponents = {
         {props.children}
       </OakHeading>
     ),
-    heading1: (props) => (
+    h1: (props) => (
+      <OakHeading
+        tag="h1"
+        $mb="space-between-s"
+        $font="heading-1"
+        $mt="space-between-m"
+      >
+        {props.children}
+      </OakHeading>
+    ),
+    h2: (props) => (
       <OakHeading
         tag="h2"
+        id={props.value._key}
+        $mb="space-between-s"
+        $font="heading-4"
+        $mt="space-between-m"
+      >
+        {props.children}
+      </OakHeading>
+    ),
+    h3: (props) => (
+      <OakHeading
+        tag="h3"
+        id={props.value._key}
         $mb="space-between-s"
         $font="heading-5"
         $mt="space-between-m"
@@ -33,19 +66,10 @@ const contentPortableTextComponents: PortableTextComponents = {
         {props.children}
       </OakHeading>
     ),
-    heading2: (props) => (
-      <OakHeading
-        tag="h3"
-        $mb="space-between-s"
-        $font="heading-6"
-        $mt="space-between-m"
-      >
-        {props.children}
-      </OakHeading>
-    ),
-    heading3: (props) => (
+    h4: (props) => (
       <OakHeading
         tag="h4"
+        id={props.value._key}
         $mb="space-between-s"
         $font="heading-6"
         $mt="space-between-m"
@@ -53,31 +77,23 @@ const contentPortableTextComponents: PortableTextComponents = {
         {props.children}
       </OakHeading>
     ),
-    heading4: (props) => (
+    h5: (props) => (
       <OakHeading
         tag="h5"
+        id={props.value._key}
         $mb="space-between-s"
-        $font="heading-6"
+        $font="heading-7"
         $mt="space-between-m"
       >
         {props.children}
       </OakHeading>
     ),
-    heading5: (props) => (
+    h6: (props) => (
       <OakHeading
         tag="h6"
+        id={props.value._key}
         $mb="space-between-s"
-        $font="heading-6"
-        $mt="space-between-m"
-      >
-        {props.children}
-      </OakHeading>
-    ),
-    heading6: (props) => (
-      <OakHeading
-        tag="h6"
-        $mb="space-between-s"
-        $font="heading-6"
+        $font="heading-light-7"
         $mt="space-between-m"
       >
         {props.children}
@@ -85,7 +101,7 @@ const contentPortableTextComponents: PortableTextComponents = {
     ),
   },
   list: {
-    bullet: (props) => <ul>{props.children}</ul>,
+    bullet: (props) => <OakUL>{props.children}</OakUL>,
     number: (props) => (
       <OakOL $ml={['space-between-s', 'space-between-m']}>
         {props.children}
