@@ -1,3 +1,40 @@
+import styled from 'styled-components';
+import Markdown from 'react-markdown';
+
+const OakTable = styled.table`
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--Border-Radius-border-radius-m2, 8px);
+  border: 1px solid var(--Tokens-Border-border-decorative1-stronger, #93e892);
+  overflow: hidden;
+  margin-top: 16px;
+  margin-bottom: 32px;
+
+  th,
+  td {
+    text-align: left;
+    padding: 12px;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  tr td:first-child {
+    width: 160px;
+  }
+
+  th {
+    font-weight: bold;
+    border-radius: var(--Border-Radius-border-radius-square, 0px)
+      var(--Border-Radius-border-radius-square, 0px) 0px 0px;
+    background: var(--Tokens-Background-bg-decorative1-main, #bef2bd);
+  }
+
+  tr:nth-child(even) {
+    background: var(--Tokens-Background-bg-decorative1-very-subdued, #ebfbeb);
+  }
+`;
+
 export type TableRowData = {
   cells: string[];
   _key: string;
@@ -8,14 +45,25 @@ export type Table = {
 };
 
 export const Table = ({ value }: { value: Table }) => {
+  const rows = Array.from(value.rows);
+  const header = rows.shift();
   return (
-    <table>
+    <OakTable>
+      <thead>
+        {header && (
+          <tr>
+            {header.cells.map((cell, index) => (
+              <th key={index}>{cell}</th>
+            ))}
+          </tr>
+        )}
+      </thead>
       <tbody>
-        {value.rows.map((row) => (
+        {rows.map((row) => (
           <TableRow key={row._key} row={row} />
         ))}
       </tbody>
-    </table>
+    </OakTable>
   );
 };
 
@@ -23,7 +71,9 @@ export const TableRow = ({ row }: { row: TableRowData }) => {
   return (
     <tr>
       {row.cells.map((cell, index) => (
-        <td key={index}>{cell}</td>
+        <td key={index}>
+          <Markdown>{cell}</Markdown>
+        </td>
       ))}
     </tr>
   );
