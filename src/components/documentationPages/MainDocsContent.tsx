@@ -41,7 +41,6 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
     );
   }
 
-  // $flexDirection={['column-reverse', 'column-reverse', 'row']}
   return (
     <OakGrid
       $gridTemplateColumns={[`1fr`, '1fr', `1fr 300px`]}
@@ -55,11 +54,7 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
       $pa="all-spacing-8"
     >
       <OakGridArea $gridArea="HEADER">
-        <OakHeading
-          tag="p"
-          $font="heading-light-6
-"
-        >
+        <OakHeading tag="p" $font="heading-light-6">
           {docs[0].navGroupType.name}
         </OakHeading>
         <OakHeading
