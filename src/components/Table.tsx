@@ -1,4 +1,37 @@
+import Markdown from 'react-markdown';
 import styled from 'styled-components';
+
+const Td = styled.td`
+  p {
+    margin: 16px 0;
+  }
+
+  p:first-child {
+    margin-top: 0;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 24px;
+    list-style-type: none;
+  }
+
+  li {
+    padding-left: 0px;
+    position: relative;
+  }
+
+  li::before {
+    content: '•';
+    position: absolute;
+    left: -1em;
+    top: 0;
+  }
+
+  :last-child {
+    margin-bottom: 0;
+  }
+`;
 
 const OakTable = styled.table`
   width: 100%;
@@ -70,7 +103,9 @@ export const TableRow = ({ row }: { row: TableRowData }) => {
   return (
     <tr>
       {row.cells.map((cell, index) => (
-        <td key={index}>{cell}</td>
+        <Td key={index}>
+          <Markdown>{cell}</Markdown>
+        </Td>
       ))}
     </tr>
   );

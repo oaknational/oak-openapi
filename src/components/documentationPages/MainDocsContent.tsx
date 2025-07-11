@@ -5,7 +5,6 @@ import {
   OakHeading,
   OakLI,
   OakLink,
-  OakUL,
 } from '@oaknational/oak-components';
 import ContentPortableText from '@/cms/sanityResolvers/ContentPortableText';
 import { DocumentationContentPageBlock } from '@/cms/schemaTypes';
@@ -61,13 +60,19 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
         <OakHeading tag="h2" $font="heading-7">
           <OakBox $width="200px">Contents</OakBox>
         </OakHeading>
-        <OakUL $pa="0">
+        <OakFlex
+          as="ul"
+          $pa="0"
+          $gap="all-spacing-3"
+          $ma="0"
+          $flexDirection="column"
+        >
           {contents.map((content) => (
             <OakLI key={content.anchor}>
               <OakLink href={`#${content.anchor}`}>{content.title}</OakLink>
             </OakLI>
           ))}
-        </OakUL>
+        </OakFlex>
       </OakFlex>
     </OakFlex>
   );
