@@ -1,17 +1,18 @@
 import { z } from 'zod';
-import { navItemsSchema } from './shared/components/NavItems.schema';
 
-const nestedSchema = z.array(
-  z.object({
-    title: z.string(),
-    slug: z.string(),
-    children: z.array(z.object({ title: z.string(), slug: z.string() })),
-  }),
-);
-
-export const curriculumApiDocsNavSchema = z.object({
-  nestedData: nestedSchema,
-  items: navItemsSchema,
+export const navItemSchema = z.object({
+  title: z.string(),
+  href: z.string(),
 });
 
+export type NavItem = z.infer<typeof navItemSchema>;
+
+export const navGroup = z.object({
+  title: z.string(),
+  pages: z.array(navItemSchema),
+});
+
+export type NavGroup = z.infer<typeof navGroup>;
+
+export const curriculumApiDocsNavSchema = z.array(navGroup);
 export type CurriculumApiDocsNav = z.infer<typeof curriculumApiDocsNavSchema>;
