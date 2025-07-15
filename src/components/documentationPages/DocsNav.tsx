@@ -20,13 +20,6 @@ export type NavProps = {
   onClick?: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
 };
 
-const StyledNav = styled(OakFlex)`
-  outline: none;
-  width: 200px;
-  flex: 0 0 200px;
-  flex-direction: column;
-`;
-
 const StyledOakLink = styled(OakLink)`
   color: #222222;
   text-decoration: none;
@@ -75,44 +68,52 @@ export default function DocsNav({
   ...rest
 }: NavProps) {
   return (
-    <>
-      <StyledNav $gap="all-spacing-7" aria-label={ariaLabel} {...rest}>
-        <OakHeading tag="h2" $font="heading-6" $mt="all-spacing-8">
-          Documentation
-        </OakHeading>
-        {anchorTarget && <OakAnchorTarget id={anchorTarget} />}
-        <OakFlex
-          $flexDirection="column"
-          $gap="space-between-m2"
-          as="ul"
-          role="list"
-        >
-          {items.map((item, index) => {
-            // this is the parent level
-            const { pages } = item;
-            return (
-              <StyledULItem
-                $gap="space-between-ssx"
-                $font={'heading-7'}
-                key={`p-${index}`}
-              >
-                {item.title}
-                <OakUL role="list">
-                  {pages.map((page, pageIndex) => {
-                    return createNavItem(
-                      page.title,
-                      page.href,
-                      pageIndex,
-                      onClick,
-                      location === `/docs/${page.href}`,
-                    );
-                  })}
-                </OakUL>
-              </StyledULItem>
-            );
-          })}
-        </OakFlex>
-      </StyledNav>
-    </>
+    <OakFlex
+      $flexDirection="column"
+      style={{
+        /* because OakFlex doesn't take _all_ flex props */
+        flex: '0 0 200px',
+      }}
+      $gap="all-spacing-7"
+      $ml="all-spacing-4"
+      aria-label={ariaLabel}
+      {...rest}
+    >
+      <OakHeading tag="h2" $font="heading-6" $mt="all-spacing-8">
+        Documentation
+      </OakHeading>
+      {anchorTarget && <OakAnchorTarget id={anchorTarget} />}
+      <OakFlex
+        $flexDirection="column"
+        $gap="space-between-m2"
+        as="ul"
+        role="list"
+      >
+        {items.map((item, index) => {
+          // this is the parent level
+          const { pages } = item;
+          return (
+            <StyledULItem
+              $gap="space-between-ssx"
+              $font={'heading-7'}
+              key={`p-${index}`}
+            >
+              {item.title}
+              <OakUL role="list">
+                {pages.map((page, pageIndex) => {
+                  return createNavItem(
+                    page.title,
+                    page.href,
+                    pageIndex,
+                    onClick,
+                    location === `/docs/${page.href}`,
+                  );
+                })}
+              </OakUL>
+            </StyledULItem>
+          );
+        })}
+      </OakFlex>
+    </OakFlex>
   );
 }
