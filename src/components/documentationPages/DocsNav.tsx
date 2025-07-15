@@ -4,30 +4,31 @@ import {
   OakUL,
   OakAnchorTarget,
   OakLink,
+  OakHeading,
+  OakFlex,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
 
-import {
-  NavItem,
-  NavItems,
-} from '@/cms/schemaTypes/shared/components/NavItems.schema';
+import { CurriculumApiDocsNav } from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
 
 export type NavProps = {
   title?: string;
-  items: NavItems;
+  location: string;
+  items: CurriculumApiDocsNav;
   ariaLabel?: string;
   anchorTarget?: string;
   onClick?: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
 };
 
-const StyledNav = styled.nav`
+const StyledNav = styled(OakFlex)`
   outline: none;
-  min-width: 20%;
+  width: 200px;
+  flex: 0 0 200px;
+  flex-direction: column;
 `;
 
 const StyledOakLink = styled(OakLink)`
   color: #222222;
-  display: Flex;
   text-decoration: none;
 
   &:visited,
@@ -38,38 +39,28 @@ const StyledOakLink = styled(OakLink)`
 `;
 
 const StyledULItem = styled(OakLI)`
-  position: relative;
-  counter-increment: list-counter;
-  display: flex;
-  align-items: center;
   color: #222222;
-  margin-bottom: 20px;
+  flex-direction: column;
 
-  min-height: 40px;
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  &:hover {
+  a:hover {
     text-decoration: underline;
-    color: #575757;
   }
 `;
 
-function isParent(item: NavItem) {
-  const splitHref = item.href.split('/').slice(1);
-  return splitHref.length < 2;
-}
-
 const createNavItem = (
   title: string,
-  index: number,
   slug: string,
-  isParent: boolean,
+  index: number,
   onClick?: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void,
+  selected: boolean = false,
 ) => (
-  <StyledULItem $font={isParent ? 'heading-7' : 'heading-8'} key={index}>
-    <StyledOakLink onClick={onClick} href={`/docs/${slug}`}>
+  <StyledULItem
+    $background={selected ? 'mint50' : 'white'}
+    $font={'heading-light-7'}
+    $pa="all-spacing-2"
+    key={index}
+  >
+    <StyledOakLink font="heading-6" onClick={onClick} href={`/docs/${slug}`}>
       {title}
     </StyledOakLink>
   </StyledULItem>
@@ -77,29 +68,51 @@ const createNavItem = (
 
 export default function DocsNav({
   items,
+  location,
   ariaLabel,
   anchorTarget,
   onClick,
   ...rest
 }: NavProps) {
   return (
-    <StyledNav aria-label={ariaLabel} {...rest}>
-      {anchorTarget && <OakAnchorTarget id={anchorTarget} />}
-      <OakUL role="list">
-        {items.map((item, index) => {
-          const parent: boolean = isParent(item);
-          // Get the next slug if a parent
-          // Remove this if group headings aren't clickable
-          let href = item.href;
-          if (parent) {
-            const nextItem = items[index + 1];
-            if (nextItem && nextItem.href) {
-              href = nextItem.href;
-            }
-          }
-          return createNavItem(item.title, index, href, parent, onClick);
-        })}
-      </OakUL>
-    </StyledNav>
+    <>
+      <StyledNav $gap="all-spacing-7" aria-label={ariaLabel} {...rest}>
+        <OakHeading tag="h2" $font="heading-6" $mt="all-spacing-8">
+          Documentation
+        </OakHeading>
+        {anchorTarget && <OakAnchorTarget id={anchorTarget} />}
+        <OakFlex
+          $flexDirection="column"
+          $gap="space-between-m2"
+          as="ul"
+          role="list"
+        >
+          {items.map((item, index) => {
+            // this is the parent level
+            const { pages } = item;
+            return (
+              <StyledULItem
+                $gap="space-between-ssx"
+                $font={'heading-7'}
+                key={`p-${index}`}
+              >
+                {item.title}
+                <OakUL role="list">
+                  {pages.map((page, pageIndex) => {
+                    return createNavItem(
+                      page.title,
+                      page.href,
+                      pageIndex,
+                      onClick,
+                      location === `/docs/${page.href}`,
+                    );
+                  })}
+                </OakUL>
+              </StyledULItem>
+            );
+          })}
+        </OakFlex>
+      </StyledNav>
+    </>
   );
 }
