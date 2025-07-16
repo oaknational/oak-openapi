@@ -1,4 +1,3 @@
-// import { gql } from 'graphql-request';
 import client from '@/cms/client';
 import { CurriculumApiLandingPage } from '@/cms/schemaTypes';
 import query from './landingPageQuery.gql';
