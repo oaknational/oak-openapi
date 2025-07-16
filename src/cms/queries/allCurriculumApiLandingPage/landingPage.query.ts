@@ -1,4 +1,3 @@
-// import { gql } from 'graphql-request';
 import client from '@/cms/client';
 import { CurriculumApiLandingPage } from '@/cms/schemaTypes';
 import query from './landingPageQuery.gql';
@@ -14,7 +13,9 @@ const documentationQuery = async () => {
     res as CurriculumApiLandingPageQueryResponse;
 
   if (!allCurriculumApiLandingPage) {
-    throw new Error('No documentation found :O( ');
+    throw new Error(
+      'Missing Sanity content for documentation landing page, see landingPageQuery.gql',
+    );
   }
 
   return allCurriculumApiLandingPage;
