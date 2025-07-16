@@ -20,6 +20,8 @@ const navDocsListQuery = async () => {
     pages,
   };
 
+  console.log(input);
+
   const result: CurriculumApiDocsNav = input.groups
     .map((group): NavGroup => {
       const groupSlug = group.slug.text;

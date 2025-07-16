@@ -42,30 +42,28 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
     );
   }
 
+  const templateMobile =
+    contents.length > 0 ? `"HEADER" "SIDENAV" "CONTENT"` : `"HEADER" "CONTENT"`;
+  const templateDesktop =
+    contents.length > 0
+      ? `"HEADER SIDENAV" "CONTENT SIDENAV"`
+      : `"HEADER" "CONTENT"`;
+
   return (
-    <OakBox $bl="border-solid-s" $borderColor="grey40">
+    <OakBox $bl={['', 'border-solid-s']} $borderColor={['grey40', 'grey40']}>
       <OakGrid
         $gridTemplateColumns={[`1fr`, '1fr', `1fr 200px`]}
-        $gridTemplateAreas={[
-          `"HEADER" "SIDENAV" "CONTENT"`,
-          `"HEADER" "SIDENAV" "CONTENT"`,
-          `"HEADER SIDENAV" "CONTENT SIDENAV"`,
-        ]}
-        $gap="space-between-s"
-        $cg="space-between-s"
-        $pa="all-spacing-8"
-        $pr="all-spacing-0"
+        $gridTemplateAreas={[templateMobile, templateMobile, templateDesktop]}
+        $cg={['', 'space-between-s']}
+        $rg="space-between-l"
+        $pa={['all-spacing-4', 'all-spacing-8']}
+        $pr={['', 'all-spacing-0']}
       >
         <OakGridArea $gridArea="HEADER">
           <OakHeading tag="p" $font="heading-light-6">
             {docs[0].navGroupType.name}
           </OakHeading>
-          <OakHeading
-            ariaHidden
-            tag="h1"
-            $font="heading-3"
-            $mb={'space-between-xl'}
-          >
+          <OakHeading ariaHidden tag="h1" $font="heading-3">
             {docs[0].title}
           </OakHeading>
         </OakGridArea>
@@ -78,7 +76,10 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
           ))}
         </OakGridArea>
 
-        <OakGridArea $gridArea="SIDENAV">
+        <OakGridArea
+          $gridArea="SIDENAV"
+          $display={contents.length > 0 ? 'block' : 'none'}
+        >
           <OakFlex $flexDirection="column" $gap="all-spacing-3">
             <OakHeading tag="h2" $font="heading-7">
               <OakBox $width="200px">Contents</OakBox>

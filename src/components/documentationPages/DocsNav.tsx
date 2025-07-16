@@ -6,10 +6,13 @@ import {
   OakLink,
   OakHeading,
   OakFlex,
+  OakBox,
+  OakSecondaryButton,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
 
 import { CurriculumApiDocsNav } from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
+import { useState } from 'react';
 
 export type NavProps = {
   title?: string;
@@ -48,9 +51,11 @@ const createNavItem = (
   selected: boolean = false,
 ) => (
   <StyledULItem
-    $background={selected ? 'mint50' : 'white'}
+    $background={selected ? ['grey20', 'mint50'] : ['white']}
     $font={'heading-light-7'}
-    $pa="all-spacing-2"
+    $pa={['', 'all-spacing-2']}
+    $ph={['all-spacing-4', '']}
+    $pv={['all-spacing-2', '']}
     key={index}
   >
     <StyledOakLink font="heading-6" onClick={onClick} href={`/docs/${slug}`}>
@@ -58,6 +63,12 @@ const createNavItem = (
     </StyledOakLink>
   </StyledULItem>
 );
+
+const DocsNavContainer = styled(OakFlex)`
+  @media (min-width: 768px) {
+    flex: 0 0 200px;
+  }
+`;
 
 export default function DocsNav({
   items,
@@ -67,38 +78,81 @@ export default function DocsNav({
   onClick,
   ...rest
 }: NavProps) {
+  const [menuIsOpen, setMenuIsOpen] = useState(false);
+
+  const currentPageTitle = items.reduce(
+    (last, curr) => {
+      const foundPage = curr.pages.find(
+        (page) => location === `/docs/${page.href}`,
+      );
+      if (foundPage) {
+        return foundPage;
+      }
+      return last;
+    },
+    { title: '' },
+  );
+
+  const IconMod = styled(OakBox)`
+    button:hover {
+      text-decoration: none;
+    }
+    button > div {
+      justify-content: space-between;
+    }
+  `;
+
   return (
-    <OakFlex
+    <DocsNavContainer
       $flexDirection="column"
-      style={{
-        /* because OakFlex doesn't take _all_ flex props */
-        flex: '0 0 200px',
-      }}
-      $gap="all-spacing-7"
+      $gap={['', 'all-spacing-7']}
       $ml="all-spacing-4"
+      $mr={['all-spacing-4', '']}
+      $bb={['border-solid-s', '']}
+      $borderColor={['grey40']}
       aria-label={ariaLabel}
       {...rest}
     >
-      <OakHeading tag="h2" $font="heading-6" $mt="all-spacing-8">
-        Documentation
-      </OakHeading>
+      <OakBox $display={['none', 'block']}>
+        <OakHeading tag="h2" $font="heading-6" $mt="all-spacing-8">
+          Documentation
+        </OakHeading>
+      </OakBox>
+      <OakBox $display={['block', 'none']}>
+        <IconMod $pt="all-spacing-6" $pb="all-spacing-3">
+          <OakSecondaryButton
+            width={'100%'}
+            onClick={() => setMenuIsOpen(!menuIsOpen)}
+            isTrailingIcon={true}
+            $font="heading-6"
+            iconName={menuIsOpen ? 'chevron-up' : 'chevron-down'}
+          >
+            {currentPageTitle?.title}
+          </OakSecondaryButton>
+        </IconMod>
+      </OakBox>
       {anchorTarget && <OakAnchorTarget id={anchorTarget} />}
       <OakFlex
+        $display={[menuIsOpen ? 'flex' : 'none', 'flex']}
+        id="docs-nav-list"
         $flexDirection="column"
-        $gap="space-between-m2"
+        $gap={['', 'space-between-m2']}
         as="ul"
         role="list"
+        $pa={['all-spacing-4', '']}
       >
         {items.map((item, index) => {
-          // this is the parent level
           const { pages } = item;
+
+          // note that I've used an OakBox so I can hide it when narrow
+          // although I don't like that there's a nested `div` in the `li`
           return (
             <StyledULItem
-              $gap="space-between-ssx"
+              $gap={'space-between-ssx'}
               $font={'heading-7'}
               key={`p-${index}`}
             >
-              {item.title}
+              <OakBox $display={['none', 'block']}>{item.title}</OakBox>
               <OakUL role="list">
                 {pages.map((page, pageIndex) => {
                   return createNavItem(
@@ -114,6 +168,6 @@ export default function DocsNav({
           );
         })}
       </OakFlex>
-    </OakFlex>
+    </DocsNavContainer>
   );
 }
