@@ -1,6 +1,5 @@
 import client from '@/cms/client';
 import { CurriculumAPIDocumentationPage } from '@/cms/schemaTypes';
-// import { documentationBySlugQuerySchema } from './documentationBySlugQuery.schema';
 import query from './documentationBySlugQuery.gql';
 
 const documentationBySlugQuery = async (
@@ -15,10 +14,11 @@ const documentationBySlugQuery = async (
   const { allApiContentPage } = res;
 
   if (!allApiContentPage) {
-    throw new Error('No documentation found :O( ');
+    throw new Error(
+      'Missing Sanity content for documentation by slug, see documentationBySlugQuery.gql',
+    );
   }
 
-  // const reply = documentationBySlugQuerySchema.parse(allApiContentPage);
   return allApiContentPage;
 };
 

@@ -12,7 +12,9 @@ const navDocsListQuery = async () => {
   const { groups, pages } = res as NavDocsListQuery;
 
   if (!groups || !pages) {
-    throw new Error('No documentation found :O( ');
+    throw new Error(
+      'Missing Sanity content for docs navigation, see navDocsListQuery.gql',
+    );
   }
 
   const input = {
