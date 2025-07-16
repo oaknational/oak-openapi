@@ -24,7 +24,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "storybook:static-serve": "storybook build --quiet && http-server ./storybook-static --port=6006",
-    "gen-zod": "tsx bin/zod-from-gql.ts"
+    "gen-zod-from-gql": "tsx bin/zod-from-gql.ts"
   },
   "keywords": [],
   "author": "",

@@ -36,7 +36,7 @@ const queryFunction = async (params?: any) => {
 When you modify a `.gql` file, regenerate the corresponding schema:
 
 ```bash
-pnpm gen-zod <file.gql>
+pnpm gen-zod-from-gql <file.gql>
 ```
 
 This generates the `.schema.ts` file with Zod validation schemas and TypeScript types.
