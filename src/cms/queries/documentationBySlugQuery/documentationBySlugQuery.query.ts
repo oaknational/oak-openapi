@@ -15,7 +15,9 @@ const documentationBySlugQuery = async (
   const { allApiContentPage } = res;
 
   if (!allApiContentPage) {
-    throw new Error('No documentation found :O( ');
+    throw new Error(
+      'Missing Sanity content for documentation by slug, see documentationBySlugQuery.gql',
+    );
   }
 
   // const reply = documentationBySlugQuerySchema.parse(allApiContentPage);

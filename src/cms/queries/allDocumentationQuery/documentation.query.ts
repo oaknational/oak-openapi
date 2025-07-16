@@ -9,7 +9,9 @@ const documentationQuery = async () => {
   const { allApiContentPage } = res as CurriculumAPIDocumentationPage;
 
   if (!allApiContentPage) {
-    throw new Error('No documentation found :O( ');
+    throw new Error(
+      'Missing Sanity content for documentation, see documentationQuery.gql',
+    );
   }
 
   return documentationQuerySchema.parse(allApiContentPage);
