@@ -94,6 +94,9 @@ export default function DocsNav({
   );
 
   const IconMod = styled(OakBox)`
+    > div {
+      width: 100%;
+    }
     button:hover {
       text-decoration: none;
     }
@@ -108,7 +111,7 @@ export default function DocsNav({
       $gap={['', 'all-spacing-7']}
       $ml="all-spacing-4"
       $mr={['all-spacing-4', '']}
-      $bb={['border-solid-s', '']}
+      $bb={[menuIsOpen ? 'border-solid-s' : '', '']}
       $borderColor={['grey40']}
       aria-label={ariaLabel}
       {...rest}
@@ -121,7 +124,6 @@ export default function DocsNav({
       <OakBox $display={['block', 'none']}>
         <IconMod $pt="all-spacing-6" $pb="all-spacing-3">
           <OakSecondaryButton
-            width={'100%'}
             onClick={() => setMenuIsOpen(!menuIsOpen)}
             isTrailingIcon={true}
             $font="heading-6"

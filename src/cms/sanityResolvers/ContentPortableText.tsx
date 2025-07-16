@@ -23,7 +23,11 @@ const OakUL = styled(_OakUL)`
 
 const contentPortableTextComponents: PortableTextComponents = {
   block: {
-    normal: (props) => <OakP>{props.children}</OakP>,
+    normal: (props) => (
+      <OakP $font={['body-2', 'body-1']} $mb="all-spacing-4">
+        {props.children}
+      </OakP>
+    ),
     sectionHeading: (props) => (
       <OakHeading
         $font={['heading-6', 'heading-4']}
@@ -103,17 +107,21 @@ const contentPortableTextComponents: PortableTextComponents = {
   list: {
     bullet: (props) => <OakUL>{props.children}</OakUL>,
     number: (props) => (
-      <OakOL $ml={['space-between-s', 'space-between-m']}>
+      <OakOL $ml={['space-between-s', 'space-between-m']} $mb="all-spacing-4">
         {props.children}
       </OakOL>
     ),
   },
   listItem: {
     bullet: (props) => (
-      <OakLI $font={['list-item-2', 'list-item-1']}>{props.children}</OakLI>
+      <OakLI $mb="all-spacing-4" $font={['body-2', 'body-1']}>
+        {props.children}
+      </OakLI>
     ),
     number: (props) => (
-      <OakLI $font={['list-item-2', 'list-item-1']}>{props.children}</OakLI>
+      <OakLI $mb="all-spacing-4" $font={['body-2', 'body-1']}>
+        {props.children}
+      </OakLI>
     ),
   },
   marks: {

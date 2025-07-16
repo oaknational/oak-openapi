@@ -1,3 +1,4 @@
+import { OakBox } from '@oaknational/oak-components';
 import Markdown from 'react-markdown';
 import styled from 'styled-components';
 
@@ -85,7 +86,9 @@ export const Table = ({ value }: { value: Table }) => {
         {header && (
           <tr>
             {header.cells.map((cell, index) => (
-              <th key={index}>{cell}</th>
+              <th key={index}>
+                <OakBox $font={['body-2', 'body-1']}>{cell}</OakBox>
+              </th>
             ))}
           </tr>
         )}
@@ -104,7 +107,9 @@ export const TableRow = ({ row }: { row: TableRowData }) => {
     <tr>
       {row.cells.map((cell, index) => (
         <Td key={index}>
-          <Markdown>{cell}</Markdown>
+          <OakBox $font={['body-2', 'body-1']}>
+            <Markdown>{cell}</Markdown>
+          </OakBox>
         </Td>
       ))}
     </tr>
