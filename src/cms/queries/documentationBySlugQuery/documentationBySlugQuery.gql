@@ -3,6 +3,7 @@ query getDocsBySlug($navGroupSlug: String, $docSlug: String) {
     where: {
       navGroupType: { slug: { current: { eq: $navGroupSlug } } }
       slug: { current: { eq: $docSlug } }
+      _: { is_draft: false }
     }
   ) {
     title
