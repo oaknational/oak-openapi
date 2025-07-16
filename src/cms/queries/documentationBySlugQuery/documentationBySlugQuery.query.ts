@@ -1,6 +1,5 @@
 import client from '@/cms/client';
 import { CurriculumAPIDocumentationPage } from '@/cms/schemaTypes';
-// import { documentationBySlugQuerySchema } from './documentationBySlugQuery.schema';
 import query from './documentationBySlugQuery.gql';
 
 const documentationBySlugQuery = async (
@@ -20,7 +19,6 @@ const documentationBySlugQuery = async (
     );
   }
 
-  // const reply = documentationBySlugQuerySchema.parse(allApiContentPage);
   return allApiContentPage;
 };
 

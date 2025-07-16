@@ -3,7 +3,6 @@ import {
   NavDocsListGroup,
   NavDocsListPage,
   NavDocsListQuery,
-  //   navDocsListQuerySchema,
 } from './navDocsListQuery.schema';
 import { curriculumApiDocsNavSchema } from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
 import { NavItems } from '@/cms/schemaTypes/shared/components/NavItems.schema';
