@@ -3,6 +3,7 @@ import { FC } from 'react';
 import {
   OakHeading,
   OakLI,
+  OakLink,
   OakOL,
   OakP,
   OakSpan,
@@ -28,6 +29,7 @@ const contentPortableTextComponents: PortableTextComponents = {
         {props.children}
       </OakP>
     ),
+
     sectionHeading: (props) => (
       <OakHeading
         $font={['heading-6', 'heading-4']}
@@ -131,6 +133,9 @@ const contentPortableTextComponents: PortableTextComponents = {
     em: (props) => {
       return <OakSpan as="em">{props.children}</OakSpan>;
     },
+    link: (props) => (
+      <OakLink href={props.value.href}>{props.children}</OakLink>
+    ),
   },
   types: {
     table: Table,
