@@ -34,7 +34,7 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
 
   if (!docs || docs.length === 0) {
     return (
-      <OakBox $pv="inner-padding-xl3">
+      <OakBox $color="black" $pv="inner-padding-xl3">
         <OakHeading tag="h1" $font="heading-3">
           No documentation available
         </OakHeading>
@@ -50,7 +50,11 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
       : `"HEADER" "CONTENT"`;
 
   return (
-    <OakBox $bl={['', 'border-solid-s']} $borderColor={['grey40', 'grey40']}>
+    <OakBox
+      $color="black"
+      $bl={['', 'border-solid-s']}
+      $borderColor={['grey40', 'grey40']}
+    >
       <OakGrid
         $gridTemplateColumns={[`1fr`, '1fr', `1fr 200px`]}
         $gridTemplateAreas={[templateMobile, templateMobile, templateDesktop]}

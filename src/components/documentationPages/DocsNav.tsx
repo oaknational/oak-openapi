@@ -55,6 +55,7 @@ const createNavItem = (
 ) => (
   <StyledULItem
     $background={selected ? ['grey20', 'mint50'] : ['white']}
+    $borderRadius="border-radius-s"
     $font={'heading-light-7'}
     $pa={['', 'all-spacing-2']}
     $ph={['all-spacing-4', '']}
@@ -170,7 +171,9 @@ export default function DocsNav({
               $font={'heading-7'}
               key={`p-${index}`}
             >
-              <OakBox $display={['none', 'block']}>{item.title}</OakBox>
+              <OakBox $color="grey60" $display={['none', 'block']}>
+                {item.title}
+              </OakBox>
               <OakUL role="list">
                 {pages.map((page, pageIndex) => {
                   return createNavItem(
