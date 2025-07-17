@@ -27,6 +27,8 @@ export type NavProps = {
 const StyledOakLink = styled(OakLink)`
   color: #222222;
   text-decoration: none;
+  margin: 0;
+  padding: 0;
 
   &:visited,
   &:hover,
@@ -124,7 +126,12 @@ export default function DocsNav({
       </OakBox>
       <OakBox $display={['block', 'none']}>
         {/* mobile nav button */}
-        <JauntyAngleLabel y="5px" $background="lemon" as="span" clickThrough>
+        <JauntyAngleLabel
+          y="5px"
+          $background="lemon"
+          as="span"
+          $clickThrough={true}
+        >
           <strong>Documentation topics</strong>
         </JauntyAngleLabel>
         <IconMod $pt="all-spacing-6" $pb="all-spacing-3">
@@ -147,6 +154,10 @@ export default function DocsNav({
         as="ul"
         role="list"
         $pa={['all-spacing-4', '']}
+        style={{
+          paddingRight:
+            '0' /* there's an injected style deep from oak components adding this - and can't be removed with $pr */,
+        }}
       >
         {items.map((item, index) => {
           const { pages } = item;
