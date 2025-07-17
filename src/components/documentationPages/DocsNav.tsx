@@ -13,6 +13,7 @@ import styled from 'styled-components';
 
 import { CurriculumApiDocsNav } from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
 import { useState } from 'react';
+import { JauntyAngleLabel } from '../JauntyAngleLabel';
 
 export type NavProps = {
   title?: string;
@@ -122,6 +123,10 @@ export default function DocsNav({
         </OakHeading>
       </OakBox>
       <OakBox $display={['block', 'none']}>
+        {/* mobile nav button */}
+        <JauntyAngleLabel y="5px" $background="lemon" as="span" clickThrough>
+          <strong>Documentation topics</strong>
+        </JauntyAngleLabel>
         <IconMod $pt="all-spacing-6" $pb="all-spacing-3">
           <OakSecondaryButton
             onClick={() => setMenuIsOpen(!menuIsOpen)}
