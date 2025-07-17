@@ -12,7 +12,7 @@ export const JauntyAngleLabel = styled(_OakJauntyAngleLabel)`
   transform: rotate(-1.5deg) translateY(${(props) => props.y || '-15px'})
     translateX(8px);
 
-  ${(props) => props.clickThrough && `pointer-events: none;`}
+  ${(props) => props.$clickThrough && `pointer-events: none;`}
 
   strong {
     font-weight: 600;
