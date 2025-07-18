@@ -1,5 +1,5 @@
 query getAllDocs {
-  allApiContentPage {
+  allApiContentPage(where: { _: { is_draft: false } }) {
     title
     navGroupType {
       slug {

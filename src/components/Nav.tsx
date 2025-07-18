@@ -99,18 +99,20 @@ function OakAPINavigationLink({ $font = 'heading-light-7', ...props }) {
   );
 }
 
-const MenuModal = styled(OakModal)`
-  width: 375px;
+const MenuModalWrapper = styled.div`
+  & > * {
+    width: 375px;
 
-  ${_OakAPINavigationLink} {
-    width: fit-content;
+    ${_OakAPINavigationLink} {
+      width: fit-content;
 
-    &.selected::after {
-      display: none;
-    }
+      &.selected::after {
+        display: none;
+      }
 
-    &.selected:hover {
-      text-decoration: underline;
+      &.selected:hover {
+        text-decoration: underline;
+      }
     }
   }
 `;
@@ -132,22 +134,24 @@ function Menu({
         iconName="hamburger"
       />
 
-      <MenuModal
-        isOpen={isOpen}
-        isLeftHandSide={false}
-        footerSlot={null}
-        onClose={() => setIsOpen(false)}
-      >
-        <OakFlex
-          as="nav"
-          $gap="space-between-l"
-          $pa="all-spacing-4"
-          $flexDirection="column"
-          $flexGrow="1"
+      <MenuModalWrapper>
+        <OakModal
+          isOpen={isOpen}
+          isLeftHandSide={false}
+          footerSlot={null}
+          onClose={() => setIsOpen(false)}
         >
-          {children}
-        </OakFlex>
-      </MenuModal>
+          <OakFlex
+            as="nav"
+            $gap="space-between-l"
+            $pa="all-spacing-4"
+            $flexDirection="column"
+            $flexGrow="1"
+          >
+            {children}
+          </OakFlex>
+        </OakModal>
+      </MenuModalWrapper>
     </OakFlex>
   );
 }

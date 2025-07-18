@@ -1,5 +1,5 @@
 query {
-  allCurriculumApiLandingPage {
+  allCurriculumApiLandingPage(where: { _: { is_draft: false } }) {
     content {
       titleRaw
       bodyRaw

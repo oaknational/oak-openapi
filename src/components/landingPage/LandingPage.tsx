@@ -21,7 +21,7 @@ import { CurriculumApiLandingPage } from '@/cms/schemaTypes';
 import { MaxWidth } from '../MaxWidth';
 
 function OakP(props: (typeof _OakP)['props']) {
-  return <_OakP {...props} $mv="all-spacing-6" />;
+  return <_OakP {...props} $mv="all-spacing-6" $color="black" />;
 }
 
 const BlockHeading = styled(OakHeading)`
@@ -52,6 +52,7 @@ export default function Page({
         $flexDirection={'column'}
         $pv="inner-padding-xl6"
         $gap="all-spacing-16"
+        $color={'black'}
       >
         {data.map((data, index) => {
           return (
@@ -183,7 +184,7 @@ function BlockAndText1({
         </BlockHeading>
         <OakFlex $gap={['all-spacing-4']} $flexDirection="column">
           {typeof description === 'string' ? (
-            <OakP>{description}</OakP>
+            <OakP $font={['body-2', 'body-1']}>{description}</OakP>
           ) : (
             description
           )}

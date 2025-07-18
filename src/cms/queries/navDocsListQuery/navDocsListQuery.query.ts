@@ -1,11 +1,10 @@
 import client from '@/cms/client';
+import { NavDocsListQuery } from './navDocsListQuery.schema';
 import {
-  NavDocsListGroup,
-  NavDocsListPage,
-  NavDocsListQuery,
-} from './navDocsListQuery.schema';
-import { curriculumApiDocsNavSchema } from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
-import { NavItems } from '@/cms/schemaTypes/shared/components/NavItems.schema';
+  type CurriculumApiDocsNav,
+  curriculumApiDocsNavSchema,
+  NavGroup,
+} from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
 import query from './navDocsListQuery.gql';
 
 const navDocsListQuery = async () => {
@@ -18,48 +17,28 @@ const navDocsListQuery = async () => {
     );
   }
 
-  const docsList = groups.map(({ title, slug }: NavDocsListGroup) => {
-    return {
-      title,
-      slug: slug.text,
-      children: pages
-        .filter(
-          ({ parentGroup }: NavDocsListPage) =>
-            parentGroup.slug.text === slug.text,
-        )
-        .map((page: NavDocsListPage) => {
-          return { title: page.title, slug: page.slug.text };
-        }),
-    };
-  });
+  const input = {
+    groups,
+    pages,
+  };
 
-  const docsNavList = groups.map(({ title, slug }) => {
-    const groupSlug = slug.text;
-    return [
-      {
-        title,
-        href: `/${groupSlug}`,
-      },
-      ...pages
-        .filter(
-          ({ parentGroup }: NavDocsListPage) =>
-            parentGroup.slug.text === groupSlug,
-        )
-        .map((page: NavDocsListPage) => {
-          return {
-            title: page.title,
-            href: `/${groupSlug}/${page.slug.text}`,
-          };
-        }),
-    ];
-  });
+  const result: CurriculumApiDocsNav = input.groups
+    .map((group): NavGroup => {
+      const groupSlug = group.slug.text;
+      const pages = input.pages
+        .filter((page) => page.parentGroup?.slug?.text === groupSlug)
+        .map((page) => ({
+          title: page.title,
+          href: `${groupSlug}/${page.slug.text}`,
+        }));
+      return {
+        title: group.title,
+        pages,
+      };
+    })
+    .filter((item) => item.pages.length > 0);
 
-  const docsNavItems: NavItems = docsNavList.flat();
-
-  return curriculumApiDocsNavSchema.parse({
-    nestedData: docsList,
-    items: docsNavItems,
-  });
+  return curriculumApiDocsNavSchema.parse(result);
 };
 
 export default navDocsListQuery;
