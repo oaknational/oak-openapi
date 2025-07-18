@@ -7,6 +7,6 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  const { items } = await navDocsListQuery();
-  return <DocsLayout children={children} docsPageListItems={items} />;
+  const navigationItems = await navDocsListQuery();
+  return <DocsLayout children={children} navigationItems={navigationItems} />;
 }

@@ -1,0 +1,25 @@
+import styled from 'styled-components';
+import { OakJauntyAngleLabel as _OakJauntyAngleLabel } from '@oaknational/oak-components';
+
+export const JauntyAngleLabel = styled(_OakJauntyAngleLabel)`
+  width: fit-content;
+  background: #ffe555;
+  border-radius: 0;
+  z-index: 10;
+  cursor: pointer;
+  position: absolute;
+  padding: 4px 8px;
+  transform: rotate(-1.5deg) translateY(${(props) => props.y || '-15px'})
+    translateX(8px);
+
+  ${(props) => props.$clickThrough && `pointer-events: none;`}
+
+  strong {
+    font-weight: 600;
+  }
+
+  &:has(+ div input:not(:placeholder-shown):invalid) {
+    background: #dd0035;
+    color: white;
+  }
+`;
