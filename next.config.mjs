@@ -1,33 +1,30 @@
-// const {
-//   BugsnagBuildReporterPlugin,
-//   BugsnagSourceMapUploaderPlugin,
-// } = require('webpack-bugsnag-plugins');
-
-// const { PHASE_PRODUCTION_BUILD, PHASE_TEST } = require('next/constants');
-
-// const bugsnagApiKey = process.env.NEXT_PUBLIC_BUGSNAG_API;
-
-// if (!bugsnagApiKey) {
-//   throw new Error('Missing env var NEXT_PUBLIC_BUGSNAG_API');
-// }
-
-// const BUGSNAG_API_KEY = process.env.BUGSNAG_API_KEY;
-
-// if (!BUGSNAG_API_KEY || typeof BUGSNAG_API_KEY !== 'string') {
-//   throw new Error('Missing env var BUGSNAG_API_KEY');
-// }
+import path from 'node:path';
 
 /** @type {(phase: string) => Promise<import("next").NextConfig>} */
 const getConfig = async () => {
   /** @type {import('next').NextConfig} */
   const config = {
+    webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+      config.module.rules.push({
+        test: /\.(graphql|gql)$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: path.resolve('./src/loaders/gql.mjs'),
+          },
+        ],
+      });
+
+      return config;
+    },
+
     compiler: {
       styledComponents: true,
     },
     reactStrictMode: true,
     // swcMinify: true,
     images: {
-      domains: ['oaknationalacademy-res.cloudinary.com'],
+      domains: ['oaknationalacademy-res.cloudinary.com', 'cdn.sanity.io'],
     },
     eslint: {
       ignoreDuringBuilds: !!process.env.CI,

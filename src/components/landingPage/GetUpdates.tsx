@@ -4,12 +4,12 @@ import {
   OakBox,
   OakFlex,
   OakIcon,
-  OakJauntyAngleLabel as _OakJauntyAngleLabel,
   OakP,
   OakTextInput as _OakTextInput,
   OakPrimaryButton,
   OakFieldError,
 } from '@oaknational/oak-components';
+import { JauntyAngleLabel } from '../JauntyAngleLabel';
 import styled from 'styled-components';
 
 export type HubspotPayload = {
@@ -129,14 +129,10 @@ export function GetUpdates() {
           )}
           {!success && (
             <>
-              <OakJauntyAngleLabel
-                $background="lemon"
-                htmlFor="email"
-                as="label"
-              >
+              <JauntyAngleLabel $background="lemon" htmlFor="email" as="label">
                 <strong>Email address</strong>{' '}
                 <span style={{ fontWeight: 400 }}>(required)</span>
-              </OakJauntyAngleLabel>
+              </JauntyAngleLabel>
               <OakTextInput
                 autoComplete="email"
                 id="email"
@@ -158,26 +154,6 @@ export function GetUpdates() {
     </FlexedBox>
   );
 }
-
-const OakJauntyAngleLabel = styled(_OakJauntyAngleLabel)`
-  width: fit-content;
-  background: #ffe555;
-  border-radius: 0;
-  z-index: 10;
-  cursor: pointer;
-  position: absolute;
-  padding: 4px 8px;
-  transform: rotate(-1.5deg) translateY(-15px) translateX(8px);
-
-  strong {
-    font-weight: 600;
-  }
-
-  &:has(+ div input:not(:placeholder-shown):invalid) {
-    background: #dd0035;
-    color: white;
-  }
-`;
 
 const OakTextInput = styled(_OakTextInput)`
   padding: 16px 0;

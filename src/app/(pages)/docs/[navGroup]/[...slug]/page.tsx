@@ -10,9 +10,5 @@ export default async function Page({
 
   const documentationData = await documentationBySlugQuery(navGroup, slug[0]);
 
-  return (
-    <>
-      <MainDocsContent docs={documentationData} />
-    </>
-  );
+  return <MainDocsContent docs={documentationData} />;
 }
