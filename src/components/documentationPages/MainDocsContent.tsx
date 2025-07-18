@@ -105,5 +105,6 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
         </OakGridArea>
       </OakGrid>
     </OakBox>
+
   );
 }
