@@ -12,6 +12,7 @@ import {
 import { PortableTextJSON } from '@/cms/schemaTypes/shared/cms/portableText.schema';
 import { Table } from '@/components/Table';
 import styled from 'styled-components';
+import { Code } from '@/components/Code';
 
 const OakUL = styled(_OakUL)`
   list-style-type: disc;
@@ -139,6 +140,7 @@ const contentPortableTextComponents: PortableTextComponents = {
   },
   types: {
     table: Table,
+    code: Code,
   },
 };
 
