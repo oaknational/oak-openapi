@@ -1,11 +1,11 @@
 query getAllDocsNavGroups {
-  groups: allNavGroup {
+  groups: allNavGroup(where: { _: { is_draft: false } }) {
     title: name
     slug {
       text: current
     }
   }
-  pages: allApiContentPage {
+  pages: allApiContentPage(where: { _: { is_draft: false } }) {
     title
     slug {
       text: current
