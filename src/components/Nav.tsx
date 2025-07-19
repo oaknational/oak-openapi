@@ -176,7 +176,7 @@ function MenuContents({
         $gap="space-between-m2"
         $flexDirection={flexDirection}
       >
-        <OakAPINavigationLink role="listitem" href="#" className="selected">
+        <OakAPINavigationLink role="listitem" href="/" className="selected">
           Home
         </OakAPINavigationLink>
         <OakAPINavigationLink role="listitem" href="/docs">

@@ -1,11 +1,13 @@
 import { PortableTextComponents, PortableText } from '@portabletext/react';
 import { FC } from 'react';
 import {
+  OakBox,
   OakHeading,
   OakLI,
   OakLink,
   OakOL,
   OakP,
+  OakSecondaryLink,
   OakSpan,
   OakUL as _OakUL,
 } from '@oaknational/oak-components';
@@ -13,6 +15,17 @@ import { PortableTextJSON } from '@/cms/schemaTypes/shared/cms/portableText.sche
 import { Table } from '@/components/Table';
 import styled from 'styled-components';
 import { Code } from '@/components/Code';
+import { Notice } from '@/components/Notice';
+import Image from 'next/image';
+
+const StrongBox = styled(OakSpan)`
+  font-weight: 600;
+
+  a span {
+    display: inline-flex;
+    flex-direction: row;
+  }
+`;
 
 const OakUL = styled(_OakUL)`
   list-style-type: disc;
@@ -134,13 +147,48 @@ const contentPortableTextComponents: PortableTextComponents = {
     em: (props) => {
       return <OakSpan as="em">{props.children}</OakSpan>;
     },
-    link: (props) => (
-      <OakLink href={props.value.href}>{props.children}</OakLink>
-    ),
+    link: (props) => {
+      if (props.value.external) {
+        console.log('link', props);
+        return (
+          <StrongBox $font="body-2">
+            <OakSecondaryLink target="_blank" href={props.value.href}>
+              {props.children}
+              <Image
+                src="https://res.cloudinary.com/oak-web-application/image/upload/v1699953892/icons/hlxmejse3mcr4tqo6t8u.svg"
+                width="24"
+                height="24"
+                alt="External link"
+              />
+            </OakSecondaryLink>
+          </StrongBox>
+        );
+      }
+      return <OakLink href={props.value.href}>{props.children}</OakLink>;
+    },
   },
   types: {
     table: Table,
     code: Code,
+    notice: Notice,
+    image: (props) => {
+      const src = props.value.asset.url;
+      const { width, height } = props.value.asset.metadata.dimensions;
+
+      return (
+        <OakBox $mv="all-spacing-7">
+          <Image
+            sizes={`width ${width}px, height: ${height}px`}
+            priority={true}
+            alt=""
+            src={src}
+            width={width}
+            height={height}
+            style={{ height: '100%' }}
+          />
+        </OakBox>
+      );
+    },
   },
 };
 
