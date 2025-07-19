@@ -1,4 +1,5 @@
 import { GraphQLClient } from 'graphql-request';
+import { createClient } from 'next-sanity';
 import getServerConfig from '@/node-lib/serverConfig';
 
 const projectId = getServerConfig('sanityProjectId');
@@ -11,6 +12,14 @@ export const sanityConfig = {
   datasetTag: 'default',
   useCDN: false,
 };
+
+export const sanityClient = createClient({
+  projectId,
+  dataset,
+  token,
+  useCdn: true,
+  apiVersion: '2025-07-06', // should be hardcoded to a specific date
+});
 
 const getGraphqlEndpoint = (opts: {
   projectId: string;

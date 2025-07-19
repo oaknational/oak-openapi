@@ -22,7 +22,7 @@ const OakGridArea = styled(_OakGridArea)`
 
 export default function MainDocsContent({ docs }: CMSDocumentationProps) {
   const contentsRaw =
-    docs?.[0]?.docsBlocksRaw?.filter(
+    docs?.[0]?.docsBlocks?.filter(
       (_) => _.style === 'h2',
       // || _.style === 'h3',
     ) || [];
@@ -61,7 +61,7 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
         $cg={['', 'space-between-s']}
         $rg="space-between-l"
         $pa={['all-spacing-4', 'all-spacing-8']}
-        $pr={['', 'all-spacing-0']}
+        $pr={['', '', 'all-spacing-0']}
       >
         <OakGridArea $gridArea="HEADER">
           <OakHeading tag="p" $font="heading-light-6">
@@ -75,7 +75,7 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
           {docs.map((doc) => (
             <ContentPortableText
               key={doc.title}
-              portableText={doc.docsBlocksRaw}
+              portableText={doc.docsBlocks}
             />
           ))}
         </OakGridArea>
@@ -105,6 +105,5 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
         </OakGridArea>
       </OakGrid>
     </OakBox>
-
   );
 }
