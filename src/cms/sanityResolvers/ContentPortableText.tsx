@@ -1,7 +1,6 @@
 import { PortableTextComponents, PortableText } from '@portabletext/react';
 import { FC } from 'react';
 import {
-  OakBox,
   OakHeading,
   OakLI,
   OakLink,
@@ -16,7 +15,8 @@ import { Table } from '@/components/Table';
 import styled from 'styled-components';
 import { Code } from '@/components/Code';
 import { Notice } from '@/components/Notice';
-import Image from 'next/image';
+import NextImage from 'next/image';
+import { SanityImage } from '@/components/SanityImage';
 
 const StrongBox = styled(OakSpan)`
   font-weight: 600;
@@ -149,12 +149,11 @@ const contentPortableTextComponents: PortableTextComponents = {
     },
     link: (props) => {
       if (props.value.external) {
-        console.log('link', props);
         return (
           <StrongBox $font="body-2">
             <OakSecondaryLink target="_blank" href={props.value.href}>
               {props.children}
-              <Image
+              <NextImage
                 src="https://res.cloudinary.com/oak-web-application/image/upload/v1699953892/icons/hlxmejse3mcr4tqo6t8u.svg"
                 width="24"
                 height="24"
@@ -171,24 +170,7 @@ const contentPortableTextComponents: PortableTextComponents = {
     table: Table,
     code: Code,
     notice: Notice,
-    image: (props) => {
-      const src = props.value.asset.url;
-      const { width, height } = props.value.asset.metadata.dimensions;
-
-      return (
-        <OakBox $mv="all-spacing-7">
-          <Image
-            sizes={`width ${width}px, height: ${height}px`}
-            priority={true}
-            alt=""
-            src={src}
-            width={width}
-            height={height}
-            style={{ height: '100%' }}
-          />
-        </OakBox>
-      );
-    },
+    image: SanityImage,
   },
 };
 
