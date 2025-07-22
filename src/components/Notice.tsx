@@ -11,7 +11,6 @@ type Notice = {
 };
 
 export const Notice = ({ value }: { value: Notice }) => {
-  console.log('notice value:', value);
   return (
     <OakBox $mb="all-spacing-6">
       <OakInlineBanner
