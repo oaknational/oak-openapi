@@ -8,11 +8,18 @@ export const imageSchema = z.object({
 export type CMSImage = z.infer<typeof imageSchema>;
 
 export const cta = z.object({
-  externalLink: z.string().nullable(),
-  label: z.string().nullable(),
+  externalLink: z.string(),
+  label: z.string(),
+  icon: z.string().optional(),
+  variant: z.enum(['primary', 'secondary']).optional(),
 });
 
-export type CMSCta = z.infer<typeof cta>;
+export type CMSCta = {
+  externalLink: string;
+  label: string;
+  variant?: 'primary' | 'secondary';
+  icon?: string;
+};
 
 export const raw = z.array(
   z.object({
