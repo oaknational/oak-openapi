@@ -27,10 +27,14 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
       // || _.style === 'h3',
     ) || [];
 
-  const contents = contentsRaw.map((content) => ({
+  let contents = contentsRaw.map((content) => ({
     title: content.children.map((_) => _.text).join(' '),
     anchor: content._key,
   }));
+
+  if (contents.length < 3) {
+    contents.length = 0; // Hide contents if there are less than 3 items
+  }
 
   if (!docs || docs.length === 0) {
     return (
