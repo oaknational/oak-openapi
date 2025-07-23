@@ -17,6 +17,7 @@ import { Code } from '@/components/Code';
 import { Notice } from '@/components/Notice';
 import NextImage from 'next/image';
 import { SanityImage } from '@/components/SanityImage';
+import { SanityCtaLink } from '@/components/SanityCtaLink';
 
 const StrongBox = styled(OakSpan)`
   font-weight: 600;
@@ -171,6 +172,7 @@ const contentPortableTextComponents: PortableTextComponents = {
     code: Code,
     notice: Notice,
     image: SanityImage,
+    ctaLink: SanityCtaLink,
   },
 };
 
