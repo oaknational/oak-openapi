@@ -235,7 +235,7 @@ function ContactUs() {
       <OakBox $mt="space-between-m">
         <StrongLinkNoUnderline
           iconName="arrow-right"
-          href="/"
+          href="mailto:help@thenational.academy"
           isTrailingIcon={true}
         >
           Send us an email
@@ -256,7 +256,11 @@ function GiveFeedback() {
         Our API is new, we&apos;d love to hear your feedback to help us improve.
       </OakP>
       <OakBox $mt="space-between-m">
-        <StrongLinkNoUnderline iconName="arrow-right" href="/" isTrailingIcon>
+        <StrongLinkNoUnderline
+          iconName="arrow-right"
+          href="https://survey.hsforms.com/1C1LX6MhoTWi2_3iF6Q6y3gbvumd"
+          isTrailingIcon
+        >
           Give feedback
         </StrongLinkNoUnderline>
       </OakBox>
