@@ -1,50 +1,25 @@
-import { gql } from 'graphql-request';
 import client from '@/cms/client';
-
 import { CurriculumAPIDocumentationPage } from '@/cms/schemaTypes';
-
-import { documentationBySlugQuerySchema } from './documentationBySlugQuery.schema';
-
-const query = gql`
-  # Write your query or mutation here
-  query getDocsBySlug($navGroupSlug: String, $docSlug: String) {
-    allCurriculumApiDocumentationPage(
-      where: {
-        navGroupType: { slug: { current: { eq: $navGroupSlug } } }
-        slug: { current: { eq: $docSlug } }
-      }
-    ) {
-      title
-      slug {
-        text: current
-      }
-      navGroupType {
-        slug {
-          text: current
-        }
-        name
-      }
-      contentRaw
-    }
-  }
-`;
+import query from './documentationBySlugQuery.gql';
 
 const documentationBySlugQuery = async (
   navGroupSlug: string,
   docSlug: string,
 ) => {
-  const res = await client.request(query, { navGroupSlug, docSlug });
+  const res = (await client.request(query, {
+    navGroupSlug,
+    docSlug,
+  })) as CurriculumAPIDocumentationPage;
 
-  const { allCurriculumApiDocumentationPage } =
-    res as CurriculumAPIDocumentationPage;
+  const { allApiContentPage } = res;
 
-  if (!allCurriculumApiDocumentationPage) {
-    throw new Error('No documentation found :O( ');
+  if (!allApiContentPage) {
+    throw new Error(
+      'Missing Sanity content for documentation by slug, see documentationBySlugQuery.gql',
+    );
   }
 
-  return documentationBySlugQuerySchema.parse(
-    allCurriculumApiDocumentationPage,
-  );
+  return allApiContentPage;
 };
 
 export default documentationBySlugQuery;

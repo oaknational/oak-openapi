@@ -1,26 +1,41 @@
 import { z } from 'zod';
-import { imageSchema } from './shared/cms/image.schema';
-import { blockTextSchema } from './shared/cms/blockText.schema';
+import { imageSchema, cta, raw } from './shared/cms/image.schema';
 
-export const curriculumApiLandingPageSchema = z.object({
-  data: z.object({
-    allCurriculumApiLandingPage: z.array(
-      z.object({
-        title: z.string(),
-        content: z.array(
-          z.object({
-            textAndMedia: z.object({
-              title: z.string(),
-              bodyRaw: blockTextSchema,
-              image: imageSchema,
-            }),
-          }),
-        ),
-      }),
-    ),
-  }),
-  extensions: z.object({ sanitySyncTags: z.array(z.string()) }),
+const curriculumApiLandingPageContentBlockSchema = z.object({
+  titleRaw: raw,
+  bodyRaw: raw,
+  image: imageSchema,
+  cta: cta.nullable(),
 });
+
+const curriculumApiLandingPageUsingTheApiSectionSchema = z.object({
+  mainBlock: z.object({
+    titleRaw: raw,
+    cta,
+    image: imageSchema,
+  }),
+  siblingBlocks: z.array(
+    z.object({
+      titleRaw: raw,
+      cta,
+      bodyRaw: raw,
+    }),
+  ),
+});
+
+const curriculumApiLandingPageSchema = z.array(
+  z.object({
+    content: z.array(curriculumApiLandingPageContentBlockSchema),
+    usingTheApiSection: curriculumApiLandingPageUsingTheApiSectionSchema,
+  }),
+);
+
+export type CurriculumApiLandingPageContentBlock = z.infer<
+  typeof curriculumApiLandingPageContentBlockSchema
+>;
+export type CurriculumApiLandingPageUsingTheApiSection = z.infer<
+  typeof curriculumApiLandingPageUsingTheApiSectionSchema
+>;
 
 export type CurriculumApiLandingPage = z.infer<
   typeof curriculumApiLandingPageSchema

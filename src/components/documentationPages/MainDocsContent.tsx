@@ -1,34 +1,110 @@
 'use client';
-import { OakBox, OakHeading } from '@oaknational/oak-components';
-
+import {
+  OakBox,
+  OakFlex,
+  OakGrid,
+  OakGridArea as _OakGridArea,
+  OakHeading,
+  OakLI,
+  OakLink,
+} from '@oaknational/oak-components';
 import ContentPortableText from '@/cms/sanityResolvers/ContentPortableText';
 import { DocumentationContentPageBlock } from '@/cms/schemaTypes';
+import styled from 'styled-components';
 
 type CMSDocumentationProps = {
   docs: DocumentationContentPageBlock[];
 };
 
+const OakGridArea = styled(_OakGridArea)`
+  ${({ $gridArea }) => 'grid-area: ' + $gridArea};
+`;
+
 export default function MainDocsContent({ docs }: CMSDocumentationProps) {
+  const contentsRaw =
+    docs?.[0]?.docsBlocksRaw?.filter(
+      (_) => _.style === 'h2',
+      // || _.style === 'h3',
+    ) || [];
+
+  const contents = contentsRaw.map((content) => ({
+    title: content.children.map((_) => _.text).join(' '),
+    anchor: content._key,
+  }));
+
+  if (!docs || docs.length === 0) {
+    return (
+      <OakBox $color="black" $pv="inner-padding-xl3">
+        <OakHeading tag="h1" $font="heading-3">
+          No documentation available
+        </OakHeading>
+      </OakBox>
+    );
+  }
+
+  const templateMobile =
+    contents.length > 0 ? `"HEADER" "SIDENAV" "CONTENT"` : `"HEADER" "CONTENT"`;
+  const templateDesktop =
+    contents.length > 0
+      ? `"HEADER SIDENAV" "CONTENT SIDENAV"`
+      : `"HEADER" "CONTENT"`;
+
   return (
-    <OakBox>
-      {docs && (
-        <OakBox>
-          <OakHeading
-            ariaHidden
-            tag="h1"
-            $font="heading-5"
-            $pa={'space-between-xl'}
-          >
+    <OakBox
+      $color="black"
+      $bl={['', 'border-solid-s']}
+      $borderColor={['grey40', 'grey40']}
+    >
+      <OakGrid
+        $gridTemplateColumns={[`1fr`, '1fr', `1fr 200px`]}
+        $gridTemplateAreas={[templateMobile, templateMobile, templateDesktop]}
+        $cg={['', 'space-between-s']}
+        $rg="space-between-l"
+        $pa={['all-spacing-4', 'all-spacing-8']}
+        $pr={['', 'all-spacing-0']}
+      >
+        <OakGridArea $gridArea="HEADER">
+          <OakHeading tag="p" $font="heading-light-6">
+            {docs[0].navGroupType.name}
+          </OakHeading>
+          <OakHeading ariaHidden tag="h1" $font="heading-3">
             {docs[0].title}
           </OakHeading>
+        </OakGridArea>
+        <OakGridArea $gridArea="CONTENT">
           {docs.map((doc) => (
             <ContentPortableText
               key={doc.title}
-              portableText={doc.contentRaw}
+              portableText={doc.docsBlocksRaw}
             />
           ))}
-        </OakBox>
-      )}
+        </OakGridArea>
+
+        <OakGridArea
+          $gridArea="SIDENAV"
+          $display={contents.length > 0 ? 'block' : 'none'}
+        >
+          <OakFlex $flexDirection="column" $gap="all-spacing-3">
+            <OakHeading tag="h2" $font="heading-7">
+              <OakBox $width="200px">Contents</OakBox>
+            </OakHeading>
+            <OakFlex
+              as="ul"
+              $pa="0"
+              $gap="all-spacing-3"
+              $ma="0"
+              $flexDirection="column"
+            >
+              {contents.map((content) => (
+                <OakLI key={content.anchor}>
+                  <OakLink href={`#${content.anchor}`}>{content.title}</OakLink>
+                </OakLI>
+              ))}
+            </OakFlex>
+          </OakFlex>
+        </OakGridArea>
+      </OakGrid>
     </OakBox>
+
   );
 }

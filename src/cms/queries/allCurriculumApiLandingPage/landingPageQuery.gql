@@ -1,0 +1,42 @@
+query {
+  allCurriculumApiLandingPage(where: { _: { is_draft: false } }) {
+    content {
+      titleRaw
+      bodyRaw
+      image {
+        asset {
+          url
+        }
+      }
+      cta {
+        externalLink
+        label
+      }
+    }
+
+    usingTheApiSection {
+      mainBlock {
+        titleRaw
+        cta {
+          label
+          externalLink
+        }
+        image {
+          isPresentational
+          asset {
+            _id
+            url
+          }
+        }
+      }
+      siblingBlocks {
+        titleRaw
+        cta {
+          externalLink
+          label
+        }
+        bodyRaw
+      }
+    }
+  }
+}

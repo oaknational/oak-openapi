@@ -1,20 +1,21 @@
 query getDocsBySlug($navGroupSlug: String, $docSlug: String) {
-  allCurriculumApiDocumentationPage(
+  allApiContentPage(
     where: {
       navGroupType: { slug: { current: { eq: $navGroupSlug } } }
       slug: { current: { eq: $docSlug } }
+      _: { is_draft: false }
     }
   ) {
     title
     slug {
-      current
+      text: current
     }
     navGroupType {
       slug {
-        current
+        text: current
       }
       name
     }
-    contentRaw
+    docsBlocksRaw
   }
 }
