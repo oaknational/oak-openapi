@@ -1,21 +1,8 @@
+import { Asset } from '@/cms/schemaTypes';
 import { OakBox } from '@oaknational/oak-components';
 import Image from 'next/image';
 
-type SanityImageProps = {
-  value: {
-    asset: {
-      url: string;
-      metadata: {
-        dimensions: {
-          height: number;
-          width: number;
-        };
-      };
-    };
-  };
-};
-
-export const SanityImage = (props: SanityImageProps) => {
+export const SanityImage = (props: { value: { asset: Asset } }) => {
   const src = props.value.asset.url;
   const { width, height } = props.value.asset.metadata.dimensions;
 
