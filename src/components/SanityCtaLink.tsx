@@ -1,16 +1,28 @@
 import { CMSCta } from '@/cms/schemaTypes';
 import {
+  OakBox,
+  OakFlex,
   OakIconName,
   OakPrimaryButton,
   OakSecondaryButton,
 } from '@oaknational/oak-components';
+import styled from 'styled-components';
 
 type SanityCtaLinkProps = {
   value: CMSCta;
 };
 
+const OakFlexWithImage = styled(OakFlex)`
+  ${(props) =>
+    `background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), ${props.background};`}
+  background-size: cover;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1.5;
+`;
+
 export const SanityCtaLink = (props: SanityCtaLinkProps) => {
-  const { externalLink, label, variant } = props.value;
+  const { externalLink, label, variant, backgroundImageUrl } = props.value;
   const icon = props.value.icon as OakIconName;
 
   const linkProps = {
@@ -20,17 +32,28 @@ export const SanityCtaLink = (props: SanityCtaLinkProps) => {
     target: icon === 'external' ? '_blank' : undefined,
   };
 
-  if (variant === 'primary') {
+  const Tag = variant === 'primary' ? OakPrimaryButton : OakSecondaryButton;
+
+  if (backgroundImageUrl) {
+    console.log({ backgroundImageUrl });
     return (
-      <OakPrimaryButton element="a" {...linkProps}>
-        {label}
-      </OakPrimaryButton>
+      <OakFlexWithImage
+        background={`url(${backgroundImageUrl.asset.url})`}
+        $alignItems="center"
+        $justifyContent="center"
+      >
+        <OakBox>
+          <Tag element="a" {...linkProps}>
+            {label}
+          </Tag>
+        </OakBox>
+      </OakFlexWithImage>
     );
   }
 
   return (
-    <OakSecondaryButton element="a" {...linkProps}>
+    <Tag element="a" {...linkProps}>
       {label}
-    </OakSecondaryButton>
+    </Tag>
   );
 };

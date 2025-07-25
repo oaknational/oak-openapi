@@ -1,11 +1,23 @@
 import { z } from 'zod';
 
+const assetSchema = z.object({
+  _id: z.string().optional(),
+  url: z.string(),
+  metadata: z.object({
+    dimensions: z.object({
+      height: z.number(),
+      width: z.number(),
+    }),
+  }),
+});
+
 export const imageSchema = z.object({
   isPresentational: z.boolean().optional(),
-  asset: z.object({ _id: z.string().optional(), url: z.string() }),
+  asset: assetSchema,
 });
 
 export type CMSImage = z.infer<typeof imageSchema>;
+export type Asset = z.infer<typeof assetSchema>;
 
 export const cta = z.object({
   externalLink: z.string(),
@@ -19,6 +31,7 @@ export type CMSCta = {
   label: string;
   variant?: 'primary' | 'secondary';
   icon?: string;
+  backgroundImageUrl?: { asset: Asset };
 };
 
 export const raw = z.array(

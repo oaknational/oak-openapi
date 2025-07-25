@@ -4,22 +4,21 @@ const query = `*[
   _type=="apiContentPage" &&
   slug.current == $docSlug &&
   navGroupType->slug.current == $navGroupSlug
-] {
+]{
   navGroupType->,
   slug,
   title,
-  docsBlocks[] {
+  docsBlocks[]{
     ...,
     _type == "image" => {
       ...,
-      asset->{
-        url,
-        metadata {
-          dimensions {
-            width,
-            height
-          }
-        }
+      asset->{ url, metadata{ dimensions{ width, height } } }
+    },
+    _type == "ctaLink" => {
+      ...,
+      backgroundImageUrl{
+        ...,
+        asset->{ url, metadata{ dimensions{ width, height } } }
       }
     }
   }
