@@ -17,6 +17,7 @@ type CMSDocumentationProps = {
 };
 
 const OakGridArea = styled(_OakGridArea)`
+  display: block;
   ${({ $gridArea }) => 'grid-area: ' + $gridArea};
 `;
 
@@ -33,8 +34,10 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
   }));
 
   if (contents.length < 3) {
-    contents.length = 0; // Hide contents if there are less than 3 items
+    contents = []; // Hide contents if there are less than 3 items
   }
+
+  console.log({ contents });
 
   if (!docs || docs.length === 0) {
     return (
@@ -84,29 +87,30 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
           ))}
         </OakGridArea>
 
-        <OakGridArea
-          $gridArea="SIDENAV"
-          $display={contents.length > 0 ? 'block' : 'none'}
-        >
-          <OakFlex $flexDirection="column" $gap="all-spacing-3">
-            <OakHeading tag="h2" $font="heading-7">
-              <OakBox $width="200px">Contents</OakBox>
-            </OakHeading>
-            <OakFlex
-              as="ul"
-              $pa="0"
-              $gap="all-spacing-3"
-              $ma="0"
-              $flexDirection="column"
-            >
-              {contents.map((content) => (
-                <OakLI key={content.anchor}>
-                  <OakLink href={`#${content.anchor}`}>{content.title}</OakLink>
-                </OakLI>
-              ))}
+        {contents.length > 0 && (
+          <OakGridArea $gridArea="SIDENAV">
+            <OakFlex $flexDirection="column" $gap="all-spacing-3">
+              <OakHeading tag="h2" $font="heading-7">
+                <OakBox $width="200px">Contents</OakBox>
+              </OakHeading>
+              <OakFlex
+                as="ul"
+                $pa="0"
+                $gap="all-spacing-3"
+                $ma="0"
+                $flexDirection="column"
+              >
+                {contents.map((content) => (
+                  <OakLI key={content.anchor}>
+                    <OakLink href={`#${content.anchor}`}>
+                      {content.title}
+                    </OakLink>
+                  </OakLI>
+                ))}
+              </OakFlex>
             </OakFlex>
-          </OakFlex>
-        </OakGridArea>
+          </OakGridArea>
+        )}
       </OakGrid>
     </OakBox>
   );

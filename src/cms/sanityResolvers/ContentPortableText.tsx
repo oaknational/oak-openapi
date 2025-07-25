@@ -71,7 +71,7 @@ const contentPortableTextComponents: PortableTextComponents = {
         id={props.value._key}
         $mb="space-between-s"
         $font="heading-4"
-        $mt="space-between-m"
+        $mt="all-spacing-12"
       >
         {props.children}
       </OakHeading>
@@ -82,7 +82,7 @@ const contentPortableTextComponents: PortableTextComponents = {
         id={props.value._key}
         $mb="space-between-s"
         $font="heading-5"
-        $mt="space-between-m"
+        $mt="all-spacing-9"
       >
         {props.children}
       </OakHeading>
@@ -184,12 +184,10 @@ export const ContentPortableText: FC<PortableTextRawProps> = (props) => {
   const { portableText } = props;
 
   return (
-    <>
-      <PortableText
-        components={contentPortableTextComponents}
-        value={portableText}
-      />
-    </>
+    <PortableText
+      components={contentPortableTextComponents}
+      value={portableText}
+    />
   );
 };
 
