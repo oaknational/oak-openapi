@@ -2,7 +2,7 @@ import { redis } from '@/lib/redis';
 import { defaultRateLimit } from './rateLimit';
 import { v4 as uuid } from 'uuid';
 
-type UserUpdate = {
+export type UserUpdate = {
   email?: null | string;
   name?: null | string;
   company?: null | string;
@@ -11,18 +11,16 @@ type UserUpdate = {
   requests?: number;
 };
 
+export type UserUpdateWithKey = UserUpdate & {
+  key: string; // enforced
+};
+
 export type User = UserUpdate & {
   key: string; // enforced
   id: number;
 };
 
-export async function updateUser(opts: {
-  key: string; // required
-  email?: string;
-  name?: null | string;
-  company?: null | string;
-  rateLimit?: number;
-}) {
+export async function updateUser(opts: UserUpdateWithKey): Promise<string> {
   if (!opts.key) {
     throw new Error('opts.key is required');
   }
@@ -116,4 +114,25 @@ export async function findUserByKey(
     return user;
   }
   return null;
+}
+
+export async function findUserByEmail(email: string): Promise<User | null> {
+  const key = (await redis.get(`user:email:${email}`)) as string | null;
+  if (!key) {
+    return null;
+  }
+  return findUserByKey(key, false);
+}
+
+export async function findUsers(partial: string): Promise<User[]> {
+  const keys = await redis.keys(`user:*${partial}*`);
+  const users: User[] = [];
+
+  for (const key of keys) {
+    console.log(`Fetching user from key: ${key}`);
+    const user = await findUserByEmail(key.replace(/^user:email:/, ''));
+    if (user) users.push(user);
+  }
+
+  return users;
 }
