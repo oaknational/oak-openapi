@@ -35,7 +35,6 @@ export const SanityCtaLink = (props: SanityCtaLinkProps) => {
   const Tag = variant === 'primary' ? OakPrimaryButton : OakSecondaryButton;
 
   if (backgroundImageUrl) {
-    console.log({ backgroundImageUrl });
     return (
       <OakFlexWithImage
         background={`url(${backgroundImageUrl.asset.url})`}
