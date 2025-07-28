@@ -1,5 +1,7 @@
 'use client';
 import styled from 'styled-components';
+import { usePathname } from 'next/navigation';
+
 import { OakAPINavigationLink as _OakAPINavigationLink } from './OakAPINavigationLink';
 import {
   OakFlex,
@@ -164,6 +166,11 @@ function MenuContents({
   className?: string;
 }) {
   const flexDirection = wide ? 'row' : 'column';
+
+  const pathname = usePathname();
+
+  const highlightDocs = pathname.startsWith('/docs/');
+
   return (
     <OakFlex
       $gap="space-between-m2"
@@ -176,10 +183,18 @@ function MenuContents({
         $gap="space-between-m2"
         $flexDirection={flexDirection}
       >
-        <OakAPINavigationLink role="listitem" href="#" className="selected">
+        <OakAPINavigationLink
+          role="listitem"
+          href="/"
+          className={highlightDocs ? null : 'selected'}
+        >
           Home
         </OakAPINavigationLink>
-        <OakAPINavigationLink role="listitem" href="/docs">
+        <OakAPINavigationLink
+          role="listitem"
+          href="/docs"
+          className={highlightDocs ? 'selected' : null}
+        >
           Documentation
         </OakAPINavigationLink>
       </OakFlex>
