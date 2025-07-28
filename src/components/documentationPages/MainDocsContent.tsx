@@ -37,8 +37,6 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
     contents = []; // Hide contents if there are less than 3 items
   }
 
-  console.log({ contents });
-
   if (!docs || docs.length === 0) {
     return (
       <OakBox $color="black" $pv="inner-padding-xl3">
