@@ -6,34 +6,12 @@ import {
   NavGroup,
 } from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
 import query from './navDocsListQuery.gql';
+import { groupedEndpointInfo } from '@/lib/endpoint-docs/getEndpointDocs';
 
 const API_ENDPOINTS_SLUG = 'api-endpoints';
 
-const endpointSlugs = {
-  lists: {
-    title: 'Lists',
-    slug: 'lists',
-  },
-  lessonData: {
-    title: 'Lesson data',
-    slug: 'lesson-data',
-  },
-  unitAndCurriculumData: {
-    title: 'Unit and curriculum data',
-    slug: 'unit-curriculum-data',
-  },
-  quizQuestions: {
-    title: 'Quiz questions',
-    slug: 'quiz-questions',
-  },
-  search: {
-    title: 'Search',
-    slug: 'search',
-  },
-};
-
 const getEndpointsNavData = () => {
-  return Object.values(endpointSlugs).map((page, order) => {
+  return Object.values(groupedEndpointInfo).map((page, order) => {
     const { title, slug }: { title: string; slug: string } = page;
 
     return {
