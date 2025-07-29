@@ -5,6 +5,7 @@ query {
       bodyRaw
       image {
         asset {
+          altText
           url
         }
       }
@@ -30,6 +31,7 @@ query {
           asset {
             _id
             url
+            altText
           }
         }
       }
