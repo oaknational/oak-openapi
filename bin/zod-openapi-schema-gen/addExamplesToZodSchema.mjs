@@ -167,6 +167,7 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
 
   let inputCode = fs.readFileSync(schemaFilePath, 'utf-8');
   const exampleJson = JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'));
+  const descriptionsJson = JSON.parse(fs.readFileSync('./src/lib/endpoint-docs/outputDescriptions.json', 'utf-8'));
 
   const ast = parser.parse(inputCode, {
     sourceType: 'module',
