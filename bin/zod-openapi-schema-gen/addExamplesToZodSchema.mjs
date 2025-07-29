@@ -5,6 +5,7 @@ import parser from '@babel/parser';
 import traverse from '@babel/traverse';
 import generate from '@babel/generator';
 import * as t from '@babel/types';
+import { attachDescriptions } from './addDescriptions.mjs';
 
 const SCHEMA_PATTERN = /(Request|Response)\.schema\.ts$/;
 const JSON_PATTERN = /(Request|Response)Example\.json$/;
@@ -205,16 +206,19 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
       path.node.id.name = openapiSchemaName;
 
       const importedIdents = new Set(localImports.keys());
-
+      
       // if is a response schema, then tack the openapi meta object to the end
       const refName =
         originalSchemaName.charAt(0).toUpperCase() +
         originalSchemaName.slice(1);
       if (originalSchemaName.includes('Response')) {
+        path.node.init = attachDescriptions(path.node.init, descriptionsJson, exampleJson, importedIdents);
+        
         const ref = t.objectProperty(
           t.identifier('ref'),
           t.valueToNode(refName),
         );
+
         path.node.init = t.callExpression(
           t.memberExpression(path.node.init, t.identifier('openapi')),
           [
@@ -227,6 +231,7 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
             ]),
           ],
         );
+        
       } else if (originalSchemaName.includes('Request')) {
         // if request schema we want to nest the param examples inside the object to maintain the
         // path param examples
@@ -316,7 +321,7 @@ function formatWithPrettier(pathName) {
 }
 
 function main() {
-  const schemaFiles = findAllSchemaFiles('.');
+  const schemaFiles = findAllSchemaFiles('.').slice(18,23);
   const jsonFiles = findAllExampleJsonFiles('.');
 
   const endpointMap = {};
@@ -333,12 +338,12 @@ function main() {
     }
   }
 
-  if (Object.keys(endpointMap).length > 0) {
-    generatePerEndpointIndexes(endpointMap);
-    generateGlobalIndex(endpointMap);
-  } else {
-    console.warn('⚠️ No schemas processed.');
-  }
+  // if (Object.keys(endpointMap).length > 0) {
+  //   generatePerEndpointIndexes(endpointMap);
+  //   generateGlobalIndex(endpointMap);
+  // } else {
+  //   console.warn('⚠️ No schemas processed.');
+  // }
 }
 
 main();
