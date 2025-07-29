@@ -95,7 +95,7 @@ function UsingTheAPI({ title, image, link, blocks }: UsingTheApiSection) {
             <OakImage
               sizes={`width: ${343}px, height: ${288}px`}
               src={image.src}
-              alt=""
+              alt={image.altText || ''}
               $height={['all-spacing-20', 'all-spacing-21']}
               $width={['all-spacing-20', 'all-spacing-21']}
             />
