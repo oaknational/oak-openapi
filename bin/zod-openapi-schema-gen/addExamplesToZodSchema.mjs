@@ -321,7 +321,7 @@ function formatWithPrettier(pathName) {
 }
 
 function main() {
-  const schemaFiles = findAllSchemaFiles('.').slice(18,23);
+  const schemaFiles = findAllSchemaFiles('.');
   const jsonFiles = findAllExampleJsonFiles('.');
 
   const endpointMap = {};
@@ -338,12 +338,12 @@ function main() {
     }
   }
 
-  // if (Object.keys(endpointMap).length > 0) {
-  //   generatePerEndpointIndexes(endpointMap);
-  //   generateGlobalIndex(endpointMap);
-  // } else {
-  //   console.warn('⚠️ No schemas processed.');
-  // }
+  if (Object.keys(endpointMap).length > 0) {
+    generatePerEndpointIndexes(endpointMap);
+    generateGlobalIndex(endpointMap);
+  } else {
+    console.warn('⚠️ No schemas processed.');
+  }
 }
 
 main();
