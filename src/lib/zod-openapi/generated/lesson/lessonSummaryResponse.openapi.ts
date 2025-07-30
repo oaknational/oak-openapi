@@ -2,22 +2,28 @@ import { z } from 'zod';
 import 'zod-openapi/extend';
 export const lessonSummaryResponseOpenAPISchema = z
   .object({
-    lessonTitle: z.string(),
-    unitSlug: z.string(),
-    unitTitle: z.string(),
-    subjectSlug: z.string(),
-    subjectTitle: z.string(),
+    lessonTitle: z.string().openapi({ description: 'The lesson title' }),
+    unitSlug: z.string().openapi({ description: 'The unit slug identifier' }),
+    unitTitle: z.string().openapi({ description: 'The unit title' }),
+    subjectSlug: z
+      .string()
+      .openapi({ description: 'The subject slug identifier' }),
+    subjectTitle: z.string().openapi({ description: 'The subject title' }),
     keyStageSlug: z.string(),
     keyStageTitle: z.string(),
-    lessonKeywords: z.array(
-      z.object({ keyword: z.string(), description: z.string() }),
-    ),
-    keyLearningPoints: z.array(z.object({ keyLearningPoint: z.string() })),
-    misconceptionsAndCommonMistakes: z.array(
-      z.object({ misconception: z.string(), response: z.string() }),
-    ),
+    lessonKeywords: z
+      .array(z.object({ keyword: z.string(), description: z.string() }))
+      .openapi({ description: 'A list of keywords and descriptions' }),
+    keyLearningPoints: z
+      .array(z.object({ keyLearningPoint: z.string() }))
+      .openapi({ description: 'A list of key learning pointss' }),
+    misconceptionsAndCommonMistakes: z
+      .array(z.object({ misconception: z.string(), response: z.string() }))
+      .openapi({ description: 'A list of misconceptions and responses' }),
     pupilLessonOutcome: z.string().optional(),
-    teacherTips: z.array(z.object({ teacherTip: z.string() })),
+    teacherTips: z
+      .array(z.object({ teacherTip: z.string() }))
+      .openapi({ description: 'A list of teacher tipss' }),
     contentGuidance: z
       .array(
         z.object({
