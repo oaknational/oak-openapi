@@ -101,6 +101,7 @@ const getOutputSchema = (responses: ZodOpenApiResponsesObject) => {
       if (schema && data) {
         const output = Object.keys(data).map((propertyName) => {
           const property = data[propertyName];
+          console.log(schemaName, property.description);
           return {
             name: propertyName,
             type: getParamType(property) || '',

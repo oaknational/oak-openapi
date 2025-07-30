@@ -4,8 +4,10 @@ import z from 'zod';
 export const keyStageResponseOpenAPISchema = z
   .array(
     z.object({
-      slug: z.string(),
-      title: z.string(),
+      slug: z
+        .string()
+        .openapi({ description: 'The key stage slug identifier' }),
+      title: z.string().openapi({ description: 'The key stage title' }),
     }),
   )
   .openapi({
