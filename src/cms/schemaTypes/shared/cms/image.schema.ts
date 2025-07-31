@@ -13,6 +13,7 @@ const assetSchema = z.object({
 
 export const imageSchema = z.object({
   isPresentational: z.boolean().optional(),
+  altText: z.string().optional(),
   asset: assetSchema,
 });
 

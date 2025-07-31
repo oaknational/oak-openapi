@@ -74,6 +74,16 @@ const DocsNavContainer = styled(OakFlex)`
   }
 `;
 
+const VisibleOnFocusOakSecondaryButton = styled(OakSecondaryButton)`
+  position: absolute;
+  left: -9999px;
+
+  &:has(:focus) {
+    position: relative;
+    left: auto;
+  }
+`;
+
 export default function DocsNav({
   items,
   location,
@@ -125,6 +135,13 @@ export default function DocsNav({
           Documentation
         </OakHeading>
       </OakBox>
+      <VisibleOnFocusOakSecondaryButton
+        element="a"
+        href="#content"
+        $display={['none', 'block']}
+      >
+        Skip to content
+      </VisibleOnFocusOakSecondaryButton>
       <OakBox $display={['block', 'none']}>
         {/* mobile nav button */}
         <JauntyAngleLabel
