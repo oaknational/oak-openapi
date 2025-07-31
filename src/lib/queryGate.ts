@@ -19,8 +19,8 @@ import {
 } from './owaClient';
 
 // blocked always overrules
-import blockedLessons from './queryGateData/blockedLessons.json' with { type: 'json' };
-import blockedUnits from './queryGateData/blockedUnits.json' with { type: 'json' };
+import assetBlockedLessons from './queryGateData/assets/blockedLessons.json' with { type: 'json' };
+import assetBlockedUnits from './queryGateData/assets/blockedUnits.json' with { type: 'json' };
 import supportedUnits from './queryGateData/supportedUnits.json' with { type: 'json' };
 import supportedLessons from './queryGateData/supportedLessons.json' with { type: 'json' };
 
@@ -29,22 +29,17 @@ const supportedSubjects = ['maths'];
 export const blockedSubjects = ['english', 'financial-education'];
 
 function isLessonBlocked(lessonSlug: string) {
-  return (blockedLessons as string[]).includes(lessonSlug);
+  return (assetBlockedLessons as string[]).includes(lessonSlug);
 }
 
 function isUnitBlocked(unitSlug: string) {
-  return (blockedUnits as string[]).includes(unitSlug);
+  return (assetBlockedUnits as string[]).includes(unitSlug);
 }
 
 export async function blockLessonForCopyrightText(
   client: GraphQLClient,
   lessonSlug: string,
 ) {
-  if (isLessonBlocked(lessonSlug)) {
-    // blocked lesson
-    return true;
-  }
-
   if (supportedLessons.includes(lessonSlug)) {
     // not copyright
     return false;
@@ -54,11 +49,6 @@ export async function blockLessonForCopyrightText(
 
   if (!res) {
     // unknown subject - block
-    return true;
-  }
-
-  if (isUnitBlocked(res.unitSlug)) {
-    // blocked unit
     return true;
   }
 
@@ -72,11 +62,6 @@ export function isBlockedUnitOrSubject({
   unitSlug: string;
   subjectSlug: string;
 }): boolean {
-  if (isUnitBlocked(unitSlug)) {
-    // blocked unit
-    return true;
-  }
-
   if (supportedUnits.includes(unitSlug)) {
     // not copyright
     return false;
@@ -162,11 +147,11 @@ export function isSubjectSupported(subject: string) {
 }
 
 export function isUnitSupported(unit: string) {
-  return supportedUnits.includes(unit) && !isUnitBlocked(unit);
+  return supportedUnits.includes(unit);
 }
 
 export function isLessonSupported(lesson: string) {
-  return supportedLessons.includes(lesson) && !isLessonBlocked(lesson);
+  return supportedLessons.includes(lesson);
 }
 
 export async function getSubjectAndUnitForLesson(
