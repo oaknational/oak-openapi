@@ -80,7 +80,6 @@ export function GetUpdates() {
         },
         body: JSON.stringify(body),
       });
-      console.log({ res });
     } catch (error) {
       console.error('Error submitting form:', error);
       return;
