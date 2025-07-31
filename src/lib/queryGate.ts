@@ -18,6 +18,9 @@ import {
   sequenceViewWhereInput,
 } from './owaClient';
 
+// blocked always overrules
+import blockedLessons from './queryGateData/blockedLessons.json' with { type: 'json' };
+import blockedUnits from './queryGateData/blockedUnits.json' with { type: 'json' };
 import supportedUnits from './queryGateData/supportedUnits.json' with { type: 'json' };
 import supportedLessons from './queryGateData/supportedLessons.json' with { type: 'json' };
 
@@ -29,6 +32,11 @@ export async function blockLessonForCopyrightText(
   client: GraphQLClient,
   lessonSlug: string,
 ) {
+  if (blockedLessons.includes(lessonSlug)) {
+    // blocked lesson
+    return true;
+  }
+
   if (supportedLessons.includes(lessonSlug)) {
     // not copyright
     return false;
@@ -51,6 +59,11 @@ export function isBlockedUnitOrSubject({
   unitSlug: string;
   subjectSlug: string;
 }): boolean {
+  if (blockedUnits.includes(unitSlug)) {
+    // blocked unit
+    return true;
+  }
+
   if (supportedUnits.includes(unitSlug)) {
     // not copyright
     return false;
@@ -97,28 +110,13 @@ export async function blockUnitForCopyrightText(
   return false;
 }
 
-export function checkQueryAllowedAssets(params: {
-  subject?: string;
-  unit?: string;
-  lesson?: string;
-}) {
-  const { subject = '', unit = '', lesson = '' } = params;
-
-  // if the query is empty, prevent it
-  const supportedSubject = subject ? isSubjectSupported(subject) : false;
-  const supportedUnit = unit ? isUnitSupported(unit) : false;
-  const supportedLesson = lesson ? isLessonSupported(lesson) : false;
-
-  return supportedSubject || supportedUnit || supportedLesson;
-}
-
 export async function checkLessonAllowedAsset(
   client: GraphQLClient,
   lessonSlug: string,
 ) {
-  // start with a direct match on the lessons
-  if (supportedLessons.includes(lessonSlug)) {
-    return true;
+  // if the lesson is blocked, return false
+  if (blockedLessons.includes(lessonSlug)) {
+    return false;
   }
 
   // otherwise get the subject and unit to see if those are supported
@@ -130,7 +128,16 @@ export async function checkLessonAllowedAsset(
 
   const { subjectSlug, unitSlug } = res;
 
-  return isSubjectSupported(subjectSlug) || isUnitSupported(unitSlug);
+  if (blockedUnits.includes(unitSlug)) {
+    // blocked unit
+    return false;
+  }
+
+  return (
+    isSubjectSupported(subjectSlug) ||
+    isUnitSupported(unitSlug) ||
+    supportedLessons.includes(lessonSlug)
+  );
 }
 
 export function supportsImages(subject: string, unit: string) {
@@ -142,11 +149,11 @@ export function isSubjectSupported(subject: string) {
 }
 
 export function isUnitSupported(unit: string) {
-  return supportedUnits.includes(unit);
+  return supportedUnits.includes(unit) && !blockedUnits.includes(unit);
 }
 
 export function isLessonSupported(lesson: string) {
-  return supportedLessons.includes(lesson);
+  return supportedLessons.includes(lesson) && !blockedLessons.includes(lesson);
 }
 
 export async function getSubjectAndUnitForLesson(
