@@ -1,17 +1,37 @@
-import client from '@/cms/client';
-import { CurriculumAPIDocumentationPage } from '@/cms/schemaTypes';
-import query from './documentationBySlugQuery.gql';
+import { sanityClient } from '@/cms/client';
+
+const query = `*[
+  _type=="apiContentPage" &&
+  slug.current == $docSlug &&
+  navGroupType->slug.current == $navGroupSlug
+]{
+  navGroupType->,
+  slug,
+  title,
+  docsBlocks[]{
+    ...,
+    _type == "image" => {
+      ...,
+      asset->{ url, metadata{ dimensions{ width, height } } }
+    },
+    _type == "ctaLink" => {
+      ...,
+      backgroundImageUrl{
+        ...,
+        asset->{ url, metadata{ dimensions{ width, height } } }
+      }
+    }
+  }
+}`;
 
 const documentationBySlugQuery = async (
   navGroupSlug: string,
   docSlug: string,
 ) => {
-  const res = (await client.request(query, {
-    navGroupSlug,
+  const allApiContentPage = await sanityClient.fetch(query, {
     docSlug,
-  })) as CurriculumAPIDocumentationPage;
-
-  const { allApiContentPage } = res;
+    navGroupSlug,
+  });
 
   if (!allApiContentPage) {
     throw new Error(

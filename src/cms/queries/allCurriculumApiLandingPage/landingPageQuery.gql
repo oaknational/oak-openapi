@@ -11,6 +11,8 @@ query {
       cta {
         externalLink
         label
+        variant
+        icon
       }
     }
 
@@ -18,8 +20,10 @@ query {
       mainBlock {
         titleRaw
         cta {
-          label
           externalLink
+          label
+          variant
+          icon
         }
         image {
           isPresentational
@@ -34,6 +38,8 @@ query {
         cta {
           externalLink
           label
+          variant
+          icon
         }
         bodyRaw
       }
