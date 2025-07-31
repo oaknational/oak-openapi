@@ -169,8 +169,14 @@ function MenuContents({
 
   const pathname = usePathname();
 
-  const highlightDocs = pathname.startsWith('/docs/');
+  const select = (test: boolean) => (test ? 'selected' : null);
 
+  const focusLink = {
+    docs: select(pathname.startsWith('/docs')),
+    playground: select(pathname.startsWith('/playground')),
+    bulkDownload: select(pathname.startsWith('/bulk-download')),
+    home: select(pathname === '/'),
+  };
   return (
     <OakFlex
       $gap="space-between-m2"
@@ -186,14 +192,14 @@ function MenuContents({
         <OakAPINavigationLink
           role="listitem"
           href="/"
-          className={highlightDocs ? null : 'selected'}
+          className={focusLink.home}
         >
           Home
         </OakAPINavigationLink>
         <OakAPINavigationLink
           role="listitem"
           href="/docs"
-          className={highlightDocs ? 'selected' : null}
+          className={focusLink.docs}
         >
           Documentation
         </OakAPINavigationLink>
@@ -221,6 +227,16 @@ function MenuContents({
           target="_blank"
         >
           API playground
+        </OakAPINavigationLink>
+
+        <OakAPINavigationLink
+          role="listitem"
+          href="/bulk-download"
+          isTrailingIcon
+          iconName="external"
+          target="_blank"
+        >
+          Bulk download
         </OakAPINavigationLink>
       </OakFlex>
     </OakFlex>
