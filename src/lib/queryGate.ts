@@ -28,11 +28,19 @@ import supportedLessons from './queryGateData/supportedLessons.json' with { type
 const supportedSubjects = ['maths'];
 export const blockedSubjects = ['english', 'financial-education'];
 
+function isLessonBlocked(lessonSlug: string) {
+  return (blockedLessons as string[]).includes(lessonSlug);
+}
+
+function isUnitBlocked(unitSlug: string) {
+  return (blockedUnits as string[]).includes(unitSlug);
+}
+
 export async function blockLessonForCopyrightText(
   client: GraphQLClient,
   lessonSlug: string,
 ) {
-  if (blockedLessons.includes(lessonSlug)) {
+  if (isLessonBlocked(lessonSlug)) {
     // blocked lesson
     return true;
   }
@@ -49,6 +57,11 @@ export async function blockLessonForCopyrightText(
     return true;
   }
 
+  if (isUnitBlocked(res.unitSlug)) {
+    // blocked unit
+    return true;
+  }
+
   return isBlockedUnitOrSubject(res);
 }
 
@@ -59,7 +72,7 @@ export function isBlockedUnitOrSubject({
   unitSlug: string;
   subjectSlug: string;
 }): boolean {
-  if (blockedUnits.includes(unitSlug)) {
+  if (isUnitBlocked(unitSlug)) {
     // blocked unit
     return true;
   }
@@ -115,7 +128,7 @@ export async function checkLessonAllowedAsset(
   lessonSlug: string,
 ) {
   // if the lesson is blocked, return false
-  if (blockedLessons.includes(lessonSlug)) {
+  if (isLessonBlocked(lessonSlug)) {
     return false;
   }
 
@@ -128,7 +141,7 @@ export async function checkLessonAllowedAsset(
 
   const { subjectSlug, unitSlug } = res;
 
-  if (blockedUnits.includes(unitSlug)) {
+  if (isUnitBlocked(unitSlug)) {
     // blocked unit
     return false;
   }
@@ -149,11 +162,11 @@ export function isSubjectSupported(subject: string) {
 }
 
 export function isUnitSupported(unit: string) {
-  return supportedUnits.includes(unit) && !blockedUnits.includes(unit);
+  return supportedUnits.includes(unit) && !isUnitBlocked(unit);
 }
 
 export function isLessonSupported(lesson: string) {
-  return supportedLessons.includes(lesson) && !blockedLessons.includes(lesson);
+  return supportedLessons.includes(lesson) && !isLessonBlocked(lesson);
 }
 
 export async function getSubjectAndUnitForLesson(
