@@ -1,10 +1,10 @@
-import { Asset } from '@/cms/schemaTypes';
+import { CMSImage } from '@/cms/schemaTypes';
 import { OakBox } from '@oaknational/oak-components';
 import Image from 'next/image';
 
-export const SanityImage = (props: { value: { asset: Asset } }) => {
+export const SanityImage = (props: { value: CMSImage }) => {
   const src = props.value.asset.url;
-  const altText = props.value.asset?.altText || '';
+  const altText = props.value.altText || '';
   const { width, height } = props.value.asset.metadata.dimensions;
 
   return (

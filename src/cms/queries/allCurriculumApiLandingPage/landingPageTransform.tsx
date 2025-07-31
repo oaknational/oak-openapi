@@ -79,7 +79,7 @@ function parseImage(data: CMSImage): Image | undefined {
   }
   return {
     src: data.asset.url,
-    altText: data.asset.altText || '',
+    altText: data.altText || '',
   };
 }
 

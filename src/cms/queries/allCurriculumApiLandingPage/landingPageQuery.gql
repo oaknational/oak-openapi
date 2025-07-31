@@ -4,8 +4,8 @@ query {
       titleRaw
       bodyRaw
       image {
+        altText
         asset {
-          altText
           url
         }
       }
@@ -27,11 +27,11 @@ query {
           icon
         }
         image {
+          altText
           isPresentational
           asset {
             _id
             url
-            altText
           }
         }
       }
