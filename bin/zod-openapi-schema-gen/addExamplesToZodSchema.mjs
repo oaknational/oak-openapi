@@ -168,7 +168,9 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
 
   let inputCode = fs.readFileSync(schemaFilePath, 'utf-8');
   const exampleJson = JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'));
-  const descriptionsJson = JSON.parse(fs.readFileSync('./src/lib/endpoint-docs/outputDescriptions.json', 'utf-8'));
+  const descriptionsJson = JSON.parse(
+    fs.readFileSync('./src/lib/endpoint-docs/outputDescriptions.json', 'utf-8'),
+  );
 
   const ast = parser.parse(inputCode, {
     sourceType: 'module',
@@ -206,14 +208,19 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
       path.node.id.name = openapiSchemaName;
 
       const importedIdents = new Set(localImports.keys());
-      
+
       // if is a response schema, then tack the openapi meta object to the end
       const refName =
         originalSchemaName.charAt(0).toUpperCase() +
         originalSchemaName.slice(1);
       if (originalSchemaName.includes('Response')) {
-        path.node.init = attachDescriptions(path.node.init, descriptionsJson, exampleJson, importedIdents);
-        
+        path.node.init = attachDescriptions(
+          path.node.init,
+          descriptionsJson,
+          exampleJson,
+          importedIdents,
+        );
+
         const ref = t.objectProperty(
           t.identifier('ref'),
           t.valueToNode(refName),
@@ -231,7 +238,6 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
             ]),
           ],
         );
-        
       } else if (originalSchemaName.includes('Request')) {
         // if request schema we want to nest the param examples inside the object to maintain the
         // path param examples

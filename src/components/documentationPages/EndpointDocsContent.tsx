@@ -55,11 +55,11 @@ const OakGridArea = styled(_OakGridArea)`
 
 const EndpointHeading = styled(OakHeading)`
   color: var(--Tokens-Text-text-primary, #222);
-    font-family: "Roboto Mono";
-    font-size: 32px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 40px; /* 125% */
+  font-family: 'Roboto Mono';
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 40px; /* 125% */
 `;
 export default function EndpointDocsContent({
   endpoints,
