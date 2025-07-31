@@ -140,7 +140,7 @@ export default function DocsNav({
         href="#content"
         $display={['none', 'block']}
       >
-        Skip to article
+        Skip to content
       </VisibleOnFocusOakSecondaryButton>
       <OakBox $display={['block', 'none']}>
         {/* mobile nav button */}
