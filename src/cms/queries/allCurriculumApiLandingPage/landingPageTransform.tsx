@@ -11,6 +11,7 @@ type Image = {
   src: string;
   width?: number;
   height?: number;
+  altText?: string;
 };
 
 type Block = {
@@ -28,7 +29,7 @@ export type LandingPageContent = {
 
 export type UsingTheApiSection = {
   title: React.ReactNode;
-  image: Image;
+  image?: Image;
   link?: CMSCta;
   blocks: Block[];
 };
@@ -72,13 +73,13 @@ function parseDescription(data: CMSRaw): React.ReactNode | string {
   return '';
 }
 
-function parseImage(data: CMSImage): {
-  src: string;
-  width?: number; // these are never on there… not yet at least
-  height?: number;
-} {
+function parseImage(data: CMSImage): Image | undefined {
+  if (!data || !data.asset || !data.asset.url) {
+    return;
+  }
   return {
     src: data.asset.url,
+    altText: data.altText || '',
   };
 }
 

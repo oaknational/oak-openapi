@@ -222,16 +222,6 @@ function MenuContents({
         >
           API playground
         </OakAPINavigationLink>
-
-        <OakAPINavigationLink
-          role="listitem"
-          href="/bulk-downloads"
-          isTrailingIcon
-          iconName="external"
-          target="_blank"
-        >
-          Bulk downloads
-        </OakAPINavigationLink>
       </OakFlex>
     </OakFlex>
   );

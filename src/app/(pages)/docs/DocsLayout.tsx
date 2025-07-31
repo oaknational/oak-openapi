@@ -8,7 +8,6 @@ import Footer from '@/components/Footer';
 
 import { Navigation } from '@/components/Nav';
 import { OakFlex } from '@oaknational/oak-components';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export default function DocsLayout({
@@ -22,7 +21,6 @@ export default function DocsLayout({
   return (
     <>
       <Navigation />
-      <Link rel="stylesheet" href="/docs.css" />
       <OakFlex
         $flexDirection={['column', 'row']}
         $mh={'auto'}
@@ -30,6 +28,7 @@ export default function DocsLayout({
         $gap="all-spacing-8"
       >
         <DocsNav items={navigationItems} location={location} />
+        <a id="content" />
         {children}
       </OakFlex>
       <Footer />
