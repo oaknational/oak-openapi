@@ -37,5 +37,6 @@ provider "google" {
 }
 
 locals {
-  application_name = "Bulk Uploader"
+  application_name    = "Bulk Uploader"
+  application_name_gc = lower(replace(local.application_name, " ", "-"))
 }
