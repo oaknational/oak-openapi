@@ -125,6 +125,38 @@ test('blocked videos return 404', async () => {
   expect(lesson.assets.find((_) => _.type === 'video')).toBe(undefined);
 });
 
+test('specifically blocked lessons', async () => {
+  const lessons = [
+    'checking-understanding-of-pictograms-and-bar-charts',
+    'securing-constructing-pictograms',
+    'securing-constructing-bar-charts-by-hand',
+    'constructing-bar-charts-by-utilising-technology',
+    'constructing-pie-charts',
+    'constructing-pie-charts-by-utilising-technology',
+    'interpreting-pie-charts',
+    'constructing-scatter-graphs',
+    'constructing-scatter-graphs-by-utilising-technology',
+    'interpreting-scatter-graphs',
+    'problem-solving-with-graphical-representations-of-data',
+  ];
+
+  const lesson = lessons[1];
+
+  const res = await getLessonAsset({
+    lesson,
+    type: 'slideDeck',
+  });
+
+  // for (const lesson of lessons) {
+  //   const res = await getLessonAsset({
+  //     lesson,
+  //     type: 'slideDeck',
+  //   });
+
+  expect(res.status, `${lesson} should be blocked`).toBe(404);
+  // }
+});
+
 test('lessons in the supported lessons array are allowed', async () => {
   // this will throw if the lesson is not allowed, which
   // is all we're testing for
