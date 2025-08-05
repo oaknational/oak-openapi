@@ -1,12 +1,12 @@
 import BulkDownloadPage from '@/components/bulkDownload/BulkDownloadPage';
-import { getAllSubjects } from '@/lib/bulk-data/get-data';
+import { getSubjectsWithLessonCounts } from '@/lib/bulk-data/get-data';
 import { getClient } from '@/lib/owaClient';
 
 export type Subjects = {
   title: string;
   slug: string;
-  primary: boolean;
-  secondary: boolean;
+  primary: number;
+  secondary: number;
 }[];
 
 export default async function Page() {
@@ -17,26 +17,20 @@ export default async function Page() {
 }
   */
 
-  type RawSubjects = {
-    sequenceSlug: string;
-    subjectTitle: string;
-  }[];
-
-  const subjects: RawSubjects = await getAllSubjects(getClient());
+  const subjects = await getSubjectsWithLessonCounts(getClient());
 
   // reduce and restructure the subjects to match the expected format:
 
   const reducedSubjects: Subjects = subjects.reduce((acc, subject) => {
-    const { sequenceSlug, subjectTitle } = subject;
-    const [slug, phase] = sequenceSlug.split('-');
+    const { slug, title, phase, lessonCount } = subject;
 
     const existing = acc.find((s) => s.slug === slug);
     if (existing) {
       if (phase.includes('primary')) {
-        existing.primary = true;
+        existing.primary = lessonCount;
       }
       if (phase.includes('secondary')) {
-        existing.secondary = true;
+        existing.secondary = lessonCount;
       }
 
       return acc; // already exists
@@ -44,10 +38,10 @@ export default async function Page() {
     return [
       ...acc,
       {
-        title: subjectTitle,
+        title,
         slug,
-        primary: phase.includes('primary'),
-        secondary: phase.includes('secondary'),
+        primary: phase.includes('primary') ? lessonCount : 0,
+        secondary: phase.includes('secondary') ? lessonCount : 0,
       },
     ];
   }, [] as Subjects);

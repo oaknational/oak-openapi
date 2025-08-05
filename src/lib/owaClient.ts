@@ -122,6 +122,7 @@ export type Sequence = TitleSlug & {
   why_this_why_now: string;
   year: string;
   features: { pe_swimming: boolean };
+  planned_number_of_lessons: number;
   actions: {
     opt_out: string[];
     group_units_as: string;

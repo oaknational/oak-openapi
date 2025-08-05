@@ -9,19 +9,19 @@ import {
 
 interface SelectCardProps {
   subject: string;
-  primaryFileSize: string;
-  secondaryFileSize: string;
+  primaryLessonCount: number;
+  secondaryLessonCount: number;
   primaryChecked?: boolean;
   secondaryChecked?: boolean;
   onPrimaryChange: () => void;
   onSecondaryChange: () => void;
-  iconName: string; // Changed to string to allow dynamic icon names
+  iconName: string;
 }
 
 const SelectCard: React.FC<SelectCardProps> = ({
   subject,
-  primaryFileSize,
-  secondaryFileSize,
+  primaryLessonCount,
+  secondaryLessonCount,
   primaryChecked = false,
   secondaryChecked = false,
   onPrimaryChange,
@@ -53,7 +53,7 @@ const SelectCard: React.FC<SelectCardProps> = ({
           iconName={iconName as OakIconName}
         />
 
-        <OakSpan $font="heading-5" $textAlign="center" $color="black">
+        <OakSpan $font="heading-6" $textAlign="center" $color="black">
           {subject}
         </OakSpan>
       </OakFlex>
@@ -66,18 +66,22 @@ const SelectCard: React.FC<SelectCardProps> = ({
         $borderRadius="border-radius-m"
       >
         <OakFlex $flexDirection="column" $gap="all-spacing-2" $width="100%">
-          <DownloadOption
-            heading="Primary"
-            label={primaryFileSize}
-            checked={primaryChecked}
-            onChange={onPrimaryChange}
-          />
-          <DownloadOption
-            heading="Secondary"
-            label={secondaryFileSize}
-            checked={secondaryChecked}
-            onChange={onSecondaryChange}
-          />
+          {primaryLessonCount > 0 && (
+            <DownloadOption
+              heading="Primary"
+              label={`${primaryLessonCount} lessons`}
+              checked={primaryChecked}
+              onChange={onPrimaryChange}
+            />
+          )}
+          {secondaryLessonCount > 0 && (
+            <DownloadOption
+              heading="Secondary"
+              label={`${secondaryLessonCount} lessons`}
+              checked={secondaryChecked}
+              onChange={onSecondaryChange}
+            />
+          )}
         </OakFlex>
       </OakFlex>
     </OakFlex>

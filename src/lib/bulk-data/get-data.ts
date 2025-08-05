@@ -27,6 +27,78 @@ import { formatUnitSummary } from '@/lib/handlers/units/helpers';
 import { sequenceWhere } from '@/lib/handlers/sequences/sequences';
 import { runSQL } from './data-stores';
 
+export type SubjectWithLessonCount = {
+  title: string;
+  slug: string;
+  phase: string;
+  lessonCount: number;
+};
+
+export async function getSubjectsWithLessonCounts(
+  client: GraphQLClient,
+): Promise<SubjectWithLessonCount[]> {
+  const query = gql`
+    query ($currentCycle: String!) @cached(ttl: 300) {
+      ${sequenceView}(
+        where: {
+          cycle: { _eq: $currentCycle }
+          _not: {subject_slug: {_eq: "financial-education"}}
+        }
+        order_by:{subject:asc}
+      ) {
+        subject
+        subject_slug
+        phase_slug
+        planned_number_of_lessons
+      }
+    }`;
+
+  const res: SequenceView = await client.request(query, {
+    currentCycle,
+  });
+
+  const lessonCounts = res[sequenceView].reduce(
+    (acc, lesson) => {
+      const { subject_slug, phase_slug, planned_number_of_lessons } = lesson;
+      const key = `${subject_slug}-${phase_slug}`;
+      const titleSlug = {
+        title: lesson.subject,
+        slug: subject_slug,
+        phase: phase_slug,
+      };
+
+      if (!acc[key]) {
+        acc[key] = {
+          ...titleSlug,
+          lessonCount: 0,
+        };
+      }
+
+      acc[key].lessonCount += planned_number_of_lessons || 0;
+
+      // If the lesson count is 0, we still want to include it
+      if (acc[key].lessonCount === 0) {
+        acc[key].lessonCount = 0;
+      }
+
+      // Ensure the title is set correctly
+      if (!acc[key].title) {
+        acc[key].title = lesson.subject;
+      }
+
+      // Ensure the slug is set correctly
+      if (!acc[key].slug) {
+        acc[key].slug = subject_slug;
+      }
+
+      return acc;
+    },
+    {} as Record<string, SubjectWithLessonCount>,
+  );
+
+  return Object.values(lessonCounts);
+}
+
 export async function getAllSubjects(
   client: GraphQLClient,
   subjectPhaseFilter?: string,
