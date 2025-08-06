@@ -241,6 +241,7 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
         <Authenticate
           hasSelectedSubject={hasSelectedSubject}
           setHasError={setHasError}
+          selectedSubjects={selectedSubjects}
         />
       </MaxWidth>
       <Footer />

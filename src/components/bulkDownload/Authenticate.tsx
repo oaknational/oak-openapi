@@ -1,5 +1,5 @@
 'use client';
-
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
   OakBox,
@@ -21,6 +21,7 @@ import styled from 'styled-components';
 interface AuthenticateProps {
   hasSelectedSubject: () => boolean;
   setHasError: (hasError: boolean) => void;
+  selectedSubjects: Record<string, { primary: boolean; secondary: boolean }>;
 }
 
 const ErrorUL = styled(OakUL)`
@@ -38,9 +39,72 @@ const OakTextInput = styled(_OakTextInput)`
   height: fit-content;
 `;
 
+async function startDownload(
+  selectedSubjectKeys: string[],
+  apiKey: string,
+  done: (ok: boolean) => undefined | void,
+) {
+  const res = await fetch('/api/bulk', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({ subjects: selectedSubjectKeys }),
+  });
+
+  const stream = res.body;
+
+  if (!stream || res.status !== 200) {
+    console.error('No response stream available');
+    done(false);
+    return;
+  }
+
+  try {
+    const downloadStream = new ReadableStream({
+      start(controller) {
+        const reader = stream.getReader();
+
+        function push() {
+          reader.read().then(({ done, value }) => {
+            if (done) {
+              controller.close();
+              return;
+            }
+            controller.enqueue(value);
+            push();
+          });
+        }
+
+        push();
+      },
+    });
+
+    const blob = new Response(downloadStream);
+    const url = URL.createObjectURL(await blob.blob());
+
+    // Trigger download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `oak-bulk-download-${new Date().toISOString()}.zip`;
+    a.click();
+
+    // Optional: revoke after some time
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      done(true);
+    }, 2_000);
+  } catch (error) {
+    console.error('Error during download:', error);
+    done(false);
+  }
+}
+
 export function Authenticate({
   hasSelectedSubject,
   setHasError,
+  selectedSubjects,
 }: AuthenticateProps) {
   const [apiKey, setApiKey] = useState('');
   const [termsChecked, setTermsChecked] = useState(false);
@@ -49,9 +113,9 @@ export function Authenticate({
   const [termsError, setTermsError] = useState<boolean | string>(false);
   const [subjectError, setSubjectError] = useState<boolean | string>(false);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    console.log({ apiKeyError, termsError, subjectError });
     if (!apiKeyError && !termsError && !subjectError) {
       setHasError(false);
       setErrorMessage('');
@@ -85,7 +149,6 @@ export function Authenticate({
       if (hasError) {
         setApiKeyError(false);
       } else {
-        console.log(`fetch /api/v0/rate-limit with API key: ${apiKey}`);
         // don't bother with API check if we haven't passed the initial checks
         const res = await fetch('/api/v0/rate-limit', {
           headers: {
@@ -110,9 +173,31 @@ export function Authenticate({
     }
 
     setErrorMessage('');
-    console.log('Download button clicked! Mocking API fetch...');
 
-    setIsLoading(false);
+    // construct an array of selected subjects as ${subjectSlug}-${phase}
+    const selectedSubjectKeys = Object.keys(selectedSubjects)
+      .filter(
+        (key) =>
+          selectedSubjects[key].primary || selectedSubjects[key].secondary,
+      )
+      .reduce<string[]>((acc, key) => {
+        if (selectedSubjects[key].primary) {
+          acc.push(`${key}-primary`);
+        }
+        if (selectedSubjects[key].secondary) {
+          acc.push(`${key}-secondary`);
+        }
+        return acc;
+      }, []);
+
+    startDownload(selectedSubjectKeys, apiKey, (ok) => {
+      setIsLoading(false);
+      if (ok) {
+        router.push('/bulk-download/success');
+      }
+      return;
+    });
+
     // Mock API fetch here
   };
 
@@ -128,7 +213,7 @@ export function Authenticate({
           </OakBox>
         )}
         <JauntyAngleLabel
-          error={!!apiKeyError}
+          $error={!!apiKeyError}
           $background="lemon"
           htmlFor="apiKey"
           as="label"

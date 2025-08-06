@@ -19,7 +19,7 @@ export const JauntyAngleLabel = styled(_OakJauntyAngleLabel)`
   }
 
   ${(props) =>
-    props.error &&
+    props.$error &&
     `
     background: #dd0035;
     color: white;`}
