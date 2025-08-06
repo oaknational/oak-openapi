@@ -5,6 +5,9 @@ interface CheckBoxProps {
   checked?: boolean;
   onChange?: (checked: boolean) => void;
   label?: string;
+  $hasError?: boolean;
+  id?: string;
+  children?: React.ReactNode;
 }
 
 const CheckboxContainer = styled.div`
@@ -28,7 +31,7 @@ const HiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
   width: 1px;
 `;
 
-const StyledCheckbox = styled.div<{ checked: boolean }>`
+const StyledCheckbox = styled.div<{ checked: boolean; $hasError?: boolean }>`
   width: 28px;
   height: 28px;
   border-radius: 2px;
@@ -48,6 +51,12 @@ const StyledCheckbox = styled.div<{ checked: boolean }>`
     `
     background: #222; /* New background when checked */
     border-color: #CACACA;
+  `}
+
+  ${(props) =>
+    props.$hasError &&
+    `
+    border-color: red; /* Example error color */
   `}
 `;
 
@@ -71,6 +80,11 @@ const CheckBox: React.FC<CheckBoxProps> = ({
   checked: controlledChecked,
   onChange: controlledOnChange,
   label = '',
+  $hasError,
+  children,
+  // need to add `props` to allow for additional props to be passed down
+  // that are valid for a checkbox input
+  ...props
 }) => {
   const [internalChecked, setInternalChecked] = useState(false);
 
@@ -88,11 +102,16 @@ const CheckBox: React.FC<CheckBoxProps> = ({
 
   return (
     <CheckboxContainer onClick={handleCheckboxChange}>
-      <HiddenCheckbox checked={checked} onChange={handleCheckboxChange} />
-      <StyledCheckbox checked={checked}>
+      <HiddenCheckbox
+        {...props}
+        checked={checked}
+        onChange={handleCheckboxChange}
+      />
+      <StyledCheckbox checked={checked} $hasError={$hasError}>
         {checked && <CheckMarkIcon />}
       </StyledCheckbox>
       {label && <Label>{label}</Label>}
+      {children}
     </CheckboxContainer>
   );
 };

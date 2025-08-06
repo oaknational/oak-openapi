@@ -7,18 +7,20 @@ import Footer from '../Footer';
 import { useReducer, useEffect, useState } from 'react';
 import {
   OakBox,
+  OakFieldError,
   OakFlex,
   OakGrid,
   OakHeading,
   OakImage,
   OakLI,
   OakP,
-  OakUL,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
 import SelectCard from './SelectCard';
 import type { Subjects } from '@/app/(pages)/bulk-download/page';
 import CheckBox from '../CheckBox';
+import { Authenticate } from './Authenticate';
+import { UL } from '../UL';
 
 interface BulkDownloadPageProps {
   subjects: Subjects;
@@ -73,17 +75,8 @@ const WhiteBoxHeading = styled(OakHeading)`
   margin-top: -6px;
 `;
 
-const ProperUL = styled(OakUL)`
-  list-style-type: disc;
-  margin: 1em 0;
-  padding-left: 1.5rem;
-
-  li {
-    display: list-item;
-  }
-`;
-
 export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
+  const [hasError, setHasError] = useState(false);
   const initialSelectionState = subjects.reduce((acc, subject) => {
     acc[subject.slug] = { primary: false, secondary: false };
     return acc;
@@ -109,19 +102,35 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
   }, [selectedSubjects, subjects]);
 
   const handlePrimaryChange = (subjectSlug: string) => {
+    setHasError(false);
     dispatch({ type: 'TOGGLE_PRIMARY', payload: subjectSlug });
   };
 
   const handleSecondaryChange = (subjectSlug: string) => {
+    setHasError(false);
     dispatch({ type: 'TOGGLE_SECONDARY', payload: subjectSlug });
   };
 
   const handleSelectAllPrimary = (checked: boolean) => {
+    setHasError(false);
     dispatch({ type: 'SET_ALL_PRIMARY', payload: checked });
   };
 
   const handleSelectAllSecondary = (checked: boolean) => {
+    setHasError(false);
     dispatch({ type: 'SET_ALL_SECONDARY', payload: checked });
+  };
+
+  const hasSelectedSubject = () => {
+    for (const subjectSlug in selectedSubjects) {
+      if (
+        selectedSubjects[subjectSlug].primary ||
+        selectedSubjects[subjectSlug].secondary
+      ) {
+        return true;
+      }
+    }
+    return false;
   };
 
   return (
@@ -157,12 +166,12 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
             <WhiteBoxHeading tag="h2" $font="heading-5">
               What's included?
             </WhiteBoxHeading>
-            <ProperUL $font="list-item-1">
+            <UL $font="list-item-1">
               <OakLI>Quiz questions and answers </OakLI>
               <OakLI>Teaching transcript</OakLI>
               <OakLI>Misconceptions</OakLI>
               <OakLI>And much more....</OakLI>
-            </ProperUL>
+            </UL>
           </OakBox>
           <OakBox>
             <OakImage
@@ -182,18 +191,27 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
           <OakHeading tag="h2" $font="heading-3">
             Download
           </OakHeading>
-          <OakFlex $gap="all-spacing-6" $flexDirection="row">
-            <CheckBox
-              label="Select all primary"
-              checked={allPrimaryChecked}
-              onChange={handleSelectAllPrimary}
-            />
-            <CheckBox
-              label="Select all secondary"
-              checked={allSecondaryChecked}
-              onChange={handleSelectAllSecondary}
-            />
-          </OakFlex>
+          <OakBox>
+            <OakFlex $gap="all-spacing-6" $flexDirection="row">
+              <CheckBox
+                label="Select all primary"
+                checked={allPrimaryChecked}
+                onChange={handleSelectAllPrimary}
+              />
+              <CheckBox
+                label="Select all secondary"
+                checked={allSecondaryChecked}
+                onChange={handleSelectAllSecondary}
+              />
+            </OakFlex>
+            {hasError && (
+              <OakBox $mt="space-between-m">
+                <OakFieldError>
+                  Select at least one option to download
+                </OakFieldError>
+              </OakBox>
+            )}
+          </OakBox>
 
           <OakGrid
             $rg="space-between-s"
@@ -207,6 +225,7 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
                 primaryLessonCount={subject.primary}
                 secondaryLessonCount={subject.secondary}
                 iconName={`subject-${subject.slug}`}
+                $hasError={hasError}
                 primaryChecked={
                   selectedSubjects[subject.slug]?.primary || false
                 }
@@ -219,6 +238,10 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
             ))}
           </OakGrid>
         </OakFlex>
+        <Authenticate
+          hasSelectedSubject={hasSelectedSubject}
+          setHasError={setHasError}
+        />
       </MaxWidth>
       <Footer />
     </>
