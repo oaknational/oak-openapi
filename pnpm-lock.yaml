@@ -15,8 +15,8 @@ importers:
         specifier: ^15.3.3
         version: 15.3.4
       '@oaknational/oak-components':
-        specifier: ^1.127.0
-        version: 1.127.0(next-cloudinary@6.16.0(next@15.3.4(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0))(next@15.3.4(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(styled-components@6.1.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
+        specifier: ^1.137.0
+        version: 1.137.0(next-cloudinary@6.16.0(next@15.3.4(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0))(next@15.3.4(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(styled-components@6.1.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
       '@oaknational/oak-curriculum-schema':
         specifier: ^1.39.0
         version: 1.64.0(zod@3.25.67)
@@ -2008,8 +2008,8 @@ packages:
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
 
-  '@oaknational/oak-components@1.127.0':
-    resolution: {integrity: sha512-OxH4V+9/DYBhfFd3TmONtuLdPcS0iQojiTOnNkyzyYOvNIz/UYXi1GaST2Ln6NoSfPfEXYvyeGGcnxyvfNiA5g==}
+  '@oaknational/oak-components@1.137.0':
+    resolution: {integrity: sha512-gp/SLApk/WUbqr4t/dfKzbXSIZ4Z1jI/vJ0InPKIKBm+ARhw3j6bGjiatw04a5gr/F1ixa/0MUEoEeIVMIlDHA==}
     peerDependencies:
       next: '>=14.2.12'
       next-cloudinary: '>=6.16.0'
@@ -11061,7 +11061,7 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
-  '@oaknational/oak-components@1.127.0(next-cloudinary@6.16.0(next@15.3.4(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0))(next@15.3.4(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(styled-components@6.1.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0))':
+  '@oaknational/oak-components@1.137.0(next-cloudinary@6.16.0(next@15.3.4(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0))(next@15.3.4(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(styled-components@6.1.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0))':
     dependencies:
       next: 15.3.4(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       next-cloudinary: 6.16.0(next@15.3.4(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
