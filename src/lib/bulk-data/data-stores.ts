@@ -29,6 +29,7 @@ export async function runSQL(sql: string): Promise<unknown> {
       read_only: true,
     },
   };
+
   const res = await fetch(`${process.env.OAK_GRAPHQL_HOST}/v2/query`, {
     headers: {
       'x-oak-auth-key': process.env.OAK_GRAPHQL_SECRET as string,
@@ -42,6 +43,7 @@ export async function runSQL(sql: string): Promise<unknown> {
   const json = await res.json();
 
   if (json.error) {
+    console.error('Error running SQL:', json);
     throw new Error(json.error);
   }
 

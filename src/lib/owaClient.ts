@@ -14,6 +14,7 @@ export const lessonContentViewTable =
   'published.mv_lesson_content_published_5_0_0';
 export const subjectPhaseView = 'published_mv_subject_phase_options_0_11';
 export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_17';
+export const sequenceViewTable = 'published.mv_curriculum_sequence_b_13_0_17';
 
 export const views = [
   lessonView,
