@@ -16,6 +16,7 @@ interface SelectCardProps {
   onPrimaryChange: () => void;
   onSecondaryChange: () => void;
   iconName: string;
+  $hasError?: boolean;
 }
 
 const SelectCard: React.FC<SelectCardProps> = ({
@@ -27,6 +28,7 @@ const SelectCard: React.FC<SelectCardProps> = ({
   onPrimaryChange,
   onSecondaryChange,
   iconName,
+  $hasError = false,
 }) => {
   return (
     <OakFlex
@@ -72,6 +74,7 @@ const SelectCard: React.FC<SelectCardProps> = ({
               label={`${primaryLessonCount} lessons`}
               checked={primaryChecked}
               onChange={onPrimaryChange}
+              $hasError={$hasError}
             />
           )}
           {secondaryLessonCount > 0 && (
@@ -80,6 +83,7 @@ const SelectCard: React.FC<SelectCardProps> = ({
               label={`${secondaryLessonCount} lessons`}
               checked={secondaryChecked}
               onChange={onSecondaryChange}
+              $hasError={$hasError}
             />
           )}
         </OakFlex>
@@ -93,6 +97,7 @@ interface DownloadOptionProps {
   label: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
+  $hasError?: boolean;
 }
 
 function DownloadOption({
@@ -100,6 +105,7 @@ function DownloadOption({
   label,
   checked,
   onChange,
+  $hasError = false,
 }: DownloadOptionProps) {
   return (
     <label>
@@ -127,7 +133,7 @@ function DownloadOption({
             {label}
           </OakSpan>
         </OakFlex>
-        <CheckBox checked={checked} onChange={onChange} />
+        <CheckBox $hasError={$hasError} checked={checked} onChange={onChange} />
       </OakFlex>
     </label>
   );
