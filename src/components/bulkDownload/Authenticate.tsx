@@ -272,8 +272,7 @@ export function Authenticate({
         </OakBox>
       )}
       <OakPrimaryButton
-        disabled={isLoading}
-        iconName="download"
+        isLoading={isLoading}
         isTrailingIcon={true}
         onClick={handleDownload}
       >
