@@ -17,6 +17,7 @@ import {
   lessonViewTable,
   SequenceView,
   sequenceView,
+  sequenceViewTable,
   sequenceViewWhereInput,
   SubjectPhase,
   SubjectPhaseView,
@@ -34,69 +35,14 @@ export type SubjectWithLessonCount = {
   lessonCount: number;
 };
 
-export async function getSubjectsWithLessonCounts(
-  client: GraphQLClient,
-): Promise<SubjectWithLessonCount[]> {
-  const query = gql`
-    query ($currentCycle: String!) @cached(ttl: 300) {
-      ${sequenceView}(
-        where: {
-          cycle: { _eq: $currentCycle }
-          _not: {subject_slug: {_eq: "financial-education"}}
-        }
-        order_by:{subject:asc}
-      ) {
-        subject
-        subject_slug
-        phase_slug
-        planned_number_of_lessons
-      }
-    }`;
+export async function getSubjectsWithLessonCounts(): Promise<
+  SubjectWithLessonCount[]
+> {
+  const sql = `select SUM(jsonb_array_length(lessons)) AS "lessonCount", subject_slug as slug, phase_slug as phase, subject as title from ${sequenceViewTable} group by subject_slug, subject, phase_slug order by subject, subject_slug, phase_slug`;
 
-  const res: SequenceView = await client.request(query, {
-    currentCycle,
-  });
+  const res = (await runSQL(sql)) as SubjectWithLessonCount[];
 
-  const lessonCounts = res[sequenceView].reduce(
-    (acc, lesson) => {
-      const { subject_slug, phase_slug, planned_number_of_lessons } = lesson;
-      const key = `${subject_slug}-${phase_slug}`;
-      const titleSlug = {
-        title: lesson.subject,
-        slug: subject_slug,
-        phase: phase_slug,
-      };
-
-      if (!acc[key]) {
-        acc[key] = {
-          ...titleSlug,
-          lessonCount: 0,
-        };
-      }
-
-      acc[key].lessonCount += planned_number_of_lessons || 0;
-
-      // If the lesson count is 0, we still want to include it
-      if (acc[key].lessonCount === 0) {
-        acc[key].lessonCount = 0;
-      }
-
-      // Ensure the title is set correctly
-      if (!acc[key].title) {
-        acc[key].title = lesson.subject;
-      }
-
-      // Ensure the slug is set correctly
-      if (!acc[key].slug) {
-        acc[key].slug = subject_slug;
-      }
-
-      return acc;
-    },
-    {} as Record<string, SubjectWithLessonCount>,
-  );
-
-  return Object.values(lessonCounts);
+  return res.filter((_) => _.slug !== 'financial-education');
 }
 
 export async function getAllSubjects(

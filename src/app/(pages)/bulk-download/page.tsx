@@ -1,6 +1,5 @@
 import BulkDownloadPage from '@/components/bulkDownload/BulkDownloadPage';
 import { getSubjectsWithLessonCounts } from '@/lib/bulk-data/get-data';
-import { getClient } from '@/lib/owaClient';
 
 export type Subjects = {
   title: string;
@@ -10,26 +9,18 @@ export type Subjects = {
 }[];
 
 export default async function Page() {
-  /* subjects are an array like this:
-  {
-    "sequenceSlug": "art-primary",
-    "subjectTitle": "Art and design"
-}
-  */
-
-  const subjects = await getSubjectsWithLessonCounts(getClient());
+  const subjects = await getSubjectsWithLessonCounts();
 
   // reduce and restructure the subjects to match the expected format:
-
   const reducedSubjects: Subjects = subjects.reduce((acc, subject) => {
     const { slug, title, phase, lessonCount } = subject;
 
     const existing = acc.find((s) => s.slug === slug);
     if (existing) {
-      if (phase.includes('primary')) {
+      if (phase === 'primary') {
         existing.primary = lessonCount;
       }
-      if (phase.includes('secondary')) {
+      if (phase === 'secondary') {
         existing.secondary = lessonCount;
       }
 
@@ -40,8 +31,8 @@ export default async function Page() {
       {
         title,
         slug,
-        primary: phase.includes('primary') ? lessonCount : 0,
-        secondary: phase.includes('secondary') ? lessonCount : 0,
+        primary: phase === 'primary' ? lessonCount : 0,
+        secondary: phase === 'secondary' ? lessonCount : 0,
       },
     ];
   }, [] as Subjects);
