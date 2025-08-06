@@ -3,27 +3,15 @@ import { PassThrough } from 'stream';
 import { type NextRequest, NextResponse } from 'next/server';
 import { type Context, withUser } from '@/lib/context';
 import { protect } from '@/lib/protect';
-import { File, Storage } from '@google-cloud/storage';
+import { File } from '@google-cloud/storage';
 import codes from 'http-codes';
 import archiver from 'archiver';
-
+import { getGoogleCloudStorage } from '@/lib/bulk-data/data-stores';
 export const dynamic = 'force-dynamic';
 
 const bucketName = process.env.BULK_DATA_BUCKET || 'oak-prod-ldn-bulk-uploader';
 
-let storage;
-
-// Check if GOOGLE_APPLICATION_CREDENTIALS_JSON is set
-if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-  const credentials = JSON.parse(
-    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
-  );
-  // Initialize storage client with credentials
-  storage = new Storage({ credentials });
-} else {
-  // Use default method, which relies on GOOGLE_APPLICATION_CREDENTIALS path
-  storage = new Storage();
-}
+const storage = getGoogleCloudStorage();
 
 const handler = async (req: NextRequest) => {
   // 1. get the user
