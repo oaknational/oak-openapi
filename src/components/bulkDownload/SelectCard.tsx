@@ -71,7 +71,6 @@ const SelectCard: React.FC<SelectCardProps> = ({
           {primaryLessonCount > 0 && (
             <DownloadOption
               heading="Primary"
-              label={`${primaryLessonCount} lessons`}
               checked={primaryChecked}
               onChange={onPrimaryChange}
               $hasError={$hasError}
@@ -80,7 +79,6 @@ const SelectCard: React.FC<SelectCardProps> = ({
           {secondaryLessonCount > 0 && (
             <DownloadOption
               heading="Secondary"
-              label={`${secondaryLessonCount} lessons`}
               checked={secondaryChecked}
               onChange={onSecondaryChange}
               $hasError={$hasError}
@@ -94,7 +92,6 @@ const SelectCard: React.FC<SelectCardProps> = ({
 
 interface DownloadOptionProps {
   heading: string;
-  label: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
   $hasError?: boolean;
@@ -102,7 +99,6 @@ interface DownloadOptionProps {
 
 function DownloadOption({
   heading,
-  label,
   checked,
   onChange,
   $hasError = false,
@@ -128,9 +124,6 @@ function DownloadOption({
         >
           <OakSpan $font="body-2-bold" $color="black">
             {heading}
-          </OakSpan>
-          <OakSpan $font="body-3" $color="grey60">
-            {label}
           </OakSpan>
         </OakFlex>
         <CheckBox $hasError={$hasError} checked={checked} onChange={onChange} />
