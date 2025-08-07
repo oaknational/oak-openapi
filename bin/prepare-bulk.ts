@@ -118,7 +118,7 @@ async function buildLessonData(
     }
 
     const lessonData = await getAllLessonData(unitSlug);
-    log(`Processing unit: ${unitSlug} with ${lessonData.length} lessons`);
+    // log(`Processing unit: ${unitSlug} with ${lessonData.length} lessons`);
 
     if (!processAssets) {
       lessons.push(...lessonData);
@@ -246,8 +246,13 @@ async function buildLessonData(
     }
   }
 
+  // note that the number of processed lessons can be more than the total found
+  // this is because the units are unique in sequence, but in doing so, some
+  // units (with the same slug) have different lessons across different exam boards
+  // for instance "representation-of-text-images-and-sound" has 7 lessons in AQA,
+  // but 8 lessons in OCR.
   assert(
-    lessons.length === totalLessonCount,
+    lessons.length >= totalLessonCount,
     `Failed lesson count: ${slug} ${lessons.length}/${totalLessonCount}`,
   );
 
