@@ -147,11 +147,11 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
         $color={'black'}
       >
         <OakGrid
-          $pv="inner-padding-xl4"
-          $ph="inner-padding-xl6"
+          $pv={['inner-padding-xl3', 'inner-padding-xl4']}
+          $ph={['inner-padding-xl2', 'inner-padding-xl6']}
           $background="mint"
           $cg="space-between-xxxl"
-          $gridTemplateColumns="1fr 1fr"
+          $gridTemplateColumns={['1fr', '1fr 1fr']}
           $borderRadius="border-radius-m"
         >
           <OakBox>
@@ -173,7 +173,7 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
               <OakLI>And much more....</OakLI>
             </UL>
           </OakBox>
-          <OakBox>
+          <OakBox $display={['none', 'block']}>
             <OakImage
               sizes="width: 2228px, height: 1472px"
               src={{
@@ -192,7 +192,7 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
             Download
           </OakHeading>
           <OakBox>
-            <OakFlex $gap="all-spacing-6" $flexDirection="row">
+            <OakFlex $gap="all-spacing-6" $flexDirection={['column', 'row']}>
               <CheckBox
                 label="Select all primary"
                 checked={allPrimaryChecked}

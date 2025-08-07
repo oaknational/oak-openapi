@@ -202,7 +202,11 @@ export function Authenticate({
   };
 
   return (
-    <OakFlex $gap="all-spacing-7" $flexDirection="column" $maxWidth="460px">
+    <OakFlex
+      $gap="all-spacing-7"
+      $flexDirection="column"
+      $maxWidth={['auto', '460px']}
+    >
       <OakHeading tag="h2" $font="heading-4">
         Authenticate
       </OakHeading>
@@ -250,10 +254,10 @@ export function Authenticate({
           onChange={setTermsChecked}
           $hasError={!!termsError}
         >
-          <OakLabel htmlFor="terms">
-            I accept Oak's{' '}
+          <OakLabel $font="heading-light-7" htmlFor="terms">
+            I accept{' '}
             <OakLink target="_blank" href="/docs/terms">
-              terms and conditions
+              Oak's terms and conditions
             </OakLink>{' '}
             (required)
           </OakLabel>
