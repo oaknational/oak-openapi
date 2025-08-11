@@ -277,7 +277,7 @@ export function Authenticate({
       )}
       <OakBox>
         <OakPrimaryButton
-          isLoading={!isLoading}
+          isLoading={isLoading}
           isTrailingIcon={true}
           onClick={handleDownload}
         >
