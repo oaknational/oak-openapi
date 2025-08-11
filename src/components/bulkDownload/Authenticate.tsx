@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import {
   OakBox,
   OakFlex,
-  OakPrimaryButton,
   OakTextInput as _OakTextInput,
   OakFieldError,
   OakP,
@@ -17,12 +16,14 @@ import {
 import { JauntyAngleLabel } from '../JauntyAngleLabel';
 import CheckBox from '../CheckBox';
 import styled from 'styled-components';
+import { ButtonWithSpinner } from '../ButtonWithSpinner';
 
 interface AuthenticateProps {
   hasSelectedSubject: () => boolean;
   setHasError: (hasError: boolean) => void;
   selectedSubjects: Record<string, { primary: boolean; secondary: boolean }>;
 }
+
 
 const ErrorUL = styled(OakUL)`
   list-style-type: disc;
@@ -276,13 +277,13 @@ export function Authenticate({
         </OakBox>
       )}
       <OakBox>
-        <OakPrimaryButton
+        <ButtonWithSpinner
           isLoading={isLoading}
           isTrailingIcon={true}
           onClick={handleDownload}
         >
           Download
-        </OakPrimaryButton>
+        </ButtonWithSpinner>
       </OakBox>
     </OakFlex>
   );
