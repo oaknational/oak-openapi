@@ -275,13 +275,15 @@ export function Authenticate({
           </OakFieldError>
         </OakBox>
       )}
-      <OakPrimaryButton
-        isLoading={isLoading}
-        isTrailingIcon={true}
-        onClick={handleDownload}
-      >
-        Download
-      </OakPrimaryButton>
+      <OakBox>
+        <OakPrimaryButton
+          isLoading={!isLoading}
+          isTrailingIcon={true}
+          onClick={handleDownload}
+        >
+          Download
+        </OakPrimaryButton>
+      </OakBox>
     </OakFlex>
   );
 }
