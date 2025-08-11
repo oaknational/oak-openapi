@@ -8,7 +8,7 @@ export const documentationContentPageBlockSchema = z.object({
     slug: z.object({ text: z.string() }),
     name: z.string(),
   }),
-  docsBlocksRaw: portableTextContentSchema,
+  docsBlocks: portableTextContentSchema,
 });
 
 export type DocumentationContentPageBlock = z.infer<

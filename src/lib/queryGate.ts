@@ -18,12 +18,23 @@ import {
   sequenceViewWhereInput,
 } from './owaClient';
 
+// blocked always overrules
+import assetBlockedLessons from './queryGateData/assets/blockedLessons.json' with { type: 'json' };
+import assetBlockedUnits from './queryGateData/assets/blockedUnits.json' with { type: 'json' };
 import supportedUnits from './queryGateData/supportedUnits.json' with { type: 'json' };
 import supportedLessons from './queryGateData/supportedLessons.json' with { type: 'json' };
 
 // TODO move these to JSON too
 const supportedSubjects = ['maths'];
 export const blockedSubjects = ['english', 'financial-education'];
+
+function isLessonBlocked(lessonSlug: string) {
+  return (assetBlockedLessons as string[]).includes(lessonSlug);
+}
+
+function isUnitBlocked(unitSlug: string) {
+  return (assetBlockedUnits as string[]).includes(unitSlug);
+}
 
 export async function blockLessonForCopyrightText(
   client: GraphQLClient,
@@ -97,28 +108,13 @@ export async function blockUnitForCopyrightText(
   return false;
 }
 
-export function checkQueryAllowedAssets(params: {
-  subject?: string;
-  unit?: string;
-  lesson?: string;
-}) {
-  const { subject = '', unit = '', lesson = '' } = params;
-
-  // if the query is empty, prevent it
-  const supportedSubject = subject ? isSubjectSupported(subject) : false;
-  const supportedUnit = unit ? isUnitSupported(unit) : false;
-  const supportedLesson = lesson ? isLessonSupported(lesson) : false;
-
-  return supportedSubject || supportedUnit || supportedLesson;
-}
-
 export async function checkLessonAllowedAsset(
   client: GraphQLClient,
   lessonSlug: string,
 ) {
-  // start with a direct match on the lessons
-  if (supportedLessons.includes(lessonSlug)) {
-    return true;
+  // if the lesson is blocked, return false
+  if (isLessonBlocked(lessonSlug)) {
+    return false;
   }
 
   // otherwise get the subject and unit to see if those are supported
@@ -130,7 +126,16 @@ export async function checkLessonAllowedAsset(
 
   const { subjectSlug, unitSlug } = res;
 
-  return isSubjectSupported(subjectSlug) || isUnitSupported(unitSlug);
+  if (isUnitBlocked(unitSlug)) {
+    // blocked unit
+    return false;
+  }
+
+  return (
+    isSubjectSupported(subjectSlug) ||
+    isUnitSupported(unitSlug) ||
+    supportedLessons.includes(lessonSlug)
+  );
 }
 
 export function supportsImages(subject: string, unit: string) {

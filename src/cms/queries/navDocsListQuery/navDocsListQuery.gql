@@ -1,11 +1,17 @@
 query getAllDocsNavGroups {
-  groups: allNavGroup(where: { _: { is_draft: false } }) {
+  groups: allNavGroup(
+    where: { _: { is_draft: false } }
+    sort: { order: ASC, name: ASC }
+  ) {
     title: name
     slug {
       text: current
     }
   }
-  pages: allApiContentPage(where: { _: { is_draft: false } }) {
+  pages: allApiContentPage(
+    where: { _: { is_draft: false } }
+    sort: { order: ASC, title: ASC }
+  ) {
     title
     slug {
       text: current

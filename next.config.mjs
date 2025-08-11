@@ -4,6 +4,7 @@ import path from 'node:path';
 const getConfig = async () => {
   /** @type {import('next').NextConfig} */
   const config = {
+    devIndicators: false,
     webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
       config.module.rules.push({
         test: /\.(graphql|gql)$/,

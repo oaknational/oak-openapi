@@ -4,6 +4,7 @@ query {
       titleRaw
       bodyRaw
       image {
+        altText
         asset {
           url
         }
@@ -11,6 +12,8 @@ query {
       cta {
         externalLink
         label
+        variant
+        icon
       }
     }
 
@@ -18,10 +21,13 @@ query {
       mainBlock {
         titleRaw
         cta {
-          label
           externalLink
+          label
+          variant
+          icon
         }
         image {
+          altText
           isPresentational
           asset {
             _id
@@ -34,6 +40,8 @@ query {
         cta {
           externalLink
           label
+          variant
+          icon
         }
         bodyRaw
       }
