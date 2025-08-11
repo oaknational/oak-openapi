@@ -27,8 +27,9 @@ function SuccessIllustration() {
         $maxHeight={'all-spacing-20'}
         $maxWidth={'all-spacing-20'}
         alt="Success illustration with checkmark"
-        $height="all-spacing-20"
-        $width="all-spacing-20"
+        $height={['all-spacing-19', 'all-spacing-20', 'all-spacing-21']}
+        $width={['all-spacing-19', 'all-spacing-20', 'all-spacing-21']}
+
       />
     </OakBox>
   );
@@ -41,10 +42,11 @@ function SuccessContent() {
       $maxWidth="all-spacing-22"
       $flexDirection="column"
       $gap="all-spacing-12"
-      $mr="all-spacing-15"
+      $ph={['all-spacing-4', 'all-spacing-0', "all-spacing-4"]}
+      $mr={['all-spacing-0', 'all-spacing-0', "all-spacing-15"]}
     >
       <OakFlex $flexDirection="column" $gap="all-spacing-6">
-        <OakHeading tag="h1" $font="heading-2">
+        <OakHeading tag="h1" $font={["heading-3", "heading-2"]}>
           Thanks for downloading
         </OakHeading>
         <OakP $font="body-1" $maxWidth="all-spacing-21">
@@ -63,7 +65,7 @@ function SuccessContent() {
 // Action Buttons Component
 function ActionButtons() {
   return (
-    <OakFlex $gap="all-spacing-4" $flexDirection="row">
+    <OakFlex $gap="all-spacing-4" $flexDirection={["column", "column", "row"]}>
       <OakSecondaryButton
         element="a"
         href="/bulk-download"
@@ -100,8 +102,8 @@ export default function BulkDownloadSuccessPage() {
       >
         <OakFlex
           $alignItems="center"
-          $gap="all-spacing-15"
-          $flexDirection="row"
+          $gap={["all-spacing-4", "all-spacing-4", "all-spacing-15"]}
+          $flexDirection={["column", "row"]}
           $justifyContent="space-between"
         >
           <SuccessIllustration />
