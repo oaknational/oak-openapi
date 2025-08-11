@@ -1,18 +1,39 @@
 import { z } from 'zod';
 
+const assetSchema = z.object({
+  _id: z.string().optional(),
+  url: z.string(),
+  metadata: z.object({
+    dimensions: z.object({
+      height: z.number(),
+      width: z.number(),
+    }),
+  }),
+});
+
 export const imageSchema = z.object({
   isPresentational: z.boolean().optional(),
-  asset: z.object({ _id: z.string().optional(), url: z.string() }),
+  altText: z.string().optional(),
+  asset: assetSchema,
 });
 
 export type CMSImage = z.infer<typeof imageSchema>;
+export type Asset = z.infer<typeof assetSchema>;
 
 export const cta = z.object({
-  externalLink: z.string().nullable(),
-  label: z.string().nullable(),
+  externalLink: z.string(),
+  label: z.string(),
+  icon: z.string().optional(),
+  variant: z.enum(['primary', 'secondary']).optional(),
 });
 
-export type CMSCta = z.infer<typeof cta>;
+export type CMSCta = {
+  externalLink: string;
+  label: string;
+  variant?: 'primary' | 'secondary';
+  icon?: string;
+  backgroundImageUrl?: { asset: Asset };
+};
 
 export const raw = z.array(
   z.object({

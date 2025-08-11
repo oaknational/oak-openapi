@@ -7,8 +7,6 @@ import {
   OakFlex,
   OakHeading,
   OakImage,
-  OakPrimaryButton,
-  OakSecondaryButton,
   OakP as _OakP,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
@@ -17,8 +15,9 @@ import {
   transformUsingTheAPI,
   UsingTheApiSection,
 } from '@/cms/queries/allCurriculumApiLandingPage/landingPageTransform';
-import { CurriculumApiLandingPage } from '@/cms/schemaTypes';
+import { CMSCta, CurriculumApiLandingPage } from '@/cms/schemaTypes';
 import { MaxWidth } from '../MaxWidth';
+import { SanityCtaLink } from '../SanityCtaLink';
 
 function OakP(props: (typeof _OakP)['props']) {
   return <_OakP {...props} $mv="all-spacing-6" $color="black" />;
@@ -90,22 +89,13 @@ function UsingTheAPI({ title, image, link, blocks }: UsingTheApiSection) {
         <BlockHeading tag="h1" $font={['heading-4', 'heading-3', 'heading-2']}>
           {title}
         </BlockHeading>
-        {link && (
-          <OakPrimaryButton
-            isTrailingIcon={true}
-            iconName="send"
-            element="a"
-            href={link.href}
-          >
-            {link.text}
-          </OakPrimaryButton>
-        )}
+        {link && <SanityCtaLink value={link} />}
         <OakBox>
           {image && (
             <OakImage
               sizes={`width: ${343}px, height: ${288}px`}
               src={image.src}
-              alt=""
+              alt={image.altText || ''}
               $height={['all-spacing-20', 'all-spacing-21']}
               $width={['all-spacing-20', 'all-spacing-21']}
             />
@@ -136,16 +126,7 @@ function UsingTheAPI({ title, image, link, blocks }: UsingTheApiSection) {
                 block.description
               )}
             </OakFlex>
-            {block.link && (
-              <OakSecondaryButton
-                isTrailingIcon={true}
-                iconName="arrow-right"
-                element="a"
-                href={block.link.href}
-              >
-                {block.link.text}
-              </OakSecondaryButton>
-            )}
+            {block.link && <SanityCtaLink value={block.link} />}
           </OakFlex>
         ))}
       </OakFlex>
@@ -163,7 +144,7 @@ function BlockAndText1({
   title: string | React.ReactNode;
   description: string | React.ReactNode;
   image?: { src: string; width?: number; height?: number };
-  link?: { text: string; href: string };
+  link?: CMSCta;
   align?: 'left' | 'right';
 }) {
   const flexDirection = align === 'left' ? 'row' : 'row-reverse';
@@ -190,16 +171,7 @@ function BlockAndText1({
           )}
         </OakFlex>
         {/* links are styled as SecondaryButtons */}
-        {link && (
-          <OakSecondaryButton
-            isTrailingIcon={true}
-            iconName="arrow-right"
-            element="a"
-            href={link.href}
-          >
-            {link.text}
-          </OakSecondaryButton>
-        )}
+        {link && <SanityCtaLink value={link} />}
       </OakFlex>
       {image && (
         <OakFlex $flexGrow={1} $background="transparent">

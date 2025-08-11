@@ -6,12 +6,27 @@ import {
   OakLink,
   OakOL,
   OakP,
+  OakSecondaryLink,
   OakSpan,
   OakUL as _OakUL,
 } from '@oaknational/oak-components';
 import { PortableTextJSON } from '@/cms/schemaTypes/shared/cms/portableText.schema';
 import { Table } from '@/components/Table';
 import styled from 'styled-components';
+import { Code } from '@/components/Code';
+import { Notice } from '@/components/Notice';
+import NextImage from 'next/image';
+import { SanityImage } from '@/components/SanityImage';
+import { SanityCtaLink } from '@/components/SanityCtaLink';
+
+const StrongBox = styled(OakSpan)`
+  font-weight: 600;
+
+  a span {
+    display: inline-flex;
+    flex-direction: row;
+  }
+`;
 
 const OakUL = styled(_OakUL)`
   list-style-type: disc;
@@ -56,7 +71,7 @@ const contentPortableTextComponents: PortableTextComponents = {
         id={props.value._key}
         $mb="space-between-s"
         $font="heading-4"
-        $mt="space-between-m"
+        $mt="all-spacing-12"
       >
         {props.children}
       </OakHeading>
@@ -67,7 +82,7 @@ const contentPortableTextComponents: PortableTextComponents = {
         id={props.value._key}
         $mb="space-between-s"
         $font="heading-5"
-        $mt="space-between-m"
+        $mt="all-spacing-9"
       >
         {props.children}
       </OakHeading>
@@ -133,12 +148,31 @@ const contentPortableTextComponents: PortableTextComponents = {
     em: (props) => {
       return <OakSpan as="em">{props.children}</OakSpan>;
     },
-    link: (props) => (
-      <OakLink href={props.value.href}>{props.children}</OakLink>
-    ),
+    link: (props) => {
+      if (props.value.external) {
+        return (
+          <StrongBox $font="body-2">
+            <OakSecondaryLink target="_blank" href={props.value.href}>
+              {props.children}
+              <NextImage
+                src="https://res.cloudinary.com/oak-web-application/image/upload/v1699953892/icons/hlxmejse3mcr4tqo6t8u.svg"
+                width="24"
+                height="24"
+                alt="External link"
+              />
+            </OakSecondaryLink>
+          </StrongBox>
+        );
+      }
+      return <OakLink href={props.value.href}>{props.children}</OakLink>;
+    },
   },
   types: {
     table: Table,
+    code: Code,
+    notice: Notice,
+    image: SanityImage,
+    ctaLink: SanityCtaLink,
   },
 };
 
@@ -150,12 +184,10 @@ export const ContentPortableText: FC<PortableTextRawProps> = (props) => {
   const { portableText } = props;
 
   return (
-    <>
-      <PortableText
-        components={contentPortableTextComponents}
-        value={portableText}
-      />
-    </>
+    <PortableText
+      components={contentPortableTextComponents}
+      value={portableText}
+    />
   );
 };
 

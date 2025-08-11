@@ -7,36 +7,30 @@ import {
 import React from 'react'; // required for tests
 import { OakP } from '@oaknational/oak-components';
 
-type Link =
-  | {
-      text: string;
-      href: string;
-    }
-  | undefined;
-
 type Image = {
   src: string;
   width?: number;
   height?: number;
+  altText?: string;
 };
 
 type Block = {
   title: React.ReactNode;
   description: React.ReactNode | string;
-  link: Link;
+  link: CMSCta;
 };
 
 export type LandingPageContent = {
   title: React.ReactNode;
   description: React.ReactNode | string;
   image: Image;
-  link?: Link;
+  link?: CMSCta;
 };
 
 export type UsingTheApiSection = {
   title: React.ReactNode;
-  image: Image;
-  link?: Link;
+  image?: Image;
+  link?: CMSCta;
   blocks: Block[];
 };
 
@@ -79,23 +73,13 @@ function parseDescription(data: CMSRaw): React.ReactNode | string {
   return '';
 }
 
-function parseImage(data: CMSImage): {
-  src: string;
-  width?: number; // these are never on there… not yet at least
-  height?: number;
-} {
-  return {
-    src: data.asset.url,
-  };
-}
-
-function parseLink(data: CMSCta): Link | undefined {
-  if (!data || !data.externalLink || !data.label) {
+function parseImage(data: CMSImage): Image | undefined {
+  if (!data || !data.asset || !data.asset.url) {
     return;
   }
   return {
-    text: data.label,
-    href: data.externalLink,
+    src: data.asset.url,
+    altText: data.altText || '',
   };
 }
 
@@ -106,13 +90,12 @@ export function transformContentBlocks(
     const title = parseTitle(data.titleRaw);
     const description = parseDescription(data.bodyRaw);
     const image = parseImage(data.image);
-    const link = data.cta ? parseLink(data.cta) : null;
 
     return {
       title,
       description,
       image,
-      link,
+      link: data.cta,
     };
   });
 
@@ -125,7 +108,7 @@ export function transformUsingTheAPI(
   const input = root[0].usingTheApiSection;
   const title = parseTitle(input.mainBlock.titleRaw);
   const image = parseImage(input.mainBlock.image);
-  const link: Link | undefined = parseLink(input.mainBlock.cta);
+  const link = input.mainBlock.cta;
 
   return {
     title,
@@ -135,7 +118,7 @@ export function transformUsingTheAPI(
       return {
         title: parseTitle(block.titleRaw),
         description: parseDescription(block.bodyRaw),
-        link: parseLink(block.cta),
+        link: block.cta,
       };
     }),
   };

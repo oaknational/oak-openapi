@@ -17,20 +17,25 @@ type CMSDocumentationProps = {
 };
 
 const OakGridArea = styled(_OakGridArea)`
+  display: block;
   ${({ $gridArea }) => 'grid-area: ' + $gridArea};
 `;
 
 export default function MainDocsContent({ docs }: CMSDocumentationProps) {
   const contentsRaw =
-    docs?.[0]?.docsBlocksRaw?.filter(
+    docs?.[0]?.docsBlocks?.filter(
       (_) => _.style === 'h2',
       // || _.style === 'h3',
     ) || [];
 
-  const contents = contentsRaw.map((content) => ({
+  let contents = contentsRaw.map((content) => ({
     title: content.children.map((_) => _.text).join(' '),
     anchor: content._key,
   }));
+
+  if (contents.length < 3) {
+    contents = []; // Hide contents if there are less than 3 items
+  }
 
   if (!docs || docs.length === 0) {
     return (
@@ -61,7 +66,7 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
         $cg={['', 'space-between-s']}
         $rg="space-between-l"
         $pa={['all-spacing-4', 'all-spacing-8']}
-        $pr={['', 'all-spacing-0']}
+        $pr={['', '', 'all-spacing-0']}
       >
         <OakGridArea $gridArea="HEADER">
           <OakHeading tag="p" $font="heading-light-6">
@@ -75,34 +80,35 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
           {docs.map((doc) => (
             <ContentPortableText
               key={doc.title}
-              portableText={doc.docsBlocksRaw}
+              portableText={doc.docsBlocks}
             />
           ))}
         </OakGridArea>
 
-        <OakGridArea
-          $gridArea="SIDENAV"
-          $display={contents.length > 0 ? 'block' : 'none'}
-        >
-          <OakFlex $flexDirection="column" $gap="all-spacing-3">
-            <OakHeading tag="h2" $font="heading-7">
-              <OakBox $width="200px">Contents</OakBox>
-            </OakHeading>
-            <OakFlex
-              as="ul"
-              $pa="0"
-              $gap="all-spacing-3"
-              $ma="0"
-              $flexDirection="column"
-            >
-              {contents.map((content) => (
-                <OakLI key={content.anchor}>
-                  <OakLink href={`#${content.anchor}`}>{content.title}</OakLink>
-                </OakLI>
-              ))}
+        {contents.length > 0 && (
+          <OakGridArea $gridArea="SIDENAV">
+            <OakFlex $flexDirection="column" $gap="all-spacing-3">
+              <OakHeading tag="h2" $font="heading-7">
+                <OakBox $width="200px">Contents</OakBox>
+              </OakHeading>
+              <OakFlex
+                as="ul"
+                $pa="0"
+                $gap="all-spacing-3"
+                $ma="0"
+                $flexDirection="column"
+              >
+                {contents.map((content) => (
+                  <OakLI key={content.anchor}>
+                    <OakLink href={`#${content.anchor}`}>
+                      {content.title}
+                    </OakLink>
+                  </OakLI>
+                ))}
+              </OakFlex>
             </OakFlex>
-          </OakFlex>
-        </OakGridArea>
+          </OakGridArea>
+        )}
       </OakGrid>
     </OakBox>
   );

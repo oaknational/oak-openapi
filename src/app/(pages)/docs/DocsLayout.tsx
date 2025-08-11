@@ -2,6 +2,7 @@
 
 import { CurriculumApiDocsNav } from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
 import DocsNav from '@/components/documentationPages/DocsNav';
+import 'highlight.js/styles/github.css';
 
 import Footer from '@/components/Footer';
 
@@ -27,6 +28,7 @@ export default function DocsLayout({
         $gap="all-spacing-8"
       >
         <DocsNav items={navigationItems} location={location} />
+        <a id="content" />
         {children}
       </OakFlex>
       <Footer />
