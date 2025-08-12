@@ -21,8 +21,9 @@ export const getKeyStageSubjectLessons = router({
         method: 'GET',
         tags: ['lists', 'lessons'],
         path: '/key-stages/{keyStage}/subject/{subject}/lessons',
+        summary: 'Lessons',
         description:
-          'This endpoint returns all the lessons (titles and slugs) that are currently available on Oak for a given subject and key stage, grouped by unit',
+          'This endpoint returns an array of available published lessons for a given subject and key stage, grouped by unit.',
         errorResponses: [],
       },
     })

@@ -29,8 +29,8 @@ export const downloadTypeEnum = z.enum(
 
 export const assetType = z.object({
   type: downloadTypeEnum,
-  label: z.string(),
-  url: z.string(),
+  label: z.string({ description: 'The label for the asset' }),
+  url: z.string({ description: 'The download endpoint for the asset.' }),
 });
 
 export const lessonAssetsType = z.object({
@@ -42,10 +42,19 @@ export type LessonAssetsType = z.infer<typeof lessonAssetsType>;
 
 export const lessonsAssetsType = z.array(
   z.object({
-    lessonSlug: z.string(),
-    lessonTitle: z.string(),
-    attribution: z.array(z.string()).optional(),
-    assets: z.array(assetType),
+    lessonSlug: z.string({
+      description: 'The unique slug identifier for the lesson',
+    }),
+    lessonTitle: z.string({ description: 'The title for the lesson' }),
+    attribution: z
+      .array(
+        z.string({
+          description:
+            "Licence information for any third-party content contained in the lessons' downloadable resources",
+        }),
+      )
+      .optional(),
+    assets: z.array(assetType, { description: 'List of assets' }),
   }),
 );
 
