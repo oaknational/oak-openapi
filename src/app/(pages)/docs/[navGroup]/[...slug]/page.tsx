@@ -1,5 +1,4 @@
 import documentationBySlugQuery from '@/cms/queries/documentationBySlugQuery/documentationBySlugQuery.query';
-import EndpointDocsContent from '@/components/documentationPages/EndpointDocsContent';
 import MainDocsContent from '@/components/documentationPages/MainDocsContent';
 import { getEndpointContent } from '@/lib/endpoint-docs/getEndpointDocs';
 
@@ -13,19 +12,12 @@ export default async function Page({
 
   const documentationData = await documentationBySlugQuery(navGroup, pageSlug);
 
-  if (navGroup === 'api-endpoints' && pageSlug !== 'endpoints-overview') {
-    const endpointInfo = await getEndpointContent(pageSlug);
-    return (
-      endpointInfo && (
-        <EndpointDocsContent
-          endpoints={endpointInfo.endpoints}
-          title={endpointInfo.title}
-          slug={pageSlug}
-          cmsContent={documentationData}
-        />
-      )
-    );
-  } else {
-    return <MainDocsContent docs={documentationData} />;
-  }
+  const endpointInfo = await getEndpointContent(pageSlug);
+
+  return (
+    <MainDocsContent
+      endpoints={endpointInfo?.endpoints}
+      docs={documentationData}
+    />
+  );
 }
