@@ -9,10 +9,13 @@ import {
   OakLink,
   OakP,
 } from '@oaknational/oak-components';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import Highlight from 'react-highlight';
 import styled from 'styled-components';
 import { Table } from '../Table';
 import { Roboto_Mono } from 'next/font/google';
+import { capitalize } from 'lodash';
+import { DocumentationContentPageBlock } from '@/cms/schemaTypes';
+import ContentPortableText from '@/cms/sanityResolvers/ContentPortableText';
 
 const robotoMono = Roboto_Mono({
   subsets: ['latin', 'latin-ext', 'vietnamese'],
@@ -47,6 +50,7 @@ type EndpointDocsProps = {
   title: string;
   slug: string;
   endpoints: EndpointInfo[];
+  cmsContent: DocumentationContentPageBlock[];
 };
 
 const OakGridArea = styled(_OakGridArea)`
@@ -64,6 +68,7 @@ const EndpointHeading = styled(OakHeading)`
 export default function EndpointDocsContent({
   endpoints,
   title,
+  cmsContent,
 }: EndpointDocsProps) {
   const contents = endpoints.map(({ title, slug }) => ({
     title,
@@ -110,6 +115,16 @@ export default function EndpointDocsContent({
           </OakHeading>
         </OakGridArea>
         <OakGridArea $gridArea="CONTENT">
+          {cmsContent && (
+            <OakBox $pb="inner-padding-xl3">
+              {cmsContent.map((doc) => (
+                <ContentPortableText
+                  key={doc.title}
+                  portableText={doc.docsBlocks}
+                />
+              ))}
+            </OakBox>
+          )}
           {endpoints.map((endpoint) => (
             <EndpointBlock endpoint={endpoint} key={endpoint.path} />
           ))}
@@ -142,9 +157,11 @@ export default function EndpointDocsContent({
   );
 }
 const generateTableRows = (data: InputOutputTable) => {
+  const header = data[0]
+    ? Object.keys(data[0]).map((key) => capitalize(key))
+    : [];
   const headerRow = {
-    cells: ['Name', 'Type', 'Description', 'Example'],
-    // _key: `th${data[0].name}`,
+    cells: header,
     _key: 'th',
   };
   const rows = data.map((row, i) => {
@@ -209,15 +226,7 @@ function EndpointBlock(props: { endpoint: EndpointInfo }) {
           <OakHeading tag="h5" $font="heading-5">
             Sample response
           </OakHeading>
-          <SyntaxHighlighter
-            lineProps={{
-              style: { wordBreak: 'break-word', whiteSpace: 'pre-wrap' },
-            }}
-            wrapLines={true}
-            language="JSON"
-          >
-            {sampleResponse}
-          </SyntaxHighlighter>
+          <Highlight className={'json'}>{sampleResponse}</Highlight>
         </OakBox>
       )}
     </OakFlex>

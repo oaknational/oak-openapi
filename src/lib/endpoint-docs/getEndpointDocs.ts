@@ -6,15 +6,6 @@ import {
   ZodOpenApiPathsObject,
   ZodOpenApiResponsesObject,
 } from 'zod-openapi';
-import {
-  ParameterObject,
-  ReferenceObject,
-} from 'zod-openapi/dist/openapi3-ts/dist/oas31';
-import {
-  ParameterObject as PO1,
-  ReferenceObject as PO2,
-} from 'zod-openapi/dist/openapi3-ts/dist/oas30';
-import { ZodType, ZodTypeDef } from 'zod';
 
 export const groupedEndpointInfo = [
   {
@@ -44,10 +35,11 @@ export const groupedEndpointInfo = [
   },
 ];
 
-const slugToTitle = (str: string) =>
-  str
+export function slugToTitle(str: string) {
+  return str
     .split('-')
     .reduce((acc, str) => acc + str[0].toUpperCase() + str.slice(1) + ' ', '');
+}
 
 const getPathEnd = (path: string) => {
   const pathSlugs = path.split('/');
@@ -79,7 +71,7 @@ const getSchemaFromResponse = (responses: ZodOpenApiResponsesObject) => {
 
 const getParamType = (properties): string => {
   if (properties.anyOf) {
-    return properties.anyOf.map(({ type }) => type).join(', ');
+    return properties.anyOf.map((prop) => prop.type).join(', ');
   }
   if (properties.items && properties.type === 'array') {
     return `array[${getParamType(properties.items)}]`;
@@ -101,12 +93,10 @@ const getOutputSchema = (responses: ZodOpenApiResponsesObject) => {
       if (schema && data) {
         const output = Object.keys(data).map((propertyName) => {
           const property = data[propertyName];
-          console.log(schemaName, property.description);
           return {
             name: propertyName,
             type: getParamType(property) || '',
             description: property.description || '',
-            example: property.example || '',
           };
         });
         return output;
