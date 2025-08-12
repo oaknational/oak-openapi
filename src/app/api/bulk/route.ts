@@ -96,3 +96,5 @@ export {
   handlerWrapper as OPTIONS,
   handlerWrapper as HEAD,
 };
+
+export const maxDuration = 120; // seconds
