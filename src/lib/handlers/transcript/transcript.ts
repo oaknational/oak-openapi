@@ -19,10 +19,11 @@ export const getLessonTranscript = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['lessons'],
+        tags: ['lessons', 'lesson-data'],
+        summary: 'Lesson transcript',
         path: '/lessons/{lesson}/transcript',
         description:
-          'This endpoint returns the transcript from the video from a lesson',
+          'This endpoint returns the video transcript and video captions file for a given lesson.',
         errorResponses: [],
       },
     })
