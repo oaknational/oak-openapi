@@ -1,14 +1,20 @@
-import Highlight from 'react-highlight';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 
 type Code = {
-  code?: string;
+  code: string | string[];
   language?: string;
 };
 
 export const Code = ({ value }: { value: Code }) => {
   return (
-    <Highlight className={value.language || 'plaintext'}>
+    <SyntaxHighlighter
+      lineProps={{
+        style: { wordBreak: 'break-all', whiteSpace: 'pre-wrap' },
+      }}
+      wrapLines={true}
+      language={value.language || 'plaintext'}
+    >
       {value.code}
-    </Highlight>
+    </SyntaxHighlighter>
   );
 };
