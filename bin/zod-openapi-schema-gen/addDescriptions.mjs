@@ -60,7 +60,7 @@ function hasDescription(node) {
 
 function normalizeZodDescription(node, descriptionValue) {
   // Case: z.string({ description: '...' }) — extract and move description to openapi()
-const described = hasDescription(node);
+  const described = hasDescription(node);
 
   if (
     t.isCallExpression(node) &&
@@ -212,16 +212,16 @@ export function attachDescriptions(
       // t.isObjectExpression(node.arguments[0])
     ) {
       console.log(callee);
-    //   const arg = node.arguments[0];
-    //   const props = arg.properties;
+      //   const arg = node.arguments[0];
+      //   const props = arg.properties;
 
-    //   const openApiProp = props.find(
-    //     (prop) =>
-    //       t.isObjectProperty(prop) &&
-    //       t.isIdentifier(prop.key, {
-    //         name: 'openapi',
-    //       }),
-    //   );
+      //   const openApiProp = props.find(
+      //     (prop) =>
+      //       t.isObjectProperty(prop) &&
+      //       t.isIdentifier(prop.key, {
+      //         name: 'openapi',
+      //       }),
+      //   );
 
       // console.log(openApiProp)
       if (node.callee.arguments) {
