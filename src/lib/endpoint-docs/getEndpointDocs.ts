@@ -6,6 +6,10 @@ import {
   ZodOpenApiPathsObject,
   ZodOpenApiResponsesObject,
 } from 'zod-openapi';
+import { SchemaObject } from 'zod-openapi/dist/extendZodTypes';
+import { SchemaObjectType } from 'zod-openapi/dist/openapi3-ts/dist/oas31';
+import { ParameterObject } from 'zod-openapi/dist/openapi3-ts/dist/oas31';
+import { findObjectProperty, getPathEnd, slugToTitle } from './helpers';
 
 export const groupedEndpointInfo = [
   {
@@ -35,25 +39,6 @@ export const groupedEndpointInfo = [
   },
 ];
 
-export function slugToTitle(str: string) {
-  return str
-    .split('-')
-    .reduce((acc, str) => acc + str[0].toUpperCase() + str.slice(1) + ' ', '');
-}
-
-const getPathEnd = (path: string) => {
-  const pathSlugs = path.split('/');
-  return pathSlugs[pathSlugs.length - 1];
-};
-
-const dig = (obj: Record<string, any>, target: string) =>
-  target in obj
-    ? obj[target]
-    : Object.values(obj).reduce((acc, val) => {
-        if (acc !== undefined) return acc;
-        if (typeof val === 'object') return dig(val, target);
-      }, undefined);
-
 const getSchemaFromResponse = (responses: ZodOpenApiResponsesObject) => {
   return Object.values(responses).map((response) => {
     const schemaRef = response.content['application/json'].schema.$ref;
@@ -69,40 +54,50 @@ const getSchemaFromResponse = (responses: ZodOpenApiResponsesObject) => {
   });
 };
 
-const getParamType = (properties): string => {
-  if (properties.anyOf) {
-    return properties.anyOf.map((prop) => prop.type).join(', ');
+const getParamType = (properties: SchemaObject): string | undefined => {
+  if (properties.anyOf && properties.anyOf.length) {
+    const anyOf = properties.anyOf as SchemaObject[];
+    return anyOf.map((prop) => prop.type).join(', ');
   }
-  if (properties.items && properties.type === 'array') {
-    return `array[${getParamType(properties.items)}]`;
+  const schemaType = 'array' as SchemaObjectType;
+
+  if (properties.type !== undefined) {
+    if (properties.items && properties.type === schemaType) {
+      return `array[${getParamType(properties.items as SchemaObject)}]`;
+    }
+    return properties.type as string;
   }
-  return properties.type;
 };
 
 const getOutputSchema = (responses: ZodOpenApiResponsesObject) => {
-  return Object.values(responses).map((response) => {
-    const schemaRef = response.content['application/json'].schema.$ref;
+  if (!responses) {
+    return [];
+  }
+  return Object.values(responses)
+    .map((response) => {
+      const schemaRef = response.content['application/json'].schema.$ref;
 
-    if (!schemaRef) return [];
+      if (!schemaRef) return [];
 
-    const schemaName = getPathEnd(schemaRef);
+      const schemaName = getPathEnd(schemaRef);
 
-    if (openApiDocument.components?.schemas) {
-      const schema = openApiDocument.components?.schemas[schemaName];
-      const data = dig(schema, 'properties');
-      if (schema && data) {
-        const output = Object.keys(data).map((propertyName) => {
-          const property = data[propertyName];
-          return {
-            name: propertyName,
-            type: getParamType(property) || '',
-            description: property.description || '',
-          };
-        });
-        return output;
+      if (openApiDocument.components?.schemas) {
+        const schema = openApiDocument.components?.schemas[schemaName];
+        const data = findObjectProperty(schema, 'properties');
+        if (schema && data) {
+          const output = Object.keys(data).map((propertyName) => {
+            const property = data[propertyName];
+            return {
+              name: propertyName,
+              type: getParamType(property) || '',
+              description: property.description || '',
+            };
+          });
+          return output;
+        }
       }
-    }
-  });
+    })
+    .filter((res) => res !== undefined);
 };
 
 export const getEndpointContent = async (
@@ -128,16 +123,19 @@ export const getEndpointContent = async (
 
   const endpoints: EndpointInfo[] = filteredEndpoints.map((endpoint, order) => {
     const { path, data } = endpoint;
-    // const requestTypes = Object.keys(pathData);
     const endpointSlug = getPathEnd(path);
 
-    const { description, parameters, responses } =
+    const { description, responses, parameters } =
       data.get as ZodOpenApiOperationObject;
 
-    const schemas = getSchemaFromResponse(responses);
+    const params = parameters as ParameterObject[];
+    const schemas = getSchemaFromResponse(responses) as SchemaObject[];
     const output = getOutputSchema(responses).flat();
     const paramTypes =
-      parameters?.reduce((acc, param) => acc.add(param.in), new Set()) || [];
+      params?.reduce(
+        (acc, param) => acc.add(param.in as string),
+        new Set<string>(),
+      ) || [];
 
     return {
       order: order + 1,
@@ -146,13 +144,16 @@ export const getEndpointContent = async (
       path,
       description,
       paramTypes: [...paramTypes],
-      params: parameters?.map((param) => ({
-        name: `${param.name}${!param.required ? ' [optional]' : ''}`,
-        type: param.schema.type || '',
-        description: param.description || '',
-        example: param.schema.example || '',
-      })),
-      output: output ? output : [],
+      params: params?.map((param) => {
+        const schema = param.schema as SchemaObject;
+        return {
+          name: `${param.name}${!param.required ? ' [optional]' : ''}`,
+          type: (schema.type as string) || '',
+          description: param.description || '',
+          example: (schema.example as string) || '',
+        };
+      }),
+      output,
       sampleResponse: schemas.length
         ? JSON.stringify(schemas[0]?.example, null, 2)
         : '',
@@ -166,5 +167,3 @@ export const getEndpointContent = async (
       ?.title as string,
   };
 };
-
-// const generateEndpointData = () => {};
