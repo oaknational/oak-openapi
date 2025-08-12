@@ -121,7 +121,7 @@ export const getSequences = router({
   getSequenceUnits: protectedProcedure
     .meta({
       openapi: {
-        tags: ['lists', 'units', 'sequences'],
+        tags: ['units', 'sequences'],
         method: 'GET',
         path: '/sequences/{sequence}/units',
         description: '',

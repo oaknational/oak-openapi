@@ -9,7 +9,7 @@ import {
 import { SchemaObject } from 'zod-openapi/dist/extendZodTypes';
 import { SchemaObjectType } from 'zod-openapi/dist/openapi3-ts/dist/oas31';
 import { ParameterObject } from 'zod-openapi/dist/openapi3-ts/dist/oas31';
-import { findObjectProperty, getPathEnd, slugToTitle } from './helpers';
+import { findObjectProperty, getPathEnd } from './helpers';
 
 export const groupedEndpointInfo = [
   {
@@ -146,7 +146,7 @@ export const getEndpointContent = async (
 
     return {
       order: order + 1,
-      title: `${endpointMeta.order}.${order + 1} ${slugToTitle(getPathEnd(path))}`,
+      title: `${endpointMeta.order}.${order + 1} ${endpoint.data.get?.summary}`,
       requestType: 'GET',
       path,
       description,

@@ -22,10 +22,17 @@ export const keyStageSubjectLessonsRequestOpenAPISchema = z
       })
       .optional()
       .openapi({ example: 'word-class' }),
-    offset: z.number().optional().default(0),
+    offset: z
+      .number({
+        description:
+          'If limiting results returned, this allows you to return the next set of results, starting at the given offset point',
+      })
+      .optional()
+      .default(0),
     limit: z
       .number({
-        description: 'Limit the number of results returned, max 100',
+        description:
+          'Limit the number of results returned, e.g. return a maximum of 100 lesson titles. Defaults to 10 if left unspecified',
       })
       .lte(100)
       .optional()
