@@ -37,7 +37,8 @@ export const getLessons = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['lessons'],
+        tags: ['lessons', 'lesson-data'],
+        summary: 'Lesson summary',
         path: '/lessons/{lesson}/summary',
         description: 'This endpoint returns a summary for a given lesson',
         errorResponses: [],

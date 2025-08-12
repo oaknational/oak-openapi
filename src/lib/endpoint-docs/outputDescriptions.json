@@ -62,6 +62,8 @@
   "keyStages": {
     "description": "The key stage slug identifiers for which this subject has content available for"
   },
+  "keyStageSlug": { "description": "The key stage slug identifier" },
+  "keyStageTitle": { "description": "The key stage title" },
   "years": {
     "description": "The years for which this subject has content available for"
   }

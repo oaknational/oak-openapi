@@ -28,33 +28,39 @@ export const downloadTypeEnum = z.enum(
 );
 
 export const assetType = z.object({
-  type: downloadTypeEnum,
-  label: z.string({ description: 'The label for the asset' }),
-  url: z.string({ description: 'The download endpoint for the asset.' }),
+  type: downloadTypeEnum.openapi({ description: 'Asset type' }),
+  label: z.string().openapi({ description: 'The label for the asset' }),
+  url: z
+    .string()
+    .openapi({ description: 'The download endpoint for the asset.' }),
 });
 
 export const lessonAssetsType = z.object({
-  attribution: z.array(z.string()).optional(),
-  assets: z.array(assetType).optional(),
+  attribution: z.array(z.string()).optional().openapi({
+    description:
+      "Licence information for any third-party content contained in the lessons' downloadable resources",
+  }),
+  assets: z
+    .array(assetType)
+    .optional()
+    .openapi({ description: 'List of assets' }),
 });
 
 export type LessonAssetsType = z.infer<typeof lessonAssetsType>;
 
 export const lessonsAssetsType = z.array(
   z.object({
-    lessonSlug: z.string({
+    lessonSlug: z.string().openapi({
       description: 'The unique slug identifier for the lesson',
     }),
-    lessonTitle: z.string({ description: 'The title for the lesson' }),
-    attribution: z
-      .array(
-        z.string({
-          description:
-            "Licence information for any third-party content contained in the lessons' downloadable resources",
-        }),
-      )
-      .optional(),
-    assets: z.array(assetType, { description: 'List of assets' }),
+    lessonTitle: z
+      .string()
+      .openapi({ description: 'The title for the lesson' }),
+    attribution: z.array(z.string()).optional().openapi({
+      description:
+        "Licence information for any third-party content contained in the lessons' downloadable resources",
+    }),
+    assets: z.array(assetType).openapi({ description: 'List of assets' }),
   }),
 );
 

@@ -12,7 +12,9 @@ export const unitSummaryResponseOpenAPISchema = z
     subjectSlug: z
       .string()
       .openapi({ description: 'The subject slug identifier' }),
-    keyStageSlug: z.string(),
+    keyStageSlug: z
+      .string()
+      .openapi({ description: 'The key stage slug identifier' }),
     notes: z.string().optional(),
     description: z.string().optional(),
     priorKnowledgeRequirements: z

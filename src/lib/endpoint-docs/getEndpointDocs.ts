@@ -21,7 +21,7 @@ export const groupedEndpointInfo = [
   {
     title: 'Lesson data',
     slug: 'lesson-data',
-    tags: ['lessons'],
+    tags: ['lesson-data'],
     order: 2,
   },
   {

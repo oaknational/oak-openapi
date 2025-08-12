@@ -581,11 +581,13 @@ export const getAssets = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['assets', 'lessons'],
+        tags: ['assets', 'lessons', 'lesson-data'],
+        summary: 'Downloadable lesson assets',
         path: '/lessons/{lesson}/assets',
         errorResponses: [],
-        description:
-          'This endpoint returns signed download URLS and types for the assets currently available on Oak for a given lesson',
+        description: `This endpoint returns the types of available assets for a given lesson, and the download endpoints for each. 
+        This endpoint contains licence information for any third-party content contained in the lesson’s downloadable resources. Third-party content is exempt from the open-government license, and users will need to consider whether their use is covered by the stated licence, or if they need to procure their own agreement.
+          `,
       },
     })
     .input(lessonAssetsRequestOpenAPISchema)
