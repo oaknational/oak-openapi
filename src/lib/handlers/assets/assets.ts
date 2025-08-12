@@ -403,9 +403,10 @@ export const getAssets = router({
         method: 'GET',
         tags: ['assets'],
         errorResponses: [],
+        summary: 'Assets',
         path: '/key-stages/{keyStage}/subject/{subject}/assets',
         description:
-          'This endpoint returns signed download URLs and types for the assets currently available on Oak for a given key stage and subject, optionally filtered by type and unit, grouped by lesson',
+          'This endpoint returns signed download URLs and types for available assets for a given key stage and subject, grouped by lesson. You can also optionally filter by type and unit.',
       },
     })
     .input(subjectAssetsRequestOpenAPISchema)

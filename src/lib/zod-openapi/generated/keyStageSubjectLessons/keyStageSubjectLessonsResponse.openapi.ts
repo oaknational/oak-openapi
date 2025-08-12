@@ -4,14 +4,19 @@ import z from 'zod';
 export const keyStageSubjectLessonsResponseOpenAPISchema = z
   .array(
     z.object({
-      unitSlug: z.string().openapi({ description: 'Unit slug' }),
-      unitTitle: z.string().openapi({ description: 'Unit title' }),
+      unitSlug: z.string().openapi({ description: 'The unit slug identifier' }),
+      unitTitle: z.string().openapi({ description: 'The unit title' }),
       lessons: z
         .array(
           z.object({
-            lessonSlug: z.string().openapi({ description: 'Lesson slug' }),
-            lessonTitle: z.string().openapi({ description: 'Lesson title' }),
+            lessonSlug: z
+              .string()
+              .openapi({ description: 'The lesson slug identifier' }),
+            lessonTitle: z
+              .string()
+              .openapi({ description: 'The lesson title' }),
           }),
+          { description: 'List of lessons for the specified unit' },
         )
         .openapi({ description: 'A list of lesson slugs and lesson titles' }),
     }),
