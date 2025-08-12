@@ -6,6 +6,7 @@ import {
   OakIcon,
   OakIconName,
 } from '@oaknational/oak-components';
+import { useStableId } from '@/lib/useStableId';
 
 interface SelectCardProps {
   subject: string;
@@ -103,6 +104,7 @@ function DownloadOption({
   onChange,
   $hasError = false,
 }: DownloadOptionProps) {
+  const id = useStableId('chk');
   return (
     <label>
       <OakFlex
@@ -123,10 +125,10 @@ function DownloadOption({
           $gap="all-spacing-1"
         >
           <OakSpan $font="body-2-bold" $color="black">
-            {heading}
+            <label suppressHydrationWarning htmlFor={id}>{heading}</label>
           </OakSpan>
         </OakFlex>
-        <CheckBox $hasError={$hasError} checked={checked} onChange={onChange} />
+        <CheckBox  id={id} $hasError={$hasError} checked={checked} onChange={onChange} />
       </OakFlex>
     </label>
   );

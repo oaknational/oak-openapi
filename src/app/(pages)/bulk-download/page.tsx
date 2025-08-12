@@ -12,7 +12,6 @@ export type Subjects = {
 export default async function Page() {
   const subjects = await getAllSubjects(getClient());
 
-  console.log('Subjects fetched:', subjects);
 
   // reduce and restructure the subjects to match the expected format:
   const reducedSubjects: Subjects = subjects.reduce((acc, subject) => {
@@ -43,8 +42,6 @@ export default async function Page() {
       },
     ];
   }, [] as Subjects);
-
-  console.log(reducedSubjects.map(_ => _.slug));
 
   return <BulkDownloadPage subjects={reducedSubjects} />;
 }
