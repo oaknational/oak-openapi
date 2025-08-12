@@ -1,9 +1,10 @@
+import { useStableId } from '@/lib/useStableId';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
 interface CheckBoxProps {
-  checked?: boolean;
-  onChange?: (checked: boolean) => void;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
   label?: string;
   $hasError?: boolean;
   id?: string;
@@ -82,6 +83,7 @@ const CheckBox: React.FC<CheckBoxProps> = ({
   label = '',
   $hasError,
   children,
+  id: idProp,
   // need to add `props` to allow for additional props to be passed down
   // that are valid for a checkbox input
   ...props
@@ -90,6 +92,8 @@ const CheckBox: React.FC<CheckBoxProps> = ({
 
   const isControlled = controlledChecked !== undefined;
   const checked = isControlled ? controlledChecked : internalChecked;
+
+  const id = idProp ?? useStableId("chk");
 
   const handleCheckboxChange = () => {
     const newCheckedState = !checked;
@@ -101,16 +105,17 @@ const CheckBox: React.FC<CheckBoxProps> = ({
   };
 
   return (
-    <CheckboxContainer onClick={handleCheckboxChange}>
+    <CheckboxContainer>
       <HiddenCheckbox
         {...props}
+        id={id}
         checked={checked}
         onChange={handleCheckboxChange}
       />
-      <StyledCheckbox checked={checked} $hasError={$hasError}>
+      <StyledCheckbox onClick={handleCheckboxChange} checked={checked} $hasError={$hasError}>
         {checked && <CheckMarkIcon />}
       </StyledCheckbox>
-      {label && <Label>{label}</Label>}
+      {label && <Label htmlFor={id}>{label}</Label>}
       {children}
     </CheckboxContainer>
   );

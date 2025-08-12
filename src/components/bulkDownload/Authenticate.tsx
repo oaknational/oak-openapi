@@ -17,6 +17,7 @@ import { JauntyAngleLabel } from '../JauntyAngleLabel';
 import CheckBox from '../CheckBox';
 import styled from 'styled-components';
 import { ButtonWithSpinner } from '../ButtonWithSpinner';
+import { useStableId } from '@/lib/useStableId';
 
 interface AuthenticateProps {
   hasSelectedSubject: () => boolean;
@@ -202,6 +203,8 @@ export function Authenticate({
     // Mock API fetch here
   };
 
+  const termsId = useStableId('terms');
+
   return (
     <OakFlex
       $gap="all-spacing-7"
@@ -250,12 +253,12 @@ export function Authenticate({
           </OakBox>
         )}
         <CheckBox
-          id="terms"
+          id={termsId}
           checked={termsChecked}
           onChange={setTermsChecked}
           $hasError={!!termsError}
         >
-          <OakLabel $font="heading-light-7" htmlFor="terms">
+          <OakLabel $font="heading-light-7" htmlFor={termsId}>
             I accept{' '}
             <OakLink target="_blank" href="/docs/terms">
               Oak's terms and conditions
