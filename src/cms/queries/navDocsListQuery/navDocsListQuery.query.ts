@@ -29,11 +29,11 @@ const navDocsListQuery = async () => {
       const groupSlug = group.slug.text;
       const pages = input.pages
         .filter((page) => page.parentGroup?.slug?.text === groupSlug)
-        .map((page, order) => ({
+        .map((page) => ({
           title:
             // don't add a number to the overview page. Query already orders the pages
             groupSlug === API_ENDPOINTS_SLUG && !page.title.includes('overview')
-              ? `${order}. ${page.title}`
+              ? `${page.order - 1}. ${page.title}`
               : page.title,
           href: `${groupSlug}/${page.slug.text}`,
         }));

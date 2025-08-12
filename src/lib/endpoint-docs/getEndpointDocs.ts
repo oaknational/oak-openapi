@@ -16,26 +16,31 @@ export const groupedEndpointInfo = [
     title: 'Lists',
     slug: 'lists',
     tags: ['lists'],
+    order: 1,
   },
   {
     title: 'Lesson data',
     slug: 'lesson-data',
     tags: ['lessons'],
+    order: 2,
   },
   {
     title: 'Unit and curriculum data',
     slug: 'unit-and-curriculum-data',
     tags: ['units', 'sequences'],
+    order: 3,
   },
   {
     title: 'Quiz questions',
     slug: 'quiz-questions',
     tags: ['questions'],
+    order: 4,
   },
   {
     title: 'Search',
     slug: 'search',
     tags: ['search'],
+    order: 5,
   },
 ];
 
@@ -103,9 +108,11 @@ const getOutputSchema = (responses: ZodOpenApiResponsesObject) => {
 export const getEndpointContent = async (
   paramSlug: string,
 ): Promise<{ endpoints: EndpointInfo[] | []; title: string } | undefined> => {
-  const tags = groupedEndpointInfo.find(
+  const endpointMeta = groupedEndpointInfo.find(
     ({ slug }: { slug: string }) => slug === paramSlug,
-  )?.tags;
+  );
+
+  const tags = endpointMeta?.tags;
 
   if (!tags) return;
 
@@ -139,7 +146,7 @@ export const getEndpointContent = async (
 
     return {
       order: order + 1,
-      title: `${order + 1}. ${slugToTitle(getPathEnd(path))}`,
+      title: `${endpointMeta.order}.${order + 1} ${slugToTitle(getPathEnd(path))}`,
       requestType: 'GET',
       path,
       description,
