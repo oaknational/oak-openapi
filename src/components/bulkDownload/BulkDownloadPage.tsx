@@ -21,6 +21,7 @@ import type { Subjects } from '@/app/(pages)/bulk-download/page';
 import CheckBox from '../CheckBox';
 import { Authenticate } from './Authenticate';
 import { UL } from '../UL';
+import { useStableId } from '@/lib/useStableId';
 
 interface BulkDownloadPageProps {
   subjects: Subjects;
@@ -133,6 +134,8 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
     return false;
   };
 
+  const errorId = useStableId('bulk-download-error');
+
   return (
     <>
       <Head>
@@ -205,7 +208,7 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
               />
             </OakFlex>
             {hasError && (
-              <OakBox $mt="space-between-m">
+              <OakBox id={errorId} $mt="space-between-m">
                 <OakFieldError>
                   Select at least one option to download
                 </OakFieldError>
@@ -226,6 +229,7 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
                 secondaryLessonCount={subject.secondary}
                 iconName={`subject-${subject.slug}`}
                 $hasError={hasError}
+                errorId={hasError ? errorId : undefined}
                 primaryChecked={
                   selectedSubjects[subject.slug]?.primary || false
                 }
