@@ -285,7 +285,7 @@ export function Authenticate({
           isTrailingIcon={true}
           onClick={handleDownload}
         >
-          Download
+          { isLoading ? "Preparing your zip" : "Download"}
         </ButtonWithSpinner>
       </OakBox>
     </OakFlex>
