@@ -1,4 +1,4 @@
-import { EndpointInfo } from '@/components/documentationPages/EndpointDocsContent';
+import { EndpointInfo } from '@/components/documentationPages/EndpointBlock';
 import { openApiDocument } from '@/lib/zod-openapi/schema/generateDocument';
 import {
   ZodOpenApiOperationObject,
@@ -24,7 +24,7 @@ export const groupedEndpointInfo = [
   },
   {
     title: 'Unit and curriculum data',
-    slug: 'unit-curriculum-data',
+    slug: 'unit-and-curriculum-data',
     tags: ['units', 'sequences'],
   },
   {
