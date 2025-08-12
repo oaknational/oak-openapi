@@ -204,6 +204,12 @@ export function Authenticate({
   };
 
   const termsId = useStableId('terms');
+  const termsErrorId = useStableId('terms-error');
+  const termsLabelId = useStableId('terms-label');
+  const apiKeyId = useStableId('api-key');
+  const apiKeyErrorId = useStableId('api-key-error');
+  const apiKeyLabelId = useStableId('api-key-label');
+
 
   return (
     <OakFlex
@@ -216,25 +222,29 @@ export function Authenticate({
       </OakHeading>
       <OakBox>
         {apiKeyError && (
-          <OakBox $mb="space-between-m">
+          <OakBox id={apiKeyErrorId} $mb="space-between-m">
             <OakFieldError>{apiKeyError}</OakFieldError>
           </OakBox>
         )}
         <JauntyAngleLabel
+        id={apiKeyLabelId}
           $error={!!apiKeyError}
           $background="lemon"
-          htmlFor="apiKey"
+          htmlFor={apiKeyId}
           as="label"
         >
           <strong>API Key</strong>{' '}
           <span style={{ fontWeight: 400 }}>(required)</span>
         </JauntyAngleLabel>
         <OakTextInput
-          id="apiKey"
+          id={apiKeyId}
           type="text"
           $pa="inner-padding-m"
           placeholder="Enter your API key"
           value={apiKey}
+          aria-labelledby={apiKeyLabelId}
+          aria-describedby={apiKeyError ? apiKeyErrorId : undefined}
+          required
           onChange={(e) => {
             setApiKeyError(false);
             setApiKey(e.target.value);
@@ -248,7 +258,7 @@ export function Authenticate({
       </OakBox>
       <OakBox>
         {termsError && (
-          <OakBox $mb="space-between-m">
+          <OakBox id={termsErrorId} $mb="space-between-m">
             <OakFieldError>{termsError}</OakFieldError>
           </OakBox>
         )}
@@ -257,8 +267,12 @@ export function Authenticate({
           checked={termsChecked}
           onChange={setTermsChecked}
           $hasError={!!termsError}
+          aria-invalid={!!termsError}
+          aria-describedby={termsError ? termsErrorId : undefined}
+          labelId={termsLabelId}
+          required
         >
-          <OakLabel $font="heading-light-7" htmlFor={termsId}>
+          <OakLabel $font="heading-light-7" htmlFor={termsId} id={termsLabelId}>
             I accept{' '}
             <OakLink target="_blank" href="/docs/terms">
               Oak's terms and conditions

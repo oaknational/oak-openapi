@@ -18,6 +18,7 @@ interface SelectCardProps {
   onSecondaryChange: () => void;
   iconName: string;
   $hasError?: boolean;
+  errorId?: string;
 }
 
 const SelectCard: React.FC<SelectCardProps> = ({
@@ -30,6 +31,7 @@ const SelectCard: React.FC<SelectCardProps> = ({
   onSecondaryChange,
   iconName,
   $hasError = false,
+  errorId,
 }) => {
   const id = useStableId('select-card');
   return (
@@ -78,14 +80,16 @@ const SelectCard: React.FC<SelectCardProps> = ({
               checked={primaryChecked}
               onChange={onPrimaryChange}
               $hasError={$hasError}
-            />
-          )}
+              errorId={errorId}
+              />
+            )}
           {secondaryLessonCount > 0 && (
             <DownloadOption
-              heading="Secondary"
-              checked={secondaryChecked}
-              onChange={onSecondaryChange}
-              $hasError={$hasError}
+            heading="Secondary"
+            checked={secondaryChecked}
+            onChange={onSecondaryChange}
+            $hasError={$hasError}
+            errorId={errorId}
             />
           )}
         </OakFlex>
@@ -99,6 +103,7 @@ interface DownloadOptionProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   $hasError?: boolean;
+  errorId?: string;
 }
 
 function DownloadOption({
@@ -106,6 +111,7 @@ function DownloadOption({
   checked,
   onChange,
   $hasError = false,
+  errorId,
 }: DownloadOptionProps) {
   const id = useStableId('chk');
   return (
@@ -131,7 +137,7 @@ function DownloadOption({
             <label suppressHydrationWarning htmlFor={id}>{heading}</label>
           </OakSpan>
         </OakFlex>
-        <CheckBox  id={id} $hasError={$hasError} checked={checked} onChange={onChange} />
+        <CheckBox aria-describedby={errorId} id={id} $hasError={$hasError} checked={checked} onChange={onChange} />
       </OakFlex>
 
   );
