@@ -130,7 +130,11 @@ export const getEndpointContent = async (
 
   const endpoints: EndpointInfo[] = filteredEndpoints.map((endpoint, order) => {
     const { path, data } = endpoint;
-    const endpointSlug = getPathEnd(path);
+
+    const summary = endpoint.data.get?.summary;
+
+    const endpointSlug =
+      summary?.replaceAll(' ', '-').toLocaleLowerCase() ?? getPathEnd(path);
 
     const { description, responses, parameters } =
       data.get as ZodOpenApiOperationObject;
@@ -146,7 +150,7 @@ export const getEndpointContent = async (
 
     return {
       order: order + 1,
-      title: `${endpointMeta.order}.${order + 1} ${endpoint.data.get?.summary}`,
+      title: `${endpointMeta.order}.${order + 1} ${summary}`,
       requestType: 'GET',
       path,
       description,

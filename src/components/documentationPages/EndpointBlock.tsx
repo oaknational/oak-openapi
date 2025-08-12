@@ -78,10 +78,11 @@ export default function EndpointBlock(props: { endpoint: EndpointInfo }) {
     path,
     requestType,
     paramTypes,
+    slug,
   } = props.endpoint;
   return (
     <OakFlex $gap="all-spacing-3" $flexDirection="column" $mb="space-between-l">
-      <OakHeading tag="h2" $font="heading-4">
+      <OakHeading tag="h2" $font="heading-4" id={slug}>
         {title}
       </OakHeading>
       <EndpointHeading
