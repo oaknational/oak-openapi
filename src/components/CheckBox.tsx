@@ -94,6 +94,7 @@ const CheckBox: React.FC<CheckBoxProps> = ({
   const checked = isControlled ? controlledChecked : internalChecked;
 
   const id = idProp ?? useStableId("chk");
+  const labelId = label ? `${id}-label` : undefined;
 
   const handleCheckboxChange = () => {
     const newCheckedState = !checked;
@@ -111,11 +112,12 @@ const CheckBox: React.FC<CheckBoxProps> = ({
         id={id}
         checked={checked}
         onChange={handleCheckboxChange}
+        aria-labelledby={label ? labelId : undefined}
       />
-      <StyledCheckbox onClick={handleCheckboxChange} checked={checked} $hasError={$hasError}>
+      <StyledCheckbox aria-hidden onClick={handleCheckboxChange} checked={checked} $hasError={$hasError}>
         {checked && <CheckMarkIcon />}
       </StyledCheckbox>
-      {label && <Label htmlFor={id}>{label}</Label>}
+      {label && <Label id={labelId} htmlFor={id}>{label}</Label>}
       {children}
     </CheckboxContainer>
   );

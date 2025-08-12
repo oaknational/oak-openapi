@@ -31,6 +31,7 @@ const SelectCard: React.FC<SelectCardProps> = ({
   iconName,
   $hasError = false,
 }) => {
+  const id = useStableId('select-card');
   return (
     <OakFlex
       $display="flex"
@@ -40,6 +41,8 @@ const SelectCard: React.FC<SelectCardProps> = ({
       $borderRadius="border-radius-m"
       $background="mint50"
       $overflow="hidden"
+      role="group"
+      aria-labelledby={id}
     >
       <OakFlex
         $flexDirection="column"
@@ -56,7 +59,7 @@ const SelectCard: React.FC<SelectCardProps> = ({
           iconName={iconName as OakIconName}
         />
 
-        <OakSpan $font="heading-6" $textAlign="center" $color="black">
+        <OakSpan $font="heading-6" $textAlign="center" $color="black" id={id}>
           {subject}
         </OakSpan>
       </OakFlex>
@@ -106,7 +109,7 @@ function DownloadOption({
 }: DownloadOptionProps) {
   const id = useStableId('chk');
   return (
-    <label>
+
       <OakFlex
         $flexDirection="row"
         $alignItems="center"
@@ -130,7 +133,7 @@ function DownloadOption({
         </OakFlex>
         <CheckBox  id={id} $hasError={$hasError} checked={checked} onChange={onChange} />
       </OakFlex>
-    </label>
+
   );
 }
 
