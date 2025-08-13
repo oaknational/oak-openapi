@@ -23,9 +23,12 @@ export const unitSummaryResponseOpenAPISchema = z
           'The slug identifier for the year to which the unit belongs',
         example: 'year-3',
       }),
-    year: z.union([z.number(), z.string({ description: 'All years' })], {
-      description: 'The year to which the unit belongs',
-    }),
+    year: z
+      .union([z.number(), z.string({ description: 'All years' })])
+      .openapi({
+        description: 'The year to which the unit belongs',
+        example: 3,
+      }),
     phaseSlug: z
       .string()
       .openapi({
@@ -108,10 +111,13 @@ export const unitSummaryResponseOpenAPISchema = z
               description: 'Indicates the ordering of the lesson',
             })
             .optional(),
-          state: z.enum(['published', 'new'], {
-            description:
-              "If the state is 'published' then it is also available on the /lessons/* endpoints. If the state is 'new' then it's not available yet.",
-          }),
+          state: z
+            .enum(['published', 'new'])
+            .openapi({
+              description:
+                "If the state is 'published' then it is also available on the /lessons/* endpoints. If the state is 'new' then it's not available yet.",
+              example: undefined,
+            }),
         })
         .openapi({ description: 'All the lessons contained in the unit' }),
     ),
