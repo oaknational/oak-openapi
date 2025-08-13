@@ -4,15 +4,24 @@ import z from 'zod';
 export const allKeyStageAndSubjectUnitsResponseOpenAPISchema = z
   .array(
     z.object({
-      yearSlug: z.string().openapi({ description: 'The year identifier' }),
-      yearTitle: z.string().openapi({ description: 'The year title' }),
+      yearSlug: z
+        .string()
+        .openapi({ description: 'The year identifier', example: undefined }),
+      yearTitle: z
+        .string()
+        .openapi({ description: 'The year title', example: undefined }),
       units: z
         .array(
           z.object({
             unitSlug: z
               .string()
-              .openapi({ description: 'The unit slug identifier' }),
-            unitTitle: z.string().openapi({ description: 'The unit title' }),
+              .openapi({
+                description: 'The unit slug identifier',
+                example: undefined,
+              }),
+            unitTitle: z
+              .string()
+              .openapi({ description: 'The unit title', example: undefined }),
           }),
           { description: 'List of units for the specified year' },
         )
