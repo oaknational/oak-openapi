@@ -121,10 +121,12 @@ export const getSequences = router({
   getSequenceUnits: protectedProcedure
     .meta({
       openapi: {
-        tags: ['units', 'sequences'],
+        tags: ['units', 'sequences', 'unit-and-curriculum-data'],
         method: 'GET',
+        summary: 'Units within a sequence',
         path: '/sequences/{sequence}/units',
-        description: '',
+        description:
+          'This endpoint returns high-level information for all of the units in a sequence. Units are returned in the intended sequence order and are grouped by year.',
         errorResponses: [],
       },
     })

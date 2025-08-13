@@ -225,11 +225,12 @@ export const getAssets = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['assets', 'sequences'],
+        tags: ['assets', 'sequences', 'unit-and-curriculum-data'],
         path: '/sequences/{sequence}/assets',
         errorResponses: [],
-        description:
-          'This endpoint returns signed download URLs and types for the assets currently available on Oak for a given sequence',
+        summary: 'Assets within a sequence',
+        description: `This endpoint returns all assets for a given sequence, and the download endpoints for each. The assets are grouped by lesson.
+This endpoint contains licence information for any third-party content contained in the lesson’s downloadable resources. Third-party content is exempt from the open-government license, and users will need to consider whether their use is covered by the stated licence, or if they need to procure their own agreement.`,
       },
     })
     .input(sequenceAssetsRequestOpenAPISchema)

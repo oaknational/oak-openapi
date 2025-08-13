@@ -120,10 +120,10 @@ export const getQuestions = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['questions', 'sequences'],
+        tags: ['questions', 'sequences', 'unit-and-curriculum-data'],
         path: '/sequences/{sequence}/questions',
-        description:
-          'This endpoint returns the quiz questions and answers (and indicates which answers are correct and which are distractors) for a given sequence',
+        summary: 'Questions within a sequence',
+        description: `This endpoint returns all quiz questions for a given sequence. The assets are separated into starter quiz and entry quiz arrays, grouped by lesson.`,
         errorResponses: [],
       },
     })
