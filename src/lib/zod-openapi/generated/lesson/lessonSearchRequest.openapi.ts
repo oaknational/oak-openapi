@@ -4,24 +4,30 @@ import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
 
 export const lessonSearchRequestOpenAPISchema = z
   .object({
-    q: z.string().openapi({ example: 'gothic' }),
+    q: z
+      .string({
+        description: 'Search query text snippet',
+      })
+      .openapi({ example: 'gothic' }),
     keyStage: z
       .enum(keyStageSlugs as [string], {
         description:
           "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
       })
+      .openapi({ example: 'ks2' })
       .optional(),
     subject: z
       .enum(subjectSlugs as [string], {
         description:
           "Subject slug to filter by, e.g. 'english' - note that casing is important here, and should be lowercase",
       })
-      .optional()
-      .openapi({ example: 'english' }),
+      .openapi({ example: 'english' })
+      .optional(),
     unit: z
       .string({
         description: 'Optional unit slug to additionally filter by',
       })
+      .openapi({ example: 'the-three-billy-goats-gruff-reading-and-writing' })
       .optional(),
   })
   .openapi({ example: { q: 'gothic', subject: 'english' } });

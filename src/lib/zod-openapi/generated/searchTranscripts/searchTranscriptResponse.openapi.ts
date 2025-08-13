@@ -8,7 +8,10 @@ export const searchTranscriptResponseOpenAPISchema = z
       lessonSlug: z
         .string()
         .openapi({ description: 'The lesson slug identifier' }),
-      transcriptSnippet: z.string().optional(),
+      transcriptSnippet: z.string().optional().openapi({
+        description:
+          'The snippet of the transcript that matched the search term',
+      }),
     }),
   )
   .openapi({
