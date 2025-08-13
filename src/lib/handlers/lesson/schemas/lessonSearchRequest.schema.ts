@@ -2,7 +2,9 @@ import { z } from 'zod';
 import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
 
 export const lessonSearchRequestSchema = z.object({
-  q: z.string(),
+  q: z.string().openapi({
+    description: 'Search query text snippet',
+  }),
   keyStage: z
     .enum(keyStageSlugs as [string], {
       description:

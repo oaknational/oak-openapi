@@ -12,6 +12,7 @@ export const sequenceUnitsRequestSchema = z.object({
     .openapi({
       description:
         'The year group to filter by. For the physical-education-primary sequence, a value of all-years can also be used.',
+      example: '3',
     })
     .optional(),
 });
