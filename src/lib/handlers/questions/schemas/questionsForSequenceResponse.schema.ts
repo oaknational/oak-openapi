@@ -1,3 +1,3 @@
-import z from 'zod';
+import { questionZod } from '../types';
 
-export const questionsForSequenceResponseSchema = z.any();
+export const questionsForSequenceResponseSchema = questionZod;
