@@ -76,9 +76,13 @@ export function uploadToStorage(
   });
   readStream.on('error', (err) => {
     logError(`Error reading file: ${err}`);
+    readStream.destroy();
+    writeStream.destroy();
   });
   writeStream.on('error', (err) => {
     logError(`Error uploading file: ${err}`);
+    readStream.destroy();
+    writeStream.destroy();
   });
   writeStream.on('finish', () => {
     log(`File uploaded to ${bucketName}/${destination}`);
