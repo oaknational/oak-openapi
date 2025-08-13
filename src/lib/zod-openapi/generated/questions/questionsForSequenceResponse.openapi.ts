@@ -1,7 +1,7 @@
 import 'zod-openapi/extend';
-import z from 'zod';
+import { questionZod } from '@/lib/handlers/questions/types';
 
-export const questionsForSequenceResponseOpenAPISchema = z.any().openapi({
+export const questionsForSequenceResponseOpenAPISchema = questionZod.openapi({
   example: [
     {
       lessonTitle: '3D shapes can be composed from 2D nets',
