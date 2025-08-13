@@ -43,13 +43,17 @@ export type EndpointDocsProps = {
   docs: DocumentationContentPageBlock[];
 };
 
+// RS note - I've reduced this heading down to allow for long URLs to fit better
+// but it needs Helen's sign off (TODO - remove this comment when done)
 const EndpointHeading = styled(OakHeading)`
   color: var(--Tokens-Text-text-primary, #222);
   font-family: 'Roboto Mono';
-  font-size: 32px;
+  font-size: 1rem;
   font-style: normal;
-  font-weight: 400;
-  line-height: 40px; /* 125% */
+  font-weight: 800;
+  line-height: 1rem;
+  padding-bottom: 1rem;
+  word-break: break-all;
 `;
 const generateTableRows = (data: InputOutputTable) => {
   const header = data[0]
@@ -100,7 +104,7 @@ export default function EndpointBlock(props: { endpoint: EndpointInfo }) {
         {params && params.length > 0 ? (
           <Table value={generateTableRows(params)} />
         ) : (
-          'N/ A'
+          'N/A'
         )}
       </OakBox>
       <OakHeading tag="h3" $font="heading-5">
@@ -108,7 +112,7 @@ export default function EndpointBlock(props: { endpoint: EndpointInfo }) {
         {output && output[0] ? (
           <Table value={generateTableRows(output)} />
         ) : (
-          <OakP>N/ A</OakP>
+          <OakP>N/A</OakP>
         )}
       </OakHeading>
       {sampleResponse && (

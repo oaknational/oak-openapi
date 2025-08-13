@@ -44,6 +44,7 @@ export const getQuestions = router({
         method: 'GET',
         tags: ['lessons', 'questions'],
         path: '/lessons/{lesson}/quiz',
+        summary: 'Quiz questions by lesson',
         errorResponses: [],
         description:
           'The endpoint returns the quiz questions and answers for a given lesson. The answers data indicates which answers are correct, and which are distractors.',
@@ -249,9 +250,10 @@ export const getQuestions = router({
         tags: ['questions'],
         method: 'GET',
         path: '/key-stages/{keyStage}/subject/{subject}/questions',
+        summary: 'Quiz questions by subject and key stage',
         errorResponses: [],
         description:
-          'This endpoint returns all the quiz questions and answers (and indicates which answers are correct and which are distractors), grouped by lesson, for a given key stage and subject',
+          'This endpoint returns quiz questions and answers for each lesson within a requested subject and key stage.',
       },
     })
     .input(questionsForKeyStageAndSubjectRequestOpenAPISchema)

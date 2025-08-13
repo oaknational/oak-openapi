@@ -13,9 +13,10 @@ export const searchTranscripts = router({
         method: 'GET',
         tags: ['search'],
         path: '/search/transcripts',
+        summary: 'Lesson search using lesson video transcripts',
         errorResponses: [],
         description:
-          'Search for a term and find lessons that contain similar text in their video transcripts',
+          'Search for a term and find the 5 most similar lessons whose video transcripts contain similar text.',
       },
     })
     .input(searchTranscriptRequestOpenAPISchema)
