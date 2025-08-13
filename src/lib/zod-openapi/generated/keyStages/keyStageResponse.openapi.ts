@@ -7,12 +7,12 @@ export const keyStageResponseOpenAPISchema = z
       slug: z
         .string()
         .openapi({
-          example: undefined,
           description: 'The key stage slug identifier',
+          example: undefined,
         }),
       title: z
         .string()
-        .openapi({ example: undefined, description: 'The key stage title' }),
+        .openapi({ description: 'The key stage title', example: undefined }),
     }),
   )
   .openapi({

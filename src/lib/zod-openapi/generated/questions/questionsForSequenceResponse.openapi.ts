@@ -31,7 +31,7 @@ export const questionsForSequenceResponseOpenAPISchema = questionZod.openapi({
             },
             {
               type: 'text',
-              content: 'A 2D shape made of 3D shapes folded together.',
+              content: 'A 2D shape made of 3D shapes folded togehther.',
               distractor: true,
             },
             { type: 'text', content: 'A type of cube.', distractor: true },

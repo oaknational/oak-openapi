@@ -71,44 +71,56 @@ export function addOpenApiObject(node, properties) {
 
 export const generateObjectProps = (key, value) => ({ key, value });
 
-function normalizeZodObject(node, descriptionValue, exampleValue) {
-  // z.string({ description: '...' }) — extract and move description to openapi()
-  const described = hasDescription(node);
-  const exampleProp = generateObjectProps('example', exampleValue);
-
+function replaceObjectPropertyLocation(
+  node,
+  propertyKey,
+  additionalProps = [],
+) {
   if (
     t.isCallExpression(node) &&
     node.arguments.length > 0 &&
-    t.isObjectExpression(node.arguments[0]) &&
-    described
+    t.isObjectExpression(node.arguments[0])
   ) {
     const arg = node.arguments[0];
     const props = arg.properties;
 
-    const descriptionPropIndex = props.findIndex(
+    const objectPropIndex = props.findIndex(
       (prop) =>
         t.isObjectProperty(prop) &&
         t.isIdentifier(prop.key, {
-          name: 'description',
+          name: propertyKey,
         }),
     );
 
-    if (descriptionPropIndex !== -1) {
-      const descriptionProp = props[descriptionPropIndex];
-      const descriptionValue = descriptionProp.value.value;
-      console.log(descriptionValue);
+    if (objectPropIndex !== -1) {
+      const objectProperty = props[objectPropIndex];
+      const objValue = objectProperty.value.value ?? objectProperty.value;
       // Remove original description from args
-      props.splice(descriptionPropIndex, 1);
+      props.splice(objectPropIndex, 1);
 
       // Remove empty object if no other options remain
       if (props.length === 0) {
         node.arguments = [];
       }
 
-      const descProp = generateObjectProps('description', descriptionValue);
-      // Append .openapi({ description })
-      return addOpenApiObject(node, [exampleProp, descProp]);
+      const objProp = generateObjectProps(propertyKey, objValue);
+      // Append .openapi({ [property] })
+      return addOpenApiObject(node, [objProp, ...additionalProps]);
     }
+  }
+}
+
+function normalizeZodObject(node, descriptionValue, exampleValue) {
+  // z.string({ description: '...' }) — extract and move description to openapi()
+  const described = hasDescription(node);
+  const exampleProp = generateObjectProps('example', exampleValue);
+
+  if (described) {
+    return replaceObjectPropertyLocation(
+      node,
+      'description',
+      exampleProp ? [exampleProp] : [],
+    );
   }
   // Case: no description at all — return undefined
   if (!described && descriptionValue) {
@@ -174,19 +186,20 @@ export function attachOpenApiMeta(
           innerArg.arguments[0].properties.length
             ? innerArg.arguments[0].properties.map(({ key }) => key.name)
             : [];
-        const generatedDescription = generateObjectDescription(keys);
 
-        return t.callExpression(
-          t.memberExpression(node, t.identifier('openapi')),
-          [
-            t.objectExpression([
-              t.objectProperty(
-                t.identifier('description'),
-                t.valueToNode(generatedDescription),
-              ),
-            ]),
-          ],
-        );
+        const desc = descriptionValue ?? generateObjectDescription(keys);
+        const objectExample = generateObjectProps('example', exampleValues);
+
+        if (hasDescription(node)) {
+          return replaceObjectPropertyLocation(
+            node,
+            'description',
+            objectExample ? [objectExample] : [],
+          );
+        }
+
+        const objectDesc = generateObjectProps('description', desc);
+        return addOpenApiObject(node, [objectDesc]);
       }
 
       return node;

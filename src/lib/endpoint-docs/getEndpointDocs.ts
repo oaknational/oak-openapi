@@ -89,10 +89,10 @@ const getOutputSchema = (responses: ZodOpenApiResponsesObject) => {
       if (openApiDocument.components?.schemas) {
         const schema = openApiDocument.components?.schemas[schemaName];
         // find all nested properties with descriptions
-        const data = findAllObjectProperties(schema, 'description') as Record<
-          string,
-          SchemaObject
-        >;
+        const data = findAllObjectProperties(schema, 'description', [
+          'example',
+        ]) as Record<string, SchemaObject>;
+        console.log(data);
 
         if (schema && data) {
           const output = Object.keys(data).map((propertyName) => {

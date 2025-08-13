@@ -7,28 +7,32 @@ export const keyStageSubjectLessonsResponseOpenAPISchema = z
       unitSlug: z
         .string()
         .openapi({
-          example: undefined,
           description: 'The unit slug identifier',
+          example: undefined,
         }),
       unitTitle: z
         .string()
-        .openapi({ example: undefined, description: 'The unit title' }),
+        .openapi({ description: 'The unit title', example: undefined }),
       lessons: z
         .array(
           z.object({
             lessonSlug: z
               .string()
               .openapi({
-                example: undefined,
                 description: 'The lesson slug identifier',
+                example: undefined,
               }),
             lessonTitle: z
               .string()
-              .openapi({ example: undefined, description: 'The lesson title' }),
+              .openapi({ description: 'The lesson title', example: undefined }),
           }),
           { description: 'List of lessons for the specified unit' },
         )
-        .openapi({ description: 'A list of lesson slugs and lesson titles' }),
+        .openapi({
+          description: {
+            description: 'List of lessons for the specified unit',
+          },
+        }),
     }),
   )
   .openapi({
