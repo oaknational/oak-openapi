@@ -8,11 +8,14 @@ export const keyStageResponseOpenAPISchema = z
         .string()
         .openapi({
           description: 'The key stage slug identifier',
-          example: undefined,
+          example: 'ks1',
         }),
       title: z
         .string()
-        .openapi({ description: 'The key stage title', example: undefined }),
+        .openapi({
+          description: 'The key stage title',
+          example: 'Key Stage 1',
+        }),
     }),
   )
   .openapi({

@@ -6,10 +6,10 @@ export const allKeyStageAndSubjectUnitsResponseOpenAPISchema = z
     z.object({
       yearSlug: z
         .string()
-        .openapi({ description: 'The year identifier', example: undefined }),
+        .openapi({ description: 'The year identifier', example: 'year-3' }),
       yearTitle: z
         .string()
-        .openapi({ description: 'The year title', example: undefined }),
+        .openapi({ description: 'The year title', example: 'Year 3' }),
       units: z
         .array(
           z.object({

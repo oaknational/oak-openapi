@@ -4,9 +4,24 @@ import z from 'zod';
 export const searchTranscriptResponseOpenAPISchema = z
   .array(
     z.object({
-      lessonTitle: z.string(),
-      lessonSlug: z.string(),
-      transcriptSnippet: z.string().optional(),
+      lessonTitle: z
+        .string()
+        .openapi({
+          description: 'The lesson title',
+          example: 'The Roman invasion of Britain ',
+        }),
+      lessonSlug: z
+        .string()
+        .openapi({
+          description: 'The lesson slug identifier',
+          example: 'the-roman-invasion-of-britain',
+        }),
+      transcriptSnippet: z
+        .string({
+          description:
+            'The snippet of the transcript that matched the search term',
+        })
+        .optional(),
     }),
   )
   .openapi({
