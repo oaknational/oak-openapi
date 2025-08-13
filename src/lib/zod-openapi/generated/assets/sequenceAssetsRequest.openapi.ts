@@ -18,6 +18,4 @@ export const sequenceAssetsRequestOpenAPISchema = z
 Available values: slideDeck, exitQuiz, exitQuizAnswers, starterQuiz, starterQuizAnswers, supplementaryResource, video, worksheet, worksheetAnswers`,
     }),
   })
-  .openapi({
-    example: { sequence: 'maths-primary', year: '3', type: 'video' },
-  });
+  .openapi({ example: { sequence: 'maths-primary', year: 3, type: 'video' } });

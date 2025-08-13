@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import 'zod-openapi/extend';
 
 export const multipleChoiceLit = z.literal('multiple-choice');
 export const shortAnswerLit = z.literal('short-answer');
@@ -35,8 +36,10 @@ export const imageContent = z.object({
 });
 
 export const textAnswer = z.object({
-  type: z.literal('text'),
-  content: z.string(),
+  type: z.literal('text').openapi({
+    description: `The format of the quiz answer \nNote: currently, we are only returning text-based quiz answers. In the future, we will also have image-based questions available.`,
+  }),
+  content: z.string().openapi({ description: 'Quiz question answer' }),
 });
 
 export const imageAnswer = z.object({
@@ -45,26 +48,38 @@ export const imageAnswer = z.object({
 });
 
 export const multipleChoiceAnswer = z
-  .object({ distractor: z.boolean() })
+  .object({
+    distractor: z.boolean().openapi({
+      description:
+        'Whether the multiple choice question response is the correct answer (false) or is a distractor (true)',
+    }),
+  })
   .and(z.union([textAnswer, imageAnswer]));
 
 export const shortAnswer = textAnswer;
 
 export const matchAnswer = z.object({
-  matchOption: textAnswer,
-  correctChoice: textAnswer,
+  matchOption: textAnswer.openapi({ description: 'Matching options (LHS)' }),
+  correctChoice: textAnswer.openapi({
+    description: 'Matching options (RHS), indicating the correct choice',
+  }),
 });
 
 export const orderAnswer = z
   .object({
-    order: z.number(),
+    order: z.number().openapi({
+      description: 'Indicates the correct ordering of the response',
+    }),
   })
   .and(textAnswer);
 
 export const questionZod = z
   .object({
-    question: z.string(),
-    questionType: availableQuestionTypes,
+    question: z.string().openapi({ description: 'The question text' }),
+    questionType: availableQuestionTypes.openapi({
+      description: `The type of quiz question which could be one of the following:\n- multiple-choice\n- order\n- match\n- explanatory-text
+- short-answer`,
+    }),
     questionImage: imageContent.optional(),
   })
   .and(
@@ -111,14 +126,19 @@ export const questionZod = z
       ),
     ]),
   );
-
+// .openapi({description: ''})
 export const questionsSchema = z.array(
   z.object({
     lessonSlug: z.string(),
     lessonTitle: z.string(),
     // unitSlug: z.string(),
-    starterQuiz: z.array(questionZod),
-    exitQuiz: z.array(questionZod),
+    starterQuiz: z.array(questionZod).openapi({
+      description: 'The starter quiz questions - which test prior knowledge',
+    }),
+    exitQuiz: z.array(questionZod).openapi({
+      description:
+        'The exit quiz questions - which test on the knowledge learned in the lesson',
+    }),
   }),
 );
 
