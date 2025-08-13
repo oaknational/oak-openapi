@@ -241,8 +241,15 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
       } else if (originalSchemaName.includes('Request')) {
         // if request schema we want to nest the param examples inside the object to maintain the
         // path param examples
-        path.node.init = attachOpenAPICalls(
+
+        // path.node.init = attachOpenAPICalls(
+        //   path.node.init,
+        //   exampleJson,
+        //   importedIdents,
+        // );
+        path.node.init = attachDescriptions(
           path.node.init,
+          descriptionsJson,
           exampleJson,
           importedIdents,
         );

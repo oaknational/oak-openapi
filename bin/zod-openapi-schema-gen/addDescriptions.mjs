@@ -13,9 +13,29 @@ const camelToTitle = (camelCase) =>
     .replace(/^./, (match) => match.toUpperCase())
     .trim();
 
+function findOpenApiObjectProperty(node, propertyName) {
+  // We only care if it's a CallExpression with .openapi(...)
+  if (
+    t.isCallExpression(node) &&
+    t.isMemberExpression(node.callee) &&
+    t.isIdentifier(node.callee.property, { name: 'openapi' }) &&
+    node.arguments.length > 0 &&
+    t.isObjectExpression(node.arguments[0])
+  ) {
+    return (
+      node.arguments[0].properties.find(
+        (prop) =>
+          t.isObjectProperty(prop) &&
+          t.isIdentifier(prop.key, { name: propertyName }),
+      ) || null
+    );
+  }
+  return null;
+}
+
 const generateObjectDescription = (keys) => {
   const descriptions = keys.map((key) => camelToTitle(key).toLowerCase() + 's');
-  console.log(descriptions);
+  // console.log(descriptions);
   const end = descriptions[descriptions.length - 1];
   const list = descriptions.slice(0, descriptions.length - 1);
   if (!keys.length) {
@@ -58,7 +78,56 @@ function hasDescription(node) {
   return false;
 }
 
-function normalizeZodDescription(node, descriptionValue) {
+function appendPropertyToMemberExpression(callee, keyName, valueNode) {
+  // callee should be a MemberExpression, e.g. z.object(...).openapi
+  if (!t.isMemberExpression(callee)) return false;
+
+  const inner = callee.object; // e.g. z.object(...)
+  console.log(inner);
+  if (
+    t.isCallExpression(inner) &&
+    inner.arguments > 0 // &&
+    // t.isObjectExpression(inner.arguments[0])
+  ) {
+    inner.arguments[0].properties.push(
+      t.objectProperty(t.identifier(keyName), valueNode),
+    );
+    return true;
+  }
+
+  return false;
+}
+
+function addPropertyToOpenApiObject(node, key, value) {
+  if (
+    value &&
+    t.isCallExpression(node) &&
+    t.isMemberExpression(node.callee) &&
+    node.arguments.length > 0 &&
+    t.isObjectExpression(node.arguments[0])
+  ) {
+    // console.log('REACHE');
+    const arg = node.arguments[0];
+    const props = arg.properties;
+
+    // check if it exists
+    const exampleProp = props.find(
+      (prop) =>
+        t.isObjectProperty(prop) &&
+        t.isIdentifier(prop.key, {
+          name: key,
+        }),
+    );
+    // console.log(exampleProp);
+    if (!exampleProp) {
+      // console.log(node.callee, value);
+      const res = appendPropertyToMemberExpression(node.callee, key, value);
+      console.log(res);
+    }
+  }
+}
+
+function normalizeZodDescription(node, descriptionValue, exampleValue) {
   // Case: z.string({ description: '...' }) — extract and move description to openapi()
   const described = hasDescription(node);
 
@@ -97,6 +166,10 @@ function normalizeZodDescription(node, descriptionValue) {
         [
           t.objectExpression([
             t.objectProperty(t.identifier('description'), descriptionValue),
+            t.objectProperty(
+              t.identifier('example'),
+              t.valueToNode(exampleValue),
+            ),
           ]),
         ],
       );
@@ -110,6 +183,7 @@ function normalizeZodDescription(node, descriptionValue) {
           t.identifier('description'),
           t.valueToNode(descriptionValue),
         ),
+        t.objectProperty(t.identifier('example'), t.valueToNode(exampleValue)),
       ]),
     ]);
   }
@@ -190,7 +264,7 @@ export function attachDescriptions(
       return node;
     }
 
-    // if already has a meta object, ignore
+    // if already has a meta object, add example
     if (t.isMemberExpression(callee) && callee.property.name === 'openapi') {
       return node;
     }
@@ -201,38 +275,10 @@ export function attachDescriptions(
       descriptionValue && descriptionValue.description
         ? descriptionValue.description
         : undefined;
-    node = normalizeZodDescription(node, description);
-
-    if (
-      // exampleValues &&
-      t.isCallExpression(node) &&
-      t.isMemberExpression(node.callee) &&
-      node.callee.property.name === 'openapi' &&
-      node.arguments.length > 0
-      // t.isObjectExpression(node.arguments[0])
-    ) {
-      console.log(callee);
-      //   const arg = node.arguments[0];
-      //   const props = arg.properties;
-
-      //   const openApiProp = props.find(
-      //     (prop) =>
-      //       t.isObjectProperty(prop) &&
-      //       t.isIdentifier(prop.key, {
-      //         name: 'openapi',
-      //       }),
-      //   );
-
-      // console.log(openApiProp)
-      if (node.callee.arguments) {
-        const example = t.objectProperty(
-          t.identifier('example'),
-          t.valueToNode(exampleValues || 'example'),
-        );
-        t.appendToMemberExpression(node.callee.arguments[0].callee, example);
-      }
-    }
-
+    node = normalizeZodDescription(node, description, exampleValues);
+    // const openApiNode = findOpenApiObjectProperty(node, 'openapi');
+    // console.log(openApiNode);
+    // addPropertyToOpenApiObject(openApiNode, 'example', exampleValues);
     return node;
   }
   // // Leaf nodes for imported schemas
