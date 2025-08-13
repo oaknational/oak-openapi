@@ -4,10 +4,15 @@ import z from 'zod';
 export const searchTranscriptResponseOpenAPISchema = z
   .array(
     z.object({
-      lessonTitle: z.string().openapi({ description: 'The lesson title' }),
+      lessonTitle: z
+        .string()
+        .openapi({ description: 'The lesson title', example: undefined }),
       lessonSlug: z
         .string()
-        .openapi({ description: 'The lesson slug identifier' }),
+        .openapi({
+          description: 'The lesson slug identifier',
+          example: undefined,
+        }),
       transcriptSnippet: z.string().optional(),
     }),
   )

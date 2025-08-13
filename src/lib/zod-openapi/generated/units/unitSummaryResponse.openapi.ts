@@ -4,17 +4,35 @@ import { categorySchema, threadSchema } from '@/lib/handlers/units/types';
 
 export const unitSummaryResponseOpenAPISchema = z
   .object({
-    unitSlug: z.string().openapi({ description: 'The unit slug identifier' }),
-    unitTitle: z.string().openapi({ description: 'The unit title' }),
-    yearSlug: z.string().openapi({ description: 'The year identifier' }),
+    unitSlug: z
+      .string()
+      .openapi({
+        description: 'The unit slug identifier',
+        example: 'simple-compound-and-adverbial-complex-sentences',
+      }),
+    unitTitle: z
+      .string()
+      .openapi({
+        description: 'The unit title',
+        example: 'Simple, compound and adverbial complex sentences',
+      }),
+    yearSlug: z
+      .string()
+      .openapi({ description: 'The year identifier', example: 'year-3' }),
     year: z.union([z.number(), z.string({ description: 'All years' })]),
     phaseSlug: z.string(),
     subjectSlug: z
       .string()
-      .openapi({ description: 'The subject slug identifier' }),
+      .openapi({
+        description: 'The subject slug identifier',
+        example: 'english',
+      }),
     keyStageSlug: z
       .string()
-      .openapi({ description: 'The key stage slug identifier' }),
+      .openapi({
+        description: 'The key stage slug identifier',
+        example: 'ks2',
+      }),
     notes: z.string().optional(),
     description: z.string().optional(),
     priorKnowledgeRequirements: z
