@@ -7,59 +7,114 @@ export const unitSummaryResponseOpenAPISchema = z
     unitSlug: z
       .string()
       .openapi({
-        example: 'simple-compound-and-adverbial-complex-sentences',
         description: 'The unit slug identifier',
+        example: 'simple-compound-and-adverbial-complex-sentences',
       }),
     unitTitle: z
       .string()
       .openapi({
-        example: 'Simple, compound and adverbial complex sentences',
         description: 'The unit title',
+        example: 'Simple, compound and adverbial complex sentences',
       }),
     yearSlug: z
       .string()
-      .openapi({ example: 'year-3', description: 'The year identifier' }),
-    year: z.union([z.number(), z.string({ description: 'All years' })]),
-    phaseSlug: z.string(),
-    subjectSlug: z
+      .openapi({
+        description:
+          'The slug identifier for the year to which the unit belongs',
+        example: 'year-3',
+      }),
+    year: z.union([z.number(), z.string({ description: 'All years' })], {
+      description: 'The year to which the unit belongs',
+    }),
+    phaseSlug: z
       .string()
       .openapi({
-        example: 'english',
-        description: 'The subject slug identifier',
+        description:
+          'The slug identifier for the phase to which the unit belongs',
+        example: 'primary',
       }),
+    subjectSlug: z
+      .string()
+      .openapi({ description: 'The subject identifier', example: 'english' }),
     keyStageSlug: z
       .string()
       .openapi({
+        description:
+          'The slug identifier for the the key stage to which the unit belongs',
         example: 'ks2',
-        description: 'The key stage slug identifier',
       }),
-    notes: z.string().optional(),
-    description: z.string().optional(),
+    notes: z.string({ description: '' }).optional(),
+    description: z
+      .string({
+        description:
+          'A short description of the unit. Not yet available for all subjects.',
+      })
+      .optional(),
     priorKnowledgeRequirements: z
       .array(z.string())
-      .openapi({ description: 'A list of undefineds' }),
+      .openapi({
+        description: 'The prior knowledge required for the unit',
+        example: [
+          'A simple sentence is about one idea and makes complete sense.',
+          'Any simple sentence contains one verb and at least one noun.',
+          'Two simple sentences can be joined with a co-ordinating conjunction to form a compound sentence.',
+        ],
+      }),
     nationalCurriculumContent: z
       .array(z.string())
-      .openapi({ description: 'A list of undefineds' }),
-    whyThisWhyNow: z.string().optional(),
-    threads: z.array(threadSchema).optional(),
-    categories: z.array(categorySchema).optional(),
-    unitLessons: z
-      .array(
-        z.object({
-          lessonSlug: z.string(),
-          lessonTitle: z.string(),
-          lessonOrder: z.number().optional(),
+      .openapi({
+        description:
+          'National curriculum attainment statements covered in this unit',
+        example: [
+          'Ask relevant questions to extend their understanding and knowledge',
+          'Articulate and justify answers, arguments and opinions',
+          'Speak audibly and fluently with an increasing command of Standard English',
+        ],
+      }),
+    whyThisWhyNow: z
+      .string({
+        description:
+          'An explanation of where the unit sits within the sequence and why it has been placed there.',
+      })
+      .optional(),
+    threads: z
+      .array(threadSchema, {
+        description: 'The threads that are associated with the unit',
+      })
+      .optional(),
+    categories: z
+      .array(categorySchema, {
+        description:
+          'The categories (if any) that are assigned to the unit. If the unit does not have any categories, this property is omitted.',
+      })
+      .optional(),
+    unitLessons: z.array(
+      z
+        .object({
+          lessonSlug: z
+            .string()
+            .openapi({
+              description: 'The lesson slug identifier',
+              example: undefined,
+            }),
+          lessonTitle: z
+            .string()
+            .openapi({
+              description: 'The title for the lesson',
+              example: undefined,
+            }),
+          lessonOrder: z
+            .number({
+              description: 'Indicates the ordering of the lesson',
+            })
+            .optional(),
           state: z.enum(['published', 'new'], {
             description:
               "If the state is 'published' then it is also available on the /lessons/* endpoints. If the state is 'new' then it's not available yet.",
           }),
-        }),
-      )
-      .openapi({
-        description:
-          'A list of lesson slugs, lesson titles, lesson orders,  and states',
-      }),
+        })
+        .openapi({ description: 'All the lessons contained in the unit' }),
+    ),
   })
   .openapi({
     ref: 'UnitSummaryResponseSchema',

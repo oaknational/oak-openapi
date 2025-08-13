@@ -7,8 +7,29 @@ const hasObjectProperty = (node, property) =>
   node.arguments.length > 0 &&
   t.isObjectExpression(node.arguments[0]);
 
+function getObjectExpressionDescriptionIndex(node) {
+  if (t.isCallExpression(node) && node.arguments.length > 0) {
+    const indexOfDesc = node.arguments.findIndex(
+      (arg) =>
+        arg &&
+        arg.properties &&
+        t.isObjectExpression(arg) &&
+        arg.properties.some(
+          (prop) =>
+            t.isObjectProperty(prop) &&
+            t.isIdentifier(prop.key, {
+              name: 'description',
+            }),
+        ),
+    );
+    return indexOfDesc;
+  }
+  return -1;
+}
+
 function hasDescription(node) {
   // description in Zod constructor args, e.g., z.string({ description: '...' })
+
   if (
     t.isCallExpression(node) &&
     node.arguments.length > 0 &&
@@ -41,22 +62,6 @@ function hasDescription(node) {
   return false;
 }
 
-const camelToTitle = (camelCase) =>
-  camelCase
-    .replace(/([A-Z])/g, (match) => ` ${match}`)
-    .replace(/^./, (match) => match.toUpperCase())
-    .trim();
-
-const generateObjectDescription = (keys) => {
-  const descriptions = keys.map((key) => camelToTitle(key).toLowerCase() + 's');
-  const end = descriptions[descriptions.length - 1];
-  const list = descriptions.slice(0, descriptions.length - 1);
-  if (!keys.length) {
-    ('Returns a list');
-  }
-  return `A list of ${list.join(', ')}${list.length ? `${list.length > 2 ? ', ' : ''} and ` + end : end + 's'}`;
-};
-
 export function addOpenApiObject(node, properties) {
   const objectProperties = properties.map((prop) =>
     t.isNode(prop.value)
@@ -76,12 +81,16 @@ function replaceObjectPropertyLocation(
   propertyKey,
   additionalProps = [],
 ) {
+  const argIndex = getObjectExpressionDescriptionIndex(node) ?? 0;
+
   if (
     t.isCallExpression(node) &&
     node.arguments.length > 0 &&
-    t.isObjectExpression(node.arguments[0])
+    t.isObjectExpression(node.arguments[argIndex])
   ) {
-    const arg = node.arguments[0];
+    // find the index with properties
+    const arg = node.arguments[argIndex];
+
     const props = arg.properties;
 
     const objectPropIndex = props.findIndex(
@@ -96,11 +105,15 @@ function replaceObjectPropertyLocation(
       const objectProperty = props[objectPropIndex];
       const objValue = objectProperty.value.value ?? objectProperty.value;
       // Remove original description from args
-      props.splice(objectPropIndex, 1);
+      if (argIndex) {
+        node.arguments.splice(argIndex);
+      } else {
+        props.splice(objectPropIndex, 1);
 
-      // Remove empty object if no other options remain
-      if (props.length === 0) {
-        node.arguments = [];
+        // Remove empty object if no other options remain
+        if (props.length === 0) {
+          node.arguments = [];
+        }
       }
 
       const objProp = generateObjectProps(propertyKey, objValue);
@@ -108,6 +121,7 @@ function replaceObjectPropertyLocation(
       return addOpenApiObject(node, [objProp, ...additionalProps]);
     }
   }
+  return node;
 }
 
 function normalizeZodObject(node, descriptionValue, exampleValue) {
@@ -166,7 +180,8 @@ export function attachOpenApiMeta(
 
     if (t.isMemberExpression(callee) && callee.property.name === 'array') {
       const innerArg = node.arguments[0];
-
+      const objectExample = generateObjectProps('example', exampleValues);
+      const objectDesc = generateObjectProps('description', descriptionValue);
       if (innerArg) {
         node.arguments[0] = attachOpenApiMeta(
           innerArg,
@@ -175,31 +190,30 @@ export function attachOpenApiMeta(
           importedIdents,
           depth + 1,
         );
+
+        // these arrays only exist in the output,
+        // which doesn't need an example
+        // const exp = getObjectExpressionWithDescription(innerArg);
+
+        node.arguments[0] = replaceObjectPropertyLocation(
+          innerArg,
+          'description',
+          [],
+        );
       }
-      // add a summary at the end
 
+      // replace all the nested object descriptions too
       if (depth > 0) {
-        const keys =
-          innerArg.arguments &&
-          innerArg.arguments[0] &&
-          innerArg.arguments[0].properties &&
-          innerArg.arguments[0].properties.length
-            ? innerArg.arguments[0].properties.map(({ key }) => key.name)
-            : [];
+        // const exp = getObjectExpressionWithDescription(node);
+        // if (exp > -1) {
+        return replaceObjectPropertyLocation(
+          node,
+          'description',
+          objectExample ? [objectExample] : [],
+        );
+        // }
 
-        const desc = descriptionValue ?? generateObjectDescription(keys);
-        const objectExample = generateObjectProps('example', exampleValues);
-
-        if (hasDescription(node)) {
-          return replaceObjectPropertyLocation(
-            node,
-            'description',
-            objectExample ? [objectExample] : [],
-          );
-        }
-
-        const objectDesc = generateObjectProps('description', desc);
-        return addOpenApiObject(node, [objectDesc]);
+        // return addOpenApiObject(node, [objectDesc, objectExample]);
       }
 
       return node;

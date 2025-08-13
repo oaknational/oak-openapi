@@ -42,7 +42,7 @@ export const getQuestions = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['lessons', 'questions'],
+        tags: ['lessons', 'questions', 'quiz-questions'],
         path: '/lessons/{lesson}/quiz',
         summary: 'Quiz questions by lesson',
         errorResponses: [],
@@ -247,7 +247,7 @@ export const getQuestions = router({
   getQuestionsForKeyStageAndSubject: protectedProcedure
     .meta({
       openapi: {
-        tags: ['questions'],
+        tags: ['questions', 'quiz-questions'],
         method: 'GET',
         path: '/key-stages/{keyStage}/subject/{subject}/questions',
         summary: 'Quiz questions by subject and key stage',

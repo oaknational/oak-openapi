@@ -3,18 +3,14 @@ import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
 import z from 'zod';
 
 export const keyStageSubjectLessonsRequestOpenAPISchema = z.object({
-  keyStage: z
-    .enum(keyStageSlugs as [string], {
-      description:
-        "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
-    })
-    .openapi({ example: 'ks1', description: 'Key stage slug to filter by' }),
-  subject: z
-    .enum(subjectSlugs as [string], {
-      description:
-        "Subject slug to filter by, e.g. 'english' - note that casing is important here, and should be lowercase",
-    })
-    .openapi({ example: 'english', description: 'Subject slug to search by' }),
+  keyStage: z.enum(keyStageSlugs as [string], {
+    description:
+      "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
+  }),
+  subject: z.enum(subjectSlugs as [string], {
+    description:
+      "Subject slug to filter by, e.g. 'english' - note that casing is important here, and should be lowercase",
+  }),
   unit: z
     .string({
       description: 'Optional unit slug to additionally filter by',

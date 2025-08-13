@@ -125,10 +125,7 @@ export const questionZod = z
         },
       ),
     ]),
-  )
-  .openapi({
-    type: 'object',
-  });
+  );
 
 export const starterQuizSchema = z.array(questionZod).openapi({
   description: 'The starter quiz questions - which test prior knowledge',

@@ -1,3 +1,3 @@
-import { questionZod } from '@/lib/handlers/questions/types';
+import { questionsSchema } from '@/lib/handlers/questions/types';
 
-export const questionsForSequenceResponseSchema = questionZod;
+export const questionsForSequenceResponseSchema = questionsSchema;
