@@ -16,3 +16,22 @@ export const findObjectProperty = (obj: object, target: string) =>
         if (acc !== undefined) return acc;
         if (typeof val === 'object') return findObjectProperty(val, target);
       }, undefined);
+
+export const findAllObjectProperties = (
+  obj: object,
+  target: string,
+): Record<string, object> => {
+  let results: Record<string, object> = {};
+
+  for (const [key, val] of Object.entries(obj)) {
+    if (val && typeof val === 'object') {
+      if (target in (val as object)) {
+        results[key] = val as object;
+      }
+
+      const nestedResults = findAllObjectProperties(val as object, target);
+      results = { ...results, ...nestedResults };
+    }
+  }
+  return results;
+};

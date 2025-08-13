@@ -9,7 +9,7 @@ import {
 import { SchemaObject } from 'zod-openapi/dist/extendZodTypes';
 import { SchemaObjectType } from 'zod-openapi/dist/openapi3-ts/dist/oas31';
 import { ParameterObject } from 'zod-openapi/dist/openapi3-ts/dist/oas31';
-import { findObjectProperty, getPathEnd } from './helpers';
+import { findAllObjectProperties, getPathEnd } from './helpers';
 
 export const groupedEndpointInfo = [
   {
@@ -27,7 +27,7 @@ export const groupedEndpointInfo = [
   {
     title: 'Unit and curriculum data',
     slug: 'unit-and-curriculum-data',
-    tags: ['units', 'sequences'],
+    tags: ['unit-and-curriculum-data'],
     order: 3,
   },
   {
@@ -88,7 +88,12 @@ const getOutputSchema = (responses: ZodOpenApiResponsesObject) => {
 
       if (openApiDocument.components?.schemas) {
         const schema = openApiDocument.components?.schemas[schemaName];
-        const data = findObjectProperty(schema, 'properties');
+        // find all nested properties with descriptions
+        const data = findAllObjectProperties(schema, 'description') as Record<
+          string,
+          SchemaObject
+        >;
+
         if (schema && data) {
           const output = Object.keys(data).map((propertyName) => {
             const property = data[propertyName];
