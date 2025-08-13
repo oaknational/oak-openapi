@@ -3,6 +3,7 @@ import { subjectResult } from '@/lib/handlers/subjects/types';
 import { z } from 'zod';
 
 export const allSubjectsResponseOpenAPISchema = z.array(subjectResult).openapi({
+  ref: 'AllSubjectsResponseSchema',
   example: [
     {
       subjectTitle: 'Art and design',
@@ -40,5 +41,4 @@ export const allSubjectsResponseOpenAPISchema = z.array(subjectResult).openapi({
       ],
     },
   ],
-  ref: 'AllSubjectsResponseSchema',
 });

@@ -5,9 +5,9 @@ export const questionsForSequenceRequestOpenAPISchema = z.object({
   sequence: z
     .string()
     .openapi({
+      example: 'maths-secondary',
       description:
         'The sequence slug identifier, including the key stage 4 option where relevant.',
-      example: 'maths-secondary',
     }),
   year: z
     .number({

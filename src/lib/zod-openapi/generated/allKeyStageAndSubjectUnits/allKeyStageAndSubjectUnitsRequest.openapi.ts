@@ -7,11 +7,11 @@ export const allKeyStageAndSubjectUnitsRequestOpenAPISchema = z.object({
     .enum(keyStageSlugs as [string], {
       description: "Key stage slug to filter by, e.g. 'ks2'",
     })
-    .openapi({ description: 'Key stage slug to filter by', example: 'ks1' }),
+    .openapi({ example: 'ks1', description: 'Key stage slug to filter by' }),
   subject: z
     .enum(subjectSlugs as [string], {
       description:
         "Subject slug to search by, e.g. 'science' - note that casing is important here (always lowercase)",
     })
-    .openapi({ description: 'Subject slug to search by', example: 'art' }),
+    .openapi({ example: 'art', description: 'Subject slug to search by' }),
 });

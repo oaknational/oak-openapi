@@ -2,6 +2,7 @@ import 'zod-openapi/extend';
 import { unitListSchema } from '@/lib/handlers/threads/types';
 
 export const threadUnitsResponseOpenAPISchema = unitListSchema.openapi({
+  ref: 'ThreadUnitsResponseSchema',
   example: [
     {
       unitTitle:
@@ -16,5 +17,4 @@ export const threadUnitsResponseOpenAPISchema = unitListSchema.openapi({
       unitOrder: 2,
     },
   ],
-  ref: 'ThreadUnitsResponseSchema',
 });

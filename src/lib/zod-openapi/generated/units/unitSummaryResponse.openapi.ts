@@ -4,64 +4,34 @@ import { categorySchema, threadSchema } from '@/lib/handlers/units/types';
 
 export const unitSummaryResponseOpenAPISchema = z
   .object({
-    unitSlug: z
-      .string()
-      .openapi({
-        description: 'The unit slug identifier',
-        example: 'simple-compound-and-adverbial-complex-sentences',
-      }),
-    unitTitle: z
-      .string()
-      .openapi({
-        description: 'The unit title',
-        example: 'Simple, compound and adverbial complex sentences',
-      }),
-    yearSlug: z
-      .string()
-      .openapi({ description: 'The year identifier', example: 'year-3' }),
+    unitSlug: z.string(),
+    unitTitle: z.string(),
+    yearSlug: z.string(),
     year: z.union([z.number(), z.string({ description: 'All years' })]),
     phaseSlug: z.string(),
-    subjectSlug: z
-      .string()
-      .openapi({
-        description: 'The subject slug identifier',
-        example: 'english',
-      }),
-    keyStageSlug: z
-      .string()
-      .openapi({
-        description: 'The key stage slug identifier',
-        example: 'ks2',
-      }),
+    subjectSlug: z.string(),
+    keyStageSlug: z.string(),
     notes: z.string().optional(),
     description: z.string().optional(),
-    priorKnowledgeRequirements: z
-      .array(z.string())
-      .openapi({ description: 'A list of undefineds' }),
-    nationalCurriculumContent: z
-      .array(z.string())
-      .openapi({ description: 'A list of undefineds' }),
+    priorKnowledgeRequirements: z.array(z.string()),
+    nationalCurriculumContent: z.array(z.string()),
     whyThisWhyNow: z.string().optional(),
     threads: z.array(threadSchema).optional(),
     categories: z.array(categorySchema).optional(),
-    unitLessons: z
-      .array(
-        z.object({
-          lessonSlug: z.string(),
-          lessonTitle: z.string(),
-          lessonOrder: z.number().optional(),
-          state: z.enum(['published', 'new'], {
-            description:
-              "If the state is 'published' then it is also available on the /lessons/* endpoints. If the state is 'new' then it's not available yet.",
-          }),
+    unitLessons: z.array(
+      z.object({
+        lessonSlug: z.string(),
+        lessonTitle: z.string(),
+        lessonOrder: z.number().optional(),
+        state: z.enum(['published', 'new'], {
+          description:
+            "If the state is 'published' then it is also available on the /lessons/* endpoints. If the state is 'new' then it's not available yet.",
         }),
-      )
-      .openapi({
-        description:
-          'A list of lesson slugs, lesson titles, lesson orders,  and states',
       }),
+    ),
   })
   .openapi({
+    ref: 'UnitSummaryResponseSchema',
     example: {
       unitSlug: 'simple-compound-and-adverbial-complex-sentences',
       unitTitle: 'Simple, compound and adverbial complex sentences',
@@ -102,5 +72,4 @@ export const unitSummaryResponseOpenAPISchema = z
         },
       ],
     },
-    ref: 'UnitSummaryResponseSchema',
   });

@@ -2,6 +2,7 @@ import 'zod-openapi/extend';
 import { questionZod } from '@/lib/handlers/questions/types';
 
 export const questionsForSequenceResponseOpenAPISchema = questionZod.openapi({
+  ref: 'QuestionsForSequenceResponseSchema',
   example: [
     {
       lessonTitle: '3D shapes can be composed from 2D nets',
@@ -39,5 +40,4 @@ export const questionsForSequenceResponseOpenAPISchema = questionZod.openapi({
       ],
     },
   ],
-  ref: 'QuestionsForSequenceResponseSchema',
 });

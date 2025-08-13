@@ -8,13 +8,13 @@ export const questionsForKeyStageAndSubjectRequestOpenAPISchema = z.object({
       description:
         "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
     })
-    .openapi({ description: 'Key stage slug to filter by', example: 'ks1' }),
+    .openapi({ example: 'ks1', description: 'Key stage slug to filter by' }),
   subject: z
     .enum(subjectSlugs as [string], {
       description:
         "Subject slug to search by, e.g. 'science' - note that casing is important here",
     })
-    .openapi({ description: 'Subject slug to search by', example: 'art' }),
+    .openapi({ example: 'art', description: 'Subject slug to search by' }),
   offset: z.number().optional().default(0),
   limit: z
     .number({

@@ -6,8 +6,8 @@ export const lessonAssetsRequestOpenAPISchema = z.object({
   lesson: z
     .string()
     .openapi({
-      description: 'The lesson slug identifier',
       example: 'child-workers-in-the-victorian-era',
+      description: 'The lesson slug identifier',
     }),
   type: downloadTypeEnum.optional().openapi({
     description: `Optional asset type specifier

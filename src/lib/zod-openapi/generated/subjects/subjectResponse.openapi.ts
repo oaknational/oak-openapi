@@ -2,6 +2,7 @@ import 'zod-openapi/extend';
 import { subjectResult } from '@/lib/handlers/subjects/types';
 
 export const subjectResponseOpenAPISchema = subjectResult.openapi({
+  ref: 'SubjectResponseSchema',
   example: {
     subjectTitle: 'Art and design',
     subjectSlug: 'art',
@@ -37,5 +38,4 @@ export const subjectResponseOpenAPISchema = subjectResult.openapi({
       { keyStageTitle: 'Key Stage 4', keyStageSlug: 'ks4' },
     ],
   },
-  ref: 'SubjectResponseSchema',
 });

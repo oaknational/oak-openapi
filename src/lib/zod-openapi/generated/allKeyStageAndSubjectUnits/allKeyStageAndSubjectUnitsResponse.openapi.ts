@@ -4,31 +4,21 @@ import z from 'zod';
 export const allKeyStageAndSubjectUnitsResponseOpenAPISchema = z
   .array(
     z.object({
-      yearSlug: z
-        .string()
-        .openapi({ description: 'The year identifier', example: undefined }),
-      yearTitle: z
-        .string()
-        .openapi({ description: 'The year title', example: undefined }),
-      units: z
-        .array(
-          z.object({
-            unitSlug: z
-              .string()
-              .openapi({
-                description: 'The unit slug identifier',
-                example: undefined,
-              }),
-            unitTitle: z
-              .string()
-              .openapi({ description: 'The unit title', example: undefined }),
+      yearSlug: z.string({ description: 'The year identifier' }),
+      yearTitle: z.string({ description: 'The year title' }),
+      units: z.array(
+        z.object({
+          unitSlug: z.string({
+            description: 'The unit slug identifier',
           }),
-          { description: 'List of units for the specified year' },
-        )
-        .openapi({ description: 'A list of unit slugs and unit titles' }),
+          unitTitle: z.string({ description: 'The unit title' }),
+        }),
+        { description: 'List of units for the specified year' },
+      ),
     }),
   )
   .openapi({
+    ref: 'AllKeyStageAndSubjectUnitsResponseSchema',
     example: [
       {
         units: [
@@ -49,5 +39,4 @@ export const allKeyStageAndSubjectUnitsResponseOpenAPISchema = z
         yearTitle: 'Year 3',
       },
     ],
-    ref: 'AllKeyStageAndSubjectUnitsResponseSchema',
   });

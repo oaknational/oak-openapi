@@ -93,6 +93,7 @@ export const lessonSummaryResponseOpenAPISchema = z
     }),
   })
   .openapi({
+    ref: 'LessonSummaryResponseSchema',
     example: {
       lessonTitle: "Joining using 'and'",
       unitSlug: 'simple-sentences',
@@ -143,5 +144,4 @@ export const lessonSummaryResponseOpenAPISchema = z
       supervisionLevel: null,
       downloadsAvailable: true,
     },
-    ref: 'LessonSummaryResponseSchema',
   });

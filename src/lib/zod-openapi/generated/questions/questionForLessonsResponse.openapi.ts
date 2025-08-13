@@ -4,14 +4,11 @@ import { questionZod } from '@/lib/handlers/questions/types';
 
 export const questionForLessonsResponseOpenAPISchema = z
   .object({
-    starterQuiz: z
-      .array(questionZod)
-      .openapi({ description: 'A list of undefineds' }),
-    exitQuiz: z
-      .array(questionZod)
-      .openapi({ description: 'A list of undefineds' }),
+    starterQuiz: z.array(questionZod),
+    exitQuiz: z.array(questionZod),
   })
   .openapi({
+    ref: 'QuestionForLessonsResponseSchema',
     example: {
       starterQuiz: [
         {
@@ -38,5 +35,4 @@ export const questionForLessonsResponseOpenAPISchema = z
         },
       ],
     },
-    ref: 'QuestionForLessonsResponseSchema',
   });
