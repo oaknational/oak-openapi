@@ -43,13 +43,16 @@ export type EndpointDocsProps = {
   docs: DocumentationContentPageBlock[];
 };
 
+// RS note - I've reduced this heading down to allow for long URLs to fit better
+// but it needs Helen's sign off (TODO - remove this comment when done)
 const EndpointHeading = styled(OakHeading)`
   color: var(--Tokens-Text-text-primary, #222);
   font-family: 'Roboto Mono';
-  font-size: 32px;
+  font-size: 16px;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 800;
   line-height: 40px; /* 125% */
+  word-break: break-all;
 `;
 const generateTableRows = (data: InputOutputTable) => {
   const header = data[0]
