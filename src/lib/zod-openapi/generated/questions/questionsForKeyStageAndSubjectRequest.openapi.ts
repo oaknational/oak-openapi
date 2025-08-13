@@ -16,7 +16,13 @@ export const questionsForKeyStageAndSubjectRequestOpenAPISchema = z
           "Subject slug to search by, e.g. 'science' - note that casing is important here",
       })
       .openapi({ example: 'art' }),
-    offset: z.number().optional().default(0),
+    offset: z
+      .number({
+        description:
+          'If limiting results returned, this allows you to return the next set of results, starting at the given offset point',
+      })
+      .optional()
+      .default(0),
     limit: z
       .number({
         description: 'Limit the number of results returned, max 100',

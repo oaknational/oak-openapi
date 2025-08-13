@@ -48,10 +48,11 @@ export type EndpointDocsProps = {
 const EndpointHeading = styled(OakHeading)`
   color: var(--Tokens-Text-text-primary, #222);
   font-family: 'Roboto Mono';
-  font-size: 16px;
+  font-size: 1rem;
   font-style: normal;
   font-weight: 800;
-  line-height: 40px; /* 125% */
+  line-height: 1rem;
+  padding-bottom: 1rem;
   word-break: break-all;
 `;
 const generateTableRows = (data: InputOutputTable) => {
