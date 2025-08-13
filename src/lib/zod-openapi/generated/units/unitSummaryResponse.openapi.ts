@@ -7,8 +7,13 @@ export const unitSummaryResponseOpenAPISchema = z
     unitSlug: z.string().openapi({ description: 'The unit slug identifier' }),
     unitTitle: z.string().openapi({ description: 'The unit title' }),
     yearSlug: z.string().openapi({ description: 'The year identifier' }),
-    year: z.union([z.number(), z.string({ description: 'All years' })]),
-    phaseSlug: z.string(),
+    year: z
+      .union([z.number(), z.string({ description: 'All years' })])
+      .openapi({ description: 'The year to which the unit belongs' }),
+    phaseSlug: z.string().openapi({
+      description:
+        'The slug identifier for the phase to which the unit belongs',
+    }),
     subjectSlug: z
       .string()
       .openapi({ description: 'The subject slug identifier' }),
@@ -16,16 +21,27 @@ export const unitSummaryResponseOpenAPISchema = z
       .string()
       .openapi({ description: 'The key stage slug identifier' }),
     notes: z.string().optional(),
-    description: z.string().optional(),
+    description: z.string().optional().openapi({
+      description:
+        'A short description of the unit. Not yet available for all subjects.',
+    }),
     priorKnowledgeRequirements: z
       .array(z.string())
-      .openapi({ description: 'A list of undefineds' }),
-    nationalCurriculumContent: z
-      .array(z.string())
-      .openapi({ description: 'A list of undefineds' }),
-    whyThisWhyNow: z.string().optional(),
-    threads: z.array(threadSchema).optional(),
-    categories: z.array(categorySchema).optional(),
+      .openapi({ description: 'The prior knowledge required for the unit' }),
+    nationalCurriculumContent: z.array(z.string()).openapi({
+      description:
+        'National curriculum attainment statements covered in this unit',
+    }),
+    whyThisWhyNow: z.string().optional().openapi({
+      description:
+        'An explanation of where the unit sits within the sequence and why it has been placed there.',
+    }),
+    threads: z.array(threadSchema).optional().openapi({
+      description: 'The threads that are associated with the unit',
+    }),
+    categories: z.array(categorySchema).optional().openapi({
+      description: 'The categories that are associated with the unit',
+    }),
     unitLessons: z
       .array(
         z.object({

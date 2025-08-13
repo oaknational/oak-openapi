@@ -90,13 +90,21 @@ const yearSequenceKS4WithoutExamSubjectsSchema = z.object({
 });
 
 const yearSequenceSchema = z.object({
-  year: z.union([z.number(), z.literal('all-years')]),
+  year: z
+    .union([z.number(), z.literal('all-years')])
+    .openapi({ description: 'The year group' }),
   title: z
     .string({
       description: 'Optional alternative title for the year sequence',
     })
+    .openapi({
+      description: 'An optional alternative title for the year sequence',
+    })
     .optional(),
-  units: z.array(unitSchema),
+  units: z.array(unitSchema).openapi({
+    description:
+      'A list of units that make up a full sequence, grouped by year.',
+  }),
 });
 
 export const sequenceSchema = z.union([
