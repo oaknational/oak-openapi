@@ -160,20 +160,20 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
         originalSchemaName.charAt(0).toUpperCase() +
         originalSchemaName.slice(1);
 
-      if (originalSchemaName.includes('Response')) {
-        const props = [
-          generateObjectProps('ref', refName),
-          generateObjectProps('example', exampleJson),
-        ];
-        path.node.init = addOpenApiObject(path.node.init, props);
-      }
-
       path.node.init = attachOpenApiMeta(
         path.node.init,
         descriptionsJson,
         exampleJson,
         importedIdents,
       );
+
+      if (originalSchemaName.includes('Response')) {
+        const refProp = generateObjectProps('ref', refName);
+        const exampleProp = generateObjectProps('example', exampleJson);
+
+        const props = [refProp, exampleProp];
+        path.node.init = addOpenApiObject(path.node.init, props);
+      }
 
       const inferredTypeName = getInferredTypeName(baseName);
       const program = path.findParent((p) => p.isProgram());

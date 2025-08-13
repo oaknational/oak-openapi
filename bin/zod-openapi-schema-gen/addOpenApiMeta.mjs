@@ -58,13 +58,11 @@ const generateObjectDescription = (keys) => {
 };
 
 export function addOpenApiObject(node, properties) {
-  // console.log(properties);
   const objectProperties = properties.map((prop) =>
     t.isNode(prop.value)
       ? prop.value
       : t.objectProperty(t.identifier(prop.key), t.valueToNode(prop.value)),
   );
-  console.log(objectProperties);
 
   return t.callExpression(t.memberExpression(node, t.identifier('openapi')), [
     t.objectExpression(objectProperties),
@@ -97,8 +95,8 @@ function normalizeZodObject(node, descriptionValue, exampleValue) {
 
     if (descriptionPropIndex !== -1) {
       const descriptionProp = props[descriptionPropIndex];
-      const descriptionPropsValue = descriptionProp.value.value;
-
+      const descriptionValue = descriptionProp.value.value;
+      console.log(descriptionValue);
       // Remove original description from args
       props.splice(descriptionPropIndex, 1);
 
@@ -107,10 +105,7 @@ function normalizeZodObject(node, descriptionValue, exampleValue) {
         node.arguments = [];
       }
 
-      const descProp = generateObjectProps(
-        'description',
-        descriptionPropsValue,
-      );
+      const descProp = generateObjectProps('description', descriptionValue);
       // Append .openapi({ description })
       return addOpenApiObject(node, [exampleProp, descProp]);
     }
@@ -218,7 +213,6 @@ export function attachOpenApiMeta(
   //     // tack on description
 
   //     const object = findObjectProperty(node, 'openapi');
-  //     console.log(object)
   //     if(object) {
   //         return node
   //     }

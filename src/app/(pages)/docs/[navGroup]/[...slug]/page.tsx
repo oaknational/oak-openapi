@@ -13,7 +13,6 @@ export default async function Page({
   const documentationData = await documentationBySlugQuery(navGroup, pageSlug);
 
   const endpointInfo = await getEndpointContent(pageSlug);
-
   return (
     <MainDocsContent
       endpoints={endpointInfo?.endpoints}

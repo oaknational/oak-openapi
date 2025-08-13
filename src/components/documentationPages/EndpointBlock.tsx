@@ -97,7 +97,7 @@ export default function EndpointBlock(props: { endpoint: EndpointInfo }) {
         Inputs {paramTypes.length ? `(${paramTypes.join(', ')})` : ''}
       </OakHeading>
       <OakBox>
-        {params && params.length > 1 ? (
+        {params && params.length > 0 ? (
           <Table value={generateTableRows(params)} />
         ) : (
           'N/ A'

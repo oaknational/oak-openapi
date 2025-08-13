@@ -3,17 +3,26 @@ import z from 'zod';
 
 export const rateLimitResponseOpenAPISchema = z
   .object({
-    limit: z.number({
-      description:
-        'The maximum number of requests you can make in the current window.',
-    }),
-    remaining: z.number({
-      description: 'The number of requests remaining in the current window.',
-    }),
-    reset: z.number({
-      description:
-        'The time at which the current window resets, in milliseconds since the Unix epoch.',
-    }),
+    limit: z
+      .number()
+      .openapi({
+        example: 1000,
+        description:
+          'The maximum number of requests you can make in the current window.',
+      }),
+    remaining: z
+      .number()
+      .openapi({
+        example: 953,
+        description: 'The number of requests remaining in the current window.',
+      }),
+    reset: z
+      .number()
+      .openapi({
+        example: 1740164400000,
+        description:
+          'The time at which the current window resets, in milliseconds since the Unix epoch.',
+      }),
   })
   .openapi({
     ref: 'RateLimitResponseSchema',

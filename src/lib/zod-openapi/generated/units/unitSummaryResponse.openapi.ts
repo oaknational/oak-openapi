@@ -4,31 +4,62 @@ import { categorySchema, threadSchema } from '@/lib/handlers/units/types';
 
 export const unitSummaryResponseOpenAPISchema = z
   .object({
-    unitSlug: z.string(),
-    unitTitle: z.string(),
-    yearSlug: z.string(),
+    unitSlug: z
+      .string()
+      .openapi({
+        example: 'simple-compound-and-adverbial-complex-sentences',
+        description: 'The unit slug identifier',
+      }),
+    unitTitle: z
+      .string()
+      .openapi({
+        example: 'Simple, compound and adverbial complex sentences',
+        description: 'The unit title',
+      }),
+    yearSlug: z
+      .string()
+      .openapi({ example: 'year-3', description: 'The year identifier' }),
     year: z.union([z.number(), z.string({ description: 'All years' })]),
     phaseSlug: z.string(),
-    subjectSlug: z.string(),
-    keyStageSlug: z.string(),
+    subjectSlug: z
+      .string()
+      .openapi({
+        example: 'english',
+        description: 'The subject slug identifier',
+      }),
+    keyStageSlug: z
+      .string()
+      .openapi({
+        example: 'ks2',
+        description: 'The key stage slug identifier',
+      }),
     notes: z.string().optional(),
     description: z.string().optional(),
-    priorKnowledgeRequirements: z.array(z.string()),
-    nationalCurriculumContent: z.array(z.string()),
+    priorKnowledgeRequirements: z
+      .array(z.string())
+      .openapi({ description: 'A list of undefineds' }),
+    nationalCurriculumContent: z
+      .array(z.string())
+      .openapi({ description: 'A list of undefineds' }),
     whyThisWhyNow: z.string().optional(),
     threads: z.array(threadSchema).optional(),
     categories: z.array(categorySchema).optional(),
-    unitLessons: z.array(
-      z.object({
-        lessonSlug: z.string(),
-        lessonTitle: z.string(),
-        lessonOrder: z.number().optional(),
-        state: z.enum(['published', 'new'], {
-          description:
-            "If the state is 'published' then it is also available on the /lessons/* endpoints. If the state is 'new' then it's not available yet.",
+    unitLessons: z
+      .array(
+        z.object({
+          lessonSlug: z.string(),
+          lessonTitle: z.string(),
+          lessonOrder: z.number().optional(),
+          state: z.enum(['published', 'new'], {
+            description:
+              "If the state is 'published' then it is also available on the /lessons/* endpoints. If the state is 'new' then it's not available yet.",
+          }),
         }),
+      )
+      .openapi({
+        description:
+          'A list of lesson slugs, lesson titles, lesson orders,  and states',
       }),
-    ),
   })
   .openapi({
     ref: 'UnitSummaryResponseSchema',
