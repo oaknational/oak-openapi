@@ -67,8 +67,9 @@ const getParamType = (properties: SchemaObject): string | undefined => {
   const schemaType = 'array' as SchemaObjectType;
 
   if (properties.type !== undefined) {
+    console.log(properties);
     if (properties.items && properties.type === schemaType) {
-      return `array[${getParamType(properties.items as SchemaObject)}]`;
+      return `array[${getParamType(properties.items as SchemaObject) ?? 'object'}]`;
     }
     return properties.type as string;
   }
@@ -89,10 +90,12 @@ const getOutputSchema = (responses: ZodOpenApiResponsesObject) => {
       if (openApiDocument.components?.schemas) {
         const schema = openApiDocument.components?.schemas[schemaName];
         // find all nested properties with descriptions
-        const data = findAllObjectProperties(schema, 'description', [
-          'example',
-        ]) as Record<string, SchemaObject>;
-        console.log(data);
+        const data = findAllObjectProperties(
+          schema,
+          'description',
+          ['example'],
+          ['properties'],
+        ) as Record<string, SchemaObject>;
 
         if (schema && data) {
           const output = Object.keys(data).map((propertyName) => {

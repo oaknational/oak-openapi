@@ -19,29 +19,18 @@ export const lessonSearchResultSchema = z.object({
 export const lessonSearchResponseOpenAPISchema = z
   .array(
     z.object({
-      lessonSlug: z
-        .string()
-        .openapi({
-          example: undefined,
-          description: 'The lesson slug identifier',
-        }),
-      lessonTitle: z
-        .string()
-        .openapi({ example: undefined, description: 'The lesson title' }),
+      lessonSlug: z.string(),
+      lessonTitle: z.string(),
       similarity: z.number(),
-      units: z
-        .array(
-          z.object({
-            unitSlug: z.string(),
-            unitTitle: z.string(),
-            examBoardTitle: z.string().or(z.null()),
-            keyStageSlug: z.string(),
-            subjectSlug: z.string(),
-          }),
-        )
-        .openapi({
-          description: { description: 'List of units for the specified year' },
+      units: z.array(
+        z.object({
+          unitSlug: z.string(),
+          unitTitle: z.string(),
+          examBoardTitle: z.string().or(z.null()),
+          keyStageSlug: z.string(),
+          subjectSlug: z.string(),
         }),
+      ),
     }),
   )
   .openapi({

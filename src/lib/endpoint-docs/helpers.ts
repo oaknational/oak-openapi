@@ -21,12 +21,13 @@ export const findAllObjectProperties = (
   obj: object,
   target: string,
   ignore: string[] = [],
+  omit: string[] = [],
 ): Record<string, object> => {
   let results: Record<string, object> = {};
 
   for (const [key, val] of Object.entries(obj)) {
-    if (val && typeof val === 'object' && ignore.indexOf(key) < 0) {
-      if (target in (val as object)) {
+    if (val && typeof val === 'object' && ignore.indexOf(key) === -1) {
+      if (target in (val as object) && omit.indexOf(key) === -1) {
         results[key] = val as object;
       }
       const nestedResults = findAllObjectProperties(

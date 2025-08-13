@@ -26,12 +26,10 @@ export const keyStageSubjectLessonsResponseOpenAPISchema = z
               .string()
               .openapi({ description: 'The lesson title', example: undefined }),
           }),
-          { description: 'List of lessons for the specified unit' },
         )
         .openapi({
-          description: {
-            description: 'List of lessons for the specified unit',
-          },
+          description: 'List of lessons for the specified unit',
+          example: undefined,
         }),
     }),
   )
