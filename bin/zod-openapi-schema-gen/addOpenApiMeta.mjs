@@ -7,45 +7,8 @@ const hasObjectProperty = (node, property) =>
   node.arguments.length > 0 &&
   t.isObjectExpression(node.arguments[0]);
 
-const camelToTitle = (camelCase) =>
-  camelCase
-    .replace(/([A-Z])/g, (match) => ` ${match}`)
-    .replace(/^./, (match) => match.toUpperCase())
-    .trim();
-
-function findOpenApiObjectProperty(node, propertyName) {
-  // We only care if it's a CallExpression with .openapi(...)
-  if (
-    t.isCallExpression(node) &&
-    t.isMemberExpression(node.callee) &&
-    t.isIdentifier(node.callee.property, { name: 'openapi' }) &&
-    node.arguments.length > 0 &&
-    t.isObjectExpression(node.arguments[0])
-  ) {
-    return (
-      node.arguments[0].properties.find(
-        (prop) =>
-          t.isObjectProperty(prop) &&
-          t.isIdentifier(prop.key, { name: propertyName }),
-      ) || null
-    );
-  }
-  return null;
-}
-
-const generateObjectDescription = (keys) => {
-  const descriptions = keys.map((key) => camelToTitle(key).toLowerCase() + 's');
-  // console.log(descriptions);
-  const end = descriptions[descriptions.length - 1];
-  const list = descriptions.slice(0, descriptions.length - 1);
-  if (!keys.length) {
-    ('Returns a list');
-  }
-  return `A list of ${list.join(', ')}${list.length ? `${list.length > 2 ? ', ' : ''} and ` + end : end + 's'}`;
-};
-
 function hasDescription(node) {
-  // Case 1: description in Zod constructor args, e.g., z.string({ description: '...' })
+  // description in Zod constructor args, e.g., z.string({ description: '...' })
   if (
     t.isCallExpression(node) &&
     node.arguments.length > 0 &&
@@ -61,7 +24,7 @@ function hasDescription(node) {
     return true;
   }
 
-  // Case 2: description in openapi metadata call
+  // description in openapi metadata call
   if (
     hasObjectProperty(node, 'openapi') &&
     node.arguments[0].properties.some(
@@ -78,58 +41,42 @@ function hasDescription(node) {
   return false;
 }
 
-function appendPropertyToMemberExpression(callee, keyName, valueNode) {
-  // callee should be a MemberExpression, e.g. z.object(...).openapi
-  if (!t.isMemberExpression(callee)) return false;
+const camelToTitle = (camelCase) =>
+  camelCase
+    .replace(/([A-Z])/g, (match) => ` ${match}`)
+    .replace(/^./, (match) => match.toUpperCase())
+    .trim();
 
-  const inner = callee.object; // e.g. z.object(...)
-  console.log(inner);
-  if (
-    t.isCallExpression(inner) &&
-    inner.arguments > 0 // &&
-    // t.isObjectExpression(inner.arguments[0])
-  ) {
-    inner.arguments[0].properties.push(
-      t.objectProperty(t.identifier(keyName), valueNode),
-    );
-    return true;
+const generateObjectDescription = (keys) => {
+  const descriptions = keys.map((key) => camelToTitle(key).toLowerCase() + 's');
+  const end = descriptions[descriptions.length - 1];
+  const list = descriptions.slice(0, descriptions.length - 1);
+  if (!keys.length) {
+    ('Returns a list');
   }
+  return `A list of ${list.join(', ')}${list.length ? `${list.length > 2 ? ', ' : ''} and ` + end : end + 's'}`;
+};
 
-  return false;
+export function addOpenApiObject(node, properties) {
+  // console.log(properties);
+  const objectProperties = properties.map((prop) =>
+    t.isNode(prop.value)
+      ? prop.value
+      : t.objectProperty(t.identifier(prop.key), t.valueToNode(prop.value)),
+  );
+  console.log(objectProperties);
+
+  return t.callExpression(t.memberExpression(node, t.identifier('openapi')), [
+    t.objectExpression(objectProperties),
+  ]);
 }
 
-function addPropertyToOpenApiObject(node, key, value) {
-  if (
-    value &&
-    t.isCallExpression(node) &&
-    t.isMemberExpression(node.callee) &&
-    node.arguments.length > 0 &&
-    t.isObjectExpression(node.arguments[0])
-  ) {
-    // console.log('REACHE');
-    const arg = node.arguments[0];
-    const props = arg.properties;
+export const generateObjectProps = (key, value) => ({ key, value });
 
-    // check if it exists
-    const exampleProp = props.find(
-      (prop) =>
-        t.isObjectProperty(prop) &&
-        t.isIdentifier(prop.key, {
-          name: key,
-        }),
-    );
-    // console.log(exampleProp);
-    if (!exampleProp) {
-      // console.log(node.callee, value);
-      const res = appendPropertyToMemberExpression(node.callee, key, value);
-      console.log(res);
-    }
-  }
-}
-
-function normalizeZodDescription(node, descriptionValue, exampleValue) {
-  // Case: z.string({ description: '...' }) — extract and move description to openapi()
+function normalizeZodObject(node, descriptionValue, exampleValue) {
+  // z.string({ description: '...' }) — extract and move description to openapi()
   const described = hasDescription(node);
+  const exampleProp = generateObjectProps('example', exampleValue);
 
   if (
     t.isCallExpression(node) &&
@@ -150,7 +97,7 @@ function normalizeZodDescription(node, descriptionValue, exampleValue) {
 
     if (descriptionPropIndex !== -1) {
       const descriptionProp = props[descriptionPropIndex];
-      const descriptionValue = descriptionProp.value;
+      const descriptionPropsValue = descriptionProp.value.value;
 
       // Remove original description from args
       props.splice(descriptionPropIndex, 1);
@@ -160,32 +107,18 @@ function normalizeZodDescription(node, descriptionValue, exampleValue) {
         node.arguments = [];
       }
 
-      // Append .openapi({ description })
-      return t.callExpression(
-        t.memberExpression(node, t.identifier('openapi')),
-        [
-          t.objectExpression([
-            t.objectProperty(t.identifier('description'), descriptionValue),
-            t.objectProperty(
-              t.identifier('example'),
-              t.valueToNode(exampleValue),
-            ),
-          ]),
-        ],
+      const descProp = generateObjectProps(
+        'description',
+        descriptionPropsValue,
       );
+      // Append .openapi({ description })
+      return addOpenApiObject(node, [exampleProp, descProp]);
     }
   }
   // Case: no description at all — return undefined
   if (!described && descriptionValue) {
-    return t.callExpression(t.memberExpression(node, t.identifier('openapi')), [
-      t.objectExpression([
-        t.objectProperty(
-          t.identifier('description'),
-          t.valueToNode(descriptionValue),
-        ),
-        t.objectProperty(t.identifier('example'), t.valueToNode(exampleValue)),
-      ]),
-    ]);
+    const descProp = generateObjectProps('description', descriptionValue);
+    return addOpenApiObject(node, [exampleProp, descProp]);
   }
 
   return node;
@@ -193,7 +126,7 @@ function normalizeZodDescription(node, descriptionValue, exampleValue) {
 
 // Recursively add the `openapi` meta object onto nested object properties.
 // This is only really needed for Response objects.
-export function attachDescriptions(
+export function attachOpenApiMeta(
   node,
   descriptionValue,
   exampleValues,
@@ -210,7 +143,7 @@ export function attachDescriptions(
       if (t.isObjectExpression(arg) && properties && properties.length) {
         properties.forEach((prop) => {
           if (t.isObjectProperty(prop) && t.isIdentifier(prop.key)) {
-            prop.value = attachDescriptions(
+            prop.value = attachOpenApiMeta(
               prop.value,
               descriptionValue?.[prop.key.name],
               exampleValues?.[prop.key.name],
@@ -228,7 +161,7 @@ export function attachDescriptions(
       const innerArg = node.arguments[0];
 
       if (innerArg) {
-        node.arguments[0] = attachDescriptions(
+        node.arguments[0] = attachOpenApiMeta(
           innerArg,
           descriptionValue,
           exampleValues,
@@ -275,10 +208,8 @@ export function attachDescriptions(
       descriptionValue && descriptionValue.description
         ? descriptionValue.description
         : undefined;
-    node = normalizeZodDescription(node, description, exampleValues);
-    // const openApiNode = findOpenApiObjectProperty(node, 'openapi');
-    // console.log(openApiNode);
-    // addPropertyToOpenApiObject(openApiNode, 'example', exampleValues);
+    node = normalizeZodObject(node, description, exampleValues);
+
     return node;
   }
   // // Leaf nodes for imported schemas
@@ -297,6 +228,68 @@ export function attachDescriptions(
   //         ]),
   //     ]);
   // }
+
+  return node;
+}
+
+// Recursively add the `openapi` meta object onto nested object properties.
+// This is only really needed for Request objects.
+export function attachOpenAPICalls(
+  node,
+  exampleValue,
+  importedIdents = new Set(),
+) {
+  if (t.isCallExpression(node)) {
+    const callee = node.callee;
+
+    // for nested objects
+    if (t.isMemberExpression(callee)) {
+      const propName = callee.property.name;
+      if (propName === 'object') {
+        const arg = node.arguments[0];
+        if (t.isObjectExpression(arg)) {
+          arg.properties.forEach((prop) => {
+            if (t.isObjectProperty(prop) && t.isIdentifier(prop.key)) {
+              prop.value = attachOpenAPICalls(
+                prop.value,
+                exampleValue?.[prop.key.name],
+                importedIdents,
+              );
+            }
+          });
+        }
+      }
+
+      // if already has a meta object, ignore
+      if (t.isMemberExpression(callee) && callee.property.name === 'openapi') {
+        return node;
+      }
+
+      // leaf nodes
+      if (exampleValue !== undefined) {
+        return t.callExpression(
+          t.memberExpression(node, t.identifier('openapi')),
+          [
+            t.objectExpression([
+              t.objectProperty(
+                t.identifier('example'),
+                t.valueToNode(exampleValue),
+              ),
+            ]),
+          ],
+        );
+      }
+    }
+  }
+
+  // Leaf nodes for imported schemas
+  if (t.isIdentifier(node) && importedIdents.has(node.name)) {
+    return t.callExpression(t.memberExpression(node, t.identifier('openapi')), [
+      t.objectExpression([
+        t.objectProperty(t.identifier('example'), t.valueToNode(exampleValue)),
+      ]),
+    ]);
+  }
 
   return node;
 }
