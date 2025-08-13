@@ -21,14 +21,11 @@ export const lessonSearchResponseOpenAPISchema = z
     z.object({
       lessonSlug: z
         .string()
-        .openapi({
-          example: undefined,
-          description: 'The lesson slug identifier',
-        }),
-      lessonTitle: z
-        .string()
-        .openapi({ example: undefined, description: 'The lesson title' }),
-      similarity: z.number(),
+        .openapi({ description: 'The lesson slug identifier' }),
+      lessonTitle: z.string().openapi({ description: 'The lesson title' }),
+      similarity: z.number().openapi({
+        description: 'How similar the lesson is to the search (0…1)',
+      }),
       units: z
         .array(
           z.object({

@@ -4,46 +4,46 @@ import { categorySchema, threadSchema } from '@/lib/handlers/units/types';
 
 export const unitSummaryResponseOpenAPISchema = z
   .object({
-    unitSlug: z
-      .string()
-      .openapi({
-        example: 'simple-compound-and-adverbial-complex-sentences',
-        description: 'The unit slug identifier',
-      }),
-    unitTitle: z
-      .string()
-      .openapi({
-        example: 'Simple, compound and adverbial complex sentences',
-        description: 'The unit title',
-      }),
-    yearSlug: z
-      .string()
-      .openapi({ example: 'year-3', description: 'The year identifier' }),
-    year: z.union([z.number(), z.string({ description: 'All years' })]),
-    phaseSlug: z.string(),
-    subjectSlug: z
-      .string()
-      .openapi({
-        example: 'english',
-        description: 'The subject slug identifier',
-      }),
-    keyStageSlug: z
-      .string()
-      .openapi({
-        example: 'ks2',
-        description: 'The key stage slug identifier',
-      }),
+    unitSlug: z.string().openapi({ description: 'The unit slug identifier' }),
+    unitTitle: z.string().openapi({ description: 'The unit title' }),
+    yearSlug: z.string().openapi({ description: 'The year identifier' }),
+    year: z
+      .union([z.number(), z.string({ description: 'All years' })])
+      .openapi({ description: 'The year to which the unit belongs' }),
+    phaseSlug: z.string().openapi({
+      description:
+        'The slug identifier for the phase to which the unit belongs',
+    }),
+    subjectSlug: z.string().openapi({
+      example: 'english',
+      description: 'The subject slug identifier',
+    }),
+    keyStageSlug: z.string().openapi({
+      example: 'ks2',
+      description: 'The key stage slug identifier',
+    }),
     notes: z.string().optional(),
-    description: z.string().optional(),
+    description: z.string().optional().openapi({
+      description:
+        'A short description of the unit. Not yet available for all subjects.',
+    }),
     priorKnowledgeRequirements: z
       .array(z.string())
-      .openapi({ description: 'A list of undefineds' }),
-    nationalCurriculumContent: z
-      .array(z.string())
-      .openapi({ description: 'A list of undefineds' }),
-    whyThisWhyNow: z.string().optional(),
-    threads: z.array(threadSchema).optional(),
-    categories: z.array(categorySchema).optional(),
+      .openapi({ description: 'The prior knowledge required for the unit' }),
+    nationalCurriculumContent: z.array(z.string()).openapi({
+      description:
+        'National curriculum attainment statements covered in this unit',
+    }),
+    whyThisWhyNow: z.string().optional().openapi({
+      description:
+        'An explanation of where the unit sits within the sequence and why it has been placed there.',
+    }),
+    threads: z.array(threadSchema).optional().openapi({
+      description: 'The threads that are associated with the unit',
+    }),
+    categories: z.array(categorySchema).optional().openapi({
+      description: 'The categories that are associated with the unit',
+    }),
     unitLessons: z
       .array(
         z.object({
