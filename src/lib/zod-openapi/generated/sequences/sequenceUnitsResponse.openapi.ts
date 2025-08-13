@@ -5,6 +5,7 @@ import { z } from 'zod';
 export const sequenceUnitsResponseOpenAPISchema = z
   .array(sequenceSchema)
   .openapi({
+    ref: 'SequenceUnitsResponseSchema',
     example: [
       {
         year: 1,
@@ -25,5 +26,4 @@ export const sequenceUnitsResponseOpenAPISchema = z
         ],
       },
     ],
-    ref: 'SequenceUnitsResponseSchema',
   });

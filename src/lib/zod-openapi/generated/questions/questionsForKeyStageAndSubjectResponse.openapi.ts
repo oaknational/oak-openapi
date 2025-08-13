@@ -3,6 +3,7 @@ import { questionsSchema } from '@/lib/handlers/questions/types';
 
 export const questionsForKeyStageAndSubjectResponseOpenAPISchema =
   questionsSchema.openapi({
+    ref: 'QuestionsForKeyStageAndSubjectResponseSchema',
     example: [
       {
         lessonSlug: 'predicting-the-size-of-a-product',
@@ -66,5 +67,4 @@ export const questionsForKeyStageAndSubjectResponseOpenAPISchema =
         ],
       },
     ],
-    ref: 'QuestionsForKeyStageAndSubjectResponseSchema',
   });

@@ -4,34 +4,19 @@ import z from 'zod';
 export const keyStageSubjectLessonsResponseOpenAPISchema = z
   .array(
     z.object({
-      unitSlug: z
-        .string()
-        .openapi({
-          description: 'The unit slug identifier',
-          example: undefined,
+      unitSlug: z.string({ description: 'The unit slug identifier' }),
+      unitTitle: z.string({ description: 'The unit title' }),
+      lessons: z.array(
+        z.object({
+          lessonSlug: z.string({ description: 'The lesson slug identifier' }),
+          lessonTitle: z.string({ description: 'The lesson title' }),
         }),
-      unitTitle: z
-        .string()
-        .openapi({ description: 'The unit title', example: undefined }),
-      lessons: z
-        .array(
-          z.object({
-            lessonSlug: z
-              .string()
-              .openapi({
-                description: 'The lesson slug identifier',
-                example: undefined,
-              }),
-            lessonTitle: z
-              .string()
-              .openapi({ description: 'The lesson title', example: undefined }),
-          }),
-          { description: 'List of lessons for the specified unit' },
-        )
-        .openapi({ description: 'A list of lesson slugs and lesson titles' }),
+        { description: 'List of lessons for the specified unit' },
+      ),
     }),
   )
   .openapi({
+    ref: 'KeyStageSubjectLessonsResponseSchema',
     example: [
       {
         unitSlug: 'simple-compound-and-adverbial-complex-sentences',
@@ -48,5 +33,4 @@ export const keyStageSubjectLessonsResponseOpenAPISchema = z
         ],
       },
     ],
-    ref: 'KeyStageSubjectLessonsResponseSchema',
   });

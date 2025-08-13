@@ -7,11 +7,11 @@ export const subjectKeyStagesResponseOpenAPISchema = keyStagesResult
       'The key stage slug identifiers for which this subject has content available for',
   })
   .openapi({
+    ref: 'SubjectKeyStagesResponseSchema',
     example: [
       { keyStageTitle: 'Key Stage 1', keyStageSlug: 'ks1' },
       { keyStageTitle: 'Key Stage 2', keyStageSlug: 'ks2' },
       { keyStageTitle: 'Key Stage 3', keyStageSlug: 'ks3' },
       { keyStageTitle: 'Key Stage 4', keyStageSlug: 'ks4' },
     ],
-    ref: 'SubjectKeyStagesResponseSchema',
   });

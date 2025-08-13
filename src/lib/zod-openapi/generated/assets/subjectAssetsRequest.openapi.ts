@@ -9,18 +9,18 @@ export const subjectAssetsRequestOpenAPISchema = z.object({
       description:
         "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
     })
-    .openapi({ description: 'Key stage slug to filter by', example: 'ks1' }),
+    .openapi({ example: 'ks1', description: 'Key stage slug to filter by' }),
   subject: z
     .enum(subjectSlugs as [string], {
       description:
         "Subject slug to search by, e.g. 'science' - note that casing is important here (always lowercase)",
     })
-    .openapi({ description: 'Subject slug to search by', example: 'english' }),
+    .openapi({ example: 'english', description: 'Subject slug to search by' }),
   type: downloadTypeEnum
     .optional()
     .openapi({
-      description: 'Optional asset type specifier',
       example: undefined,
+      description: 'Optional asset type specifier',
     }),
   unit: z
     .string({

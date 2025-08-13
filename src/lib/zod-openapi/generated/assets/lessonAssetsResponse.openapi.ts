@@ -2,6 +2,7 @@ import 'zod-openapi/extend';
 import { lessonAssetsType } from '@/lib/handlers/assets/types';
 
 export const lessonAssetsResponseOpenAPISchema = lessonAssetsType.openapi({
+  ref: 'LessonAssetsResponseSchema',
   example: {
     attribution: [
       'Copyright XYZ Authors',
@@ -25,5 +26,4 @@ export const lessonAssetsResponseOpenAPISchema = lessonAssetsType.openapi({
       },
     ],
   },
-  ref: 'LessonAssetsResponseSchema',
 });
