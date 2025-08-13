@@ -2,13 +2,11 @@ import 'zod-openapi/extend';
 import z from 'zod';
 
 export const questionsForSequenceRequestOpenAPISchema = z.object({
-  sequence: z
-    .string()
-    .openapi({
-      example: 'maths-secondary',
-      description:
-        'The sequence slug identifier, including the key stage 4 option where relevant.',
-    }),
+  sequence: z.string().openapi({
+    example: 'maths-secondary',
+    description:
+      'The sequence slug identifier, including the key stage 4 option where relevant.',
+  }),
   year: z
     .number({
       description:

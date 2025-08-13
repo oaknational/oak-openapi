@@ -125,20 +125,31 @@ export const questionZod = z
         },
       ),
     ]),
-  );
-// .openapi({description: ''})
+  )
+  .openapi({
+    type: 'object',
+  });
+
+export const starterQuizSchema = z.array(questionZod).openapi({
+  description: 'The starter quiz questions - which test prior knowledge',
+});
+
+export const exitQuizSchema = z.array(questionZod).openapi({
+  description:
+    'The exit quiz questions - which test on the knowledge learned in the lesson',
+});
+
 export const questionsSchema = z.array(
   z.object({
-    lessonSlug: z.string(),
-    lessonTitle: z.string(),
+    lessonSlug: z.string().openapi({
+      description: 'The lesson slug identifier',
+    }),
+    lessonTitle: z.string().openapi({
+      description: 'The title of the lesson',
+    }),
     // unitSlug: z.string(),
-    starterQuiz: z.array(questionZod).openapi({
-      description: 'The starter quiz questions - which test prior knowledge',
-    }),
-    exitQuiz: z.array(questionZod).openapi({
-      description:
-        'The exit quiz questions - which test on the knowledge learned in the lesson',
-    }),
+    starterQuiz: starterQuizSchema,
+    exitQuiz: exitQuizSchema,
   }),
 );
 
