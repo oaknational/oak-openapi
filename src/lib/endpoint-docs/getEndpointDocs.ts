@@ -164,8 +164,8 @@ export const getEndpointContent = async (
         const schema = param.schema as SchemaObject;
         return {
           name: `${param.name}${!param.required ? ' [optional]' : ''}`,
-          type: (schema.type as string) || '',
-          description: param.description || '',
+          type: schema.type as string,
+          description: param.description || schema.description,
           example: (schema.example as string) || '',
         };
       }),

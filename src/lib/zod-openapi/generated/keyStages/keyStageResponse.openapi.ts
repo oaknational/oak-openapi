@@ -4,8 +4,15 @@ import z from 'zod';
 export const keyStageResponseOpenAPISchema = z
   .array(
     z.object({
-      slug: z.string({ description: 'The key stage slug identifier' }),
-      title: z.string({ description: 'The key stage title' }),
+      slug: z
+        .string()
+        .openapi({
+          example: undefined,
+          description: 'The key stage slug identifier',
+        }),
+      title: z
+        .string()
+        .openapi({ example: undefined, description: 'The key stage title' }),
     }),
   )
   .openapi({
