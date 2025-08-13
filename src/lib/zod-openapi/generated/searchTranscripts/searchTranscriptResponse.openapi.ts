@@ -9,11 +9,11 @@ export const searchTranscriptResponseOpenAPISchema = z
         .openapi({ example: undefined, description: 'The lesson title' }),
       lessonSlug: z
         .string()
-        .openapi({ description: 'The lesson slug identifier' }),
-      transcriptSnippet: z.string().optional().openapi({
-        description:
-          'The snippet of the transcript that matched the search term',
-      }),
+        .openapi({
+          example: undefined,
+          description: 'The lesson slug identifier',
+        }),
+      transcriptSnippet: z.string().optional(),
     }),
   )
   .openapi({

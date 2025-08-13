@@ -1,31 +1,25 @@
-import 'zod-openapi/extend';
 import z from 'zod';
+import 'zod-openapi/extend';
 
 export const allKeyStageAndSubjectUnitsResponseOpenAPISchema = z
   .array(
     z.object({
       yearSlug: z
         .string()
-        .openapi({ example: undefined, description: 'The year identifier' }),
+        .openapi({ description: 'The year identifier', example: undefined }),
       yearTitle: z
         .string()
-        .openapi({ example: undefined, description: 'The year title' }),
+        .openapi({ description: 'The year title', example: undefined }),
       units: z
         .array(
           z.object({
-            unitSlug: z
-              .string()
-              .openapi({
-                example: undefined,
-                description: 'The unit slug identifier',
-              }),
-            unitTitle: z
-              .string()
-              .openapi({ example: undefined, description: 'The unit title' }),
+            unitSlug: z.string({
+              description: 'The unit slug identifier',
+            }),
+            unitTitle: z.string({ description: 'The unit title' }),
           }),
-          { description: 'List of units for the specified year' },
         )
-        .openapi({ description: 'A list of unit slugs and unit titles' }),
+        .openapi({ description: 'List of units for the specified year' }),
     }),
   )
   .openapi({

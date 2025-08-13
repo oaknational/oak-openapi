@@ -7,18 +7,13 @@ export const sequenceAssetsRequestOpenAPISchema = z.object({
     description:
       'The sequence slug identifier, including the key stage 4 option where relevant.',
   }),
-  year: z
-    .number()
-    .openapi({
-      description:
-        'The year group to filter by. For the physical-education-primary sequence, a value of all-years can also be used.',
-    })
-    .optional(),
-  type: downloadTypeEnum
-    .openapi({
-      description: `Optional asset type specifier
+  year: z.number().optional().openapi({
+    description:
+      'The year group to filter by. For the physical-education-primary sequence, a value of all-years can also be used.',
+  }),
+  type: downloadTypeEnum.optional().openapi({
+    description: `Optional asset type specifier
 
 Available values: slideDeck, exitQuiz, exitQuizAnswers, starterQuiz, starterQuizAnswers, supplementaryResource, video, worksheet, worksheetAnswers`,
-    })
-    .optional(),
+  }),
 });
