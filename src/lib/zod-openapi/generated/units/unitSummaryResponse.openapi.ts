@@ -98,13 +98,13 @@ export const unitSummaryResponseOpenAPISchema = z
             .string()
             .openapi({
               description: 'The lesson slug identifier',
-              example: undefined,
+              example: 'four-types-of-simple-sentence',
             }),
           lessonTitle: z
             .string()
             .openapi({
               description: 'The title for the lesson',
-              example: undefined,
+              example: 'Four types of simple sentence',
             }),
           lessonOrder: z
             .number({
@@ -116,7 +116,7 @@ export const unitSummaryResponseOpenAPISchema = z
             .openapi({
               description:
                 "If the state is 'published' then it is also available on the /lessons/* endpoints. If the state is 'new' then it's not available yet.",
-              example: undefined,
+              example: 'published',
             }),
         })
         .openapi({ description: 'All the lessons contained in the unit' }),

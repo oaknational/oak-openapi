@@ -121,7 +121,7 @@ export function attachOpenApiMeta(
         node.arguments[0] = attachOpenApiMeta(
           innerArg,
           descriptionValue,
-          exampleValues,
+          exampleValues.length ? exampleValues[0] : exampleValues, // just want the first one
           importedIdents,
           depth + 1,
         );

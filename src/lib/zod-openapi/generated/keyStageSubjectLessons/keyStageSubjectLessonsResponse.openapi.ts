@@ -8,11 +8,14 @@ export const keyStageSubjectLessonsResponseOpenAPISchema = z
         .string()
         .openapi({
           description: 'The unit slug identifier',
-          example: undefined,
+          example: 'simple-compound-and-adverbial-complex-sentences',
         }),
       unitTitle: z
         .string()
-        .openapi({ description: 'The unit title', example: undefined }),
+        .openapi({
+          description: 'The unit title',
+          example: 'Simple, compound and adverbial complex sentences',
+        }),
       lessons: z
         .array(
           z.object({
@@ -20,16 +23,28 @@ export const keyStageSubjectLessonsResponseOpenAPISchema = z
               .string()
               .openapi({
                 description: 'The lesson slug identifier',
-                example: undefined,
+                example: 'four-types-of-simple-sentence',
               }),
             lessonTitle: z
               .string()
-              .openapi({ description: 'The lesson title', example: undefined }),
+              .openapi({
+                description: 'The lesson title',
+                example: 'Four types of simple sentence',
+              }),
           }),
         )
         .openapi({
           description: 'List of lessons for the specified unit',
-          example: undefined,
+          example: [
+            {
+              lessonSlug: 'four-types-of-simple-sentence',
+              lessonTitle: 'Four types of simple sentence',
+            },
+            {
+              lessonSlug: 'three-ways-for-co-ordination-in-compound-sentences',
+              lessonTitle: 'Three ways for co-ordination in compound sentences',
+            },
+          ],
         }),
     }),
   )
