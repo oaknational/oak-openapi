@@ -103,7 +103,7 @@ export default function EndpointBlock(props: { endpoint: EndpointInfo }) {
         {params && params.length > 1 ? (
           <Table value={generateTableRows(params)} />
         ) : (
-          'N/ A'
+          'N/A'
         )}
       </OakBox>
       <OakHeading tag="h3" $font="heading-5">
@@ -111,7 +111,7 @@ export default function EndpointBlock(props: { endpoint: EndpointInfo }) {
         {output && output[0] ? (
           <Table value={generateTableRows(output)} />
         ) : (
-          <OakP>N/ A</OakP>
+          <OakP>N/A</OakP>
         )}
       </OakHeading>
       {sampleResponse && (
