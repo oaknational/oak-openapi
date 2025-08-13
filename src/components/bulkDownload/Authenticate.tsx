@@ -25,7 +25,6 @@ interface AuthenticateProps {
   selectedSubjects: Record<string, { primary: boolean; secondary: boolean }>;
 }
 
-
 const ErrorUL = styled(OakUL)`
   list-style-type: disc;
   margin: 0;
@@ -210,7 +209,6 @@ export function Authenticate({
   const apiKeyErrorId = useStableId('api-key-error');
   const apiKeyLabelId = useStableId('api-key-label');
 
-
   return (
     <OakFlex
       $gap="all-spacing-7"
@@ -227,7 +225,7 @@ export function Authenticate({
           </OakBox>
         )}
         <JauntyAngleLabel
-        id={apiKeyLabelId}
+          id={apiKeyLabelId}
           $error={!!apiKeyError}
           $background="lemon"
           htmlFor={apiKeyId}
@@ -244,6 +242,7 @@ export function Authenticate({
           value={apiKey}
           aria-labelledby={apiKeyLabelId}
           aria-describedby={apiKeyError ? apiKeyErrorId : undefined}
+          aria-invalid={!!apiKeyError}
           required
           onChange={(e) => {
             setApiKeyError(false);
@@ -299,7 +298,7 @@ export function Authenticate({
           isTrailingIcon={true}
           onClick={handleDownload}
         >
-          { isLoading ? "Preparing your zip" : "Download"}
+          {isLoading ? 'Preparing your zip' : 'Download'}
         </ButtonWithSpinner>
       </OakBox>
     </OakFlex>
