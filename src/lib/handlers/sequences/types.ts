@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import 'zod-openapi/extend';
 
 export type SequenceSchema = z.infer<typeof sequenceSchema>;
 export type YearSequence = z.infer<typeof yearSequenceSchema>;
@@ -16,14 +17,21 @@ export type UnitWithoutOptions = z.infer<typeof unitNoOptionsSchema>;
 export type Unit = z.infer<typeof unitSchema>;
 
 const categorySchema = z.object({
-  categoryTitle: z.string(),
-  categorySlug: z.string().optional(),
+  categoryTitle: z
+    .string()
+    .openapi({ description: 'The title of the category' }),
+  categorySlug: z
+    .string()
+    .optional()
+    .openapi({ description: 'The unique identifier for the category' }),
 });
 
 const threadSchema = z.object({
-  threadTitle: z.string(),
-  threadSlug: z.string(),
-  order: z.number(),
+  threadTitle: z.string().openapi({ description: 'The title of the category' }),
+  threadSlug: z
+    .string()
+    .openapi({ description: 'The unique identifier for the thread' }),
+  order: z.number().openapi({ description: 'Deprecated' }),
 });
 
 const unitOptionSchema = z.object({
@@ -31,18 +39,30 @@ const unitOptionSchema = z.object({
   unitSlug: z.string(),
 });
 
+const unitNoOptionsSchema = z.object({
+  unitTitle: z.string().openapi({ description: 'The title of the unit' }),
+  unitSlug: z
+    .string()
+    .openapi({ description: 'The unique slug identifier for the unit' }),
+  unitOrder: z
+    .number()
+    .openapi({ description: 'The position of the unit within the sequence.' }),
+  unitOptions: z
+    .array(unitOptionSchema)
+    .openapi({ description: 'The unique slug identifier for the unit' }),
+  categories: z.array(categorySchema).optional().openapi({
+    description:
+      'The categories (if any) that are assigned to the unit. If the unit does not have any categories, this property is omitted.',
+  }),
+  threads: z.array(threadSchema).optional().openapi({
+    description:
+      'A list of threads (if any) that are assigned to the unit. If the unit does not have any categories, this property is omitted.',
+  }),
+});
+
 const unitWithOptionsSchema = z.object({
   unitTitle: z.string(),
   unitOrder: z.number(),
-  unitOptions: z.array(unitOptionSchema),
-  categories: z.array(categorySchema).optional(),
-  threads: z.array(threadSchema).optional(),
-});
-
-const unitNoOptionsSchema = z.object({
-  unitTitle: z.string(),
-  unitOrder: z.number(),
-  unitSlug: z.string(),
   categories: z.array(categorySchema).optional(),
   threads: z.array(threadSchema).optional(),
 });
@@ -50,8 +70,8 @@ const unitNoOptionsSchema = z.object({
 const unitSchema = z.union([unitWithOptionsSchema, unitNoOptionsSchema]);
 
 const tierSchema = z.object({
-  tierTitle: z.string(),
-  tierSlug: z.string(),
+  tierTitle: z.string().openapi({ description: 'The title of the tier' }),
+  tierSlug: z.string().openapi({ description: 'The tier identifier' }),
   units: z.array(unitSchema),
 });
 
@@ -69,34 +89,32 @@ const examSubjectsSchemaWithoutTiers = z.object({
 
 const yearSequenceKS4WithExamSubjectsSchema = z.object({
   year: z.number(),
-  title: z
-    .string({
-      description: 'Optional alternative title for the year sequence',
-    })
-    .optional(),
-  examSubjects: z.array(
-    z.union([examSubjectsSchemaWithTiers, examSubjectsSchemaWithoutTiers]),
-  ),
+  title: z.string().optional(),
+  examSubjects: z
+    .array(
+      z.union([examSubjectsSchemaWithTiers, examSubjectsSchemaWithoutTiers]),
+    )
+    .openapi({
+      description:
+        "Only used in secondary science. Contains a full year's unit sequences based on which subject is being studied at KS4.",
+    }),
 });
 
 const yearSequenceKS4WithoutExamSubjectsSchema = z.object({
   year: z.number(),
-  title: z
-    .string({
-      description: 'Optional alternative title for the year sequence',
-    })
-    .optional(),
+  title: z.string().optional(),
   tiers: z.array(tierSchema),
 });
 
 const yearSequenceSchema = z.object({
-  year: z.union([z.number(), z.literal('all-years')]),
-  title: z
-    .string({
-      description: 'Optional alternative title for the year sequence',
-    })
-    .optional(),
-  units: z.array(unitSchema),
+  year: z
+    .union([z.number(), z.literal('all-years')])
+    .openapi({ description: 'The year group' }),
+  title: z.string().optional(),
+  units: z.array(unitSchema).openapi({
+    description:
+      'A list of units that make up a full sequence, grouped by year.',
+  }),
 });
 
 export const sequenceSchema = z.union([
