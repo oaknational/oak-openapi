@@ -7,8 +7,8 @@ export const offsetSchema = z
       'If limiting results returned, this allows you to return the next set of results, starting at the given offset point',
   })
   .openapi({ example: 50 })
-  .default(0)
-  .optional();
+  .optional()
+  .default(0);
 
 export const limitSchema = z
   .number({
