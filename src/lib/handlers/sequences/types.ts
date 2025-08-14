@@ -159,3 +159,12 @@ export const sequenceYearSchema = z
     example: 3,
   })
   .optional();
+
+export const sequenceYearEnumSchema = z
+  .enum(years as [string])
+  .openapi({
+    description:
+      'The year group to filter by. For the physical-education-primary sequence, a value of all-years can also be used.',
+    example: '1',
+  })
+  .optional();
