@@ -17,9 +17,11 @@ export const searchTranscriptResponseOpenAPISchema = z
           example: 'the-roman-invasion-of-britain',
         }),
       transcriptSnippet: z
-        .string({
+        .string()
+        .openapi({
           description:
             'The snippet of the transcript that matched the search term',
+          example: 'The Romans were ready,',
         })
         .optional(),
     }),

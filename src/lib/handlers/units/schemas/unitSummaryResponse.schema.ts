@@ -18,7 +18,7 @@ export const unitSummaryResponseSchema = z.object({
     description:
       'The slug identifier for the the key stage to which the unit belongs',
   }),
-  notes: z.string({ description: '' }).optional(),
+  notes: z.string({ description: 'Unit summary notes' }).optional(),
   description: z
     .string({
       description:

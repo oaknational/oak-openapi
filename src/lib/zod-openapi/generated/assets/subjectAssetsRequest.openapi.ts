@@ -20,8 +20,10 @@ export const subjectAssetsRequestOpenAPISchema = z.object({
     }),
   type: downloadTypeEnum.optional(),
   unit: z
-    .string({
+    .string()
+    .openapi({
       description: 'Optional unit slug to additionally filter by',
+      example: 'word-class',
     })
     .optional(),
 });
