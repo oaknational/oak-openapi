@@ -15,7 +15,7 @@ import {
   phaseToSequences,
   yearsFromKeyStages,
 } from './helpers';
-import { numberArrayResult } from './types';
+
 import {
   allSubjectsResponseOpenAPISchema,
   subjectKeyStagesRequestOpenAPISchema,
@@ -24,6 +24,8 @@ import {
   subjectResponseOpenAPISchema,
   subjectSequenceRequestOpenAPISchema,
   subjectSequenceResponseOpenAPISchema,
+  subjectYearsRequestOpenAPISchema,
+  subjectYearsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/subjects';
 
 export const getSubjects = router({
@@ -33,8 +35,9 @@ export const getSubjects = router({
         tags: ['lists'],
         method: 'GET',
         path: '/subjects',
+        summary: 'Subjects',
         description:
-          'This endpoint returns an array of all subjects and associated sequences, key stages and years that are currently available on Oak',
+          'This endpoint returns an array of all available subjects and their associated sequences, key stages and years.',
         errorResponses: [],
       },
     })
@@ -95,10 +98,11 @@ export const getSubjects = router({
       openapi: {
         tags: ['lists'],
         method: 'GET',
+        summary: 'Subject',
         path: '/subjects/{subject}',
         errorResponses: [],
         description:
-          'This endpoint returns a single subject and associated sequences, key stages and years.',
+          'This endpoint returns the sequences, key stages and years that are currently available for a given subject.',
       },
     })
     .input(subjectRequestOpenAPISchema)
@@ -120,10 +124,11 @@ export const getSubjects = router({
       openapi: {
         tags: ['lists', 'sequences'],
         method: 'GET',
+        summary: 'Sequencing information for a given subject',
         path: '/subjects/{subject}/sequences',
         errorResponses: [],
         description:
-          'List of the sequences, including phase, key stage 4 options, years and key stages the sequence applies to for a subject.',
+          'This endpoint returns an array of sequence objects that are currently available for a given subject. For secondary sequences, this includes information about key stage 4 variance such as exam board sequences and non-GCSE ‘core’ unit sequences.',
       },
     })
     .input(subjectSequenceRequestOpenAPISchema)
@@ -136,9 +141,11 @@ export const getSubjects = router({
       openapi: {
         tags: ['lists'],
         method: 'GET',
+        summary: 'Key stages within a subject',
         path: '/subjects/{subject}/key-stages',
         errorResponses: [],
-        description: 'List of the key stages a subject is taught in.',
+        description:
+          'This endpoint returns a list of key stages that are currently available for a given subject.',
       },
     })
     .input(subjectKeyStagesRequestOpenAPISchema)
@@ -151,22 +158,16 @@ export const getSubjects = router({
       openapi: {
         tags: ['lists'],
         method: 'GET',
+        summary: 'Year groups for a given subject',
         path: '/subjects/{subject}/years',
         errorResponses: [],
-        description: 'List of the years a subject is taught in.',
+        description:
+          'This endpoint returns an array of years that are currently available for a given subject.',
       },
     })
     // TODO: put these examples in their own file
-    .input(
-      z.object({
-        subject: z.string().openapi({ example: 'art' }),
-      }),
-    )
-    .output(
-      numberArrayResult.openapi({
-        example: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-      }),
-    )
+    .input(subjectYearsRequestOpenAPISchema)
+    .output(subjectYearsResponseOpenAPISchema)
     .query(async ({ input }) => {
       return yearsFromKeyStages(
         phaseToKeyStages(await getSubjectPhase(input.subject)),

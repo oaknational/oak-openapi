@@ -1,3 +1,3 @@
-import z from 'zod';
+import { questionsSchema } from '@/lib/handlers/questions/types';
 
-export const questionsForSequenceResponseSchema = z.any();
+export const questionsForSequenceResponseSchema = questionsSchema;

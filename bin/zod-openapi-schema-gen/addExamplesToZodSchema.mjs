@@ -5,6 +5,11 @@ import parser from '@babel/parser';
 import traverse from '@babel/traverse';
 import generate from '@babel/generator';
 import * as t from '@babel/types';
+import {
+  addOpenApiObject,
+  attachOpenApiMeta,
+  generateObjectProps,
+} from './addOpenApiMeta.mjs';
 
 const SCHEMA_PATTERN = /(Request|Response)\.schema\.ts$/;
 const JSON_PATTERN = /(Request|Response)Example\.json$/;
@@ -46,64 +51,6 @@ function getMatchingJson(schemaPath, allJsonFiles) {
       path.basename(jsonPath).startsWith(baseName) &&
       path.basename(jsonPath).endsWith('Example.json'),
   );
-}
-
-// Recursively add the `openapi` meta object onto nested object properties.
-// This is only really needed for Request objects.
-function attachOpenAPICalls(node, exampleValue, importedIdents = new Set()) {
-  if (t.isCallExpression(node)) {
-    const callee = node.callee;
-
-    // for nested objects
-    if (t.isMemberExpression(callee)) {
-      const propName = callee.property.name;
-      if (propName === 'object') {
-        const arg = node.arguments[0];
-        if (t.isObjectExpression(arg)) {
-          arg.properties.forEach((prop) => {
-            if (t.isObjectProperty(prop) && t.isIdentifier(prop.key)) {
-              prop.value = attachOpenAPICalls(
-                prop.value,
-                exampleValue?.[prop.key.name],
-                importedIdents,
-              );
-            }
-          });
-        }
-      }
-
-      // if already has a meta object, ignore
-      if (t.isMemberExpression(callee) && callee.property.name === 'openapi') {
-        return node;
-      }
-
-      // leaf nodes
-      if (exampleValue !== undefined) {
-        return t.callExpression(
-          t.memberExpression(node, t.identifier('openapi')),
-          [
-            t.objectExpression([
-              t.objectProperty(
-                t.identifier('example'),
-                t.valueToNode(exampleValue),
-              ),
-            ]),
-          ],
-        );
-      }
-    }
-  }
-
-  // Leaf nodes for imported schemas
-  if (t.isIdentifier(node) && importedIdents.has(node.name)) {
-    return t.callExpression(t.memberExpression(node, t.identifier('openapi')), [
-      t.objectExpression([
-        t.objectProperty(t.identifier('example'), t.valueToNode(exampleValue)),
-      ]),
-    ]);
-  }
-
-  return node;
 }
 
 // We want to make sure imports are maintained, especially in Response files
@@ -167,6 +114,9 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
 
   let inputCode = fs.readFileSync(schemaFilePath, 'utf-8');
   const exampleJson = JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'));
+  const descriptionsJson = JSON.parse(
+    fs.readFileSync('./src/lib/endpoint-docs/outputDescriptions.json', 'utf-8'),
+  );
 
   const ast = parser.parse(inputCode, {
     sourceType: 'module',
@@ -209,31 +159,20 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
       const refName =
         originalSchemaName.charAt(0).toUpperCase() +
         originalSchemaName.slice(1);
+
+      path.node.init = attachOpenApiMeta(
+        path.node.init,
+        descriptionsJson,
+        exampleJson,
+        importedIdents,
+      );
+
       if (originalSchemaName.includes('Response')) {
-        const ref = t.objectProperty(
-          t.identifier('ref'),
-          t.valueToNode(refName),
-        );
-        path.node.init = t.callExpression(
-          t.memberExpression(path.node.init, t.identifier('openapi')),
-          [
-            t.objectExpression([
-              t.objectProperty(
-                t.identifier('example'),
-                t.valueToNode(exampleJson),
-              ),
-              ref,
-            ]),
-          ],
-        );
-      } else if (originalSchemaName.includes('Request')) {
-        // if request schema we want to nest the param examples inside the object to maintain the
-        // path param examples
-        path.node.init = attachOpenAPICalls(
-          path.node.init,
-          exampleJson,
-          importedIdents,
-        );
+        const refProp = generateObjectProps('ref', refName);
+        const exampleProp = generateObjectProps('example', exampleJson);
+
+        const props = [refProp, exampleProp];
+        path.node.init = addOpenApiObject(path.node.init, props);
       }
 
       const inferredTypeName = getInferredTypeName(baseName);

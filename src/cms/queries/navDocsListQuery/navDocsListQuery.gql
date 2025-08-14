@@ -16,6 +16,7 @@ query getAllDocsNavGroups {
     slug {
       text: current
     }
+    order
     parentGroup: navGroupType {
       slug {
         text: current

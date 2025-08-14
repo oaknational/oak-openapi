@@ -121,10 +121,12 @@ export const getSequences = router({
   getSequenceUnits: protectedProcedure
     .meta({
       openapi: {
-        tags: ['lists', 'units', 'sequences'],
+        tags: ['units', 'sequences', 'unit-and-curriculum-data'],
         method: 'GET',
+        summary: 'Units within a sequence',
         path: '/sequences/{sequence}/units',
-        description: '',
+        description:
+          'This endpoint returns high-level information for all of the units in a sequence. Units are returned in the intended sequence order and are grouped by year.',
         errorResponses: [],
       },
     })
@@ -137,7 +139,7 @@ export const getSequences = router({
 
       if (input.year === 'all-years') {
         yearFilter = 0;
-      } else if (input.year) {
+      } else if (input.year && typeof input.year === 'string') {
         yearFilter = parseInt(input.year, 10);
       }
 

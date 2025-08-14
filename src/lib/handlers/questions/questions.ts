@@ -42,8 +42,9 @@ export const getQuestions = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['lessons', 'questions'],
+        tags: ['lessons', 'questions', 'quiz-questions'],
         path: '/lessons/{lesson}/quiz',
+        summary: 'Quiz questions by lesson',
         errorResponses: [],
         description:
           'The endpoint returns the quiz questions and answers for a given lesson. The answers data indicates which answers are correct, and which are distractors.',
@@ -120,10 +121,10 @@ export const getQuestions = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['questions', 'sequences'],
+        tags: ['questions', 'sequences', 'unit-and-curriculum-data'],
         path: '/sequences/{sequence}/questions',
-        description:
-          'This endpoint returns the quiz questions and answers (and indicates which answers are correct and which are distractors) for a given sequence',
+        summary: 'Questions within a sequence',
+        description: `This endpoint returns all quiz questions for a given sequence. The assets are separated into starter quiz and entry quiz arrays, grouped by lesson.`,
         errorResponses: [],
       },
     })
@@ -246,12 +247,13 @@ export const getQuestions = router({
   getQuestionsForKeyStageAndSubject: protectedProcedure
     .meta({
       openapi: {
-        tags: ['questions'],
+        tags: ['questions', 'quiz-questions'],
         method: 'GET',
         path: '/key-stages/{keyStage}/subject/{subject}/questions',
+        summary: 'Quiz questions by subject and key stage',
         errorResponses: [],
         description:
-          'This endpoint returns all the quiz questions and answers (and indicates which answers are correct and which are distractors), grouped by lesson, for a given key stage and subject',
+          'This endpoint returns quiz questions and answers for each lesson within a requested subject and key stage.',
       },
     })
     .input(questionsForKeyStageAndSubjectRequestOpenAPISchema)

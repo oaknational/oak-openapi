@@ -23,7 +23,6 @@ const getConfig = async () => {
       styledComponents: true,
     },
     reactStrictMode: true,
-    // swcMinify: true,
     images: {
       domains: ['oaknationalacademy-res.cloudinary.com', 'cdn.sanity.io'],
     },

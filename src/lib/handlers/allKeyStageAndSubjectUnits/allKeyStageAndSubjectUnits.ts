@@ -18,10 +18,11 @@ export const getAllKeyStageAndSubjectUnits = router({
       openapi: {
         method: 'GET',
         tags: ['lists', 'units'],
+        summary: 'Units',
         path: '/key-stages/{keyStage}/subject/{subject}/units',
         errorResponses: [],
         description:
-          'This endpoint returns all the units (titles and slugs) that are currently available on Oak for a given subject and key stage',
+          'This endpoint returns an array of units containing available published lessons for a given key stage and subject, grouped by year. Units without published lessons will not be returned by this endpoint.',
       },
     })
     .input(allKeyStageAndSubjectUnitsRequestOpenAPISchema)

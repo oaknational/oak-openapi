@@ -1,5 +1,7 @@
 {
   "keyStage": "ks1",
   "subject": "english",
-  "unit": "word-class"
+  "unit": "word-class",
+  "offset": 11,
+  "limit": 10
 }

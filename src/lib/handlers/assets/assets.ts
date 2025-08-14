@@ -225,11 +225,12 @@ export const getAssets = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['assets', 'sequences'],
+        tags: ['assets', 'sequences', 'unit-and-curriculum-data'],
         path: '/sequences/{sequence}/assets',
         errorResponses: [],
-        description:
-          'This endpoint returns signed download URLs and types for the assets currently available on Oak for a given sequence',
+        summary: 'Assets within a sequence',
+        description: `This endpoint returns all assets for a given sequence, and the download endpoints for each. The assets are grouped by lesson.
+This endpoint contains licence information for any third-party content contained in the lesson’s downloadable resources. Third-party content is exempt from the open-government license, and users will need to consider whether their use is covered by the stated licence, or if they need to procure their own agreement.`,
       },
     })
     .input(sequenceAssetsRequestOpenAPISchema)
@@ -403,9 +404,10 @@ export const getAssets = router({
         method: 'GET',
         tags: ['assets'],
         errorResponses: [],
+        summary: 'Assets',
         path: '/key-stages/{keyStage}/subject/{subject}/assets',
         description:
-          'This endpoint returns signed download URLs and types for the assets currently available on Oak for a given key stage and subject, optionally filtered by type and unit, grouped by lesson',
+          'This endpoint returns signed download URLs and types for available assets for a given key stage and subject, grouped by lesson. You can also optionally filter by type and unit.',
       },
     })
     .input(subjectAssetsRequestOpenAPISchema)
@@ -580,11 +582,13 @@ export const getAssets = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['assets', 'lessons'],
+        tags: ['assets', 'lessons', 'lesson-data'],
+        summary: 'Downloadable lesson assets',
         path: '/lessons/{lesson}/assets',
         errorResponses: [],
-        description:
-          'This endpoint returns signed download URLS and types for the assets currently available on Oak for a given lesson',
+        description: `This endpoint returns the types of available assets for a given lesson, and the download endpoints for each. 
+        This endpoint contains licence information for any third-party content contained in the lesson’s downloadable resources. Third-party content is exempt from the open-government license, and users will need to consider whether their use is covered by the stated licence, or if they need to procure their own agreement.
+          `,
       },
     })
     .input(lessonAssetsRequestOpenAPISchema)
@@ -603,10 +607,11 @@ export const getAssets = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['assets', 'lessons'],
+        tags: ['assets', 'lessons', 'lesson-data'],
         path: '/lessons/{lesson}/assets/{type}',
+        summary: 'Lesson asset by type',
         description:
-          'This endpoint will stream the downloadable asset for the given lesson and type',
+          'This endpoint will stream the downloadable asset for the given lesson and type. \nThere is no response returned for this endpoint as it returns a content attachment.',
         contentTypes: ['application/octet-stream'],
         errorResponses: [],
       },

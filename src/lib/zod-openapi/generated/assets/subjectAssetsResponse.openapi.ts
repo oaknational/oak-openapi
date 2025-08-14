@@ -2,6 +2,7 @@ import 'zod-openapi/extend';
 import { lessonsAssetsType } from '@/lib/handlers/assets/types';
 
 export const subjectAssetsResponseOpenAPISchema = lessonsAssetsType.openapi({
+  ref: 'SubjectAssetsResponseSchema',
   example: [
     {
       lessonSlug: 'using-numerals',
@@ -25,5 +26,4 @@ export const subjectAssetsResponseOpenAPISchema = lessonsAssetsType.openapi({
       ],
     },
   ],
-  ref: 'SubjectAssetsResponseSchema',
 });

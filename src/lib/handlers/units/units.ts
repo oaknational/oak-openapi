@@ -22,8 +22,9 @@ export const getUnits = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['units'],
+        tags: ['units', 'unit-and-curriculum-data'],
         path: '/units/{unit}/summary',
+        summary: 'Unit summary',
         description:
           'This endpoint returns unit information for a given unit, including slug, title, number of lessons, prior knowledge requirements, national curriculum statements, prior unit details, future unit descriptions, and lesson titles that form the unit',
         errorResponses: [],

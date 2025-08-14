@@ -1,18 +1,14 @@
 import 'zod-openapi/extend';
 import z from 'zod';
+import {
+  sequenceSlugSchema,
+  sequenceYearSchema,
+} from '@/lib/handlers/sequences/types';
+import { limitSchema, offsetSchema } from '@/lib/handlers/commonTypes';
 
-export const questionsForSequenceRequestOpenAPISchema = z
-  .object({
-    sequence: z.string().openapi({ example: 'maths-secondary' }),
-    year: z.number().optional(),
-
-    offset: z.number().optional().default(0),
-    limit: z
-      .number({
-        description: 'Limit the number of results returned, max 100',
-      })
-      .lte(100)
-      .optional()
-      .default(10),
-  })
-  .openapi({ example: { sequence: 'maths-secondary' } });
+export const questionsForSequenceRequestOpenAPISchema = z.object({
+  sequence: sequenceSlugSchema,
+  year: sequenceYearSchema,
+  offset: offsetSchema,
+  limit: limitSchema,
+});
