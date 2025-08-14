@@ -10,26 +10,28 @@ export const typeToMime = new Map([
   ['odp', 'application/vnd.oasis.opendocument.presentation'],
 ]);
 
-export const downloadTypeEnum = z.enum(
-  [
-    'slideDeck',
-    'exitQuiz',
-    'exitQuizAnswers',
-    'starterQuiz', // note: graphql key is (currently) starter_quiz
-    'starterQuizAnswers',
-    'supplementaryResource',
-    'video',
-    'worksheet',
-    'worksheetAnswers',
-  ],
-  {
-    description:
-      'Use the this type and the lesson slug in conjunction to get a signed download URL to the asset type from the /api/lessons/{slug}/asset/{type} endpoint',
-  },
-);
+export const downloadTypeEnum = z
+  .enum(
+    [
+      'slideDeck',
+      'exitQuiz',
+      'exitQuizAnswers',
+      'starterQuiz', // note: graphql key is (currently) starter_quiz
+      'starterQuizAnswers',
+      'supplementaryResource',
+      'video',
+      'worksheet',
+      'worksheetAnswers',
+    ],
+    {
+      description:
+        'Use the this type and the lesson slug in conjunction to get a signed download URL to the asset type from the /api/lessons/{slug}/asset/{type} endpoint',
+    },
+  )
+  .openapi({ example: 'slideDeck' });
 
 export const assetType = z.object({
-  type: downloadTypeEnum.openapi({ description: 'Asset type' }),
+  type: downloadTypeEnum,
   label: z.string().openapi({ description: 'The label for the asset' }),
   url: z
     .string()
