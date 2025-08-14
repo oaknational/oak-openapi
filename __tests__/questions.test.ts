@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { authedCaller, makeCaller } from './helper';
 import type { TRPCError } from '@trpc/server';
 
-test.only('get questions from hasura and check structure', async () => {
+test('get questions from hasura and check structure', async () => {
   const caller = makeCaller({
     user: 1,
     res: {
