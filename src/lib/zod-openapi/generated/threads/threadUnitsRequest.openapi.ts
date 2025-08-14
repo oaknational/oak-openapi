@@ -3,6 +3,8 @@ import { z } from 'zod';
 
 export const threadUnitsRequestOpenAPISchema = z
   .object({
-    threadSlug: z.string().openapi({ example: 'a-midsummer-nights-dream-72' }),
+    threadSlug: z
+      .string()
+      .openapi({ example: 'number-multiplication-and-division' }),
   })
-  .openapi({ example: { threadSlug: 'a-midsummer-nights-dream-72' } });
+  .openapi({ example: { threadSlug: 'number-multiplication-and-division' } });
