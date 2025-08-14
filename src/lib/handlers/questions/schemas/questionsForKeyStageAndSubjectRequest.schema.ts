@@ -1,5 +1,6 @@
 import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
 import z from 'zod';
+import { limitSchema, offsetSchema } from '../../commonTypes';
 
 export const questionsForKeyStageAndSubjectRequestSchema = z.object({
   keyStage: z.enum(keyStageSlugs as [string], {
@@ -10,18 +11,6 @@ export const questionsForKeyStageAndSubjectRequestSchema = z.object({
     description:
       "Subject slug to search by, e.g. 'science' - note that casing is important here",
   }),
-  offset: z
-    .number({
-      description:
-        'If limiting results returned, this allows you to return the next set of results, starting at the given offset point',
-    })
-    .optional()
-    .default(0),
-  limit: z
-    .number({
-      description: 'Limit the number of results returned, max 100',
-    })
-    .lte(100)
-    .optional()
-    .default(10),
+  offset: offsetSchema,
+  limit: limitSchema,
 });

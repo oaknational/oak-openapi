@@ -144,3 +144,18 @@ export const years = [
   '11',
   'all-years',
 ];
+
+export const sequenceSlugSchema = z.string().openapi({
+  description:
+    'The sequence slug identifier, including the key stage 4 option where relevant.',
+  example: 'english-primary',
+});
+
+export const sequenceYearSchema = z
+  .number()
+  .openapi({
+    description:
+      'The year group to filter by. For the physical-education-primary sequence, a value of all-years can also be used.',
+    example: 3,
+  })
+  .optional();
