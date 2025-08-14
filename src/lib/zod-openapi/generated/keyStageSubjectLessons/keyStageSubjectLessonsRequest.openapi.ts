@@ -18,8 +18,10 @@ export const keyStageSubjectLessonsRequestOpenAPISchema = z.object({
       example: 'english',
     }),
   unit: z
-    .string({
+    .string()
+    .openapi({
       description: 'Optional unit slug to additionally filter by',
+      example: 'word-class',
     })
     .optional(),
   offset: z

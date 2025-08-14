@@ -46,11 +46,16 @@ export const unitSummaryResponseOpenAPISchema = z
           'The slug identifier for the the key stage to which the unit belongs',
         example: 'ks2',
       }),
-    notes: z.string({ description: '' }).optional(),
+    notes: z
+      .string()
+      .openapi({ description: 'Unit summary notes', example: undefined })
+      .optional(),
     description: z
-      .string({
+      .string()
+      .openapi({
         description:
           'A short description of the unit. Not yet available for all subjects.',
+        example: undefined,
       })
       .optional(),
     priorKnowledgeRequirements: z
@@ -75,20 +80,32 @@ export const unitSummaryResponseOpenAPISchema = z
         ],
       }),
     whyThisWhyNow: z
-      .string({
+      .string()
+      .openapi({
         description:
           'An explanation of where the unit sits within the sequence and why it has been placed there.',
+        example: undefined,
       })
       .optional(),
     threads: z
-      .array(threadSchema, {
+      .array(threadSchema)
+      .openapi({
         description: 'The threads that are associated with the unit',
+        example: [
+          {
+            slug: 'developing-grammatical-knowledge',
+            title: 'Developing grammatical knowledge',
+            order: 10,
+          },
+        ],
       })
       .optional(),
     categories: z
-      .array(categorySchema, {
+      .array(categorySchema)
+      .openapi({
         description:
           'The categories (if any) that are assigned to the unit. If the unit does not have any categories, this property is omitted.',
+        example: undefined,
       })
       .optional(),
     unitLessons: z.array(
@@ -107,8 +124,10 @@ export const unitSummaryResponseOpenAPISchema = z
               example: 'Four types of simple sentence',
             }),
           lessonOrder: z
-            .number({
+            .number()
+            .openapi({
               description: 'Indicates the ordering of the lesson',
+              example: 1,
             })
             .optional(),
           state: z

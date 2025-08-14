@@ -1,12 +1,17 @@
 import * as t from '@babel/types';
 
+const isMemberExpWithObj = (node) =>
+  t.isCallExpression(node) &&
+  t.isMemberExpression(node.callee) &&
+  t.isCallExpression(node.callee.object);
+
 function getObjectExpressionDescriptionIndex(node) {
   if (t.isCallExpression(node) && node.arguments.length > 0) {
-    const indexOfDesc = node.arguments.findIndex(
+    return node.arguments.findIndex(
       (arg) =>
         arg &&
-        arg.properties &&
         t.isObjectExpression(arg) &&
+        arg.properties &&
         arg.properties.some(
           (prop) =>
             t.isObjectProperty(prop) &&
@@ -15,8 +20,8 @@ function getObjectExpressionDescriptionIndex(node) {
             }),
         ),
     );
-    return indexOfDesc;
   }
+
   return -1;
 }
 
@@ -34,14 +39,15 @@ export function addOpenApiObject(node, properties) {
 
 export const generateObjectProps = (key, value) => ({ key, value });
 
+const isValidIndex = (index) => index > -1;
+
 function replaceObjectPropertyLocation(
   node,
   propertyKey,
   additionalProps = [],
 ) {
   const argIndex = getObjectExpressionDescriptionIndex(node);
-  const index = argIndex > -1 ? argIndex : 0;
-
+  const index = isValidIndex(argIndex) ? argIndex : 0;
   if (
     t.isCallExpression(node) &&
     node.arguments.length > 0 &&
@@ -59,7 +65,7 @@ function replaceObjectPropertyLocation(
         }),
     );
 
-    if (objectPropIndex !== -1) {
+    if (isValidIndex(objectPropIndex)) {
       const objectProperty = props[objectPropIndex];
       const objValue = objectProperty.value.value ?? objectProperty.value;
       // Remove original description from args
@@ -121,7 +127,7 @@ export function attachOpenApiMeta(
         node.arguments[0] = attachOpenApiMeta(
           innerArg,
           descriptionValue,
-          exampleValues.length ? exampleValues[0] : exampleValues, // just want the first one
+          exampleValues[0], // just want the first one as its an array
           importedIdents,
           depth + 1,
         );
@@ -145,6 +151,18 @@ export function attachOpenApiMeta(
 
     // if already has a meta object, add example
     if (t.isMemberExpression(callee) && callee.property.name === 'openapi') {
+      return node;
+    }
+
+    if (isMemberExpWithObj(node)) {
+      // if an object has a second set of args (e.g. description, then find and replace)
+      if (node.callee.object.arguments.length) {
+        node.callee.object = replaceObjectPropertyLocation(
+          node.callee.object,
+          'description',
+          objProp,
+        );
+      }
       return node;
     }
 

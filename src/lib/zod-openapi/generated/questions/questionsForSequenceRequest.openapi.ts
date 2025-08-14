@@ -10,9 +10,11 @@ export const questionsForSequenceRequestOpenAPISchema = z.object({
       example: 'maths-secondary',
     }),
   year: z
-    .number({
+    .number()
+    .openapi({
       description:
         'The year group to filter by. For the physical-education-primary sequence, a value of all-years can also be used.',
+      example: 8,
     })
     .optional(),
 

@@ -10,9 +10,12 @@ export const sequenceUnitsRequestOpenAPISchema = z.object({
   year: z
     .enum(years as [string])
     .openapi({
+      example: '3',
+    })
+    .openapi({
       description:
         'The year group to filter by. For the physical-education-primary sequence, a value of all-years can also be used.',
-      example: '3',
+      example: '10',
     })
     .optional(),
 });
