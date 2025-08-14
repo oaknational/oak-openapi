@@ -14,12 +14,12 @@ import styled from 'styled-components';
 import { CurriculumApiDocsNav } from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
 import { useState } from 'react';
 import { JauntyAngleLabel } from '../JauntyAngleLabel';
+import { useStableId } from '@/lib/useStableId';
 
 export type NavProps = {
   title?: string;
   location: string;
   items: CurriculumApiDocsNav;
-  ariaLabel?: string;
   anchorTarget?: string;
   onClick?: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
 };
@@ -87,7 +87,6 @@ const VisibleOnFocusOakSecondaryButton = styled(OakSecondaryButton)`
 export default function DocsNav({
   items,
   location,
-  ariaLabel,
   anchorTarget,
   onClick,
   ...rest
@@ -119,6 +118,8 @@ export default function DocsNav({
     }
   `;
 
+  const docHeadingId = useStableId('docs-nav-heading');
+
   return (
     <DocsNavContainer
       $flexDirection="column"
@@ -127,11 +128,17 @@ export default function DocsNav({
       $mr={['all-spacing-4', '']}
       $bb={[menuIsOpen ? 'border-solid-s' : '', '']}
       $borderColor={['grey40']}
-      aria-label={ariaLabel}
+      as="nav"
+      aria-labelledby={docHeadingId}
       {...rest}
     >
       <OakBox $display={['none', 'block']}>
-        <OakHeading tag="h2" $font="heading-6" $mt="all-spacing-8">
+        <OakHeading
+          id={docHeadingId}
+          tag="h2"
+          $font="heading-6"
+          $mt="all-spacing-8"
+        >
           Documentation
         </OakHeading>
       </OakBox>
@@ -169,9 +176,8 @@ export default function DocsNav({
         id="docs-nav-list"
         $flexDirection="column"
         $gap={['', 'space-between-m2']}
-        as="ul"
         role="list"
-        $pa={['all-spacing-4', '']}
+        $pa={['all-spacing-4', 'all-spacing-0']}
         style={{
           paddingRight:
             '0' /* there's an injected style deep from oak components adding this - and can't be removed with $pr */,
@@ -183,13 +189,15 @@ export default function DocsNav({
           // note that I've used an OakBox so I can hide it when narrow
           // although I don't like that there's a nested `div` in the `li`
           return (
-            <StyledULItem
+            <OakFlex
+              $flexDirection={['column']}
               $gap={'space-between-ssx'}
-              $font={'heading-7'}
               key={`p-${index}`}
             >
-              <OakBox $color="grey60" $display={['none', 'block']}>
-                {item.title}
+              <OakBox $display={['none', 'block']}>
+                <OakHeading $font={'heading-7'} tag="h3" $color="grey60">
+                  {item.title}
+                </OakHeading>
               </OakBox>
               <OakUL role="list">
                 {pages.map((page, pageIndex) => {
@@ -202,7 +210,7 @@ export default function DocsNav({
                   );
                 })}
               </OakUL>
-            </StyledULItem>
+            </OakFlex>
           );
         })}
       </OakFlex>

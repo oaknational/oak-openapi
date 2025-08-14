@@ -7,28 +7,16 @@ import {
 import { typeToMime, DownloadTypeEnum } from '@/lib/handlers/assets/types';
 import { SignedAsset, Video } from '@/lib/owaClient';
 import { protect } from '@/lib/protect';
-import { Storage } from '@google-cloud/storage';
 import { TRPCError } from '@trpc/server';
 import { assetBaseVideoUrl } from '@/lib/baseUrl';
 import codes from 'http-codes';
 import { assetsForLesson } from '@/lib/handlers/assets/assets';
 import placeholderVideoLessons from '@/lib/queryGateData/placeholderVideoLessons.json' with { type: 'json' };
+import { getGoogleCloudStorage } from '@/lib/bulk-data/data-stores';
 
 export const dynamic = 'force-dynamic';
 
-let storage;
-
-// Check if GOOGLE_APPLICATION_CREDENTIALS_JSON is set
-if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-  const credentials = JSON.parse(
-    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
-  );
-  // Initialize storage client with credentials
-  storage = new Storage({ credentials });
-} else {
-  // Use default method, which relies on GOOGLE_APPLICATION_CREDENTIALS path
-  storage = new Storage();
-}
+const storage = getGoogleCloudStorage();
 
 const handler = async (
   req: NextRequest,

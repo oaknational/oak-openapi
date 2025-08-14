@@ -14,6 +14,7 @@ export const lessonContentViewTable =
   'published.mv_lesson_content_published_5_0_0';
 export const subjectPhaseView = 'published_mv_subject_phase_options_0_11';
 export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_17';
+export const sequenceViewTable = 'published.mv_curriculum_sequence_b_13_0_17';
 
 export const views = [
   lessonView,
@@ -122,6 +123,7 @@ export type Sequence = TitleSlug & {
   why_this_why_now: string;
   year: string;
   features: { pe_swimming: boolean };
+  planned_number_of_lessons: number;
   actions: {
     opt_out: string[];
     group_units_as: string;
