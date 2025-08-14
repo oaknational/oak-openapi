@@ -9,9 +9,11 @@ import {
 export const sequenceAssetsRequestOpenAPISchema = z.object({
   sequence: sequenceSlugSchema,
   year: sequenceYearSchema,
-  type: downloadTypeEnum.optional().openapi({
-    description: `Optional asset type specifier
+  type: downloadTypeEnum
+    .openapi({
+      description: `Optional asset type specifier
 
 Available values: slideDeck, exitQuiz, exitQuizAnswers, starterQuiz, starterQuizAnswers, supplementaryResource, video, worksheet, worksheetAnswers`,
-  }),
+    })
+    .optional(),
 });
