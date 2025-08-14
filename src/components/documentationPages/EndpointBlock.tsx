@@ -52,7 +52,6 @@ const EndpointHeading = styled(OakHeading)`
   font-style: normal;
   font-weight: 800;
   line-height: 1rem;
-  padding-bottom: 1rem;
   word-break: break-all;
 `;
 const generateTableRows = (data: InputOutputTable) => {
@@ -108,8 +107,8 @@ export default function EndpointBlock(props: { endpoint: EndpointInfo }) {
     slug,
   } = props.endpoint;
   return (
-    <OakFlex $gap="all-spacing-3" $flexDirection="column" $mb="space-between-l">
-      <OakHeading tag="h2" $font="heading-4" id={slug}>
+    <OakFlex $gap="all-spacing-7" $flexDirection="column">
+      <OakHeading tag="h2" $font="heading-4" $mt="all-spacing-12" id={slug}>
         {title}
       </OakHeading>
       <EndpointHeading
