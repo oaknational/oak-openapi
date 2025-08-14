@@ -72,6 +72,29 @@ const generateTableRows = (data: InputOutputTable) => {
   return { rows: [headerRow, ...rows] };
 };
 
+const TableSection = ({
+  title,
+  tableData,
+}: {
+  title: string;
+  tableData: InputOutputTable | undefined;
+}) => {
+  return (
+    <OakBox>
+      <OakHeading tag="h3" $font="heading-5">
+        {title}
+      </OakHeading>
+      <OakBox>
+        {tableData && tableData.length > 0 ? (
+          <Table value={generateTableRows(tableData)} />
+        ) : (
+          'N/A'
+        )}
+      </OakBox>
+    </OakBox>
+  );
+};
+
 export default function EndpointBlock(props: { endpoint: EndpointInfo }) {
   const {
     title,
@@ -97,24 +120,12 @@ export default function EndpointBlock(props: { endpoint: EndpointInfo }) {
         {requestType.toUpperCase()} {path}
       </EndpointHeading>
       {description && <OakP>{description}</OakP>}
-      <OakHeading tag="h3" $font="heading-5">
-        Inputs {paramTypes.length ? `(${paramTypes.join(', ')})` : ''}
-      </OakHeading>
-      <OakBox>
-        {params && params.length > 0 ? (
-          <Table value={generateTableRows(params)} />
-        ) : (
-          'N/A'
-        )}
-      </OakBox>
-      <OakHeading tag="h3" $font="heading-5">
-        Output (response)
-        {output && output[0] ? (
-          <Table value={generateTableRows(output)} />
-        ) : (
-          <OakP>N/A</OakP>
-        )}
-      </OakHeading>
+      <TableSection
+        title={`Inputs ${paramTypes.length ? `(${paramTypes.join(', ')})` : ''}`}
+        tableData={params}
+      />
+      <TableSection title="Output (response)" tableData={output} />
+
       {sampleResponse && (
         <OakBox>
           <OakHeading tag="h3" $font="heading-5">
