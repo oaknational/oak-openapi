@@ -18,6 +18,12 @@ export const JauntyAngleLabel = styled(_OakJauntyAngleLabel)`
     font-weight: 600;
   }
 
+  ${(props) =>
+    props.$error &&
+    `
+    background: #dd0035;
+    color: white;`}
+
   &:has(+ div input:not(:placeholder-shown):invalid) {
     background: #dd0035;
     color: white;

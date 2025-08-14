@@ -72,7 +72,7 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
           <OakHeading tag="p" $font="heading-light-6">
             {docs[0].navGroupType.name}
           </OakHeading>
-          <OakHeading ariaHidden tag="h1" $font="heading-3">
+          <OakHeading tag="h1" $font="heading-3">
             {docs[0].title}
           </OakHeading>
         </OakGridArea>
