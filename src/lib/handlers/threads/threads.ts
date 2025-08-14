@@ -29,7 +29,14 @@ export const getThreads = router({
 
       const query = gql`
         query {
-          threads(where: { _state: { _eq: "published" } }) {
+          threads(
+            where: {
+              _state: { _eq: "published" }
+              thread_units_aggregate: {
+                count: { arguments: [order], predicate: { _gt: 0 } }
+              }
+            }
+          ) {
             title
             slug
           }
