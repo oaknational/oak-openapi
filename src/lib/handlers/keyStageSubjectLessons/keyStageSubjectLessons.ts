@@ -34,7 +34,7 @@ export const getKeyStageSubjectLessons = router({
       const subject = decodeURIComponent(input.subject);
       const unit = input.unit || null;
 
-      const offset = input.offset;
+      const offset = input.offset ?? 0;
       const limit = input.limit;
 
       const client = getClient();
