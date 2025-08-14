@@ -5,15 +5,14 @@ export const threadUnitsResponseOpenAPISchema = unitListSchema.openapi({
   ref: 'ThreadUnitsResponseSchema',
   example: [
     {
-      unitTitle:
-        "A Midsummer Night's Dream, Shakespeare (Introduction and Act 1)",
-      unitSlug:
-        'a-midsummer-nights-dream-shakespeare-introduction-and-act-1-2912',
+      unitTitle: 'Unitising and coin recognition - counting in 2s, 5s and 10s',
+      unitSlug: 'unitising-and-coin-recognitions-counting-in-2s-5s-and-10s',
       unitOrder: 1,
     },
     {
-      unitTitle: "A Midsummer Night's Dream, Shakespeare (Act 2)",
-      unitSlug: 'a-midsummer-nights-dream-shakespeare-act-2-3c74',
+      unitTitle: 'Solving problems in a range of contexts',
+      unitSlug:
+        'unitising-and-coin-recognition-solving-problems-involving-money',
       unitOrder: 2,
     },
   ],
