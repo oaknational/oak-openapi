@@ -62,7 +62,7 @@ const createNavItem = (
     $pv={['all-spacing-2', '']}
     key={index}
   >
-    <StyledOakLink font="heading-6" onClick={onClick} href={`/docs/${slug}`}>
+    <StyledOakLink $font="heading-6" onClick={onClick} href={`/docs/${slug}`}>
       {title}
     </StyledOakLink>
   </StyledULItem>
