@@ -8,7 +8,6 @@ import {
   OakP,
   OakSecondaryLink,
   OakSpan,
-  OakUL as _OakUL,
 } from '@oaknational/oak-components';
 import { PortableTextJSON } from '@/cms/schemaTypes/shared/cms/portableText.schema';
 import { Table } from '@/components/Table';
@@ -18,6 +17,7 @@ import { Notice } from '@/components/Notice';
 import NextImage from 'next/image';
 import { SanityImage } from '@/components/SanityImage';
 import { SanityCtaLink } from '@/components/SanityCtaLink';
+import { UL } from '@/components/UL';
 
 const StrongBox = styled(OakSpan)`
   font-weight: 600;
@@ -25,15 +25,6 @@ const StrongBox = styled(OakSpan)`
   a span {
     display: inline-flex;
     flex-direction: row;
-  }
-`;
-
-const OakUL = styled(_OakUL)`
-  list-style-type: disc;
-  margin: 1em 0;
-
-  li {
-    display: list-item;
   }
 `;
 
@@ -122,7 +113,7 @@ const contentPortableTextComponents: PortableTextComponents = {
     ),
   },
   list: {
-    bullet: (props) => <OakUL>{props.children}</OakUL>,
+    bullet: (props) => <UL>{props.children}</UL>,
     number: (props) => (
       <OakOL $ml={['space-between-s', 'space-between-m']} $mb="all-spacing-4">
         {props.children}
