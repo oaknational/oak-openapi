@@ -1,22 +1,19 @@
 import 'zod-openapi/extend';
 import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
 import z from 'zod';
+import { limitSchema, offsetSchema } from '@/lib/handlers/commonTypes';
 
 export const keyStageSubjectLessonsRequestOpenAPISchema = z.object({
-  keyStage: z
-    .enum(keyStageSlugs as [string])
-    .openapi({
-      description:
-        "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
-      example: 'ks1',
-    }),
-  subject: z
-    .enum(subjectSlugs as [string])
-    .openapi({
-      description:
-        "Subject slug to filter by, e.g. 'english' - note that casing is important here, and should be lowercase",
-      example: 'english',
-    }),
+  keyStage: z.enum(keyStageSlugs as [string]).openapi({
+    description:
+      "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
+    example: 'ks1',
+  }),
+  subject: z.enum(subjectSlugs as [string]).openapi({
+    description:
+      "Subject slug to filter by, e.g. 'english' - note that casing is important here, and should be lowercase",
+    example: 'english',
+  }),
   unit: z
     .string()
     .openapi({
@@ -24,19 +21,6 @@ export const keyStageSubjectLessonsRequestOpenAPISchema = z.object({
       example: 'word-class',
     })
     .optional(),
-  offset: z
-    .number({
-      description:
-        'If limiting results returned, this allows you to return the next set of results, starting at the given offset point',
-    })
-    .optional()
-    .default(0),
-  limit: z
-    .number({
-      description:
-        'Limit the number of results returned, e.g. return a maximum of 100 lesson titles. Defaults to 10 if left unspecified',
-    })
-    .lte(100)
-    .optional()
-    .default(10),
+  offset: offsetSchema,
+  limit: limitSchema,
 });
