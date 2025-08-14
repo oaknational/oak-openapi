@@ -1,5 +1,5 @@
-import 'zod-openapi/extend';
 import { z } from 'zod';
+import 'zod-openapi/extend';
 import { downloadTypeEnum } from '@/lib/handlers/assets/types';
 
 export const lessonAssetsRequestOpenAPISchema = z.object({

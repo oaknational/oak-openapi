@@ -39,11 +39,8 @@ const unitOptionSchema = z.object({
   unitSlug: z.string(),
 });
 
-const unitNoOptionsSchema = z.object({
+const unitWithOptionsSchema = z.object({
   unitTitle: z.string().openapi({ description: 'The title of the unit' }),
-  unitSlug: z
-    .string()
-    .openapi({ description: 'The unique slug identifier for the unit' }),
   unitOrder: z
     .number()
     .openapi({ description: 'The position of the unit within the sequence.' }),
@@ -60,9 +57,12 @@ const unitNoOptionsSchema = z.object({
   }),
 });
 
-const unitWithOptionsSchema = z.object({
+const unitNoOptionsSchema = z.object({
   unitTitle: z.string(),
   unitOrder: z.number(),
+  unitSlug: z
+    .string()
+    .openapi({ description: 'The unique slug identifier for the unit' }),
   categories: z.array(categorySchema).optional(),
   threads: z.array(threadSchema).optional(),
 });
