@@ -67,7 +67,6 @@ const getParamType = (properties: SchemaObject): string | undefined => {
   const schemaType = 'array' as SchemaObjectType;
 
   if (properties.type !== undefined) {
-    console.log(properties);
     if (properties.items && properties.type === schemaType) {
       return `array[${getParamType(properties.items as SchemaObject) ?? 'object'}]`;
     }
