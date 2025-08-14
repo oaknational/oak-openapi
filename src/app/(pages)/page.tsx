@@ -1,6 +1,7 @@
-'use client';
-import page from '@/old/pages/index';
+import getCMSContent from '@/cms/queries/allCurriculumApiLandingPage/landingPage.query';
+import LandingPage from '@/components/landingPage/LandingPage';
 
-export default function Page() {
-  return page();
+export default async function Page() {
+  const documentationData = await getCMSContent();
+  return <LandingPage documentationData={documentationData} />;
 }
