@@ -18,9 +18,12 @@ export const imageContent = z.object({
   width: z.number(),
   height: z.number(),
   alt: z.string().optional(),
-  text: z.string().optional().openapi({
-    description: 'Supplementary text for the image, if any',
-  }),
+  text: z
+    .string()
+    .openapi({
+      description: 'Supplementary text for the image, if any',
+    })
+    .optional(),
   // RS disabled license for now until we have final answer on how we deal
   // with unknown/uncategorised licenses
   attribution: z.string().optional(),
