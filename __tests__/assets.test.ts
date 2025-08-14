@@ -110,6 +110,7 @@ test('blocked videos return 404', async () => {
   if (!res2.assets) {
     throw new Error('assets not found in response');
   }
+
   expect(res2.assets.length).toBe(0);
 
   const res3 = await caller.getAssets.getSequenceAssets({
