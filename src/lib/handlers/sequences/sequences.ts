@@ -139,7 +139,7 @@ export const getSequences = router({
 
       if (input.year === 'all-years') {
         yearFilter = 0;
-      } else if (input.year) {
+      } else if (input.year && typeof input.year === 'string') {
         yearFilter = parseInt(input.year, 10);
       }
 

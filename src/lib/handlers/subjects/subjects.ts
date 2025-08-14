@@ -15,7 +15,7 @@ import {
   phaseToSequences,
   yearsFromKeyStages,
 } from './helpers';
-import { numberArrayResult } from './types';
+
 import {
   allSubjectsResponseOpenAPISchema,
   subjectKeyStagesRequestOpenAPISchema,
@@ -24,6 +24,8 @@ import {
   subjectResponseOpenAPISchema,
   subjectSequenceRequestOpenAPISchema,
   subjectSequenceResponseOpenAPISchema,
+  subjectYearsRequestOpenAPISchema,
+  subjectYearsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/subjects';
 
 export const getSubjects = router({
@@ -164,21 +166,8 @@ export const getSubjects = router({
       },
     })
     // TODO: put these examples in their own file
-    .input(
-      z.object({
-        subject: z.string().openapi({
-          example: 'cooking-nutrition',
-          description: 'Subject slug to filter by',
-        }),
-      }),
-    )
-    .output(
-      numberArrayResult.openapi({
-        example: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-        description:
-          'The years for which this sequence has content available for',
-      }),
-    )
+    .input(subjectYearsRequestOpenAPISchema)
+    .output(subjectYearsResponseOpenAPISchema)
     .query(async ({ input }) => {
       return yearsFromKeyStages(
         phaseToKeyStages(await getSubjectPhase(input.subject)),

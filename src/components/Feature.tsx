@@ -32,7 +32,7 @@ export default function Feature({
       $pa={variant === 'mint' ? 'inner-padding-xl' : 'none'}
     >
       <OakAnchorTarget id={anchorTarget} />
-      <OakHeading font={'heading-5'} tag="h2">
+      <OakHeading $font={'heading-5'} tag="h2">
         {title}
       </OakHeading>
       {children}
