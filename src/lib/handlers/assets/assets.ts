@@ -611,7 +611,7 @@ This endpoint contains licence information for any third-party content contained
         path: '/lessons/{lesson}/assets/{type}',
         summary: 'Lesson asset by type',
         description:
-          'This endpoint will stream the downloadable asset for the given lesson and type',
+          'This endpoint will stream the downloadable asset for the given lesson and type. \nThere is no response returned for this endpoint as it returns a content attachment.',
         contentTypes: ['application/octet-stream'],
         errorResponses: [],
       },
