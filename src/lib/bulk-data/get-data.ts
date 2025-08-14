@@ -17,6 +17,7 @@ import {
   lessonViewTable,
   SequenceView,
   sequenceView,
+  sequenceViewTable,
   sequenceViewWhereInput,
   SubjectPhase,
   SubjectPhaseView,
@@ -26,6 +27,23 @@ import {
 import { formatUnitSummary } from '@/lib/handlers/units/helpers';
 import { sequenceWhere } from '@/lib/handlers/sequences/sequences';
 import { runSQL } from './data-stores';
+
+export type SubjectWithLessonCount = {
+  title: string;
+  slug: string;
+  phase: string;
+  lessonCount: number;
+};
+
+export async function getSubjectsWithLessonCounts(): Promise<
+  SubjectWithLessonCount[]
+> {
+  const sql = `select SUM(jsonb_array_length(lessons)) AS "lessonCount", subject_slug as slug, phase_slug as phase, subject as title from ${sequenceViewTable} group by subject_slug, subject, phase_slug order by subject, subject_slug, phase_slug`;
+
+  const res = (await runSQL(sql)) as SubjectWithLessonCount[];
+
+  return res.filter((_) => _.slug !== 'financial-education');
+}
 
 export async function getAllSubjects(
   client: GraphQLClient,
