@@ -1,7 +1,7 @@
-import 'zod-openapi/extend';
 import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
-import z from 'zod';
 import { downloadTypeEnum } from '@/lib/handlers/assets/types';
+import z from 'zod';
+import 'zod-openapi/extend';
 
 export const subjectAssetsRequestOpenAPISchema = z.object({
   keyStage: z
