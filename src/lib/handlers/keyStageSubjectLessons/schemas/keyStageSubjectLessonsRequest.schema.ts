@@ -1,4 +1,5 @@
 import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
+import { limitSchema, offsetSchema } from '@/lib/handlers/commonTypes';
 import z from 'zod';
 
 export const keyStageSubjectLessonsRequestSchema = z.object({
@@ -15,12 +16,6 @@ export const keyStageSubjectLessonsRequestSchema = z.object({
       description: 'Optional unit slug to additionally filter by',
     })
     .optional(),
-  offset: z.number().optional().default(0),
-  limit: z
-    .number({
-      description: 'Limit the number of results returned, max 100',
-    })
-    .lte(100)
-    .optional()
-    .default(10),
+  offset: offsetSchema,
+  limit: limitSchema,
 });

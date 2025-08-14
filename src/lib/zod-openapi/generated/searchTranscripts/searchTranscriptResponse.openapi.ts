@@ -4,12 +4,30 @@ import z from 'zod';
 export const searchTranscriptResponseOpenAPISchema = z
   .array(
     z.object({
-      lessonTitle: z.string(),
-      lessonSlug: z.string(),
-      transcriptSnippet: z.string().optional(),
+      lessonTitle: z
+        .string()
+        .openapi({
+          description: 'The lesson title',
+          example: 'The Roman invasion of Britain ',
+        }),
+      lessonSlug: z
+        .string()
+        .openapi({
+          description: 'The lesson slug identifier',
+          example: 'the-roman-invasion-of-britain',
+        }),
+      transcriptSnippet: z
+        .string()
+        .openapi({
+          description:
+            'The snippet of the transcript that matched the search term',
+          example: 'The Romans were ready,',
+        })
+        .optional(),
     }),
   )
   .openapi({
+    ref: 'SearchTranscriptResponseSchema',
     example: [
       {
         lessonTitle: 'The Roman invasion of Britain ',
@@ -32,5 +50,4 @@ export const searchTranscriptResponseOpenAPISchema = z
         transcriptSnippet: 'for the Romans.',
       },
     ],
-    ref: 'SearchTranscriptResponseSchema',
   });

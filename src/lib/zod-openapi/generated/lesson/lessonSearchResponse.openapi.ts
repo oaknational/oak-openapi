@@ -1,54 +1,33 @@
-import 'zod-openapi/extend';
 import z from 'zod';
+import 'zod-openapi/extend';
 
 export const lessonSearchResultSchema = z.object({
-  lessonSlug: z.string(),
-  lessonTitle: z.string(),
-  similarity: z.number(),
-  units: z.array(
-    z.object({
-      unitSlug: z.string(),
-      unitTitle: z.string(),
-      examBoardTitle: z.string().or(z.null()),
-      keyStageSlug: z.string(),
-      subjectSlug: z.string(),
+  lessonSlug: z.string().openapi({ description: 'The lesson slug identifier' }),
+  lessonTitle: z.string().openapi({ description: 'The lesson title' }),
+  similarity: z.number().openapi({
+    description: 'The snippet of the transcript that matched the search term',
+  }),
+  units: z
+    .array(
+      z.object({
+        unitSlug: z.string(),
+        unitTitle: z.string(),
+        examBoardTitle: z.string().or(z.null()),
+        keyStageSlug: z.string(),
+        subjectSlug: z.string(),
+      }),
+    )
+    .openapi({
+      description:
+        'The units that the lesson is part of. See sample response below',
     }),
-  ),
 });
 
 export const lessonSearchResponseOpenAPISchema = z
-  .array(
-    z.object({
-      lessonSlug: z.string(),
-      lessonTitle: z.string(),
-      similarity: z.number(),
-      units: z.array(
-        z.object({
-          unitSlug: z.string(),
-          unitTitle: z.string(),
-          examBoardTitle: z.string().or(z.null()),
-          keyStageSlug: z.string(),
-          subjectSlug: z.string(),
-        }),
-      ),
-    }),
-  )
+  .array(lessonSearchResultSchema)
   .openapi({
+    ref: 'LessonSearchResponseSchema',
     example: [
-      {
-        lessonSlug: 'descriptive-writing-about-a-small-detail',
-        lessonTitle: 'Writing a gothic description',
-        similarity: 0.2413793,
-        units: [
-          {
-            unitSlug: 'a-monster-within-reading-gothic-fiction',
-            unitTitle: 'A monster within: reading and writing Gothic fiction',
-            examBoardTitle: null,
-            keyStageSlug: 'ks3',
-            subjectSlug: 'english',
-          },
-        ],
-      },
       {
         lessonSlug: 'performing-your-chosen-gothic-poem',
         lessonTitle: 'Performing your chosen Gothic poem',
@@ -78,5 +57,4 @@ export const lessonSearchResponseOpenAPISchema = z
         ],
       },
     ],
-    ref: 'LessonSearchResponseSchema',
   });

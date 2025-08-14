@@ -37,7 +37,8 @@ export const getLessons = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['lessons'],
+        tags: ['lessons', 'lesson-data'],
+        summary: 'Lesson summary',
         path: '/lessons/{lesson}/summary',
         description: 'This endpoint returns a summary for a given lesson',
         errorResponses: [],
@@ -124,8 +125,9 @@ export const getLessons = router({
         method: 'GET',
         tags: ['lessons', 'search'],
         path: '/search/lessons',
+        summary: 'Lesson search using lesson title',
         description:
-          'This endpoint returns lessons that are similar to the search criteria, including a similarity score, and details of the unit that it is in',
+          'Search for a term and find the 20 most similar lessons with titles that contain similar text.',
         errorResponses: [],
       },
     })

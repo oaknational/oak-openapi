@@ -5,6 +5,7 @@ import { sequenceResult } from '@/lib/handlers/subjects/types';
 export const subjectSequenceResponseOpenAPISchema = z
   .array(sequenceResult)
   .openapi({
+    ref: 'SubjectSequenceResponseSchema',
     example: [
       {
         sequenceSlug: 'art-primary',
@@ -29,5 +30,4 @@ export const subjectSequenceResponseOpenAPISchema = z
         ks4Options: null,
       },
     ],
-    ref: 'SubjectSequenceResponseSchema',
   });

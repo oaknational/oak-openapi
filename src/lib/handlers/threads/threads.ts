@@ -15,8 +15,11 @@ export const getThreads = router({
       openapi: {
         tags: ['lists'],
         method: 'GET',
+        summary: 'Threads',
         path: '/threads',
-        description: 'Get all threads that can be used as sequence filters.',
+        errorResponses: [],
+        description:
+          'This endpoint returns an array of all threads, across all subjects. Threads signpost groups of units that link to one another, building a common body of knowledge over time. They are an important component of how Oak’s curricula are sequenced.',
       },
     })
     .output(allThreadsResponseOpenAPISchema)
@@ -52,7 +55,9 @@ export const getThreads = router({
         tags: ['lists'],
         method: 'GET',
         path: '/threads/{threadSlug}/units',
-        description: 'Get all units for a specific thread filter.',
+        summary: 'Units belonging to a given thread',
+        description:
+          'This endpoint returns all of the units that belong to a given thread.',
         errorResponses: [],
       },
     })

@@ -1,13 +1,17 @@
 import 'zod-openapi/extend';
 import z from 'zod';
-import { questionZod } from '@/lib/handlers/questions/types';
+import {
+  exitQuizSchema,
+  starterQuizSchema,
+} from '@/lib/handlers/questions/types';
 
 export const questionForLessonsResponseOpenAPISchema = z
   .object({
-    starterQuiz: z.array(questionZod),
-    exitQuiz: z.array(questionZod),
+    starterQuiz: starterQuizSchema,
+    exitQuiz: exitQuizSchema,
   })
   .openapi({
+    ref: 'QuestionForLessonsResponseSchema',
     example: {
       starterQuiz: [
         {
@@ -34,5 +38,4 @@ export const questionForLessonsResponseOpenAPISchema = z
         },
       ],
     },
-    ref: 'QuestionForLessonsResponseSchema',
   });

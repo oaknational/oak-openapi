@@ -7,6 +7,8 @@ import {
 } from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
 import query from './navDocsListQuery.gql';
 
+const API_ENDPOINTS_SLUG = 'api-endpoints';
+
 const navDocsListQuery = async () => {
   const res = await client.request(query);
   const { groups, pages } = res as NavDocsListQuery;
@@ -28,9 +30,14 @@ const navDocsListQuery = async () => {
       const pages = input.pages
         .filter((page) => page.parentGroup?.slug?.text === groupSlug)
         .map((page) => ({
-          title: page.title,
+          title:
+            // don't add a number to the overview page. Query already orders the pages
+            groupSlug === API_ENDPOINTS_SLUG && !page.title.includes('overview')
+              ? `${page.order - 1}. ${page.title}`
+              : page.title,
           href: `${groupSlug}/${page.slug.text}`,
         }));
+
       return {
         title: group.title,
         pages,

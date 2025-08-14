@@ -28,6 +28,12 @@ const StrongBox = styled(OakSpan)`
   }
 `;
 
+const HeadingWithMarginLogic = styled(OakHeading)`
+  &:first-child {
+    margin-top: 0;
+  }
+`;
+
 const contentPortableTextComponents: PortableTextComponents = {
   block: {
     normal: (props) => (
@@ -57,7 +63,7 @@ const contentPortableTextComponents: PortableTextComponents = {
       </OakHeading>
     ),
     h2: (props) => (
-      <OakHeading
+      <HeadingWithMarginLogic
         tag="h2"
         id={props.value._key}
         $mb="space-between-s"
@@ -65,18 +71,18 @@ const contentPortableTextComponents: PortableTextComponents = {
         $mt="all-spacing-12"
       >
         {props.children}
-      </OakHeading>
+      </HeadingWithMarginLogic>
     ),
     h3: (props) => (
-      <OakHeading
+      <HeadingWithMarginLogic
         tag="h3"
         id={props.value._key}
         $mb="space-between-s"
         $font="heading-5"
-        $mt="all-spacing-9"
+        $mt="all-spacing-7"
       >
         {props.children}
-      </OakHeading>
+      </HeadingWithMarginLogic>
     ),
     h4: (props) => (
       <OakHeading

@@ -1,7 +1,11 @@
 import { z } from 'zod';
-import { years } from '@/lib/handlers/sequences/types';
+import {
+  sequenceSlugSchema,
+  sequenceYearEnumSchema,
+} from '@/lib/handlers/sequences/types';
+import 'zod-openapi/extend';
 
 export const sequenceUnitsRequestSchema = z.object({
-  sequence: z.string(),
-  year: z.enum(years as [string]).optional(),
+  sequence: sequenceSlugSchema,
+  year: sequenceYearEnumSchema,
 });

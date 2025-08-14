@@ -11,6 +11,7 @@ export const navDocsListPageSchema = z.object({
   title: z.string(),
   slug: z.object({ text: z.string() }),
   parentGroup: z.object({ slug: z.object({ text: z.string() }) }),
+  order: z.number(),
 });
 
 export type NavDocsListPage = z.infer<typeof navDocsListPageSchema>;

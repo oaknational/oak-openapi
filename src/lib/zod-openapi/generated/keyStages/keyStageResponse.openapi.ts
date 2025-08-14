@@ -4,11 +4,21 @@ import z from 'zod';
 export const keyStageResponseOpenAPISchema = z
   .array(
     z.object({
-      slug: z.string(),
-      title: z.string(),
+      slug: z
+        .string()
+        .openapi({
+          description: 'The key stage slug identifier',
+          example: 'ks1',
+        }),
+      title: z
+        .string()
+        .openapi({
+          description: 'The key stage title',
+          example: 'Key Stage 1',
+        }),
     }),
   )
   .openapi({
-    example: [{ slug: 'ks1', title: 'Key Stage 1' }],
     ref: 'KeyStageResponseSchema',
+    example: [{ slug: 'ks1', title: 'Key Stage 1' }],
   });

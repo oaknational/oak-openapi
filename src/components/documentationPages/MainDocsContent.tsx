@@ -11,8 +11,11 @@ import {
 import ContentPortableText from '@/cms/sanityResolvers/ContentPortableText';
 import { DocumentationContentPageBlock } from '@/cms/schemaTypes';
 import styled from 'styled-components';
+import EndpointBlock, { EndpointInfo } from './EndpointBlock';
+// import { MaxWidth } from '../MaxWidth';
 
 type CMSDocumentationProps = {
+  endpoints?: EndpointInfo[];
   docs: DocumentationContentPageBlock[];
 };
 
@@ -21,17 +24,26 @@ const OakGridArea = styled(_OakGridArea)`
   ${({ $gridArea }) => 'grid-area: ' + $gridArea};
 `;
 
-export default function MainDocsContent({ docs }: CMSDocumentationProps) {
+export default function MainDocsContent({
+  docs,
+  endpoints,
+}: CMSDocumentationProps) {
+  const isEndpointPage = endpoints && endpoints.length > 0;
   const contentsRaw =
     docs?.[0]?.docsBlocks?.filter(
       (_) => _.style === 'h2',
       // || _.style === 'h3',
     ) || [];
 
-  let contents = contentsRaw.map((content) => ({
-    title: content.children.map((_) => _.text).join(' '),
-    anchor: content._key,
-  }));
+  let contents = isEndpointPage
+    ? endpoints.map(({ title, slug }) => ({
+        title,
+        anchor: slug,
+      }))
+    : contentsRaw.map((content) => ({
+        title: content.children.map((_) => _.text).join(' '),
+        anchor: content._key,
+      }));
 
   if (contents.length < 3) {
     contents = []; // Hide contents if there are less than 3 items
@@ -83,6 +95,18 @@ export default function MainDocsContent({ docs }: CMSDocumentationProps) {
               portableText={doc.docsBlocks}
             />
           ))}
+          {isEndpointPage && (
+            <OakFlex
+              $pa="0"
+              $gap="all-spacing-3"
+              $ma="0"
+              $flexDirection="column"
+            >
+              {endpoints.map((endpoint) => (
+                <EndpointBlock endpoint={endpoint} key={endpoint.path} />
+              ))}
+            </OakFlex>
+          )}
         </OakGridArea>
 
         {contents.length > 0 && (

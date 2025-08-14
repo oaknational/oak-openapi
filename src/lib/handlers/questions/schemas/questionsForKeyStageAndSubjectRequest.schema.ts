@@ -1,4 +1,5 @@
 import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
+import { limitSchema, offsetSchema } from '@/lib/handlers/commonTypes';
 import z from 'zod';
 
 export const questionsForKeyStageAndSubjectRequestSchema = z.object({
@@ -10,12 +11,6 @@ export const questionsForKeyStageAndSubjectRequestSchema = z.object({
     description:
       "Subject slug to search by, e.g. 'science' - note that casing is important here",
   }),
-  offset: z.number().optional().default(0),
-  limit: z
-    .number({
-      description: 'Limit the number of results returned, max 100',
-    })
-    .lte(100)
-    .optional()
-    .default(10),
+  offset: offsetSchema,
+  limit: limitSchema,
 });

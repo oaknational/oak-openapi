@@ -1,11 +1,19 @@
-import 'zod-openapi/extend';
 import z from 'zod';
 import { downloadTypeEnum } from '@/lib/handlers/assets/types';
+import 'zod-openapi/extend';
+import {
+  sequenceSlugSchema,
+  sequenceYearSchema,
+} from '@/lib/handlers/sequences/types';
 
-export const sequenceAssetsRequestOpenAPISchema = z
-  .object({
-    sequence: z.string().openapi({ example: 'maths-secondary' }),
-    year: z.number().optional(),
-    type: downloadTypeEnum.optional(),
-  })
-  .openapi({ example: { sequence: 'maths-secondary' } });
+export const sequenceAssetsRequestOpenAPISchema = z.object({
+  sequence: sequenceSlugSchema,
+  year: sequenceYearSchema,
+  type: downloadTypeEnum
+    .openapi({
+      description: `Optional asset type specifier
+
+Available values: slideDeck, exitQuiz, exitQuizAnswers, starterQuiz, starterQuizAnswers, supplementaryResource, video, worksheet, worksheetAnswers`,
+    })
+    .optional(),
+});
