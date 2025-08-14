@@ -151,11 +151,8 @@ export const sequenceSlugSchema = z.string().openapi({
   example: 'english-primary',
 });
 
-export const sequenceYearSchema = z
-  .number()
-  .openapi({
-    description:
-      'The year group to filter by. For the physical-education-primary sequence, a value of all-years can also be used.',
-    example: 3,
-  })
-  .optional();
+export const sequenceYearSchema = z.enum(years as [string]).openapi({
+  description:
+    'The year group to filter by. For the physical-education-primary sequence, a value of all-years can also be used.',
+  example: '3',
+});
