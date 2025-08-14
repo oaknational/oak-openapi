@@ -7,5 +7,5 @@ import 'zod-openapi/extend';
 
 export const sequenceUnitsRequestSchema = z.object({
   sequence: sequenceSlugSchema,
-  year: sequenceYearSchema,
+  year: sequenceYearSchema.optional(),
 });
