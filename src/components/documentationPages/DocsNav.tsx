@@ -130,6 +130,7 @@ export default function DocsNav({
       $borderColor={['grey40']}
       as="nav"
       aria-labelledby={docHeadingId}
+      position="absolute"
       {...rest}
     >
       <OakBox $display={['none', 'block']}>

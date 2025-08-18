@@ -9,11 +9,6 @@ import Footer from '@/components/Footer';
 import { Navigation } from '@/components/Nav';
 import { OakFlex } from '@oaknational/oak-components';
 import { usePathname } from 'next/navigation';
-import styled from 'styled-components';
-
-const OakDocsFlex = styled(OakFlex)`
-  gap: 40px;
-}`;
 
 export default function DocsLayout({
   children,
@@ -26,15 +21,17 @@ export default function DocsLayout({
   return (
     <>
       <Navigation />
-      <OakDocsFlex
+      <OakFlex
         $flexDirection={['column', 'row']}
-        $mh={'auto'}
+        // $mh={'auto'}
+        $ma={'auto'}
+        $columnGap={'all-spacing-8'}
         $maxWidth={['all-spacing-21', 'all-spacing-24']}
       >
         <DocsNav items={navigationItems} location={location} />
         <a id="content" />
         {children}
-      </OakDocsFlex>
+      </OakFlex>
       <Footer />
     </>
   );
