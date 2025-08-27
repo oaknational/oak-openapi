@@ -1,5 +1,5 @@
 module "job" {
-  source = "github.com/oaknational/oak-terraform-modules//modules/gcp_job?ref=v1.3.0"
+  source = "github.com/oaknational/oak-terraform-modules//modules/gcp_job?ref=v1.3.2"
 
   name_parts = {
     domain = "ow"
@@ -33,6 +33,8 @@ module "job" {
       value = google_storage_bucket.this.name
     }
   ]
+
+  memory_allocation = 2
 
   schedule = local.env == "prod" ? {
     crons = ["30 2 * * *"]
