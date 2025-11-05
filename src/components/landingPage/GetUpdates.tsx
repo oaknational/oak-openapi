@@ -106,23 +106,23 @@ export function GetUpdates() {
       onSubmit={handleSubmit}
     >
       <OakBox $ma="0" $pa="0" as="fieldset" $ba="border-solid-none">
-        <OakFlex as="h2" $font="heading-5" $gap="all-spacing-2">
+        <OakFlex as="h2" $font="heading-5" $gap="spacing-8">
           <OakIcon iconName="bell" />
           Receive updates
         </OakFlex>
-        <OakP $mt="space-between-ssx" $mb="all-spacing-7">
+        <OakP $mt="spacing-8" $mb="spacing-32">
           Sign up to our mailing list to receive important updates about the
           API.
         </OakP>
-        <OakBox $mt="space-between-m">
+        <OakBox $mt="spacing-24">
           {success && (
-            <OakFlex $flexDirection="row" $gap="space-between-xs">
+            <OakFlex $flexDirection="row" $gap="spacing-12">
               <OakIcon iconName="success" />{' '}
               <strong>Thank you, your request has been received.</strong>
             </OakFlex>
           )}
           {message && (
-            <OakBox $mb="space-between-m">
+            <OakBox $mb="spacing-24">
               <OakFieldError>{message}</OakFieldError>
             </OakBox>
           )}
@@ -136,7 +136,7 @@ export function GetUpdates() {
                 autoComplete="email"
                 id="email"
                 type="email"
-                $pa="inner-padding-m"
+                $pa="spacing-16"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -145,7 +145,7 @@ export function GetUpdates() {
           )}
         </OakBox>
         {!success && (
-          <OakBox $mt="space-between-m">
+          <OakBox $mt="spacing-24">
             <OakPrimaryButton>Sign up for updates</OakPrimaryButton>
           </OakBox>
         )}

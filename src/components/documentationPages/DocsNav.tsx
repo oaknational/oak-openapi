@@ -57,9 +57,9 @@ const createNavItem = (
     $background={selected ? ['grey20', 'mint50'] : ['white']}
     $borderRadius="border-radius-s"
     $font={'heading-light-7'}
-    $pa={['', 'all-spacing-2']}
-    $ph={['all-spacing-4', '']}
-    $pv={['all-spacing-2', '']}
+    $pa={['', "spacing-8"]}
+    $ph={["spacing-16", '']}
+    $pv={["spacing-8", '']}
     key={index}
   >
     <StyledOakLink $font="heading-6" onClick={onClick} href={`/docs/${slug}`}>
@@ -123,9 +123,9 @@ export default function DocsNav({
   return (
     <DocsNavContainer
       $flexDirection="column"
-      $gap={['', 'all-spacing-7']}
-      $ml="all-spacing-4"
-      $mr={['all-spacing-4', '']}
+      $gap={['', "spacing-32"]}
+      $ml="spacing-16"
+      $mr={["spacing-16", '']}
       $bb={[menuIsOpen ? 'border-solid-s' : '', '']}
       $borderColor={['grey40']}
       as="nav"
@@ -137,7 +137,7 @@ export default function DocsNav({
           id={docHeadingId}
           tag="h2"
           $font="heading-6"
-          $mt="all-spacing-8"
+          $mt="spacing-40"
         >
           Documentation
         </OakHeading>
@@ -159,7 +159,7 @@ export default function DocsNav({
         >
           <strong>Documentation topics</strong>
         </JauntyAngleLabel>
-        <IconMod $pt="all-spacing-6" $pb="all-spacing-3">
+        <IconMod $pt="spacing-24" $pb="spacing-12">
           <OakSecondaryButton
             onClick={() => setMenuIsOpen(!menuIsOpen)}
             isTrailingIcon={true}
@@ -175,9 +175,9 @@ export default function DocsNav({
         $display={[menuIsOpen ? 'flex' : 'none', 'flex']}
         id="docs-nav-list"
         $flexDirection="column"
-        $gap={['', 'space-between-m2']}
+        $gap={['', "spacing-32"]}
         role="list"
-        $pa={['all-spacing-4', 'all-spacing-0']}
+        $pa={["spacing-16", "spacing-0"]}
         style={{
           paddingRight:
             '0' /* there's an injected style deep from oak components adding this - and can't be removed with $pr */,
@@ -191,7 +191,7 @@ export default function DocsNav({
           return (
             <OakFlex
               $flexDirection={['column']}
-              $gap={'space-between-ssx'}
+              $gap={"spacing-8"}
               key={`p-${index}`}
             >
               <OakBox $display={['none', 'block']}>

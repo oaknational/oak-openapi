@@ -37,7 +37,7 @@ const HeadingWithMarginLogic = styled(OakHeading)`
 const contentPortableTextComponents: PortableTextComponents = {
   block: {
     normal: (props) => (
-      <OakP $font={['body-2', 'body-1']} $mb="all-spacing-4">
+      <OakP $font={['body-2', 'body-1']} $mb="spacing-16">
         {props.children}
       </OakP>
     ),
@@ -46,8 +46,8 @@ const contentPortableTextComponents: PortableTextComponents = {
       <OakHeading
         $font={['heading-6', 'heading-4']}
         tag="h2"
-        $mt={['space-between-l', 'space-between-xl']}
-        $mb={['space-between-m', 'space-between-m2']}
+        $mt={["spacing-48", "spacing-56"]}
+        $mb={["spacing-24", "spacing-32"]}
       >
         {props.children}
       </OakHeading>
@@ -55,9 +55,9 @@ const contentPortableTextComponents: PortableTextComponents = {
     h1: (props) => (
       <OakHeading
         tag="h1"
-        $mb="space-between-s"
+        $mb="spacing-16"
         $font="heading-1"
-        $mt="space-between-m"
+        $mt="spacing-24"
       >
         {props.children}
       </OakHeading>
@@ -66,9 +66,9 @@ const contentPortableTextComponents: PortableTextComponents = {
       <HeadingWithMarginLogic
         tag="h2"
         id={props.value._key}
-        $mb="space-between-s"
+        $mb="spacing-16"
         $font="heading-4"
-        $mt="all-spacing-12"
+        $mt="spacing-72"
       >
         {props.children}
       </HeadingWithMarginLogic>
@@ -77,9 +77,9 @@ const contentPortableTextComponents: PortableTextComponents = {
       <HeadingWithMarginLogic
         tag="h3"
         id={props.value._key}
-        $mb="space-between-s"
+        $mb="spacing-16"
         $font="heading-5"
-        $mt="all-spacing-7"
+        $mt="spacing-32"
       >
         {props.children}
       </HeadingWithMarginLogic>
@@ -88,9 +88,9 @@ const contentPortableTextComponents: PortableTextComponents = {
       <OakHeading
         tag="h4"
         id={props.value._key}
-        $mb="space-between-s"
+        $mb="spacing-16"
         $font="heading-6"
-        $mt="space-between-m"
+        $mt="spacing-24"
       >
         {props.children}
       </OakHeading>
@@ -99,9 +99,9 @@ const contentPortableTextComponents: PortableTextComponents = {
       <OakHeading
         tag="h5"
         id={props.value._key}
-        $mb="space-between-s"
+        $mb="spacing-16"
         $font="heading-7"
-        $mt="space-between-m"
+        $mt="spacing-24"
       >
         {props.children}
       </OakHeading>
@@ -110,9 +110,9 @@ const contentPortableTextComponents: PortableTextComponents = {
       <OakHeading
         tag="h6"
         id={props.value._key}
-        $mb="space-between-s"
+        $mb="spacing-16"
         $font="heading-light-7"
-        $mt="space-between-m"
+        $mt="spacing-24"
       >
         {props.children}
       </OakHeading>
@@ -121,19 +121,19 @@ const contentPortableTextComponents: PortableTextComponents = {
   list: {
     bullet: (props) => <UL>{props.children}</UL>,
     number: (props) => (
-      <OakOL $ml={['space-between-s', 'space-between-m']} $mb="all-spacing-4">
+      <OakOL $ml={["spacing-16", "spacing-24"]} $mb="spacing-16">
         {props.children}
       </OakOL>
     ),
   },
   listItem: {
     bullet: (props) => (
-      <OakLI $mb="all-spacing-4" $font={['body-2', 'body-1']}>
+      <OakLI $mb="spacing-16" $font={['body-2', 'body-1']}>
         {props.children}
       </OakLI>
     ),
     number: (props) => (
-      <OakLI $mb="all-spacing-4" $font={['body-2', 'body-1']}>
+      <OakLI $mb="spacing-16" $font={['body-2', 'body-1']}>
         {props.children}
       </OakLI>
     ),
