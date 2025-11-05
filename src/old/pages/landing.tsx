@@ -24,9 +24,9 @@ export default function Page() {
       </Head>
       <Navigation />
       <MaxWidth
-        $ph="inner-padding-m"
+        $ph="spacing-16"
         $flexDirection={'row'}
-        $pv="inner-padding-xl6"
+        $pv="spacing-64"
       >
         <BlockAndText></BlockAndText>
       </MaxWidth>

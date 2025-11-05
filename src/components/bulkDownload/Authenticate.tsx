@@ -211,7 +211,7 @@ export function Authenticate({
 
   return (
     <OakFlex
-      $gap="all-spacing-7"
+      $gap="spacing-32"
       $flexDirection="column"
       $maxWidth={['auto', '460px']}
     >
@@ -220,7 +220,7 @@ export function Authenticate({
       </OakHeading>
       <OakBox>
         {apiKeyError && (
-          <OakBox id={apiKeyErrorId} $mb="space-between-m">
+          <OakBox id={apiKeyErrorId} $mb="spacing-24">
             <OakFieldError>{apiKeyError}</OakFieldError>
           </OakBox>
         )}
@@ -237,7 +237,7 @@ export function Authenticate({
         <OakTextInput
           id={apiKeyId}
           type="text"
-          $pa="inner-padding-m"
+          $pa="spacing-16"
           placeholder="Enter your API key"
           value={apiKey}
           aria-labelledby={apiKeyLabelId}
@@ -249,7 +249,7 @@ export function Authenticate({
             setApiKey(e.target.value);
           }}
         />
-        <OakP $mt="all-spacing-4">
+        <OakP $mt="spacing-16">
           You will need to authorise yourself with an API key to download
           resources. You can request an API key, or find out more about API
           keys.
@@ -257,7 +257,7 @@ export function Authenticate({
       </OakBox>
       <OakBox>
         {termsError && (
-          <OakBox id={termsErrorId} $mb="space-between-m">
+          <OakBox id={termsErrorId} $mb="spacing-24">
             <OakFieldError>{termsError}</OakFieldError>
           </OakBox>
         )}
@@ -281,10 +281,10 @@ export function Authenticate({
         </CheckBox>
       </OakBox>
       {errorMessage && (
-        <OakBox $mt="space-between-s">
+        <OakBox $mt="spacing-16">
           <OakFieldError>
             <OakP>{errorMessage}</OakP>
-            <ErrorUL $mt="all-spacing-0">
+            <ErrorUL $mt="spacing-0">
               {subjectError && <OakLI>{subjectError}</OakLI>}
               {apiKeyError && <OakLI>{apiKeyError}</OakLI>}
               {termsError && <OakLI>{termsError}</OakLI>}

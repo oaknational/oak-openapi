@@ -20,7 +20,7 @@ import { MaxWidth } from '../MaxWidth';
 import { SanityCtaLink } from '../SanityCtaLink';
 
 function OakP(props: (typeof _OakP)['props']) {
-  return <_OakP {...props} $mv="all-spacing-6" $color="black" />;
+  return <_OakP {...props} $mv="spacing-24" $color="black" />;
 }
 
 const BlockHeading = styled(OakHeading)`
@@ -47,10 +47,10 @@ export default function Page({
       </Head>
       <Navigation />
       <MaxWidth
-        $ph="inner-padding-m"
+        $ph="spacing-16"
         $flexDirection={'column'}
-        $pv="inner-padding-xl6"
-        $gap="all-spacing-16"
+        $pv="spacing-64"
+        $gap="spacing-120"
         $color={'black'}
       >
         {data.map((data, index) => {
@@ -79,12 +79,12 @@ function UsingTheAPI({ title, image, link, blocks }: UsingTheApiSection) {
     <OakFlex
       $alignItems="center"
       $flexDirection={['column', 'row']}
-      $gap="all-spacing-16"
+      $gap="spacing-120"
     >
       <OakFlex
         $flexGrow={1}
         $flexDirection="column"
-        $gap={['all-spacing-6', 'all-spacing-7']}
+        $gap={["spacing-24", "spacing-32"]}
       >
         <BlockHeading tag="h1" $font={['heading-4', 'heading-3', 'heading-2']}>
           {title}
@@ -96,15 +96,15 @@ function UsingTheAPI({ title, image, link, blocks }: UsingTheApiSection) {
               sizes={`width: ${343}px, height: ${288}px`}
               src={image.src}
               alt={image.altText || ''}
-              $height={['all-spacing-20', 'all-spacing-21']}
-              $width={['all-spacing-20', 'all-spacing-21']}
+              $height={["spacing-360", "spacing-480"]}
+              $width={["spacing-360", "spacing-480"]}
             />
           )}
         </OakBox>
       </OakFlex>
       <OakFlex
         $flexDirection="column"
-        $gap={['all-spacing-6', 'all-spacing-9']}
+        $gap={["spacing-24", "spacing-48"]}
         $alignSelf="baseline"
       >
         {blocks.map((block, index) => (
@@ -112,14 +112,14 @@ function UsingTheAPI({ title, image, link, blocks }: UsingTheApiSection) {
             key={index}
             $flexGrow={1}
             $flexDirection="column"
-            $gap={['all-spacing-6', 'all-spacing-7']}
-            $pa={['all-spacing-6', 'all-spacing-7']}
+            $gap={["spacing-24", "spacing-32"]}
+            $pa={["spacing-24", "spacing-32"]}
             $background="mint30"
           >
             <BlockHeading tag="h2" $font={['heading-5', 'heading-4']}>
               {block.title}
             </BlockHeading>
-            <OakFlex $gap={['all-spacing-4']} $flexDirection="column">
+            <OakFlex $gap={["spacing-16"]} $flexDirection="column">
               {typeof block.description === 'string' ? (
                 <OakP>{block.description}</OakP>
               ) : (
@@ -153,17 +153,17 @@ function BlockAndText1({
     <OakFlex
       $alignItems="center"
       $flexDirection={['column', flexDirection]}
-      $gap="all-spacing-16"
+      $gap="spacing-120"
     >
       <OakFlex
         $flexGrow={1}
         $flexDirection="column"
-        $gap={['all-spacing-6', 'all-spacing-7']}
+        $gap={["spacing-24", "spacing-32"]}
       >
         <BlockHeading tag="h1" $font={['heading-4', 'heading-3', 'heading-2']}>
           {title}
         </BlockHeading>
-        <OakFlex $gap={['all-spacing-4']} $flexDirection="column">
+        <OakFlex $gap={["spacing-16"]} $flexDirection="column">
           {typeof description === 'string' ? (
             <OakP $font={['body-2', 'body-1']}>{description}</OakP>
           ) : (
@@ -179,8 +179,8 @@ function BlockAndText1({
             sizes={`width: ${2228}px, height: ${1472}px`}
             src={image.src}
             alt=""
-            $height={['all-spacing-20', 'all-spacing-21']}
-            $width={['all-spacing-20', 'all-spacing-21']}
+            $height={["spacing-360", "spacing-480"]}
+            $width={["spacing-360", "spacing-480"]}
           />
         </OakFlex>
       )}

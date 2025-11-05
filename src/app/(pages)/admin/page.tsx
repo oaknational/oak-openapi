@@ -21,30 +21,30 @@ export default function AdminPage() {
     <>
       <OakBox $width="100%" $background="white" $color="text-primary">
         <MaxWidth
-          $ph="inner-padding-m"
+          $ph="spacing-16"
           $flexDirection={"row"}
-          $pv={["inner-padding-xl2", "inner-padding-xl6"]}
+          $pv={["spacing-32", "spacing-64"]}
         >
-          <OakGrid $cg="space-between-m" $rg="space-between-m">
+          <OakGrid $cg="spacing-24" $rg="spacing-24">
             <OakGridArea
               $colSpan={[12, 3]}
               $alignSelf={"start"}
               $position={["static", "sticky", "sticky"]}
-              $top={"all-spacing-10"}
+              $top={"spacing-56"}
               $display={["none", "block", "block"]}
             ></OakGridArea>
             <OakGridArea
               $colSpan={[12]}
               $position={["static", "static", "sticky"]}
               $display={["block", "none", "none"]}
-              $pt="inner-padding-m"
-              $pb="inner-padding-m"
+              $pt="spacing-16"
+              $pb="spacing-16"
             ></OakGridArea>
 
             <OakGridArea
               $width={"100%"}
               $colSpan={[12, 7]}
-              $gap={"all-spacing-9"}
+              $gap={"spacing-48"}
             >
               <CreateAPIKey />
             </OakGridArea>
@@ -85,7 +85,7 @@ function CreateAPIKey() {
       <OakFlex
         as="form"
         $flexDirection="column"
-        $gap="all-spacing-8"
+        $gap="spacing-40"
         onSubmit={handleSubmit}
       >
         <div>
@@ -117,7 +117,7 @@ function CreateAPIKey() {
           />
         </div>
 
-        <OakFlex $gap="all-spacing-4">
+        <OakFlex $gap="spacing-16">
           <OakPrimaryButton disabled={!!(error || key)} type="submit">
             Generate API Key
           </OakPrimaryButton>

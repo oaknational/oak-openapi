@@ -107,8 +107,8 @@ export default function EndpointBlock(props: { endpoint: EndpointInfo }) {
     slug,
   } = props.endpoint;
   return (
-    <OakFlex $gap="all-spacing-7" $flexDirection="column">
-      <OakHeading tag="h2" $font="heading-4" $mt="all-spacing-12" id={slug}>
+    <OakFlex $gap="spacing-32" $flexDirection="column">
+      <OakHeading tag="h2" $font="heading-4" $mt="spacing-72" id={slug}>
         {title}
       </OakHeading>
       <EndpointHeading
@@ -124,7 +124,6 @@ export default function EndpointBlock(props: { endpoint: EndpointInfo }) {
         tableData={params}
       />
       <TableSection title="Output (response)" tableData={output} />
-
       {sampleResponse && (
         <OakBox>
           <OakHeading tag="h3" $font="heading-5">

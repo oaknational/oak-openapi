@@ -26,10 +26,10 @@ export default function Feature({
       $width="100%"
       $position="relative"
       $flexDirection={'column'}
-      $gap="all-spacing-6"
+      $gap="spacing-24"
       $background={variant === 'mint' ? 'mint50' : 'none'}
       $borderRadius={variant === 'mint' ? 'border-radius-m' : 'none'}
-      $pa={variant === 'mint' ? 'inner-padding-xl' : 'none'}
+      $pa={variant === 'mint' ? "spacing-24" : 'none'}
     >
       <OakAnchorTarget id={anchorTarget} />
       <OakHeading $font={'heading-5'} tag="h2">

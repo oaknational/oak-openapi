@@ -42,20 +42,20 @@ export default function Features() {
     <OakMaxWidth
       $background="white"
       $color="text-primary"
-      $ph={'inner-padding-m'}
+      $ph={"spacing-16"}
       $flexDirection={'row'}
-      $pv="inner-padding-xl6"
+      $pv="spacing-64"
       // FIXME: styles are being overwritten somewhere so having
       // to declare this.
       $mh={'auto'}
-      $maxWidth={['all-spacing-21', 'all-spacing-24']}
+      $maxWidth={["spacing-480", "spacing-1280"]}
     >
-      <OakGrid $cg="space-between-m" $rg="space-between-m">
+      <OakGrid $cg="spacing-24" $rg="spacing-24">
         <OakGridArea
           $colSpan={[12, 4]}
           $alignSelf={'start'}
           $position={['static', 'sticky', 'sticky']}
-          $top={'all-spacing-10'}
+          $top={"spacing-56"}
           $display={['none', 'block', 'block']}
         >
           <Nav anchorTarget="#open-api-contents" items={navItems} />
@@ -64,15 +64,15 @@ export default function Features() {
           $colSpan={[12]}
           $position={['static', 'static', 'sticky']}
           $display={['block', 'none', 'none']}
-          $pt="inner-padding-m"
-          $pb="inner-padding-m"
+          $pt="spacing-16"
+          $pb="spacing-16"
         >
           <OakBox $position="relative">
             <Nav anchorTarget="open-api-contents" items={navItems} />
           </OakBox>
         </OakGridArea>
 
-        <OakGridArea $width={'100%'} $colSpan={[12, 7]} $gap={'all-spacing-9'}>
+        <OakGridArea $width={'100%'} $colSpan={[12, 7]} $gap={"spacing-48"}>
           <Feature
             anchorTarget="about-api"
             title="Why are we providing an API?"
@@ -115,7 +115,7 @@ export default function Features() {
               <OakLI $font={'body-2'}>
                 <strong>Sign up</strong>
               </OakLI>
-              <OakP $mb="space-between-s">
+              <OakP $mb="spacing-16">
                 <OakLiLink href="https://share.hsforms.com/1gQQFsrHDRf-eZUDajj6NzQbvumd">
                   Request an API key here
                 </OakLiLink>
@@ -127,10 +127,10 @@ export default function Features() {
                 </OakLink>
                 , and we&apos;ll set you up with an API key.
               </OakP>
-              <OakLI $mt="space-between-m2" $font={'body-2'}>
+              <OakLI $mt="spacing-32" $font={'body-2'}>
                 <strong>Explore</strong>
               </OakLI>
-              <OakP $mb="space-between-s">
+              <OakP $mb="spacing-16">
                 Use our{' '}
                 <OakLink href="/playground">
                   interactive developer documentation
@@ -154,7 +154,7 @@ export default function Features() {
           <Feature anchorTarget="what-we-offer" title="What we offer">
             <OakUL>
               <OakLI
-                $mb="space-between-xs"
+                $mb="spacing-12"
                 $font={'body-2'}
                 $display="list-item"
               >
@@ -165,7 +165,7 @@ export default function Features() {
                 range of learning requirements.
               </OakLI>
               <OakLI
-                $mb="space-between-xs"
+                $mb="spacing-12"
                 $font={'body-2'}
                 $display="list-item"
               >
@@ -176,7 +176,7 @@ export default function Features() {
                 support effective teaching and learning.
               </OakLI>
               <OakLI
-                $mb="space-between-xs"
+                $mb="spacing-12"
                 $font={'body-2'}
                 $display="list-item"
               >
@@ -200,35 +200,35 @@ export default function Features() {
             </OakP>
             <OakUL>
               <OakLI
-                $mb={'space-between-ssx'}
+                $mb={"spacing-8"}
                 $font={'body-2'}
                 $display="list-item"
               >
                 Teacher-led lesson videos
               </OakLI>
               <OakLI
-                $mb={'space-between-ssx'}
+                $mb={"spacing-8"}
                 $font={'body-2'}
                 $display="list-item"
               >
                 Oak formatted slide decks
               </OakLI>
               <OakLI
-                $mb={'space-between-ssx'}
+                $mb={"spacing-8"}
                 $font={'body-2'}
                 $display="list-item"
               >
                 Starter and exit quizzes
               </OakLI>
               <OakLI
-                $mb={'space-between-ssx'}
+                $mb={"spacing-8"}
                 $font={'body-2'}
                 $display="list-item"
               >
                 Worksheets
               </OakLI>
               <OakLI
-                $mb={'space-between-ssx'}
+                $mb={"spacing-8"}
                 $font={'body-2'}
                 $display="list-item"
               >
@@ -249,7 +249,7 @@ export default function Features() {
           <Feature anchorTarget="faqs" title="FAQs">
             <LeftAlignedChildButtons>
               <OakAccordion header="What are ‘slugs’?" id="accordion-slugs">
-                <OakBox $pt="inner-padding-s">
+                <OakBox $pt="spacing-12">
                   <OakP $font="body-2">
                     Slugs are a way of uniquely identifying different lessons,
                     units or key stages. These are likely to be used for
@@ -263,7 +263,7 @@ export default function Features() {
                 header="What is the difference between starter quizzes and exit quizzes?"
                 id="accordion-quizzes"
               >
-                <OakBox $pt="inner-padding-s">
+                <OakBox $pt="spacing-12">
                   <OakP $font="body-2">
                     Every lesson has a starter quiz - testing pupils on the
                     prior knowledge they will need for the lesson, and an exit
@@ -278,7 +278,7 @@ export default function Features() {
                 header="What are the different types of content guidance?"
                 id="accordion-content-guidance"
               >
-                <OakBox $pt="inner-padding-s">
+                <OakBox $pt="spacing-12">
                   <OakP $font="body-2">
                     Content guidance warnings will fall into one of the
                     following four categories:
@@ -298,8 +298,8 @@ export default function Features() {
                 header="What does the supervision level ID mean?"
                 id="accordion-supervision-level-id"
               >
-                <OakBox $pt="inner-padding-s">
-                  <OakP $font="body-2" $mb="space-between-xs">
+                <OakBox $pt="spacing-12">
+                  <OakP $font="body-2" $mb="spacing-12">
                     The lesson field ‘supervisionLevel’ returns the description
                     of the highest level of suggested guidance, so it is advised
                     to use this field rather than rely on the sub-guidance
@@ -308,7 +308,7 @@ export default function Features() {
                   <OakP $font="body-2">
                     However, the definitions of this ID are as follows:
                   </OakP>
-                  <OakBox $ml="space-between-m" $mb="space-between-xs">
+                  <OakBox $ml="spacing-24" $mb="spacing-12">
                     <OakP $font="body-2">
                       <strong>1:</strong> Adult supervision suggested
                     </OakP>
@@ -334,7 +334,7 @@ export default function Features() {
                 header="Why are only some subjects/resources available?"
                 id="accordion-limited-subjects"
               >
-                <OakBox $pt="inner-padding-s">
+                <OakBox $pt="spacing-12">
                   <OakP $font="body-2">
                     We will have our fully resourced curricula for all subjects
                     available by Autumn 2025. We currently have fully resourced
@@ -350,14 +350,14 @@ export default function Features() {
                 header="Why are there two search endpoints?"
                 id="accordion-two-search-endpoints"
               >
-                <OakBox $pt="inner-padding-s">
-                  <OakP $font="body-2" $mb="space-between-xs">
+                <OakBox $pt="spacing-12">
+                  <OakP $font="body-2" $mb="spacing-12">
                     The API contains two different ways of searching for Oak
                     lessons because we have two different databases holding
                     those lessons.
                   </OakP>
 
-                  <OakP $font="body-2" $mb="space-between-xs">
+                  <OakP $font="body-2" $mb="spacing-12">
                     The lesson search endpoint (/search/lessons) uses our main
                     Oak database to do a similarity search on lesson titles. The
                     transcript search (/search/transcripts) uses our AI
@@ -382,7 +382,7 @@ export default function Features() {
                 header="What is the difference between the assets and downloads endpoints?"
                 id="accordion-assets-vs-downloads"
               >
-                <OakBox $pt="inner-padding-s">
+                <OakBox $pt="spacing-12">
                   <OakP $font="body-2">
                     The available assets for each lesson may vary, so the assets
                     endpoints are used to get the available assets for a lesson
