@@ -12,7 +12,7 @@ type Notice = {
 
 export const Notice = ({ value }: { value: Notice }) => {
   return (
-    <OakBox $mb="all-spacing-6">
+    <OakBox $mb="spacing-24">
       <OakInlineBanner
         isOpen
         message={value.text}

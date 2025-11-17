@@ -143,25 +143,25 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
       </Head>
       <Navigation />
       <MaxWidth
-        $ph="inner-padding-m"
+        $ph="spacing-16"
         $flexDirection={'column'}
-        $pv="inner-padding-xl6"
-        $gap="all-spacing-12"
+        $pv="spacing-64"
+        $gap="spacing-72"
         $color={'black'}
       >
         <OakGrid
-          $pv={['inner-padding-xl3', 'inner-padding-xl4']}
-          $ph={['inner-padding-xl2', 'inner-padding-xl6']}
+          $pv={["spacing-40", "spacing-48"]}
+          $ph={["spacing-32", "spacing-64"]}
           $background="mint"
-          $cg="space-between-xxxl"
+          $cg="spacing-80"
           $gridTemplateColumns={['1fr', '1fr 1fr']}
           $borderRadius="border-radius-m"
         >
           <OakBox>
-            <OakHeading $mv="space-between-m" tag="h1" $font="heading-2">
+            <OakHeading $mv="spacing-24" tag="h1" $font="heading-2">
               Bulk Download
             </OakHeading>
-            <OakP $mb="space-between-m">
+            <OakP $mb="spacing-24">
               Oak's lesson and curriculum text-based data is provided as a
               single JSON for each national curriculum subject and educational
               phase.
@@ -185,17 +185,17 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
                 height: 1472,
               }}
               alt=""
-              $height="all-spacing-20"
+              $height="spacing-360"
             />
           </OakBox>
         </OakGrid>
 
-        <OakFlex $gap="all-spacing-7" $flexDirection="column">
+        <OakFlex $gap="spacing-32" $flexDirection="column">
           <OakHeading tag="h2" $font="heading-3">
             Download
           </OakHeading>
           <OakBox>
-            <OakFlex $gap="all-spacing-6" $flexDirection={['column', 'row']}>
+            <OakFlex $gap="spacing-24" $flexDirection={['column', 'row']}>
               <CheckBox
                 label="Select all primary"
                 checked={allPrimaryChecked}
@@ -208,7 +208,7 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
               />
             </OakFlex>
             {hasError && (
-              <OakBox id={errorId} $mt="space-between-m">
+              <OakBox id={errorId} $mt="spacing-24">
                 <OakFieldError>
                   Select at least one option to download
                 </OakFieldError>
@@ -217,8 +217,8 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
           </OakBox>
 
           <OakGrid
-            $rg="space-between-s"
-            $cg="space-between-s"
+            $rg="spacing-16"
+            $cg="spacing-16"
             $gridTemplateColumns="repeat(auto-fill, minmax(300px, 1fr))"
           >
             {subjects.map((subject) => (

@@ -20,9 +20,9 @@ export default function Banner() {
     <OakFlex
       as="header"
       $alignItems={'center'}
-      $gap={'all-spacing-10'}
-      $pv="inner-padding-s"
-      $ph="inner-padding-m"
+      $gap={"spacing-56"}
+      $pv="spacing-12"
+      $ph="spacing-16"
       $bb={'border-solid-m'}
       $color="text-primary"
     >

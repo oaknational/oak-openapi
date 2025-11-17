@@ -51,7 +51,7 @@ export default function MainDocsContent({
 
   if (!docs || docs.length === 0) {
     return (
-      <OakBox $color="black" $pv="inner-padding-xl3">
+      <OakBox $color="black" $pv="spacing-40">
         <OakHeading tag="h1" $font="heading-3">
           No documentation available
         </OakHeading>
@@ -75,10 +75,10 @@ export default function MainDocsContent({
       <OakGrid
         $gridTemplateColumns={[`1fr`, '1fr', `1fr 200px`]}
         $gridTemplateAreas={[templateMobile, templateMobile, templateDesktop]}
-        $cg={['', 'space-between-s']}
-        $rg="space-between-l"
-        $pa={['all-spacing-4', 'all-spacing-8']}
-        $pr={['', '', 'all-spacing-0']}
+        $cg={['', "spacing-16"]}
+        $rg="spacing-48"
+        $pa={["spacing-16", "spacing-40"]}
+        $pr={['', '', "spacing-0"]}
       >
         <OakGridArea $gridArea="HEADER">
           <OakHeading tag="p" $font="heading-light-6">
@@ -98,7 +98,7 @@ export default function MainDocsContent({
           {isEndpointPage && (
             <OakFlex
               $pa="0"
-              $gap="all-spacing-3"
+              $gap="spacing-12"
               $ma="0"
               $flexDirection="column"
             >
@@ -111,14 +111,14 @@ export default function MainDocsContent({
 
         {contents.length > 0 && (
           <OakGridArea $gridArea="SIDENAV">
-            <OakFlex $flexDirection="column" $gap="all-spacing-3">
+            <OakFlex $flexDirection="column" $gap="spacing-12">
               <OakHeading tag="h2" $font="heading-7">
                 <OakBox $width="200px">Contents</OakBox>
               </OakHeading>
               <OakFlex
                 as="ul"
                 $pa="0"
-                $gap="all-spacing-3"
+                $gap="spacing-12"
                 $ma="0"
                 $flexDirection="column"
               >
