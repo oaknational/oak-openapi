@@ -78,13 +78,13 @@ const FooterOakLink = styled(OakLink)`
 export default function Footer() {
   return (
     <footer>
-      <TopOakHandDrawnHR $height="all-spacing-1" />
+      <TopOakHandDrawnHR $height="spacing-4" />
       <OakBox $background="mint30">
         <MaxWidth
           $flexDirection={['column', 'row']}
-          $pv="inner-padding-xl5"
-          $ph="inner-padding-m"
-          $gap={['space-between-xl', 'space-between-m', 'space-between-xxxl']}
+          $pv="spacing-56"
+          $ph="spacing-16"
+          $gap={["spacing-56", "spacing-24", "spacing-80"]}
         >
           <ContactUs />
           <GiveFeedback />
@@ -101,16 +101,16 @@ export default function Footer() {
           as="nav"
           $justifyContent={'center'}
           $flexDirection={['column', 'column', 'row-reverse']}
-          $gap="space-between-l"
-          $pv={['inner-padding-xl5', 'inner-padding-xl4', 'inner-padding-xl8']}
-          $ph={'inner-padding-m'}
+          $gap="spacing-48"
+          $pv={["spacing-56", "spacing-48", "spacing-80"]}
+          $ph={"spacing-16"}
           $ma={'auto'}
           $position={'relative'}
           $width={'100%'}
         >
           <OakFlex
             $flexDirection={['column', 'row']}
-            $gap={['space-between-l', 'space-between-s']}
+            $gap={["spacing-48", "spacing-16"]}
           >
             <OakBox style={{ flex: '1' }} $minWidth="240px">
               <FooterSectionLinks
@@ -129,17 +129,17 @@ export default function Footer() {
             </OakBox>
           </OakFlex>
           <OakFlex
-            $mb="space-between-xl"
+            $mb="spacing-56"
             $width={'100%'}
             $flexDirection={['column', 'row']}
-            $pt={['inner-padding-s', 'inner-padding-none']}
+            $pt={["spacing-12", "spacing-0"]}
           >
-            <OakFlex $flexDirection="column" $gap="space-between-l">
+            <OakFlex $flexDirection="column" $gap="spacing-48">
               <OakLinkLogo href="https://www.thenational.academy/">
                 <Logo name="logo-with-text" width="165" height="75" />
               </OakLinkLogo>
 
-              <OakFlex $flexDirection={'column'} $gap="space-between-m">
+              <OakFlex $flexDirection={'column'} $gap="spacing-24">
                 <SocialButtons
                   $display={['flex']}
                   for="Oak National Academy"
@@ -147,7 +147,7 @@ export default function Footer() {
                 />
 
                 <OakBox>
-                  <OakP $font={'body-3-bold'} $mb="space-between-s">
+                  <OakP $font={'body-3-bold'} $mb="spacing-16">
                     © Oak National Academy Limited, No 14174888
                   </OakP>
                   <OakP $font={['body-4']}>
@@ -180,18 +180,17 @@ const FooterSectionLinks = ({ title, links }: FooterSectionLinksProps) => {
   // $mt={['space-between-m2', 'space-between-none']}
   // $mb="space-between-ssx"
   return (
-    <OakFlex $flexDirection="column" $gap="space-between-m">
+    <OakFlex $flexDirection="column" $gap="spacing-24">
       <OakHeading $font="heading-7" $color="black" tag="h2">
         {title}
       </OakHeading>
-
       <OakFlex
         $color={'black'}
         $font={'body-2'}
         as="ul"
         role="list"
         $flexDirection="column"
-        $gap="space-between-m"
+        $gap="spacing-24"
       >
         {links.map((link) => (
           <OakLI key={link.text}>
@@ -206,7 +205,7 @@ const FooterSectionLinks = ({ title, links }: FooterSectionLinksProps) => {
 const FooterLink = ({ text, href, ariaLabel, icon }: FooterLink) => {
   return (
     <OakFlex
-      $gap={'all-spacing-2'}
+      $gap={"spacing-8"}
       $display={'inline-flex'}
       $alignItems="center"
     >
@@ -217,7 +216,7 @@ const FooterLink = ({ text, href, ariaLabel, icon }: FooterLink) => {
       >
         {text}
       </FooterOakLink>
-      {icon && <OakIcon $height="all-spacing-6" iconName={icon} />}
+      {icon && <OakIcon $height="spacing-24" iconName={icon} />}
     </OakFlex>
   );
 };
@@ -225,14 +224,14 @@ const FooterLink = ({ text, href, ariaLabel, icon }: FooterLink) => {
 function ContactUs() {
   return (
     <FlexedBox $color="black">
-      <OakFlex as="h2" $font="heading-5" $gap="all-spacing-2">
+      <OakFlex as="h2" $font="heading-5" $gap="spacing-8">
         <OakIcon iconName="send" />
         Contact us
       </OakFlex>
-      <OakP $mt="space-between-ssx">
+      <OakP $mt="spacing-8">
         If you need help with using the API, get in touch.
       </OakP>
-      <OakBox $mt="space-between-m">
+      <OakBox $mt="spacing-24">
         <StrongLinkNoUnderline
           iconName="arrow-right"
           href="mailto:help@thenational.academy"
@@ -248,14 +247,14 @@ function ContactUs() {
 function GiveFeedback() {
   return (
     <FlexedBox $color="black">
-      <OakFlex as="h2" $font="heading-5" $gap="all-spacing-2">
+      <OakFlex as="h2" $font="heading-5" $gap="spacing-8">
         <IconFeedback />
         Give Feedback
       </OakFlex>
-      <OakP $mt="space-between-ssx">
+      <OakP $mt="spacing-8">
         Our API is new, we&apos;d love to hear your feedback to help us improve.
       </OakP>
-      <OakBox $mt="space-between-m">
+      <OakBox $mt="spacing-24">
         <StrongLinkNoUnderline
           iconName="arrow-right"
           href="https://survey.hsforms.com/1C1LX6MhoTWi2_3iF6Q6y3gbvumd"

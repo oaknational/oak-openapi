@@ -20,31 +20,31 @@ export default function Hero() {
   return (
     <OakBox $background="mint" $color="text-primary">
       <OakMaxWidth
-        $ph={'inner-padding-m'}
+        $ph={"spacing-16"}
         $flexDirection={'row'}
-        $pv="inner-padding-xl6"
+        $pv="spacing-64"
         // FIXME: styles are being overwritten somewhere so having
         // to declare this.
         $mh={'auto'}
-        $maxWidth={['all-spacing-21', 'all-spacing-24']}
+        $maxWidth={["spacing-480", "spacing-1280"]}
       >
-        <OakGrid $cg="space-between-m" $rg="space-between-m">
+        <OakGrid $cg="spacing-24" $rg="spacing-24">
           <OakGridArea $colSpan={[12, 7]} $flexDirection={'column'}>
             <OakTagFunctional
               label="Beta"
               $width="fit-content"
               $background="mint110"
               $borderRadius="border-radius-xl"
-              $pv="inner-padding-xs"
-              $ph="inner-padding-s"
+              $pv="spacing-8"
+              $ph="spacing-12"
               $font={'body-3-bold'}
             />
 
-            <OakHeading $mv={'space-between-m'} $font="heading-3" tag="h2">
+            <OakHeading $mv={"spacing-24"} $font="heading-3" tag="h2">
               Access high-quality education content with Oak OpenAPI
             </OakHeading>
 
-            <OakP $mb={'space-between-l'} $color="black" $font="body-2">
+            <OakP $mb={"spacing-48"} $color="black" $font="body-2">
               We’re offering a free API to share our high-quality educational
               content with the broader education community, all under the{' '}
               <OakLink
@@ -55,7 +55,7 @@ export default function Hero() {
               </OakLink>
               .
             </OakP>
-            <OakFlex $gap={'all-spacing-4'}>
+            <OakFlex $gap={"spacing-16"}>
               <AlignFixButton
                 element="a"
                 href="https://share.hsforms.com/1gQQFsrHDRf-eZUDajj6NzQbvumd"
@@ -83,7 +83,7 @@ export default function Hero() {
                   height: 1472,
                 }}
                 alt=""
-                $height="all-spacing-20"
+                $height="spacing-360"
               />
             </OakFlex>
           </OakGridArea>

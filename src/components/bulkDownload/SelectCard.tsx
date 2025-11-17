@@ -50,14 +50,14 @@ const SelectCard: React.FC<SelectCardProps> = ({
         $flexDirection="column"
         $alignItems="center"
         $width="100%"
-        $gap="all-spacing-2"
-        $pa="all-spacing-4"
-        $pb="all-spacing-5"
+        $gap="spacing-8"
+        $pa="spacing-16"
+        $pb="spacing-20"
         $borderRadius="border-radius-m"
       >
         <OakIcon
-          $width="all-spacing-10"
-          $height={'all-spacing-10'}
+          $width="spacing-56"
+          $height={"spacing-56"}
           iconName={iconName as OakIconName}
         />
 
@@ -67,13 +67,13 @@ const SelectCard: React.FC<SelectCardProps> = ({
       </OakFlex>
       <OakFlex
         $flexDirection="row"
-        $gap="inner-padding-s"
-        $pa="all-spacing-4"
-        $pt="all-spacing-0"
+        $gap="spacing-12"
+        $pa="spacing-16"
+        $pt="spacing-0"
         $background="mint50"
         $borderRadius="border-radius-m"
       >
-        <OakFlex $flexDirection="column" $gap="all-spacing-2" $width="100%">
+        <OakFlex $flexDirection="column" $gap="spacing-8" $width="100%">
           {primaryLessonCount > 0 && (
             <DownloadOption
               heading="Primary"
@@ -115,31 +115,29 @@ function DownloadOption({
 }: DownloadOptionProps) {
   const id = useStableId('chk');
   return (
-
+    <OakFlex
+      $flexDirection="row"
+      $alignItems="center"
+      $width="100%"
+      $gap="spacing-16"
+      $pa="spacing-12"
+      $background="white"
+      $ba="border-solid-s"
+      $borderColor="grey40"
+      $borderRadius="border-radius-s"
+    >
       <OakFlex
-        $flexDirection="row"
-        $alignItems="center"
+        $flexDirection="column"
+        $justifyContent="center"
         $width="100%"
-        $gap="all-spacing-4"
-        $pa="all-spacing-3"
-        $background="white"
-        $ba="border-solid-s"
-        $borderColor="grey40"
-        $borderRadius="border-radius-s"
+        $gap="spacing-4"
       >
-        <OakFlex
-          $flexDirection="column"
-          $justifyContent="center"
-          $width="100%"
-          $gap="all-spacing-1"
-        >
-          <OakSpan $font="body-2-bold" $color="black">
-            <label suppressHydrationWarning htmlFor={id}>{heading}</label>
-          </OakSpan>
-        </OakFlex>
-        <CheckBox aria-describedby={errorId} id={id} $hasError={$hasError} checked={checked} onChange={onChange} />
+        <OakSpan $font="body-2-bold" $color="black">
+          <label suppressHydrationWarning htmlFor={id}>{heading}</label>
+        </OakSpan>
       </OakFlex>
-
+      <CheckBox aria-describedby={errorId} id={id} $hasError={$hasError} checked={checked} onChange={onChange} />
+    </OakFlex>
   );
 }
 

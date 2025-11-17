@@ -8,7 +8,7 @@ export const SanityImage = (props: { value: CMSImage }) => {
   const { width, height } = props.value.asset.metadata.dimensions;
 
   return (
-    <OakBox $mv="all-spacing-7">
+    <OakBox $mv="spacing-32">
       <Image
         sizes={`width ${width}px, height: ${height}px`}
         priority={true}

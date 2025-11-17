@@ -34,7 +34,7 @@
   "dependencies": {
     "@google-cloud/storage": "^7.14.0",
     "@next/eslint-plugin-next": "^15.3.3",
-    "@oaknational/oak-components": "^1.140.1",
+    "@oaknational/oak-components": "^1.160.0",
     "@oaknational/oak-curriculum-schema": "^1.39.0",
     "@portabletext/react": "^3.2.1",
     "@prisma/client": "^5.22.0",

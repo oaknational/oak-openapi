@@ -8,8 +8,8 @@ import {
   OakSpan,
   OakHeading,
   OakLink,
-  OakModal,
   OakSecondaryButton,
+  OakInformativeModal,
 } from '@oaknational/oak-components';
 
 import Logo from '@/components/Logo';
@@ -64,14 +64,14 @@ export function Navigation() {
       <MaxWidth
         as="header"
         $alignItems={'center'}
-        $gap={'all-spacing-9'}
-        $pv="inner-padding-s"
-        $ph="inner-padding-m"
+        $gap={"spacing-48"}
+        $pv="spacing-12"
+        $ph="spacing-16"
         $color="text-primary"
         $flexDirection={'row'}
       >
-        <OakFlex role="list" $gap="space-between-m2" $alignItems="center">
-          <OakFlex $alignItems="center" $gap="space-between-s">
+        <OakFlex role="list" $gap="spacing-32" $alignItems="center">
+          <OakFlex $alignItems="center" $gap="spacing-16">
             <OakLinkLogo href="https://www.thenational.academy/">
               <Logo width="31" height="42" />
             </OakLinkLogo>
@@ -135,9 +135,8 @@ function Menu({
         onClick={() => setIsOpen(true)}
         iconName="hamburger"
       />
-
       <MenuModalWrapper>
-        <OakModal
+        <OakInformativeModal
           isOpen={isOpen}
           isLeftHandSide={false}
           footerSlot={null}
@@ -145,14 +144,14 @@ function Menu({
         >
           <OakFlex
             as="nav"
-            $gap="space-between-l"
-            $pa="all-spacing-4"
+            $gap="spacing-48"
+            $pa="spacing-16"
             $flexDirection="column"
             $flexGrow="1"
           >
             {children}
           </OakFlex>
-        </OakModal>
+        </OakInformativeModal>
       </MenuModalWrapper>
     </OakFlex>
   );
@@ -179,14 +178,14 @@ function MenuContents({
   };
   return (
     <OakFlex
-      $gap="space-between-m2"
+      $gap="spacing-32"
       $flexDirection={flexDirection}
       className={className}
       $justifyContent="space-between"
     >
       <OakFlex
         role="list"
-        $gap="space-between-m2"
+        $gap="spacing-32"
         $flexDirection={flexDirection}
       >
         <OakAPINavigationLink
@@ -207,7 +206,7 @@ function MenuContents({
       {wide ? null : <MenuSeparator />}
       <OakFlex
         role="list"
-        $gap="space-between-m2"
+        $gap="spacing-32"
         $flexDirection={flexDirection}
       >
         <OakAPINavigationLink

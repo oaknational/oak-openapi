@@ -24,11 +24,11 @@ function SuccessIllustration() {
           width: 416,
           height: 358,
         }}
-        $maxHeight={'all-spacing-20'}
-        $maxWidth={'all-spacing-20'}
+        $maxHeight={"spacing-360"}
+        $maxWidth={"spacing-360"}
         alt="Success illustration with checkmark"
-        $height={['all-spacing-19', 'all-spacing-20', 'all-spacing-21']}
-        $width={['all-spacing-19', 'all-spacing-20', 'all-spacing-21']}
+        $height={["spacing-240", "spacing-360", "spacing-480"]}
+        $width={["spacing-240", "spacing-360", "spacing-480"]}
 
       />
     </OakBox>
@@ -39,17 +39,17 @@ function SuccessIllustration() {
 function SuccessContent() {
   return (
     <OakFlex
-      $maxWidth="all-spacing-22"
+      $maxWidth="spacing-640"
       $flexDirection="column"
-      $gap="all-spacing-12"
-      $ph={['all-spacing-4', 'all-spacing-0', "all-spacing-4"]}
-      $mr={['all-spacing-0', 'all-spacing-0', "all-spacing-15"]}
+      $gap="spacing-72"
+      $ph={["spacing-16", "spacing-0", "spacing-16"]}
+      $mr={["spacing-0", "spacing-0", "spacing-100"]}
     >
-      <OakFlex $flexDirection="column" $gap="all-spacing-6">
+      <OakFlex $flexDirection="column" $gap="spacing-24">
         <OakHeading tag="h1" $font={["heading-3", "heading-2"]}>
           Thanks for downloading
         </OakHeading>
-        <OakP $font="body-1" $maxWidth="all-spacing-21">
+        <OakP $font="body-1" $maxWidth="spacing-480">
           We hope that the data is useful.
           <br />
           <br />
@@ -65,7 +65,7 @@ function SuccessContent() {
 // Action Buttons Component
 function ActionButtons() {
   return (
-    <OakFlex $gap="all-spacing-4" $flexDirection={["column", "column", "row"]}>
+    <OakFlex $gap="spacing-16" $flexDirection={["column", "column", "row"]}>
       <OakSecondaryButton
         element="a"
         href="/bulk-download"
@@ -96,13 +96,13 @@ export default function BulkDownloadSuccessPage() {
       <Navigation />
       <MaxWidth
         $flexDirection="column"
-        $pv="inner-padding-xl6"
-        $gap="all-spacing-18"
+        $pv="spacing-64"
+        $gap="spacing-180"
         $color="black"
       >
         <OakFlex
           $alignItems="center"
-          $gap={["all-spacing-4", "all-spacing-4", "all-spacing-15"]}
+          $gap={["spacing-16", "spacing-16", "spacing-100"]}
           $flexDirection={["column", "row"]}
           $justifyContent="space-between"
         >
