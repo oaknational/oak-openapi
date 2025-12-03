@@ -40,7 +40,7 @@ const navItems = [
 export default function Features() {
   return (
     <OakMaxWidth
-      $background="white"
+      $background="bg-primary"
       $color="text-primary"
       $ph={"spacing-16"}
       $flexDirection={'row'}
