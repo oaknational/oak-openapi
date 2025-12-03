@@ -41,7 +41,7 @@ const SelectCard: React.FC<SelectCardProps> = ({
       $justifyContent="space-between"
       $width="100%"
       $borderRadius="border-radius-m"
-      $background="mint50"
+      $background="bg-decorative1-subdued"
       $overflow="hidden"
       role="group"
       aria-labelledby={id}
@@ -61,7 +61,7 @@ const SelectCard: React.FC<SelectCardProps> = ({
           iconName={iconName as OakIconName}
         />
 
-        <OakSpan $font="heading-6" $textAlign="center" $color="black" id={id}>
+        <OakSpan $font="heading-6" $textAlign="center" $color="text-primary" id={id}>
           {subject}
         </OakSpan>
       </OakFlex>
@@ -70,7 +70,7 @@ const SelectCard: React.FC<SelectCardProps> = ({
         $gap="spacing-12"
         $pa="spacing-16"
         $pt="spacing-0"
-        $background="mint50"
+        $background="bg-decorative1-subdued"
         $borderRadius="border-radius-m"
       >
         <OakFlex $flexDirection="column" $gap="spacing-8" $width="100%">
@@ -121,9 +121,9 @@ function DownloadOption({
       $width="100%"
       $gap="spacing-16"
       $pa="spacing-12"
-      $background="white"
+      $background="bg-primary"
       $ba="border-solid-s"
-      $borderColor="grey40"
+      $borderColor="border-neutral-lighter"
       $borderRadius="border-radius-s"
     >
       <OakFlex
@@ -132,7 +132,7 @@ function DownloadOption({
         $width="100%"
         $gap="spacing-4"
       >
-        <OakSpan $font="body-2-bold" $color="black">
+        <OakSpan $font="body-2-bold" $color="text-primary">
           <label suppressHydrationWarning htmlFor={id}>{heading}</label>
         </OakSpan>
       </OakFlex>

@@ -79,7 +79,7 @@ export default function Footer() {
   return (
     <footer>
       <TopOakHandDrawnHR $height="spacing-4" />
-      <OakBox $background="mint30">
+      <OakBox $background="bg-decorative1-very-subdued">
         <MaxWidth
           $flexDirection={['column', 'row']}
           $pv="spacing-56"
@@ -93,7 +93,7 @@ export default function Footer() {
       </OakBox>
       <OakBox
         $overflow={'hidden'}
-        $background="white"
+        $background="bg-primary"
         $color="text-primary"
         $position={'relative'}
       >
@@ -181,11 +181,11 @@ const FooterSectionLinks = ({ title, links }: FooterSectionLinksProps) => {
   // $mb="space-between-ssx"
   return (
     <OakFlex $flexDirection="column" $gap="spacing-24">
-      <OakHeading $font="heading-7" $color="black" tag="h2">
+      <OakHeading $font="heading-7" $color="text-primary" tag="h2">
         {title}
       </OakHeading>
       <OakFlex
-        $color={'black'}
+        $color={"text-primary"}
         $font={'body-2'}
         as="ul"
         role="list"

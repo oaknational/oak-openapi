@@ -51,7 +51,7 @@ export default function MainDocsContent({
 
   if (!docs || docs.length === 0) {
     return (
-      <OakBox $color="black" $pv="spacing-40">
+      <OakBox $color="text-primary" $pv="spacing-40">
         <OakHeading tag="h1" $font="heading-3">
           No documentation available
         </OakHeading>
@@ -68,9 +68,9 @@ export default function MainDocsContent({
 
   return (
     <OakBox
-      $color="black"
+      $color="text-primary"
       $bl={['', 'border-solid-s']}
-      $borderColor={['grey40', 'grey40']}
+      $borderColor={["border-neutral-lighter", "border-neutral-lighter"]}
     >
       <OakGrid
         $gridTemplateColumns={[`1fr`, '1fr', `1fr 200px`]}

@@ -59,7 +59,7 @@ function parseDescription(data: CMSRaw): React.ReactNode | string {
             _.children.map((child) => (
               <OakP
                 $font={['body-2', 'body-1']}
-                $color="black"
+                $color="text-primary"
                 key={child._key}
               >
                 {child.text}
