@@ -111,7 +111,7 @@ function Banner() {
 
 function Hero() {
   return (
-    <OakBox $background="mint" $color="text-primary">
+    <OakBox $background="bg-decorative1-main" $color="text-primary">
       <MaxWidth
         $ph="spacing-16"
         $pv="spacing-64"
@@ -121,7 +121,7 @@ function Hero() {
           <OakGridArea $colSpan={[12, 7]} $flexDirection={'column'}>
             <OakSpan
               style={{ width: 'fit-content' }}
-              $background="mint110"
+              $background="bg-decorative1-subdued"
               $borderRadius="border-radius-xl"
               $pv="spacing-8"
               $ph="spacing-12"
@@ -134,7 +134,7 @@ function Hero() {
               Access high-quality education content with Oak OpenAPI
             </OakHeading>
 
-            <OakP $mb={"spacing-48"} $color="black" $font="body-2">
+            <OakP $mb={"spacing-48"} $color="text-primary" $font="body-2">
               We&apos;re offering a free API to share our high-quality
               educational content with the broader education community, all
               under the{' '}
@@ -181,7 +181,7 @@ function Hero() {
 }
 function Features() {
   return (
-    <OakBox $width="100%" $background="white" $color="text-primary">
+    <OakBox $width="100%" $background="bg-primary" $color="text-primary">
       <MaxWidth
         $ph="spacing-16"
         $flexDirection={'row'}
