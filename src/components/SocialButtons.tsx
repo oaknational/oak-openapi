@@ -101,8 +101,8 @@ const SocialButtons: FC<SocialButtonsProps> = (props) => {
             aria-label={`${label} for ${accountHolder}`}
             iconName={icon}
             href={href}
-            color="black"
-            hoverColor="black"
+            color="text-primary"
+            hoverColor="text-primary"
             target="_blank"
           />
         );

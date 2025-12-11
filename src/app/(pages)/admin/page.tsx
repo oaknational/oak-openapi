@@ -19,7 +19,7 @@ import { MaxWidth } from "@/components/MaxWidth";
 export default function AdminPage() {
   return (
     <>
-      <OakBox $width="100%" $background="white" $color="text-primary">
+      <OakBox $width="100%" $background="bg-primary" $color="text-primary">
         <MaxWidth
           $ph="spacing-16"
           $flexDirection={"row"}

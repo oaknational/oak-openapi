@@ -18,7 +18,7 @@ import styled from 'styled-components';
 
 export default function Hero() {
   return (
-    <OakBox $background="mint" $color="text-primary">
+    <OakBox $background="bg-decorative1-main" $color="text-primary">
       <OakMaxWidth
         $ph={"spacing-16"}
         $flexDirection={'row'}
@@ -33,7 +33,7 @@ export default function Hero() {
             <OakTagFunctional
               label="Beta"
               $width="fit-content"
-              $background="mint110"
+              $background="bg-decorative1-subdued"
               $borderRadius="border-radius-xl"
               $pv="spacing-8"
               $ph="spacing-12"
@@ -44,7 +44,7 @@ export default function Hero() {
               Access high-quality education content with Oak OpenAPI
             </OakHeading>
 
-            <OakP $mb={"spacing-48"} $color="black" $font="body-2">
+            <OakP $mb={"spacing-48"} $color="text-primary" $font="body-2">
               We’re offering a free API to share our high-quality educational
               content with the broader education community, all under the{' '}
               <OakLink

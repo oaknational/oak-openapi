@@ -195,7 +195,7 @@ export default function DocsNav({
               key={`p-${index}`}
             >
               <OakBox $display={['none', 'block']}>
-                <OakHeading $font={'heading-7'} tag="h3" $color="grey60">
+                <OakHeading $font={'heading-7'} tag="h3" $color="text-subdued">
                   {item.title}
                 </OakHeading>
               </OakBox>

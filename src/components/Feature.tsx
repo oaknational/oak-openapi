@@ -27,8 +27,8 @@ export default function Feature({
       $position="relative"
       $flexDirection={'column'}
       $gap="spacing-24"
-      $background={variant === 'mint' ? 'mint50' : 'none'}
-      $borderRadius={variant === 'mint' ? 'border-radius-m' : 'none'}
+      $background={variant === "mint" ? "bg-decorative1-subdued" : 'none'}
+      $borderRadius={variant === "mint" ? 'border-radius-m' : 'none'}
       $pa={variant === 'mint' ? "spacing-24" : 'none'}
     >
       <OakAnchorTarget id={anchorTarget} />

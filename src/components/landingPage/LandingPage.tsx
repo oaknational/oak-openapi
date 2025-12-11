@@ -20,7 +20,7 @@ import { MaxWidth } from '../MaxWidth';
 import { SanityCtaLink } from '../SanityCtaLink';
 
 function OakP(props: (typeof _OakP)['props']) {
-  return <_OakP {...props} $mv="spacing-24" $color="black" />;
+  return <_OakP {...props} $mv="spacing-24" $color="text-primary" />;
 }
 
 const BlockHeading = styled(OakHeading)`
@@ -114,7 +114,7 @@ function UsingTheAPI({ title, image, link, blocks }: UsingTheApiSection) {
             $flexDirection="column"
             $gap={["spacing-24", "spacing-32"]}
             $pa={["spacing-24", "spacing-32"]}
-            $background="mint30"
+            $background="bg-decorative1-very-subdued"
           >
             <BlockHeading tag="h2" $font={['heading-5', 'heading-4']}>
               {block.title}
