@@ -273,7 +273,7 @@ export function Authenticate({
         >
           <OakLabel $font="heading-light-7" htmlFor={termsId} id={termsLabelId}>
             I accept{' '}
-            <OakLink target="_blank" href="/docs/terms">
+            <OakLink target="_blank" href="https://www.thenational.academy/legal/terms-and-conditions-api-version">
               Oak's terms and conditions
             </OakLink>{' '}
             (required)
