@@ -42,7 +42,7 @@
     "@sanity/icons": "^3.7.0",
     "@sanity/image-url": "^1.1.0",
     "@sanity/vision": "3",
-    "@trpc/server": "^11.4.2",
+    "@trpc/server": "^11.8.0",
     "@upstash/ratelimit": "^2.0.5",
     "@upstash/redis": "^1.30.0",
     "archiver": "^7.0.1",
