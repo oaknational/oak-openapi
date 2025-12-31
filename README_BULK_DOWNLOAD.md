@@ -4,6 +4,13 @@ The bulk download process will generate a static copy of all the assets that are
 
 The data is organised by subject & phase, for example: Maths, Primary - making a "sequence-slug" of `maths-primary`.
 
+## Related docs
+
+- `.agent/summary/guides/bulk-api-mapping-guide.md` (bulk vs API mapping)
+- `.agent/summary/guides/bulk-api-alignment-plan.md` (alignment plan)
+- `docs/engineering/README.md` (planning structure)
+- `docs/engineering/onboarding.md` (local setup and common tasks)
+
 The final content structure of the build process is:
 
 ```
@@ -137,6 +144,7 @@ Now the environment is ready to tag a release for Terraform to use.
 
 1. Access to Oak's Google Cloud Storage (set via `GOOGLE_APPLICATION_CREDENTIALS_JSON` env variable)
 2. OWA Hasura access (for GraphQL queries via `OAK_GRAPHQL_HOST`)
+3. Node 22+ if `INCLUDE_ASSETS=true` (asset packaging)
 
 ### Required env values:
 
@@ -151,7 +159,7 @@ Now the environment is ready to tag a release for Terraform to use.
 
 ### Key software
 
-1. `bin/papare-bulk.ts`
+1. `bin/prepare-bulk.ts`
 2. `src/lib/bulk-data/*` - libs for the bulk download
 3. `bin/bulk-download-videos.sh` (optional and only used with assets)
 
@@ -159,7 +167,7 @@ Now the environment is ready to tag a release for Terraform to use.
 
 This is the main script that performs the downloads all the unit and lesson data. All the text based data (string based from the database) is added to `{sequence-slug}.json` (including transcripts).
 
-Then if the assets are included (`INCLUDE_ASSETS=true`) during the build _and_ available for the lesson (through the gateway logic), all the assets are downloaded form Google Could Storage and added to individual tarballs (listed earlier).
+Then if the assets are included (`INCLUDE_ASSETS=true`) during the build _and_ available for the lesson (through the gateway logic), all the assets are downloaded from Google Cloud Storage and added to individual tarballs (listed earlier).
 
 Video download URLs are appended to a file called `videos.tsv` which is monitored by `bulk-download-videos.sh`. Once all the videos have been added to this file, an entry with the following line is added to indicate to the downloading script the list is complete and the individual mp4 files should be tar'ed up into a single file:
 
@@ -173,4 +181,4 @@ The `nop` has no use.
 
 This is a shell script that monitors the `videos.tsv` file always reading the first line of the file. Typically this will be the URL of a download, the filename it should be saved as and the directory (the sequence slug) to save to.
 
-This is in a separate script because of deep rooted bugs in Node that can cause uncatchable errors when network requests fail in a particular (usually unrepeatable) manner.
+This is in a separate script because of deep-rooted bugs in Node that can cause uncatchable errors when network requests fail in a particular (usually unrepeatable) manner.

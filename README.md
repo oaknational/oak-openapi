@@ -2,12 +2,56 @@
 
 This repository holds the front and backend code for the API. This readme is primarily for development and for developers to know how to run the project locally and how to manage the project online (such as where data is held, caveats, etc).
 
+The public API is currently v0 (public alpha moving toward public beta).
+
+## Contents
+
+- Onboarding
+- Quickstart
+- Repository docs
+- Development
+- Environment
+- Documentation and CMS
+- API keys
+- Available subjects
+- Errors
+- Analytics / Logging
+- Batch requests for video urls
+- Infrastructure
+- Bulk Download
+- Load testing
+- Styling
+
+## Onboarding
+
+Short onboarding is below; a more detailed guide is in `docs/engineering/onboarding.md` and the docs index is in `docs/README.md`.
+
+## Quickstart
+
+1. Copy `.env.example` to `.env` and fill in required values.
+2. Install dependencies: `pnpm install`
+3. Start dev server: `pnpm dev`
+4. Open:
+   - API: `http://localhost:2727/api/v0/subjects`
+   - Playground: `http://localhost:2727/playground`
+
+## Repository docs
+
+- `docs/README.md` (docs index and start-here links)
+- `docs/engineering/README.md` (lightweight planning structure)
+- `docs/engineering/onboarding.md` (detailed onboarding)
+- `docs/api/quickstart.md` (API usage and auth examples)
+- `README_BULK_DOWNLOAD.md` (bulk download process)
+- `src/cms/README.md` (CMS integration)
+- `docs/architecture/decision-records/README.md` (ADRs)
+- `.agent/summary/README.md` (technical summary index)
+
 ## Development
 
 Required dependencies:
 
 1. node@20
-2. pnpm@8
+2. pnpm@10
 3. Access to OWA hasura staging instance
 
 Installation and development:
@@ -17,12 +61,12 @@ Installation and development:
 
 Development server should be running on http://localhost:2727 and the interactive playground is at http://localhost:2727/playground
 
-An API key is required to call RESTful endpoint.
+An API key is required to call REST endpoints.
 
 If the `API_KEY` value is in your `.env` file, there is also a command line helper to run API requests:
 
 ```sh
-bin/g /subject/maths
+bin/g /subjects/maths
 ```
 
 This can also be used to request against production:
@@ -31,13 +75,19 @@ This can also be used to request against production:
 bin/g prod /subjects/maths
 ```
 
+## Environment
+
+- Copy `.env.example` to `.env` and fill in required values.
+- Core API requires `OAK_GRAPHQL_HOST`, `OAK_GRAPHQL_SECRET`, `UPSTASH_REDIS_REST_URL`, and `UPSTASH_REDIS_REST_TOKEN`.
+- See `.env.example` for optional values and feature-specific settings.
+
 ## Documentation and CMS
 
-See the [CMS readme](/blob/main/src/cms/README.md) for detail.
+See `src/cms/README.md` for detail.
 
 ## API keys
 
-Currently these are managed by Oak through an admin tool (found in this repo: `src/pages/admin/index.tsx`).
+Currently these are managed by Oak through an admin tool (found in this repo: `src/app/(pages)/admin/page.tsx`).
 
 Accounts are stored in a redis database on [upstash](https://console.upstash.com/login).
 
@@ -126,6 +176,8 @@ The results.csv file is a CSV (without a header) that contains the URL and the l
 
 The bulk download feature allows you to download all assets (videos, worksheets, slide decks, quizzes, etc.) for entire sequences, organized into tar archives.
 
+See `README_BULK_DOWNLOAD.md` for the full release and ops process.
+
 ## Using the Bulk Download Script
 
 The prepare-bulk.ts script creates organized archives of Oak educational content for offline use.
@@ -133,8 +185,7 @@ The prepare-bulk.ts script creates organized archives of Oak educational content
 ### Prerequisites
 
 1. Access to Oak's Google Cloud Storage (set via `GOOGLE_APPLICATION_CREDENTIALS_JSON` env variable)
-2. Database access (set via `DATABASE_URL` env variable)
-3. OWA Hasura access (for GraphQL queries)
+2. OWA Hasura access (for GraphQL queries via `OAK_GRAPHQL_HOST` and `OAK_GRAPHQL_SECRET`)
 
 ### Running the Script
 
@@ -185,15 +236,13 @@ Complete the values in `.env.example` and rename to `.env`
 To stay consistent with Oak repositories, all styling should be done via `styled-components`. The `pages` folder contains the following:
 
 ```
-pages/
-  └── styles/
-      ├── playgroundStyles.tsx           # Metadata about the sequence
-      └──  playground.css             # Information about each unit
+src/app/(pages)/playground/playground.css
+src/old/pages/styles/playgroundStyles.tsx
 ```
 
-1. To update the styling of the playground, have a look through the `playground.css` folder first, to identify if the selectors for the required component already exist.
+1. To update the styling of the playground, have a look through `src/app/(pages)/playground/playground.css` first, to identify if the selectors for the required component already exist.
 
-2. To view local changes, you can edit the `playgroundStyles.tsx` directly. Just make sure once the styling is updated, that the corresponding css file includes the changes and the tree below is updated.
+2. To view local changes, you can edit `src/old/pages/styles/playgroundStyles.tsx` directly. If you update those legacy styles, keep the playground CSS in sync and update the tree below.
 
 The CSS file is sectioned into several sections as referenced below:
 
