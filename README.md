@@ -50,7 +50,7 @@ Short onboarding is below; a more detailed guide is in `docs/engineering/onboard
 
 Required dependencies:
 
-1. node@20
+1. node@22
 2. pnpm@10
 3. Access to OWA hasura staging instance
 

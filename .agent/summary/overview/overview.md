@@ -24,6 +24,6 @@ Repo layout (top-level)
 - `__tests__`: Vitest test suite and load testing config.
 
 Dev setup (from repo docs and config)
-- Node >= 20 (Dockerfile uses 22), pnpm >= 10 (README mentions pnpm@8 but package.json enforces >= 10).
+- Node >= 22, pnpm >= 10.
 - `pnpm dev` runs on port 2727.
 - `pnpm build-subjects` regenerates `src/lib/keyStageAndSubjects.json` using live API data.
