@@ -49,6 +49,14 @@ Tooling and developer experience
 - Plan major dependency upgrades as coordinated V1 workstreams.
 - Treat Babel replacement and lodash reduction as lower-priority modernization.
 
+Future guardrails (planned, not yet enforced)
+- Move towards TDD-by-default for behavioural changes (unit/integration first).
+- Reduce reliance on type assertions and `any` by tightening lint rules.
+- Adopt stricter patterns for configuration access (fewer scattered `process.env` reads).
+- Improve error handling consistency (e.g., more structured error mapping).
+- Expand doc coverage with clearer inline explanations for public APIs.
+- Prefer in-place refactors over compatibility layers or parallel versions.
+
 Related docs
 - `docs/engineering/v0-v1-improvements.md`
 - `docs/engineering/dependency-upgrades.md`
