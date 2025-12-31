@@ -19,7 +19,7 @@ Role-based onboarding paths
 - Want a fast-track orientation: start with `docs/architecture/fast-track-orientation.md`.
 
 Prerequisites
-- Node 20+
+- Node 22+
 - pnpm 10+
 - Access to OWA Hasura (staging or appropriate environment)
 
