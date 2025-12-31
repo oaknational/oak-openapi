@@ -2,6 +2,12 @@
 
 This directory contains the CMS integration layer for fetching and transforming content from Sanity CMS.
 
+## Related docs
+
+- `README.md` (repo overview and quickstart)
+- `docs/engineering/onboarding.md` (local setup and common tasks)
+- `docs/engineering/README.md` (lightweight planning structure)
+
 ## Structure
 
 ### `/queries` Directory
