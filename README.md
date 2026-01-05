@@ -4,6 +4,11 @@ This repository holds the front and backend code for the API. This readme is pri
 
 The public API is currently v0 (public alpha moving toward public beta).
 
+## Improving the repo (start here)
+
+For potential improvement work and sequencing, start with:
+`docs/engineering/v0-v1-improvements.md`
+
 ## Contents
 
 - Onboarding
