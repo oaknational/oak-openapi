@@ -76,3 +76,7 @@ These are items that could impact correctness, security, or core workflows in th
 - Where: `bin/prepare-bulk.ts`, `src/lib/queryGate.ts`, `src/lib/handlers/*`
 - Details: Bulk export does not apply the same gating rules as the API for lesson metadata, and output shapes are different from API responses.
 - Suggested fix: document the differences explicitly or apply consistent gating rules across bulk and API outputs.
+
+External alignment
+- See `.agent/summary/analysis/internal-external-crosswalk.md` for overlaps and gaps between internal fixes and external requests.
+- External summary tables live in `.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md`.
