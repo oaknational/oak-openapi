@@ -31,6 +31,7 @@ Version framing
 - `.agent/summary/analysis/gap-analysis.md`: high-impact, immediate issues with suggested fixes.
 - `.agent/summary/analysis/enhancements.md`: optional improvements and longer-term ideas.
 - `.agent/summary/analysis/versioned-improvements.md`: V0 critical fixes vs V1 improvements.
+- `.agent/summary/analysis/internal-external-crosswalk.md`: overlaps, gaps, and alignment notes between internal docs and external requests.
 - `.agent/summary/analysis/architecture-visibility-roadmap.md`: implicit vs explicit architecture and target-state documentation.
 - `.agent/summary/analysis/dependency-outdated-analysis.md`: dependency updates grouped into V0-safe vs V1-track changes.
 - `.agent/summary/analysis/v0-dependency-upgrade-checklist.md`: staged v0 upgrade batches and checks.

@@ -46,3 +46,7 @@ Success criteria
 - Integrators can locate equivalent information across bulk and API with minimal confusion.
 - Bulk outputs consistently document what is gated and why.
 - Bulk output structure remains stable or versioned when changes occur.
+
+External evidence
+- Bulk integrity examples live in `.agent/external-feedback-and-requests/from-mcp-semantic-search-work/15-bulk-download-examples.md`.
+- External summary tables are in `.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md`.

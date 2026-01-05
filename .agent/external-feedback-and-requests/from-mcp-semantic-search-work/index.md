@@ -34,30 +34,38 @@ If someone handed you this pack, would you know how to find what you want, and w
 - **Data variances and coverage:** `00-overview-and-known-issues.md` (ER15 Category Availability, ER16 Key Stage Coverage Discovery) and [Data Variances](../../../../docs/data/DATA-VARIANCES.md)
 - **Ground truth and evaluation:** `00-overview-and-known-issues.md` (ER17 Phase Metadata, ER18 Bulk Slug Validation, ER19 Field Availability, ER20 Bulk Version Metadata)
 
-## File map
+## Tagging key
 
-- `00-overview-and-known-issues.md` — open questions, API code review findings, binary response fix, legitimate z.unknown exceptions, bulk download data integrity issues, KS4 science accessibility clarification, **clarifying questions for upstream team** (NEW 2025-12-30), **enhancement requests** (full data coverage, API vs bulk docs, hasTranscript flags) (NEW 2025-12-30), **bulk download completeness requests** (RSHE-PSHE file, tier field, unit options, yearSlug, examBoard) (NEW 2025-12-30), **bulk download structure improvements** (top-level threads, null handling, bundled schemas, lesson counts, subject metadata) (NEW 2025-12-31), **MFL transcript API inconsistency** (500 vs 404 responses) (NEW 2026-01-03), **future enhancements** (multilingual captioning, category docs, key stage discovery) (NEW 2026-01-03), **ground truth & evaluation support** (phase metadata, bulk slug validation, field availability docs, bulk version metadata) (NEW 2026-01-05).
-- `01-derived-fields-and-ks4-metadata.md` — derived fields registry, ghost pathway note, KS4 programme factors, and interim denormalisation workaround.
-- `02-semantic-summary.md` — rerank summary request and the semantic_summary field definitions with status and rationale.
-- `03-context-and-vision.md` — executive summary, vision, tool ecosystem, schema-first pipeline overview, and audience.
-- `04-high-priority-requests.md` — high priority requests covering tool discovery, ontology, error docs, programme variants, identity consistency, and **structural pattern documentation** (NEW 2025-12-28).
-- `05-medium-priority-requests.md` — medium priority items for parameters, extensions, behavioural metadata, thread enhancements, schema refs, Zod validators, and **ingestion efficiency improvements** (boolean resource flags, bulk lesson materials endpoint).
-- `06-response-metadata-and-caching.md` — response examples, canonical URL patterns, and resource timestamps.
-- `07-low-priority-and-best-practices.md` — performance hints plus the OpenAPI best practices checklist sections A-G.
-- `08-summary-and-coordination.md` — summary table, implementation notes, testing impact, coordination, related docs, next steps, and contact details.
-- `09-schemas-endpoint-rfc.md` — RFC for a /schemas bundle endpoint and SDK type-gen integration for validators.
-- `10-availability-and-gating-examples.md` — examples for blocked subjects, allowlists, and availability metadata.
-- `11-assets-and-transcripts-examples.md` — examples for assets endpoints, binary responses, and transcript availability.
-- `12-search-and-enums-examples.md` — examples for search constraints and enum sources.
-- `13-quiz-content-examples.md` — examples for quiz question filtering and omission metadata.
-- `14-listing-and-pagination-examples.md` — examples for lesson/unit listings, pagination, and KS4 science access.
-- `15-bulk-download-examples.md` — examples for bulk download data integrity issues.
-- `16-schema-and-metadata-examples.md` — examples for descriptions, extensions, responses, and schema patterns.
-- `17-ontology-and-threads-examples.md` — examples for `/ontology` and thread metadata enhancements.
-- `18-programmes-and-identifiers-examples.md` — examples for programme variants, tier/examBoard fields, and identifiers.
-- `19-semantic-summary-examples.md` — examples for `semantic_summary`.
-- `20-validation-and-schema-examples.md` — examples for schema export, `z.unknown()` exceptions, and OpenAPI questions.
-- `21-maths-education-enhancements.md` — maths-focused API enhancements with examples and OpenAPI change sketches.
+- `area`: primary domain(s) touched by the document.
+- `track`: likely v0 or v1 relevance (`v0`, `v1`, or `mixed`).
+- `endpoints`: primary API paths (or `multi` when broad).
+
+## File map (tagged)
+
+| File | Focus | Tags |
+| --- | --- | --- |
+| `00-overview-and-known-issues.md` | Known issues, questions, and bulk integrity notes. | `area=overview,gating,bulk,search,assets,transcripts; track=mixed; endpoints=multi` |
+| `01-derived-fields-and-ks4-metadata.md` | Derived fields registry and KS4 metadata clarifications. | `area=metadata,ks4; track=v1; endpoints=multi` |
+| `02-semantic-summary.md` | Rerank summary and `semantic_summary` requests. | `area=search,metadata; track=v1; endpoints=multi` |
+| `03-context-and-vision.md` | Executive summary, vision, and tool ecosystem overview. | `area=overview,tooling; track=mixed; endpoints=multi` |
+| `04-high-priority-requests.md` | High priority schema, ontology, and error documentation requests. | `area=metadata,ontology,errors; track=mixed; endpoints=multi` |
+| `05-medium-priority-requests.md` | Metadata extensions, schema refs, validators, and ingestion efficiency. | `area=metadata,schemas,threads; track=mixed; endpoints=multi` |
+| `06-response-metadata-and-caching.md` | Response examples, canonical URLs, and timestamps. | `area=metadata,caching; track=v1; endpoints=multi` |
+| `07-low-priority-and-best-practices.md` | Performance hints and OpenAPI best practices. | `area=docs,openapi; track=v1; endpoints=multi` |
+| `08-summary-and-coordination.md` | Summary tables and coordination notes. | `area=overview,coordination; track=mixed; endpoints=multi` |
+| `09-schemas-endpoint-rfc.md` | `/schemas` bundle endpoint RFC. | `area=validation,schemas; track=v1; endpoints=/schemas` |
+| `10-availability-and-gating-examples.md` | Gating and availability examples. | `area=gating; track=v0; endpoints=/sequences/*,/lessons/*,/key-stages/*/assets` |
+| `11-assets-and-transcripts-examples.md` | Assets and transcript behaviour examples. | `area=assets,transcripts; track=v0; endpoints=/sequences/*/assets,/lessons/*/assets,/lessons/*/transcript` |
+| `12-search-and-enums-examples.md` | Search constraints and enum sources. | `area=search,enums; track=v0; endpoints=/search/lessons` |
+| `13-quiz-content-examples.md` | Quiz omissions and metadata examples. | `area=quiz; track=v0; endpoints=/lessons/*/questions` |
+| `14-listing-and-pagination-examples.md` | Listing and pagination behaviour; KS4 science access. | `area=pagination,listing; track=v0; endpoints=/key-stages/*/subject/*/lessons,/units/*/summary,/sequences/*/units` |
+| `15-bulk-download-examples.md` | Bulk data integrity and completeness examples. | `area=bulk; track=v0; endpoints=/api/bulk` |
+| `16-schema-and-metadata-examples.md` | Schema metadata patterns and examples. | `area=metadata,openapi; track=mixed; endpoints=multi` |
+| `17-ontology-and-threads-examples.md` | Ontology endpoint and thread metadata examples. | `area=ontology,threads; track=v1; endpoints=/ontology,/threads` |
+| `18-programmes-and-identifiers-examples.md` | Programme variants and identifier consistency. | `area=programmes,identifiers; track=v1; endpoints=/programmes,/lessons/*,/units/*` |
+| `19-semantic-summary-examples.md` | `semantic_summary` examples. | `area=search,metadata; track=v1; endpoints=multi` |
+| `20-validation-and-schema-examples.md` | Validation, `z.unknown()`, and binary response examples. | `area=validation,schemas; track=v1; endpoints=/schemas,/lessons/*/assets` |
+| `21-maths-education-enhancements.md` | Maths-specific enhancements and OpenAPI sketches. | `area=maths,quiz,transcripts,threads; track=v1; endpoints=multi` |
 
 ## Related Analysis Documents
 

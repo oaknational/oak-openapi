@@ -7,6 +7,7 @@ Version framing
 Context
 - The public API is considered v0 (public alpha moving toward public beta), regardless of `package.json` version.
 - This split is intended to keep critical stability and trust fixes in v0, while reserving bigger refinements for v1.
+- See `.agent/summary/analysis/internal-external-crosswalk.md` for overlaps and gaps with external requests.
 
 ## V0 critical fixes (stability, correctness, and trust)
 These are the items that most directly affect client reliability, licensing safety, and data correctness.
