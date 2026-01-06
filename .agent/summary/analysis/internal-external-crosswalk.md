@@ -9,6 +9,12 @@ Scope and ownership
 - The external pack is sourced from a downstream SDK repo and focuses on consumer-facing issues, tooling metadata, and usage examples.
 - Internal docs capture current implementation risks, constraints, and fix paths.
 
+Tags
+- area=coordination,alignment
+- track=mixed
+- source=internal
+- endpoints=multi
+
 How to use
 - Start with internal v0 items for correctness and trust.
 - Use the external pack to quantify user impact and prioritise metadata and discoverability work.

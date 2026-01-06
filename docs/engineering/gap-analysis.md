@@ -7,6 +7,12 @@ Version framing
 - The public API is v0 (public alpha moving toward public beta).
 - V0 items focus on correctness and trust; V1 items are deeper refinements after v0 stability.
 
+Tags
+- area=correctness,trust,bulk,gating
+- track=v0
+- source=internal
+- endpoints=multi
+
 Triage flow (simple view)
 ```text
 Finding
