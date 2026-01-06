@@ -21,6 +21,6 @@ Target state (what should be)
 - Progressive disclosure path for onboarding (start here -> architecture -> deep dives).
 
 How to get there
-- Keep `docs/architecture/system-boundaries.md`, `docs/architecture/infrastructure-topology.md`, and `docs/architecture/architecture-map.md` updated as code changes.
-- Add a "docs updated" check to `docs/engineering/safe-change-checklist.md`.
+- Keep [`docs/architecture/system-boundaries.md`](../../../docs/architecture/system-boundaries.md), [`docs/architecture/infrastructure-topology.md`](../../../docs/architecture/infrastructure-topology.md), and [`docs/architecture/architecture-map.md`](../../../docs/architecture/architecture-map.md) updated as code changes.
+- Add a "docs updated" check to [`docs/engineering/safe-change-checklist.md`](../../../docs/engineering/safe-change-checklist.md).
 - Review these docs during v0 stabilization to capture any gaps that surface during fixes.
