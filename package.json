@@ -2,8 +2,8 @@
   "name": "oak-openapi",
   "version": "1.0.0",
   "engines": {
-    "node": ">=20.6.0 <21",
-    "pnpm": ">=9"
+    "node": ">=22.20.0 <23",
+    "pnpm": ">=10"
   },
   "scripts": {
     "build": "next build",
@@ -100,7 +100,7 @@
     "@types/http-codes": "^1.0.4",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/lodash": "^4.17.15",
-    "@types/node": "^20.12.7",
+    "@types/node": "^22",
     "@types/pg": "^8.11.6",
     "@types/react": "^18.2.79",
     "@types/react-dom": "^18.2.25",
@@ -147,5 +147,5 @@
       "next lint ."
     ]
   },
-  "packageManager": "pnpm@9.15.2+sha512.93e57b0126f0df74ce6bff29680394c0ba54ec47246b9cf321f0121d8d9bb03f750a705f24edc3c1180853afd7c2c3b94196d0a3d53d3e069d9e2793ef11f321"
+  "packageManager": "pnpm@10.27.0+sha512.72d699da16b1179c14ba9e64dc71c9a40988cbdc65c264cb0e489db7de917f20dcf4d64d8723625f2969ba52d4b7e2a1170682d9ac2a5dcaeaab732b7e16f04a"
 }
