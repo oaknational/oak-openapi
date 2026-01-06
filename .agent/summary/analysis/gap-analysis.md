@@ -4,6 +4,12 @@ Version framing
 - The public API is v0 (public alpha moving toward public beta); prioritize V0 critical fixes first.
 - V1 improvements are deeper refinements after v0 stability goals; see `.agent/summary/analysis/versioned-improvements.md` for the split.
 
+Tags
+- area=correctness,trust,bulk,gating
+- track=v0
+- source=internal
+- endpoints=multi
+
 ## Summary
 These are items that could impact correctness, security, or core workflows in the short term.
 

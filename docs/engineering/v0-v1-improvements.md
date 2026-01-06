@@ -7,6 +7,12 @@ Version framing
 - The public API is v0 (public alpha moving toward public beta).
 - V0 items focus on correctness and trust; V1 items are deeper refinements after v0 stability.
 
+Tags
+- area=planning,stability,modernisation
+- track=mixed
+- source=internal
+- endpoints=multi
+
 Two-track view (simple flow)
 ```text
 V0 Stabilization
@@ -45,6 +51,25 @@ V1 improvements (refinements and modernization)
 - Bulk pipeline enhancements (manifests, checksums, gating alignment options).
 - Major dependency upgrades for framework, tooling, CMS, and data stack.
 - Lower-priority modernization: Babel replacement and lodash reduction.
+
+External items not yet captured (summary)
+V0 candidates
+- Lessons pagination bug (missing lessons in unfiltered pagination).
+- Unit summary `unitLessons` truncation.
+- Binary asset responses documented as JSON (should be binary).
+- Transcript endpoint returns empty 200 for missing transcripts.
+- Search excludes `financial-education`.
+- Quiz endpoints omit image-based questions without metadata.
+- KS4 science access via sequences only (needs documentation or change).
+- Bulk data integrity issues (null titles, missing lesson records).
+
+V1 candidates
+- `/ontology` endpoint and structural pattern documentation.
+- Programme variants, tier/exam board context, and identifier consistency.
+- `semantic_summary` and `rerank_summary` fields.
+- `/schemas` bundle for validator reuse.
+- Thread metadata enhancements and maths-specific additions.
+- OpenAPI metadata upgrades (summaries, examples, behaviour tags, canonical URLs, timestamps).
 
 Related docs
 - `docs/engineering/gap-analysis.md`
