@@ -43,11 +43,11 @@ follow-up item in the plans.
 
 ## Documentation and onboarding
 
-- Keep the onboarding path coherent (`README.md` -> `docs/README.md` -> deeper docs).
+- Keep the onboarding path coherent ([`README.md`](../../README.md) -> [`docs/README.md`](../../docs/README.md) -> deeper docs).
 - Update `docs/architecture/*` when architecture or boundaries change.
 - Use progressive disclosure: start broad, then link to detail.
 
 ## Future tightening (planned)
 
-See `docs/engineering/enhancements.md` for planned guardrails that are not yet
+See [`docs/engineering/enhancements.md`](../../docs/engineering/enhancements.md) for planned guardrails that are not yet
 enforced in this repo.

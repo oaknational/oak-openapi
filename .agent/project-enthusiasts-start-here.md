@@ -29,21 +29,21 @@ Ask early: *what impact are we trying to create for which users?* It keeps the b
 ## What to read first (narrative path)
 
 1. **Big picture and intent**
-   - `docs/README.md`
-   - `docs/engineering/v0-v1-improvements.md`
-   - `docs/engineering/gap-analysis.md`
+   - [docs/README.md](../docs/README.md)
+   - [docs/engineering/v0-v1-improvements.md](../docs/engineering/v0-v1-improvements.md)
+   - [docs/engineering/gap-analysis.md](../docs/engineering/gap-analysis.md)
 2. **Current system map**
-   - `.agent/summary/overview/overview.md`
-   - `.agent/summary/overview/runtime-architecture.md`
-   - `.agent/summary/overview/api-handlers.md`
+   - [.agent/summary/overview/overview.md](summary/overview/overview.md)
+   - [.agent/summary/overview/runtime-architecture.md](summary/overview/runtime-architecture.md)
+   - [.agent/summary/overview/api-handlers.md](summary/overview/api-handlers.md)
 3. **Deep dives if you need evidence or root cause**
-   - `.agent/summary/deep-dives/deep-dive-openapi-docs.md`
-   - `.agent/summary/deep-dives/deep-dive-pagination-consistency.md`
-   - `.agent/summary/deep-dives/deep-dive-gating.md`
+   - [.agent/summary/deep-dives/deep-dive-openapi-docs.md](summary/deep-dives/deep-dive-openapi-docs.md)
+   - [.agent/summary/deep-dives/deep-dive-pagination-consistency.md](summary/deep-dives/deep-dive-pagination-consistency.md)
+   - [.agent/summary/deep-dives/deep-dive-gating.md](summary/deep-dives/deep-dive-gating.md)
 4. **External feedback pack (for user-facing requests and examples)**
-   - `.agent/external-feedback-and-requests/from-mcp-semantic-search-work/index.md`
-   - `.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md`
-   - `.agent/external-feedback-and-requests/from-mcp-semantic-search-work/00-overview-and-known-issues.md`
+   - [.agent/external-feedback-and-requests/from-mcp-semantic-search-work/index.md](external-feedback-and-requests/from-mcp-semantic-search-work/index.md)
+   - [.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md](external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md)
+   - [.agent/external-feedback-and-requests/from-mcp-semantic-search-work/00-overview-and-known-issues.md](external-feedback-and-requests/from-mcp-semantic-search-work/00-overview-and-known-issues.md)
 
 ## Triage snapshot (v0 vs v1)
 
@@ -74,22 +74,22 @@ Why this is the simplest high-quality approach:
 - **Alignment**: a crosswalk makes overlap explicit without collapsing two different vocabularies into one list.
 
 Suggested structure for tracking (lightweight):
-- **Internal sources of truth**: `docs/engineering/gap-analysis.md`, `docs/engineering/v0-v1-improvements.md`, `.agent/summary/analysis/*`
-- **External requests pack**: `.agent/external-feedback-and-requests/from-mcp-semantic-search-work/*`
-- **Crosswalk**: `.agent/summary/analysis/internal-external-crosswalk.md` for overlaps, gaps, and alignment notes.
+- **Internal sources of truth**: [docs/engineering/gap-analysis.md](../docs/engineering/gap-analysis.md), [docs/engineering/v0-v1-improvements.md](../docs/engineering/v0-v1-improvements.md), [.agent/summary/analysis/*](summary/analysis/)
+- **External requests pack**: [.agent/external-feedback-and-requests/from-mcp-semantic-search-work/*](external-feedback-and-requests/from-mcp-semantic-search-work/)
+- **Crosswalk**: [.agent/summary/analysis/internal-external-crosswalk.md](summary/analysis/internal-external-crosswalk.md) for overlaps, gaps, and alignment notes.
 
 ## Navigation map by question
 
 If you are trying to understand…
 
-- **Why the API behaves as it does** → `.agent/summary/overview/runtime-architecture.md`
-- **Where the contract comes from** → `docs/architecture/openapi-generation.md`
-- **What must be fixed before v1** → `docs/engineering/gap-analysis.md`
-- **How bulk exports differ** → `docs/architecture/bulk-download.md` + `.agent/summary/guides/bulk-api-mapping-guide.md`
-- **How gating/licensing affects results** → `docs/architecture/content-gating.md` + `.agent/summary/deep-dives/deep-dive-gating.md`
-- **How pagination and listing behave** → `.agent/summary/deep-dives/deep-dive-pagination-consistency.md`
-- **What external users are asking for** → `.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md`
-- **Where internal and external concerns align** → `.agent/summary/analysis/internal-external-crosswalk.md`
+- **Why the API behaves as it does** → [.agent/summary/overview/runtime-architecture.md](summary/overview/runtime-architecture.md)
+- **Where the contract comes from** → [docs/architecture/openapi-generation.md](../docs/architecture/openapi-generation.md)
+- **What must be fixed before v1** → [docs/engineering/gap-analysis.md](../docs/engineering/gap-analysis.md)
+- **How bulk exports differ** → [docs/architecture/bulk-download.md](../docs/architecture/bulk-download.md) + [.agent/summary/guides/bulk-api-mapping-guide.md](summary/guides/bulk-api-mapping-guide.md)
+- **How gating/licensing affects results** → [docs/architecture/content-gating.md](../docs/architecture/content-gating.md) + [.agent/summary/deep-dives/deep-dive-gating.md](summary/deep-dives/deep-dive-gating.md)
+- **How pagination and listing behave** → [.agent/summary/deep-dives/deep-dive-pagination-consistency.md](summary/deep-dives/deep-dive-pagination-consistency.md)
+- **What external users are asking for** → [.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md](external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md)
+- **Where internal and external concerns align** → [.agent/summary/analysis/internal-external-crosswalk.md](summary/analysis/internal-external-crosswalk.md)
 
 ## External requests: how to consume the pack quickly
 
@@ -98,19 +98,19 @@ The external pack is large. Use this path:
 - Use the example packs only when you need concrete evidence or shape details.
 
 Fast path:
-1. `.../08-summary-and-coordination.md` (summary tables and priorities)
-2. `.../00-overview-and-known-issues.md` (observed issues and questions)
-3. `.../04-high-priority-requests.md`
-4. `.../05-medium-priority-requests.md`
+1. [.../08-summary-and-coordination.md](external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md) (summary tables and priorities)
+2. [.../00-overview-and-known-issues.md](external-feedback-and-requests/from-mcp-semantic-search-work/00-overview-and-known-issues.md) (observed issues and questions)
+3. [.../04-high-priority-requests.md](external-feedback-and-requests/from-mcp-semantic-search-work/04-high-priority-requests.md)
+4. [.../05-medium-priority-requests.md](external-feedback-and-requests/from-mcp-semantic-search-work/05-medium-priority-requests.md)
 
 Example packs (use selectively):
-- `.../10-availability-and-gating-examples.md`
-- `.../11-assets-and-transcripts-examples.md`
-- `.../14-listing-and-pagination-examples.md`
-- `.../15-bulk-download-examples.md`
-- `.../17-ontology-and-threads-examples.md`
+- [.../10-availability-and-gating-examples.md](external-feedback-and-requests/from-mcp-semantic-search-work/10-availability-and-gating-examples.md)
+- [.../11-assets-and-transcripts-examples.md](external-feedback-and-requests/from-mcp-semantic-search-work/11-assets-and-transcripts-examples.md)
+- [.../14-listing-and-pagination-examples.md](external-feedback-and-requests/from-mcp-semantic-search-work/14-listing-and-pagination-examples.md)
+- [.../15-bulk-download-examples.md](external-feedback-and-requests/from-mcp-semantic-search-work/15-bulk-download-examples.md)
+- [.../17-ontology-and-threads-examples.md](external-feedback-and-requests/from-mcp-semantic-search-work/17-ontology-and-threads-examples.md)
 
-## What changes are “schema-first”?
+## What changes are "schema-first"?
 
 If a request affects API shapes or documentation, it is likely schema-first:
 - Update Zod schemas in `src/lib/handlers/.../schemas`.
@@ -124,14 +124,14 @@ This prevents accidental divergence between runtime behaviour, docs, and SDKs.
 - Could it be simpler without compromising quality?
 - Is this a v0 correction or a v1 improvement?
 - Does it change the public contract (Zod schema required)?
-- Is it already captured in `docs/engineering/gap-analysis.md` or the external pack?
+- Is it already captured in [docs/engineering/gap-analysis.md](../docs/engineering/gap-analysis.md) or the external pack?
 - What user group does it help most (teachers, API consumers, AI tooling)?
 
 ## If you only have 30 minutes
 
 Read:
-- `docs/engineering/gap-analysis.md`
-- `docs/engineering/v0-v1-improvements.md`
-- `.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md`
+- [docs/engineering/gap-analysis.md](../docs/engineering/gap-analysis.md)
+- [docs/engineering/v0-v1-improvements.md](../docs/engineering/v0-v1-improvements.md)
+- [.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md](external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md)
 
 That combination gives you the internal fix list, the v0/v1 frame, and the external request map.
