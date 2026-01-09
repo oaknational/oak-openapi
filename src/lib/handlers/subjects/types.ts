@@ -1,36 +1,36 @@
-import { z } from 'zod';
+import * as z from 'zod/v4';
 
-export const numberArrayResult = z.array(z.number()).openapi({
+export const numberArrayResult = z.array(z.number()).meta({
   description: 'The years for which this subject has content available for',
 });
 
 export const keyStagesResult = z
   .array(
     z.object({
-      keyStageTitle: z.string().openapi({
+      keyStageTitle: z.string().meta({
         description: 'The key stage title for the given key stage',
       }),
-      keyStageSlug: z.string().openapi({
+      keyStageSlug: z.string().meta({
         description: 'The unique identifier for a given key stage',
       }),
     }),
   )
-  .openapi({
+  .meta({
     description:
       'The key stage slug identifiers for which this subject has content available for.',
   });
 
 export const sequenceResult = z.object({
-  sequenceSlug: z.string().openapi({
+  sequenceSlug: z.string().meta({
     description: 'The unique identifier for each sequence',
   }),
   years: numberArrayResult,
   keyStages: keyStagesResult,
-  phaseSlug: z.string().openapi({
+  phaseSlug: z.string().meta({
     description:
       'The unique identifier for the phase to which this sequence belongs',
   }),
-  phaseTitle: z.string().openapi({
+  phaseTitle: z.string().meta({
     description: 'The title for the phase to which this sequence belongs',
   }),
   ks4Options: z
@@ -38,7 +38,7 @@ export const sequenceResult = z.object({
       title: z.string(),
       slug: z.string(),
     })
-    .openapi({
+    .meta({
       description:
         'The key stage 4 study pathway that this sequence represents. May be null.',
     })
@@ -48,11 +48,9 @@ export const sequenceResult = z.object({
 export type SequenceResult = z.infer<typeof sequenceResult>;
 
 export const subjectResult = z.object({
-  subjectTitle: z.string().openapi({ description: 'The subject title' }),
-  subjectSlug: z
-    .string()
-    .openapi({ description: 'The subject slug identifier' }),
-  sequenceSlugs: z.array(sequenceResult).openapi({
+  subjectTitle: z.string().meta({ description: 'The subject title' }),
+  subjectSlug: z.string().meta({ description: 'The subject slug identifier' }),
+  sequenceSlugs: z.array(sequenceResult).meta({
     description:
       'Information about the years, key stages and key stage 4 variance for each sequence',
   }),

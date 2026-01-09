@@ -1,13 +1,13 @@
-import 'zod-openapi/extend';
 import { lessonAssetsType } from '@/lib/handlers/assets/types';
 
-export const lessonAssetsResponseOpenAPISchema = lessonAssetsType.openapi({
-  ref: 'LessonAssetsResponseSchema',
+export const lessonAssetsResponseOpenAPISchema = lessonAssetsType.meta({
+  id: 'LessonAssetsResponseSchema',
   example: {
     attribution: [
       'Copyright XYZ Authors',
       'Creative Commons Attribution Example 4.0',
     ],
+
     assets: [
       {
         label: 'Worksheet',

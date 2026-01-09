@@ -1,18 +1,17 @@
-import 'zod-openapi/extend';
-import z from 'zod';
+import * as z from 'zod/v4';
 
 export const transcriptResponseOpenAPISchema = z
   .object({
     transcript: z
       .string()
-      .openapi({ description: 'The transcript for the lesson video' }),
-    vtt: z.string().openapi({
+      .meta({ description: 'The transcript for the lesson video' }),
+    vtt: z.string().meta({
       description:
         'The contents of the .vtt file for the lesson video, which maps captions to video timestamps.',
     }),
   })
-  .openapi({
-    ref: 'TranscriptResponseSchema',
+  .meta({
+    id: 'TranscriptResponseSchema',
     example: {
       transcript:
         "Hello, I'm Mrs. Lashley. I'm looking forward to guiding you through your learning today...",

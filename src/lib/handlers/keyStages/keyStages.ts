@@ -1,7 +1,7 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import { keyStages } from '@/lib/keyStageAndSubjects';
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { keyStageResponseOpenAPISchema } from '@/lib/zod-openapi/generated/keyStages';
 
 export const getKeyStages = router({

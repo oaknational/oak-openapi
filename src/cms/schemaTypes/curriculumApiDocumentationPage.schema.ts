@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { portableTextContentSchema } from './shared/cms/portableText.schema';
 
 export const documentationContentPageBlockSchema = z.object({
@@ -14,6 +14,7 @@ export const documentationContentPageBlockSchema = z.object({
 export type DocumentationContentPageBlock = z.infer<
   typeof documentationContentPageBlockSchema
 >;
+
 export const curriculumApiDocumentationPageSchema = z.object({
   allApiContentPage: z.array(documentationContentPageBlockSchema),
 });

@@ -1,5 +1,5 @@
 import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
-import z from 'zod';
+import * as z from 'zod/v4';
 
 export const allKeyStageAndSubjectUnitsRequestSchema = z.object({
   keyStage: z.enum(keyStageSlugs as [string], {

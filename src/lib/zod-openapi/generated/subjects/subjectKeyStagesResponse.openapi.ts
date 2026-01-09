@@ -1,13 +1,12 @@
-import 'zod-openapi/extend';
 import { keyStagesResult } from '@/lib/handlers/subjects/types';
 
 export const subjectKeyStagesResponseOpenAPISchema = keyStagesResult
-  .openapi({
+  .meta({
     description:
       'The key stage slug identifiers for which this subject has content available for',
   })
-  .openapi({
-    ref: 'SubjectKeyStagesResponseSchema',
+  .meta({
+    id: 'SubjectKeyStagesResponseSchema',
     example: [
       { keyStageTitle: 'Key Stage 1', keyStageSlug: 'ks1' },
       { keyStageTitle: 'Key Stage 2', keyStageSlug: 'ks2' },

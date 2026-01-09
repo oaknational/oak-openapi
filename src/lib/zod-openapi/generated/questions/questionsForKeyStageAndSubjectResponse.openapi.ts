@@ -1,9 +1,8 @@
-import 'zod-openapi/extend';
 import { questionsSchema } from '@/lib/handlers/questions/types';
 
 export const questionsForKeyStageAndSubjectResponseOpenAPISchema =
-  questionsSchema.openapi({
-    ref: 'QuestionsForKeyStageAndSubjectResponseSchema',
+  questionsSchema.meta({
+    id: 'QuestionsForKeyStageAndSubjectResponseSchema',
     example: [
       {
         lessonSlug: 'predicting-the-size-of-a-product',
@@ -36,6 +35,7 @@ export const questionsForKeyStageAndSubjectResponseOpenAPISchema =
             ],
           },
         ],
+
         exitQuiz: [
           {
             question:

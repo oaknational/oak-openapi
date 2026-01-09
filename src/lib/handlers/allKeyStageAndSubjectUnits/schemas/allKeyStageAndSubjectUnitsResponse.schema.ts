@@ -1,5 +1,4 @@
-import z from 'zod';
-import 'zod-openapi/extend';
+import * as z from 'zod/v4';
 
 export const allKeyStageAndSubjectUnitsResponseSchema = z.array(
   z.object({
@@ -14,6 +13,6 @@ export const allKeyStageAndSubjectUnitsResponseSchema = z.array(
           unitTitle: z.string({ description: 'The unit title' }),
         }),
       )
-      .openapi({ description: 'List of units for the specified year' }),
+      .meta({ description: 'List of units for the specified year' }),
   }),
 );

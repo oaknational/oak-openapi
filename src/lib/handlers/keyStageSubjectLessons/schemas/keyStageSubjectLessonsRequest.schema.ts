@@ -1,6 +1,6 @@
 import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
 import { limitSchema, offsetSchema } from '@/lib/handlers/commonTypes';
-import z from 'zod';
+import * as z from 'zod/v4';
 
 export const keyStageSubjectLessonsRequestSchema = z.object({
   keyStage: z.enum(keyStageSlugs as [string], {

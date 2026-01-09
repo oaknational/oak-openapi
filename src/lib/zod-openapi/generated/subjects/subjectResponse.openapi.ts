@@ -1,8 +1,7 @@
-import 'zod-openapi/extend';
 import { subjectResult } from '@/lib/handlers/subjects/types';
 
-export const subjectResponseOpenAPISchema = subjectResult.openapi({
-  ref: 'SubjectResponseSchema',
+export const subjectResponseOpenAPISchema = subjectResult.meta({
+  id: 'SubjectResponseSchema',
   example: {
     subjectTitle: 'Art and design',
     subjectSlug: 'art',
@@ -14,6 +13,7 @@ export const subjectResponseOpenAPISchema = subjectResult.openapi({
           { keyStageTitle: 'Key Stage 1', keyStageSlug: 'ks1' },
           { keyStageTitle: 'Key Stage 2', keyStageSlug: 'ks2' },
         ],
+
         phaseSlug: 'primary',
         phaseTitle: 'Primary',
         ks4Options: null,
@@ -25,11 +25,13 @@ export const subjectResponseOpenAPISchema = subjectResult.openapi({
           { keyStageTitle: 'Key Stage 1', keyStageSlug: 'ks1' },
           { keyStageTitle: 'Key Stage 2', keyStageSlug: 'ks2' },
         ],
+
         phaseSlug: 'secondary',
         phaseTitle: 'Secondary',
         ks4Options: null,
       },
     ],
+
     years: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     keyStages: [
       { keyStageTitle: 'Key Stage 1', keyStageSlug: 'ks1' },

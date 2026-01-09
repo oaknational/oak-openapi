@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { categorySchema, threadSchema } from '@/lib/handlers/units/types';
 
 export const unitSummaryResponseSchema = z.object({

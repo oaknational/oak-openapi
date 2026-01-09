@@ -1,5 +1,5 @@
 import { publicProcedure, router } from '@/lib/trpc';
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { changelogResponseSchema } from './schemas/changelogResponse.schema';
 import { changelogLatestSchema } from './schemas/changelogLatestResponse.schema';
 import { versions } from './helpers';
@@ -17,7 +17,7 @@ export const changelog = router({
       },
     })
     .output(
-      changelogResponseSchema.openapi({
+      changelogResponseSchema.meta({
         example: versions.slice(0, 2),
       }),
     )
@@ -37,7 +37,7 @@ export const changelog = router({
       },
     })
     .output(
-      changelogLatestSchema.openapi({
+      changelogLatestSchema.meta({
         example: {
           ...versions[0],
         },

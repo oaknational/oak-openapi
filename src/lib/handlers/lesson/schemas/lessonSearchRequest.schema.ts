@@ -1,8 +1,8 @@
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
 
 export const lessonSearchRequestSchema = z.object({
-  q: z.string().openapi({
+  q: z.string().meta({
     description: 'Search query text snippet',
     example: 'gothic',
   }),
