@@ -11,4 +11,4 @@ export function SimpleButton({ label, onClick }: SimpleButtonProps) {
       {label}
     </button>
   );
-} 
+}

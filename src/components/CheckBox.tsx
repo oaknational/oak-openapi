@@ -2,7 +2,8 @@ import { useStableId } from '@/lib/useStableId';
 import React, { useState, InputHTMLAttributes, ReactNode } from 'react';
 import styled from 'styled-components';
 
-interface CheckBoxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+interface CheckBoxProps
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   checked: boolean;
   onChange: (checked: boolean) => void;
   label?: string;
@@ -95,8 +96,8 @@ const CheckBox: React.FC<CheckBoxProps> = ({
   const isControlled = controlledChecked !== undefined;
   const checked = isControlled ? controlledChecked : internalChecked;
 
-  const id = idProp ?? useStableId("chk");
-  const labelId = labelIdProp ?? useStableId("lbl");
+  const id = idProp ?? useStableId('chk');
+  const labelId = labelIdProp ?? useStableId('lbl');
 
   const handleCheckboxChange = () => {
     const newCheckedState = !checked;
@@ -116,10 +117,19 @@ const CheckBox: React.FC<CheckBoxProps> = ({
         onChange={handleCheckboxChange}
         aria-labelledby={label ? labelId : undefined}
       />
-      <StyledCheckbox aria-hidden onClick={handleCheckboxChange} checked={checked} $hasError={$hasError}>
+      <StyledCheckbox
+        aria-hidden
+        onClick={handleCheckboxChange}
+        checked={checked}
+        $hasError={$hasError}
+      >
         {checked && <CheckMarkIcon />}
       </StyledCheckbox>
-      {label && <Label id={labelId} htmlFor={id}>{label}</Label>}
+      {label && (
+        <Label id={labelId} htmlFor={id}>
+          {label}
+        </Label>
+      )}
       {children}
     </CheckboxContainer>
   );

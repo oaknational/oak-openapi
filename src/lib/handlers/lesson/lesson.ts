@@ -210,21 +210,19 @@ export const getLessons = router({
         }
       `;
 
-      const lessonResult = z.object({
-        lessonSlug: z.string(),
-        lessonTitle: z.string(),
-        keyStageSlug: z.string(),
-        subjectSlug: z.string(),
-        unitSlug: z.string(),
-        unitTitle: z.string(),
-        examBoardTitle: z.string(),
-      });
+      type LessonResult = {
+        lessonSlug: string;
+        lessonTitle: string;
+        keyStageSlug: string;
+        subjectSlug: string;
+        unitSlug: string;
+        unitTitle: string;
+        examBoardTitle: string;
+      };
 
-      const lessonQueryResult = z.object({
-        [lessonView]: z.array(lessonResult),
-      });
-
-      type LessonQueryResult = z.infer<typeof lessonQueryResult>;
+      type LessonQueryResult = {
+        [lessonView]: LessonResult[];
+      };
 
       const res: LessonQueryResult = await client.request(query, variables);
 
