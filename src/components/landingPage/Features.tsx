@@ -42,20 +42,20 @@ export default function Features() {
     <OakMaxWidth
       $background="bg-primary"
       $color="text-primary"
-      $ph={"spacing-16"}
+      $ph={'spacing-16'}
       $flexDirection={'row'}
       $pv="spacing-64"
       // FIXME: styles are being overwritten somewhere so having
       // to declare this.
       $mh={'auto'}
-      $maxWidth={["spacing-480", "spacing-1280"]}
+      $maxWidth={['spacing-480', 'spacing-1280']}
     >
       <OakGrid $cg="spacing-24" $rg="spacing-24">
         <OakGridArea
           $colSpan={[12, 4]}
           $alignSelf={'start'}
           $position={['static', 'sticky', 'sticky']}
-          $top={"spacing-56"}
+          $top={'spacing-56'}
           $display={['none', 'block', 'block']}
         >
           <Nav anchorTarget="#open-api-contents" items={navItems} />
@@ -72,7 +72,7 @@ export default function Features() {
           </OakBox>
         </OakGridArea>
 
-        <OakGridArea $width={'100%'} $colSpan={[12, 7]} $gap={"spacing-48"}>
+        <OakGridArea $width={'100%'} $colSpan={[12, 7]} $gap={'spacing-48'}>
           <Feature
             anchorTarget="about-api"
             title="Why are we providing an API?"
@@ -153,33 +153,21 @@ export default function Features() {
 
           <Feature anchorTarget="what-we-offer" title="What we offer">
             <OakUL>
-              <OakLI
-                $mb="spacing-12"
-                $font={'body-2'}
-                $display="list-item"
-              >
+              <OakLI $mb="spacing-12" $font={'body-2'} $display="list-item">
                 <strong>Fully resourced curricula</strong>: we are developing
                 our resources across the full national curriculum, and have
                 content available across multiple subjects and key stages,
                 ensuring that you have the materials you need to support a wide
                 range of learning requirements.
               </OakLI>
-              <OakLI
-                $mb="spacing-12"
-                $font={'body-2'}
-                $display="list-item"
-              >
+              <OakLI $mb="spacing-12" $font={'body-2'} $display="list-item">
                 <strong>High-quality resources</strong>: Benefit from
                 meticulously crafted lessons by our expert curriculum partners,
                 all aligned to Oak&apos;s research-based curriculum design
                 principles. Our resources are designed to engage students and
                 support effective teaching and learning.
               </OakLI>
-              <OakLI
-                $mb="spacing-12"
-                $font={'body-2'}
-                $display="list-item"
-              >
+              <OakLI $mb="spacing-12" $font={'body-2'} $display="list-item">
                 <OakP>
                   <strong>Flexible integration</strong>: Our API is designed to
                   be flexible and easy to integrate into your existing systems.
@@ -199,39 +187,19 @@ export default function Features() {
               created by our expert curriculum partners, each including:
             </OakP>
             <OakUL>
-              <OakLI
-                $mb={"spacing-8"}
-                $font={'body-2'}
-                $display="list-item"
-              >
+              <OakLI $mb={'spacing-8'} $font={'body-2'} $display="list-item">
                 Teacher-led lesson videos
               </OakLI>
-              <OakLI
-                $mb={"spacing-8"}
-                $font={'body-2'}
-                $display="list-item"
-              >
+              <OakLI $mb={'spacing-8'} $font={'body-2'} $display="list-item">
                 Oak formatted slide decks
               </OakLI>
-              <OakLI
-                $mb={"spacing-8"}
-                $font={'body-2'}
-                $display="list-item"
-              >
+              <OakLI $mb={'spacing-8'} $font={'body-2'} $display="list-item">
                 Starter and exit quizzes
               </OakLI>
-              <OakLI
-                $mb={"spacing-8"}
-                $font={'body-2'}
-                $display="list-item"
-              >
+              <OakLI $mb={'spacing-8'} $font={'body-2'} $display="list-item">
                 Worksheets
               </OakLI>
-              <OakLI
-                $mb={"spacing-8"}
-                $font={'body-2'}
-                $display="list-item"
-              >
+              <OakLI $mb={'spacing-8'} $font={'body-2'} $display="list-item">
                 Interactive activities
               </OakLI>
             </OakUL>

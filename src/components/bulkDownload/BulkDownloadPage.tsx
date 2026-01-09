@@ -150,8 +150,8 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
         $color={'black'}
       >
         <OakGrid
-          $pv={["spacing-40", "spacing-48"]}
-          $ph={["spacing-32", "spacing-64"]}
+          $pv={['spacing-40', 'spacing-48']}
+          $ph={['spacing-32', 'spacing-64']}
           $background="bg-decorative1-main"
           $cg="spacing-80"
           $gridTemplateColumns={['1fr', '1fr 1fr']}
