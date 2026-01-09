@@ -4,48 +4,37 @@ import { categorySchema, threadSchema } from '@/lib/handlers/units/types';
 
 export const unitSummaryResponseOpenAPISchema = z
   .object({
-    unitSlug: z
-      .string()
-      .openapi({
-        description: 'The unit slug identifier',
-        example: 'simple-compound-and-adverbial-complex-sentences',
-      }),
-    unitTitle: z
-      .string()
-      .openapi({
-        description: 'The unit title',
-        example: 'Simple, compound and adverbial complex sentences',
-      }),
-    yearSlug: z
-      .string()
-      .openapi({
-        description:
-          'The slug identifier for the year to which the unit belongs',
-        example: 'year-3',
-      }),
+    unitSlug: z.string().openapi({
+      description: 'The unit slug identifier',
+      example: 'simple-compound-and-adverbial-complex-sentences',
+    }),
+    unitTitle: z.string().openapi({
+      description: 'The unit title',
+      example: 'Simple, compound and adverbial complex sentences',
+    }),
+    yearSlug: z.string().openapi({
+      description: 'The slug identifier for the year to which the unit belongs',
+      example: 'year-3',
+    }),
     year: z
       .union([z.number(), z.string({ description: 'All years' })])
       .openapi({
         description: 'The year to which the unit belongs',
         example: 3,
       }),
-    phaseSlug: z
-      .string()
-      .openapi({
-        description:
-          'The slug identifier for the phase to which the unit belongs',
-        example: 'primary',
-      }),
+    phaseSlug: z.string().openapi({
+      description:
+        'The slug identifier for the phase to which the unit belongs',
+      example: 'primary',
+    }),
     subjectSlug: z
       .string()
       .openapi({ description: 'The subject identifier', example: 'english' }),
-    keyStageSlug: z
-      .string()
-      .openapi({
-        description:
-          'The slug identifier for the the key stage to which the unit belongs',
-        example: 'ks2',
-      }),
+    keyStageSlug: z.string().openapi({
+      description:
+        'The slug identifier for the the key stage to which the unit belongs',
+      example: 'ks2',
+    }),
     notes: z
       .string()
       .openapi({ description: 'Unit summary notes', example: undefined })
@@ -58,27 +47,23 @@ export const unitSummaryResponseOpenAPISchema = z
         example: undefined,
       })
       .optional(),
-    priorKnowledgeRequirements: z
-      .array(z.string())
-      .openapi({
-        description: 'The prior knowledge required for the unit',
-        example: [
-          'A simple sentence is about one idea and makes complete sense.',
-          'Any simple sentence contains one verb and at least one noun.',
-          'Two simple sentences can be joined with a co-ordinating conjunction to form a compound sentence.',
-        ],
-      }),
-    nationalCurriculumContent: z
-      .array(z.string())
-      .openapi({
-        description:
-          'National curriculum attainment statements covered in this unit',
-        example: [
-          'Ask relevant questions to extend their understanding and knowledge',
-          'Articulate and justify answers, arguments and opinions',
-          'Speak audibly and fluently with an increasing command of Standard English',
-        ],
-      }),
+    priorKnowledgeRequirements: z.array(z.string()).openapi({
+      description: 'The prior knowledge required for the unit',
+      example: [
+        'A simple sentence is about one idea and makes complete sense.',
+        'Any simple sentence contains one verb and at least one noun.',
+        'Two simple sentences can be joined with a co-ordinating conjunction to form a compound sentence.',
+      ],
+    }),
+    nationalCurriculumContent: z.array(z.string()).openapi({
+      description:
+        'National curriculum attainment statements covered in this unit',
+      example: [
+        'Ask relevant questions to extend their understanding and knowledge',
+        'Articulate and justify answers, arguments and opinions',
+        'Speak audibly and fluently with an increasing command of Standard English',
+      ],
+    }),
     whyThisWhyNow: z
       .string()
       .openapi({
@@ -111,18 +96,14 @@ export const unitSummaryResponseOpenAPISchema = z
     unitLessons: z.array(
       z
         .object({
-          lessonSlug: z
-            .string()
-            .openapi({
-              description: 'The lesson slug identifier',
-              example: 'four-types-of-simple-sentence',
-            }),
-          lessonTitle: z
-            .string()
-            .openapi({
-              description: 'The title for the lesson',
-              example: 'Four types of simple sentence',
-            }),
+          lessonSlug: z.string().openapi({
+            description: 'The lesson slug identifier',
+            example: 'four-types-of-simple-sentence',
+          }),
+          lessonTitle: z.string().openapi({
+            description: 'The title for the lesson',
+            example: 'Four types of simple sentence',
+          }),
           lessonOrder: z
             .number()
             .openapi({
@@ -130,13 +111,11 @@ export const unitSummaryResponseOpenAPISchema = z
               example: 1,
             })
             .optional(),
-          state: z
-            .enum(['published', 'new'])
-            .openapi({
-              description:
-                "If the state is 'published' then it is also available on the /lessons/* endpoints. If the state is 'new' then it's not available yet.",
-              example: 'published',
-            }),
+          state: z.enum(['published', 'new']).openapi({
+            description:
+              "If the state is 'published' then it is also available on the /lessons/* endpoints. If the state is 'new' then it's not available yet.",
+            example: 'published',
+          }),
         })
         .openapi({ description: 'All the lessons contained in the unit' }),
     ),

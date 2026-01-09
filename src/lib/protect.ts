@@ -64,15 +64,15 @@ export const protect = async (opts: {
   meta?: OpenApiMeta;
 }) => {
   const { ctx, next, meta } = opts;
-  
+
   await protectLogic(ctx, meta);
-  
+
   return next({ ctx });
 };
 
 const protectMiddleware = t.middleware(async ({ ctx, next, meta }) => {
   await protectLogic(ctx, meta);
-  
+
   return next({ ctx });
 });
 

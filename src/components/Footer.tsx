@@ -84,7 +84,7 @@ export default function Footer() {
           $flexDirection={['column', 'row']}
           $pv="spacing-56"
           $ph="spacing-16"
-          $gap={["spacing-56", "spacing-24", "spacing-80"]}
+          $gap={['spacing-56', 'spacing-24', 'spacing-80']}
         >
           <ContactUs />
           <GiveFeedback />
@@ -102,15 +102,15 @@ export default function Footer() {
           $justifyContent={'center'}
           $flexDirection={['column', 'column', 'row-reverse']}
           $gap="spacing-48"
-          $pv={["spacing-56", "spacing-48", "spacing-80"]}
-          $ph={"spacing-16"}
+          $pv={['spacing-56', 'spacing-48', 'spacing-80']}
+          $ph={'spacing-16'}
           $ma={'auto'}
           $position={'relative'}
           $width={'100%'}
         >
           <OakFlex
             $flexDirection={['column', 'row']}
-            $gap={["spacing-48", "spacing-16"]}
+            $gap={['spacing-48', 'spacing-16']}
           >
             <OakBox style={{ flex: '1' }} $minWidth="240px">
               <FooterSectionLinks
@@ -132,7 +132,7 @@ export default function Footer() {
             $mb="spacing-56"
             $width={'100%'}
             $flexDirection={['column', 'row']}
-            $pt={["spacing-12", "spacing-0"]}
+            $pt={['spacing-12', 'spacing-0']}
           >
             <OakFlex $flexDirection="column" $gap="spacing-48">
               <OakLinkLogo href="https://www.thenational.academy/">
@@ -185,7 +185,7 @@ const FooterSectionLinks = ({ title, links }: FooterSectionLinksProps) => {
         {title}
       </OakHeading>
       <OakFlex
-        $color={"text-primary"}
+        $color={'text-primary'}
         $font={'body-2'}
         as="ul"
         role="list"
@@ -204,11 +204,7 @@ const FooterSectionLinks = ({ title, links }: FooterSectionLinksProps) => {
 
 const FooterLink = ({ text, href, ariaLabel, icon }: FooterLink) => {
   return (
-    <OakFlex
-      $gap={"spacing-8"}
-      $display={'inline-flex'}
-      $alignItems="center"
-    >
+    <OakFlex $gap={'spacing-8'} $display={'inline-flex'} $alignItems="center">
       <FooterOakLink
         target={icon ? '_blank' : null}
         href={href}

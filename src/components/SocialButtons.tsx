@@ -84,7 +84,7 @@ const SocialButtons: FC<SocialButtonsProps> = (props) => {
   }
 
   return (
-    <OakFlex $gap={"spacing-16"} {...flexProps}>
+    <OakFlex $gap={'spacing-16'} {...flexProps}>
       {socialsToShow.map((network) => {
         const { label, icon } = SOCIAL_BUTTON_CONFIGS[network];
         const profile = socialNetworks[network];
