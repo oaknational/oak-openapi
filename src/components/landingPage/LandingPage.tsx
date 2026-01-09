@@ -84,7 +84,7 @@ function UsingTheAPI({ title, image, link, blocks }: UsingTheApiSection) {
       <OakFlex
         $flexGrow={1}
         $flexDirection="column"
-        $gap={["spacing-24", "spacing-32"]}
+        $gap={['spacing-24', 'spacing-32']}
       >
         <BlockHeading tag="h1" $font={['heading-4', 'heading-3', 'heading-2']}>
           {title}
@@ -96,15 +96,15 @@ function UsingTheAPI({ title, image, link, blocks }: UsingTheApiSection) {
               sizes={`width: ${343}px, height: ${288}px`}
               src={image.src}
               alt={image.altText || ''}
-              $height={["spacing-360", "spacing-480"]}
-              $width={["spacing-360", "spacing-480"]}
+              $height={['spacing-360', 'spacing-480']}
+              $width={['spacing-360', 'spacing-480']}
             />
           )}
         </OakBox>
       </OakFlex>
       <OakFlex
         $flexDirection="column"
-        $gap={["spacing-24", "spacing-48"]}
+        $gap={['spacing-24', 'spacing-48']}
         $alignSelf="baseline"
       >
         {blocks.map((block, index) => (
@@ -112,14 +112,14 @@ function UsingTheAPI({ title, image, link, blocks }: UsingTheApiSection) {
             key={index}
             $flexGrow={1}
             $flexDirection="column"
-            $gap={["spacing-24", "spacing-32"]}
-            $pa={["spacing-24", "spacing-32"]}
+            $gap={['spacing-24', 'spacing-32']}
+            $pa={['spacing-24', 'spacing-32']}
             $background="bg-decorative1-very-subdued"
           >
             <BlockHeading tag="h2" $font={['heading-5', 'heading-4']}>
               {block.title}
             </BlockHeading>
-            <OakFlex $gap={["spacing-16"]} $flexDirection="column">
+            <OakFlex $gap={['spacing-16']} $flexDirection="column">
               {typeof block.description === 'string' ? (
                 <OakP>{block.description}</OakP>
               ) : (
@@ -158,12 +158,12 @@ function BlockAndText1({
       <OakFlex
         $flexGrow={1}
         $flexDirection="column"
-        $gap={["spacing-24", "spacing-32"]}
+        $gap={['spacing-24', 'spacing-32']}
       >
         <BlockHeading tag="h1" $font={['heading-4', 'heading-3', 'heading-2']}>
           {title}
         </BlockHeading>
-        <OakFlex $gap={["spacing-16"]} $flexDirection="column">
+        <OakFlex $gap={['spacing-16']} $flexDirection="column">
           {typeof description === 'string' ? (
             <OakP $font={['body-2', 'body-1']}>{description}</OakP>
           ) : (
@@ -179,8 +179,8 @@ function BlockAndText1({
             sizes={`width: ${2228}px, height: ${1472}px`}
             src={image.src}
             alt=""
-            $height={["spacing-360", "spacing-480"]}
-            $width={["spacing-360", "spacing-480"]}
+            $height={['spacing-360', 'spacing-480']}
+            $width={['spacing-360', 'spacing-480']}
           />
         </OakFlex>
       )}
