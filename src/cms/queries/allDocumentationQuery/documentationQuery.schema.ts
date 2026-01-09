@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { portableTextContentSchema } from '../../schemaTypes/shared/cms/portableText.schema';
 
 export const documentationQuerySchema = z.array(

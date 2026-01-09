@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { unitSummaryResponseSchema } from './schemas/unitSummaryResponse.schema';
 
 export const threadSchema = z.object({

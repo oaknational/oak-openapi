@@ -1,6 +1,6 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import {
   currentCycle,
   getClient,

@@ -6,9 +6,7 @@ import {
   ZodOpenApiPathsObject,
   ZodOpenApiResponsesObject,
 } from 'zod-openapi';
-import { SchemaObject } from 'zod-openapi/dist/extendZodTypes';
-import { SchemaObjectType } from 'zod-openapi/dist/openapi3-ts/dist/oas31';
-import { ParameterObject } from 'zod-openapi/dist/openapi3-ts/dist/oas31';
+import type { SchemaObject, ParameterObject } from 'openapi3-ts/oas31';
 import { findAllObjectProperties, getPathEnd } from './helpers';
 
 export const groupedEndpointInfo = [
@@ -64,7 +62,7 @@ const getParamType = (properties: SchemaObject): string | undefined => {
     const anyOf = properties.anyOf as SchemaObject[];
     return anyOf.map((prop) => prop.type).join(', ');
   }
-  const schemaType = 'array' as SchemaObjectType;
+  const schemaType = 'array' as const;
 
   if (properties.type !== undefined) {
     if (properties.items && properties.type === schemaType) {

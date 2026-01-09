@@ -8,11 +8,11 @@ import {
   pathwaySlugs,
 } from '@oaknational/oak-curriculum-schema';
 
-export const phases = Object.keys(phaseSlugs.Values);
-export const keystages = Object.keys(keystageSlugs.Values);
-export const keystageTitles = Object.keys(keystageDescriptions.Values);
-export const subjects = Object.keys(subjectSlugs.Values);
-export const subjectTitles = Object.keys(subjectSchema.Values);
-export const examBoards = Object.keys(examboardSlugs.Values);
-export const pathways = Object.keys(pathwaySlugs.Values);
+export const phases = Object.keys(phaseSlugs.options);
+export const keystages = Object.keys(keystageSlugs.options);
+export const keystageTitles = Object.keys(keystageDescriptions.options);
+export const subjects = Object.keys(subjectSlugs.options);
+export const subjectTitles = Object.keys(subjectSchema.options);
+export const examBoards = Object.keys(examboardSlugs.options);
+export const pathways = Object.keys(pathwaySlugs.options);
 export const ks4Options = [...examBoards, ...pathways];

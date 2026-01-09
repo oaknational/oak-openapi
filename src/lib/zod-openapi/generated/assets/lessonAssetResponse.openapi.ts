@@ -1,6 +1,5 @@
-import 'zod-openapi/extend';
-import { z } from 'zod';
+import * as z from 'zod/v4';
 
 export const lessonAssetResponseOpenAPISchema = z
   .any()
-  .openapi({ ref: 'LessonAssetResponseSchema', example: {} });
+  .meta({ id: 'LessonAssetResponseSchema', example: {} });

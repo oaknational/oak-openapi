@@ -1,11 +1,10 @@
-import 'zod-openapi/extend';
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { sequenceResult } from '@/lib/handlers/subjects/types';
 
 export const subjectSequenceResponseOpenAPISchema = z
   .array(sequenceResult)
-  .openapi({
-    ref: 'SubjectSequenceResponseSchema',
+  .meta({
+    id: 'SubjectSequenceResponseSchema',
     example: [
       {
         sequenceSlug: 'art-primary',
@@ -14,6 +13,7 @@ export const subjectSequenceResponseOpenAPISchema = z
           { keyStageTitle: 'Key Stage 1', keyStageSlug: 'ks1' },
           { keyStageTitle: 'Key Stage 2', keyStageSlug: 'ks2' },
         ],
+
         phaseSlug: 'primary',
         phaseTitle: 'Primary',
         ks4Options: null,
@@ -25,6 +25,7 @@ export const subjectSequenceResponseOpenAPISchema = z
           { keyStageTitle: 'Key Stage 1', keyStageSlug: 'ks1' },
           { keyStageTitle: 'Key Stage 2', keyStageSlug: 'ks2' },
         ],
+
         phaseSlug: 'secondary',
         phaseTitle: 'Secondary',
         ks4Options: null,

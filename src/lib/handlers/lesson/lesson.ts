@@ -11,14 +11,12 @@ import {
   lessonViewTable,
   querySQL,
 } from 'lib/owaClient';
-import { z } from 'zod';
+import * as z from 'zod/v4';
 
 import { blockLessonForCopyrightText } from '../../queryGate';
 import Timing from '@/lib/serverTimings';
 
 import { LessonSearchResultType } from './schemas/lessonSearchResponse.schema';
-
-import 'zod-openapi/extend';
 
 import {
   lessonSearchRequestOpenAPISchema,
@@ -110,6 +108,7 @@ export const getLessons = router({
         const lesson = data[0] as z.infer<
           typeof lessonSummaryResponseOpenAPISchema
         >;
+
         lessonSummaryResponseOpenAPISchema.parse(lesson);
         return lesson;
       } catch {

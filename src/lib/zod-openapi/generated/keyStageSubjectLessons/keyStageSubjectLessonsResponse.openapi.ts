@@ -1,31 +1,30 @@
-import 'zod-openapi/extend';
-import z from 'zod';
+import * as z from 'zod/v4';
 
 export const keyStageSubjectLessonsResponseOpenAPISchema = z
   .array(
     z.object({
-      unitSlug: z.string().openapi({
+      unitSlug: z.string().meta({
         description: 'The unit slug identifier',
         example: 'simple-compound-and-adverbial-complex-sentences',
       }),
-      unitTitle: z.string().openapi({
+      unitTitle: z.string().meta({
         description: 'The unit title',
         example: 'Simple, compound and adverbial complex sentences',
       }),
       lessons: z
         .array(
           z.object({
-            lessonSlug: z.string().openapi({
+            lessonSlug: z.string().meta({
               description: 'The lesson slug identifier',
               example: 'four-types-of-simple-sentence',
             }),
-            lessonTitle: z.string().openapi({
+            lessonTitle: z.string().meta({
               description: 'The lesson title',
               example: 'Four types of simple sentence',
             }),
           }),
         )
-        .openapi({
+        .meta({
           description: 'List of lessons for the specified unit',
           example: [
             {
@@ -40,8 +39,8 @@ export const keyStageSubjectLessonsResponseOpenAPISchema = z
         }),
     }),
   )
-  .openapi({
-    ref: 'KeyStageSubjectLessonsResponseSchema',
+  .meta({
+    id: 'KeyStageSubjectLessonsResponseSchema',
     example: [
       {
         unitSlug: 'simple-compound-and-adverbial-complex-sentences',
