@@ -1,16 +1,29 @@
 import { User, findUserByKey } from '@/lib/apikeys';
 import { RateLimitInfo } from './rateLimit';
-// note that ignoring this works locally, but not in production, Vercel blocks the build 🤦
-import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
+import type { TRPCRequestInfo } from '@trpc/server/http';
+import { NextApiResponse } from 'next';
 
 export type Context = Awaited<Promise<ReturnType<typeof createContext>>>;
+
+type FetchCreateContextFnOptions = {
+  req: Request;
+  res: NextApiResponse;
+  info: TRPCRequestInfo;
+};
 
 const createContextWithUser = async ({
   req,
   info,
-  resHeaders,
+  res,
 }: FetchCreateContextFnOptions) => {
   // low fat cors
+
+  const resHeaders = {
+    set: (key: string, value: string) => {
+      res.setHeader(key, value);
+    },
+  };
+
   resHeaders.set('access-control-allow-origin', '*');
   resHeaders.set('access-control-allow-methods', 'GET, POST, OPTIONS');
   resHeaders.set('access-control-allow-headers', 'Content-Type, Authorization');

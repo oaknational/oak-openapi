@@ -23,7 +23,6 @@ const handler = async (
   { params }: { params: Promise<{ lesson: string; type: string }> },
 ) => {
   // 1. get the user
-
   const user = await withUser(req);
   const ctx = {
     user,
@@ -39,6 +38,7 @@ const handler = async (
         meta: { noCost: false },
       });
     } catch (error) {
+      console.log('Protection failed', error);
       reject(error);
     }
   });
@@ -176,6 +176,10 @@ async function handlerWrapper(
     return await handler(req, { params });
   } catch (e: unknown) {
     const { code, message } = e as { code: string; message: string };
+
+    // if (process.env.NODE_ENV === 'test') {
+    //   console.log((e as Error).stack);
+    // }
 
     const statusCode =
       typeof code === 'string' && code in codes

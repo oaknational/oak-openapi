@@ -148,8 +148,8 @@ for (const [path, methods] of Object.entries(swaggerData.paths)) {
         const [isValid, errors = null] = validateExample(schemaRef, example);
 
         if (!isValid) {
-          throw new Error(`Example does not match schema.`);
           console.log(errors);
+          throw new Error(`Example does not match schema.`);
         }
         expect(isValid).toBe(true);
       });

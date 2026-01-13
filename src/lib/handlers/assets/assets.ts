@@ -51,7 +51,7 @@ export async function assetsForLesson(lessonSlug: string) {
 
   if (!supported) {
     throw new TRPCError({
-      message: 'Lesson not available',
+      message: `Lesson not available: "${lessonSlug}"`,
       code: 'NOT_FOUND',
     });
   }
