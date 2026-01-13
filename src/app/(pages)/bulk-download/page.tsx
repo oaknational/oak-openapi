@@ -12,7 +12,6 @@ export type Subjects = {
 export default async function Page() {
   const subjects = await getAllSubjects(getClient());
 
-
   // reduce and restructure the subjects to match the expected format:
   const reducedSubjects: Subjects = subjects.reduce((acc, subject) => {
     const { sequenceSlug, subjectTitle: title } = subject;

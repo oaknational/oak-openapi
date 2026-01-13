@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import {
   OakBox,
   OakFlex,
@@ -13,8 +13,8 @@ import {
   OakFieldError,
 } from '@oaknational/oak-components';
 
-import { useState } from "react";
-import { MaxWidth } from "@/components/MaxWidth";
+import { useState } from 'react';
+import { MaxWidth } from '@/components/MaxWidth';
 
 export default function AdminPage() {
   return (
@@ -22,30 +22,26 @@ export default function AdminPage() {
       <OakBox $width="100%" $background="bg-primary" $color="text-primary">
         <MaxWidth
           $ph="spacing-16"
-          $flexDirection={"row"}
-          $pv={["spacing-32", "spacing-64"]}
+          $flexDirection={'row'}
+          $pv={['spacing-32', 'spacing-64']}
         >
           <OakGrid $cg="spacing-24" $rg="spacing-24">
             <OakGridArea
               $colSpan={[12, 3]}
-              $alignSelf={"start"}
-              $position={["static", "sticky", "sticky"]}
-              $top={"spacing-56"}
-              $display={["none", "block", "block"]}
+              $alignSelf={'start'}
+              $position={['static', 'sticky', 'sticky']}
+              $top={'spacing-56'}
+              $display={['none', 'block', 'block']}
             ></OakGridArea>
             <OakGridArea
               $colSpan={[12]}
-              $position={["static", "static", "sticky"]}
-              $display={["block", "none", "none"]}
+              $position={['static', 'static', 'sticky']}
+              $display={['block', 'none', 'none']}
               $pt="spacing-16"
               $pb="spacing-16"
             ></OakGridArea>
 
-            <OakGridArea
-              $width={"100%"}
-              $colSpan={[12, 7]}
-              $gap={"spacing-48"}
-            >
+            <OakGridArea $width={'100%'} $colSpan={[12, 7]} $gap={'spacing-48'}>
               <CreateAPIKey />
             </OakGridArea>
           </OakGrid>
@@ -56,18 +52,18 @@ export default function AdminPage() {
 }
 
 function CreateAPIKey() {
-  const [name, setName] = useState("");
-  const [company, setCompany] = useState("");
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const [key, setKey] = useState("");
+  const [name, setName] = useState('');
+  const [company, setCompany] = useState('');
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [key, setKey] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const response = await fetch("/api/admin/create-api-key", {
-      method: "POST",
+    const response = await fetch('/api/admin/create-api-key', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({ name, company, email }),
     });

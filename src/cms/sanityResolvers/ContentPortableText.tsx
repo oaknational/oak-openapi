@@ -46,19 +46,14 @@ const contentPortableTextComponents: PortableTextComponents = {
       <OakHeading
         $font={['heading-6', 'heading-4']}
         tag="h2"
-        $mt={["spacing-48", "spacing-56"]}
-        $mb={["spacing-24", "spacing-32"]}
+        $mt={['spacing-48', 'spacing-56']}
+        $mb={['spacing-24', 'spacing-32']}
       >
         {props.children}
       </OakHeading>
     ),
     h1: (props) => (
-      <OakHeading
-        tag="h1"
-        $mb="spacing-16"
-        $font="heading-1"
-        $mt="spacing-24"
-      >
+      <OakHeading tag="h1" $mb="spacing-16" $font="heading-1" $mt="spacing-24">
         {props.children}
       </OakHeading>
     ),
@@ -121,7 +116,7 @@ const contentPortableTextComponents: PortableTextComponents = {
   list: {
     bullet: (props) => <UL>{props.children}</UL>,
     number: (props) => (
-      <OakOL $ml={["spacing-16", "spacing-24"]} $mb="spacing-16">
+      <OakOL $ml={['spacing-16', 'spacing-24']} $mb="spacing-16">
         {props.children}
       </OakOL>
     ),
