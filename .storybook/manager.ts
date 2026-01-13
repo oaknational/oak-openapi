@@ -1,19 +1,19 @@
-import { addons } from "@storybook/manager-api";
-import theme from "./storybookTheme";
+import { addons } from '@storybook/manager-api';
+import theme from './storybookTheme';
 
 addons.setConfig({
   theme,
   isFullscreen: false,
   showNav: true,
   showPanel: true,
-  panelPosition: "bottom",
+  panelPosition: 'bottom',
   enableShortcuts: true,
   isToolshown: true,
   selectedPanel: undefined,
-  initialActive: "sidebar",
+  initialActive: 'sidebar',
   sidebar: {
     showRoots: true,
-    collapsedRoots: ["other"],
+    collapsedRoots: ['other'],
   },
   toolbar: {
     title: { hidden: false },
@@ -22,4 +22,4 @@ addons.setConfig({
     copy: { hidden: false },
     fullscreen: { hidden: false },
   },
-}); 
+});

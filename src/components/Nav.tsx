@@ -64,7 +64,7 @@ export function Navigation() {
       <MaxWidth
         as="header"
         $alignItems={'center'}
-        $gap={"spacing-48"}
+        $gap={'spacing-48'}
         $pv="spacing-12"
         $ph="spacing-16"
         $color="text-primary"
@@ -183,11 +183,7 @@ function MenuContents({
       className={className}
       $justifyContent="space-between"
     >
-      <OakFlex
-        role="list"
-        $gap="spacing-32"
-        $flexDirection={flexDirection}
-      >
+      <OakFlex role="list" $gap="spacing-32" $flexDirection={flexDirection}>
         <OakAPINavigationLink
           role="listitem"
           href="/"
@@ -204,11 +200,7 @@ function MenuContents({
         </OakAPINavigationLink>
       </OakFlex>
       {wide ? null : <MenuSeparator />}
-      <OakFlex
-        role="list"
-        $gap="spacing-32"
-        $flexDirection={flexDirection}
-      >
+      <OakFlex role="list" $gap="spacing-32" $flexDirection={flexDirection}>
         <OakAPINavigationLink
           role="listitem"
           href="https://share.hsforms.com/1gQQFsrHDRf-eZUDajj6NzQbvumd"

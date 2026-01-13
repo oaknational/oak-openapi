@@ -57,11 +57,16 @@ const SelectCard: React.FC<SelectCardProps> = ({
       >
         <OakIcon
           $width="spacing-56"
-          $height={"spacing-56"}
+          $height={'spacing-56'}
           iconName={iconName as OakIconName}
         />
 
-        <OakSpan $font="heading-6" $textAlign="center" $color="text-primary" id={id}>
+        <OakSpan
+          $font="heading-6"
+          $textAlign="center"
+          $color="text-primary"
+          id={id}
+        >
           {subject}
         </OakSpan>
       </OakFlex>
@@ -81,15 +86,15 @@ const SelectCard: React.FC<SelectCardProps> = ({
               onChange={onPrimaryChange}
               $hasError={$hasError}
               errorId={errorId}
-              />
-            )}
+            />
+          )}
           {secondaryLessonCount > 0 && (
             <DownloadOption
-            heading="Secondary"
-            checked={secondaryChecked}
-            onChange={onSecondaryChange}
-            $hasError={$hasError}
-            errorId={errorId}
+              heading="Secondary"
+              checked={secondaryChecked}
+              onChange={onSecondaryChange}
+              $hasError={$hasError}
+              errorId={errorId}
             />
           )}
         </OakFlex>
@@ -133,10 +138,18 @@ function DownloadOption({
         $gap="spacing-4"
       >
         <OakSpan $font="body-2-bold" $color="text-primary">
-          <label suppressHydrationWarning htmlFor={id}>{heading}</label>
+          <label suppressHydrationWarning htmlFor={id}>
+            {heading}
+          </label>
         </OakSpan>
       </OakFlex>
-      <CheckBox aria-describedby={errorId} id={id} $hasError={$hasError} checked={checked} onChange={onChange} />
+      <CheckBox
+        aria-describedby={errorId}
+        id={id}
+        $hasError={$hasError}
+        checked={checked}
+        onChange={onChange}
+      />
     </OakFlex>
   );
 }
