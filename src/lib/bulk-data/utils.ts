@@ -65,7 +65,7 @@ export function tuplesToObjects<K extends string, V>(
             if (typeof parsed === 'object') {
               return [k, parsed];
             }
-          } catch (e) {
+          } catch {
             // If JSON.parse fails, return the original value
           }
           return [k, row[i]];
