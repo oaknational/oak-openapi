@@ -2,8 +2,10 @@ import { useStableId } from '@/lib/useStableId';
 import React, { useState, InputHTMLAttributes, ReactNode } from 'react';
 import styled from 'styled-components';
 
-interface CheckBoxProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+interface CheckBoxProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'onChange'
+> {
   checked: boolean;
   onChange: (checked: boolean) => void;
   label?: string;

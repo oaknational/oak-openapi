@@ -18,7 +18,7 @@ export const parseSubjectPhaseSlug = (
 
   if (phaseIndex === -1) {
     throw new TRPCError({
-      message: "Invalid slug, must include 'primary' or 'secondary'",
+      message: `Invalid slug, must include 'primary' or 'secondary': ${slug}`,
       code: 'BAD_REQUEST',
     });
   }

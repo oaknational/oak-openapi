@@ -1,7 +1,11 @@
 {
+  "vitest.nodeEnv": {
+    "DOTENV_CONFIG_PATH": ".env"
+  },
   "eslint.nodePath": "node_modules",
   "cSpell.words": [
     "apikeys",
+    "APIV",
     "commitlint",
     "Consts",
     "examboard",
