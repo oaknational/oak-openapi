@@ -57,9 +57,9 @@ const createNavItem = (
     $background={selected ? ['grey20', 'mint50'] : ['white']}
     $borderRadius="border-radius-s"
     $font={'heading-light-7'}
-    $pa={['', "spacing-8"]}
-    $ph={["spacing-16", '']}
-    $pv={["spacing-8", '']}
+    $pa={['', 'spacing-8']}
+    $ph={['spacing-16', '']}
+    $pv={['spacing-8', '']}
     key={index}
   >
     <StyledOakLink $font="heading-6" onClick={onClick} href={`/docs/${slug}`}>
@@ -123,9 +123,9 @@ export default function DocsNav({
   return (
     <DocsNavContainer
       $flexDirection="column"
-      $gap={['', "spacing-32"]}
+      $gap={['', 'spacing-32']}
       $ml="spacing-16"
-      $mr={["spacing-16", '']}
+      $mr={['spacing-16', '']}
       $bb={[menuIsOpen ? 'border-solid-s' : '', '']}
       $borderColor={['grey40']}
       as="nav"
@@ -175,9 +175,9 @@ export default function DocsNav({
         $display={[menuIsOpen ? 'flex' : 'none', 'flex']}
         id="docs-nav-list"
         $flexDirection="column"
-        $gap={['', "spacing-32"]}
+        $gap={['', 'spacing-32']}
         role="list"
-        $pa={["spacing-16", "spacing-0"]}
+        $pa={['spacing-16', 'spacing-0']}
         style={{
           paddingRight:
             '0' /* there's an injected style deep from oak components adding this - and can't be removed with $pr */,
@@ -191,7 +191,7 @@ export default function DocsNav({
           return (
             <OakFlex
               $flexDirection={['column']}
-              $gap={"spacing-8"}
+              $gap={'spacing-8'}
               key={`p-${index}`}
             >
               <OakBox $display={['none', 'block']}>
