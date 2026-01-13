@@ -13,7 +13,7 @@ Always apply the first question: **Could it be simpler without compromising qual
 
 ## Planning work only
 
-Read the metacognitive prompt in `./metacognition.md` and reflect before planning.
+Read the metacognitive prompt in [`./metacognition.md`](./metacognition.md) and reflect before planning.
 
 ## Cardinal rule (data integrity and single source of truth)
 
@@ -31,18 +31,18 @@ follow-up item in the plans.
 
 ## Directives to read
 
-- `./rules.md` for repository rules.
-- `./schema-first-execution.md` for OpenAPI-first guidance.
-- `./testing-strategy.md` for testing conventions.
+- [`./rules.md`](./rules.md) for repository rules.
+- [`./schema-first-execution.md`](./schema-first-execution.md) for OpenAPI-first guidance.
+- [`./testing-strategy.md`](./testing-strategy.md) for testing conventions.
 
 ## Essential links
 
-- `README.md` (repo overview and quickstart)
-- `docs/README.md` (docs index and start-here links)
-- `docs/engineering/onboarding.md` (local setup)
-- `docs/engineering/v0-v1-improvements.md` (priority framing)
-- `docs/architecture/README.md` (architecture overview)
-- `.agent/summary/index.md` (analysis index and deep dives)
+- [`README.md`](../../README.md) (repo overview and quickstart)
+- [`docs/README.md`](../../docs/README.md) (docs index and start-here links)
+- [`docs/engineering/onboarding.md`](../../docs/engineering/onboarding.md) (local setup)
+- [`docs/engineering/v0-v1-improvements.md`](../../docs/engineering/v0-v1-improvements.md) (priority framing)
+- [`docs/architecture/README.md`](../../docs/architecture/README.md) (architecture overview)
+- [`.agent/summary/index.md`](../summary/index.md) (analysis index and deep dives)
 
 ## Development commands
 
