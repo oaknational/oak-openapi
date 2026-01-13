@@ -1,6 +1,6 @@
 Read the foundation documents:
-`.agent/directives/rules.md`, `.agent/directives/testing-strategy.md`, and
-`.agent/directives/schema-first-execution.md`. Commit to excellence.
+[`.agent/directives/rules.md`](../directives/rules.md), [`.agent/directives/testing-strategy.md`](../directives/testing-strategy.md), and
+[`.agent/directives/schema-first-execution.md`](../directives/schema-first-execution.md). Commit to excellence.
 
 Step back before diving in. Ask: are we solving the right problem, at the right
 layer, for the right users? Identify assumptions and claims and challenge them early.

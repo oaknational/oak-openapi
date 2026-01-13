@@ -36,9 +36,9 @@ Swagger UI
 - Browse the generated OpenAPI docs at `http://localhost:2727/playground`.
 
 Errors and rate limits
-- Errors follow tRPC error codes (see `README.md` for examples).
+- Errors follow tRPC error codes (see [`README.md`](../../README.md) for examples).
 - Rate-limit headers are returned on tRPC routes.
 
 Related docs
-- `docs/architecture/openapi-generation.md`
-- `docs/engineering/onboarding.md`
+- [`docs/architecture/openapi-generation.md`](../architecture/openapi-generation.md)
+- [`docs/engineering/onboarding.md`](../engineering/onboarding.md)
