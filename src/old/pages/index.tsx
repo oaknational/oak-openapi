@@ -90,7 +90,7 @@ function Banner() {
     <OakFlex
       as="header"
       $alignItems={'center'}
-      $gap={"spacing-56"}
+      $gap={'spacing-56'}
       $pv="spacing-12"
       $ph="spacing-16"
       $bb={'border-solid-m'}
@@ -112,11 +112,7 @@ function Banner() {
 function Hero() {
   return (
     <OakBox $background="bg-decorative1-main" $color="text-primary">
-      <MaxWidth
-        $ph="spacing-16"
-        $pv="spacing-64"
-        $flexDirection={'row'}
-      >
+      <MaxWidth $ph="spacing-16" $pv="spacing-64" $flexDirection={'row'}>
         <OakGrid $cg="spacing-24" $rg="spacing-24">
           <OakGridArea $colSpan={[12, 7]} $flexDirection={'column'}>
             <OakSpan
@@ -130,11 +126,11 @@ function Hero() {
               Beta
             </OakSpan>
 
-            <OakHeading $mv={"spacing-24"} $font="heading-3" tag="h2">
+            <OakHeading $mv={'spacing-24'} $font="heading-3" tag="h2">
               Access high-quality education content with Oak OpenAPI
             </OakHeading>
 
-            <OakP $mb={"spacing-48"} $color="text-primary" $font="body-2">
+            <OakP $mb={'spacing-48'} $color="text-primary" $font="body-2">
               We&apos;re offering a free API to share our high-quality
               educational content with the broader education community, all
               under the{' '}
@@ -146,7 +142,7 @@ function Hero() {
               </OakLink>
               .
             </OakP>
-            <OakFlex $gap={"spacing-16"}>
+            <OakFlex $gap={'spacing-16'}>
               <AlignFixButton
                 element="a"
                 href="https://share.hsforms.com/1gQQFsrHDRf-eZUDajj6NzQbvumd"
@@ -185,14 +181,14 @@ function Features() {
       <MaxWidth
         $ph="spacing-16"
         $flexDirection={'row'}
-        $pv={["spacing-32", "spacing-64"]}
+        $pv={['spacing-32', 'spacing-64']}
       >
         <OakGrid $cg="spacing-24" $rg="spacing-24">
           <OakGridArea
             $colSpan={[12, 4]}
             $alignSelf={'start'}
             $position={['static', 'sticky', 'sticky']}
-            $top={"spacing-56"}
+            $top={'spacing-56'}
             $display={['none', 'block', 'block']}
           >
             <Nav anchorTarget="#open-api-contents" items={navItems} />
@@ -209,11 +205,7 @@ function Features() {
             </OakBox>
           </OakGridArea>
 
-          <OakGridArea
-            $width={'100%'}
-            $colSpan={[12, 7]}
-            $gap={"spacing-48"}
-          >
+          <OakGridArea $width={'100%'} $colSpan={[12, 7]} $gap={'spacing-48'}>
             <Feature
               anchorTarget="about-api"
               title="Why are we providing an API?"
@@ -327,19 +319,19 @@ function Features() {
                 created by our expert curriculum partners, each including:
               </OakP>
               <OakUL>
-                <OakLI $mb={"spacing-8"} $font={'body-2'}>
+                <OakLI $mb={'spacing-8'} $font={'body-2'}>
                   Teacher-led lesson videos
                 </OakLI>
-                <OakLI $mb={"spacing-8"} $font={'body-2'}>
+                <OakLI $mb={'spacing-8'} $font={'body-2'}>
                   Oak formatted slide decks
                 </OakLI>
-                <OakLI $mb={"spacing-8"} $font={'body-2'}>
+                <OakLI $mb={'spacing-8'} $font={'body-2'}>
                   Starter and exit quizzes
                 </OakLI>
-                <OakLI $mb={"spacing-8"} $font={'body-2'}>
+                <OakLI $mb={'spacing-8'} $font={'body-2'}>
                   Worksheets
                 </OakLI>
-                <OakLI $mb={"spacing-8"} $font={'body-2'}>
+                <OakLI $mb={'spacing-8'} $font={'body-2'}>
                   Interactive activities
                 </OakLI>
               </OakUL>
