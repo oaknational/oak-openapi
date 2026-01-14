@@ -20,7 +20,7 @@ async function handler() {
   try {
     await client.request(query); // if the MV is missing then this will throw an error
     return NextResponse.json({ body: 'ok' });
-  } catch (_) {
+  } catch {
     return NextResponse.json({ body: 'fail' }, { status: 500 });
     // res.status(500).json({ status: 'fail' });
   }

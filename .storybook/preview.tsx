@@ -1,6 +1,6 @@
-import type { Preview } from "@storybook/react";
-import * as NextImage from "next/image";
-import { RouterContext } from "next/dist/shared/lib/router-context.shared-runtime";
+import type { Preview } from '@storybook/react';
+import * as NextImage from 'next/image';
+import { RouterContext } from 'next/dist/shared/lib/router-context.shared-runtime';
 
 const OriginalNextImage = NextImage.default;
 
@@ -20,11 +20,11 @@ const preview: Preview = {
     },
     options: {
       storySort: {
-        method: "alphabetical",
-        order: ["Introduction"],
+        method: 'alphabetical',
+        order: ['Introduction'],
       },
     },
-    viewMode: "docs",
+    viewMode: 'docs',
     previewTabs: {
       canvas: {
         hidden: true,
@@ -36,4 +36,4 @@ const preview: Preview = {
   },
 };
 
-export default preview; 
+export default preview;

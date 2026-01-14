@@ -20,13 +20,13 @@ export default function Hero() {
   return (
     <OakBox $background="bg-decorative1-main" $color="text-primary">
       <OakMaxWidth
-        $ph={"spacing-16"}
+        $ph={'spacing-16'}
         $flexDirection={'row'}
         $pv="spacing-64"
         // FIXME: styles are being overwritten somewhere so having
         // to declare this.
         $mh={'auto'}
-        $maxWidth={["spacing-480", "spacing-1280"]}
+        $maxWidth={['spacing-480', 'spacing-1280']}
       >
         <OakGrid $cg="spacing-24" $rg="spacing-24">
           <OakGridArea $colSpan={[12, 7]} $flexDirection={'column'}>
@@ -40,11 +40,11 @@ export default function Hero() {
               $font={'body-3-bold'}
             />
 
-            <OakHeading $mv={"spacing-24"} $font="heading-3" tag="h2">
+            <OakHeading $mv={'spacing-24'} $font="heading-3" tag="h2">
               Access high-quality education content with Oak OpenAPI
             </OakHeading>
 
-            <OakP $mb={"spacing-48"} $color="text-primary" $font="body-2">
+            <OakP $mb={'spacing-48'} $color="text-primary" $font="body-2">
               We’re offering a free API to share our high-quality educational
               content with the broader education community, all under the{' '}
               <OakLink
@@ -55,7 +55,7 @@ export default function Hero() {
               </OakLink>
               .
             </OakP>
-            <OakFlex $gap={"spacing-16"}>
+            <OakFlex $gap={'spacing-16'}>
               <AlignFixButton
                 element="a"
                 href="https://share.hsforms.com/1gQQFsrHDRf-eZUDajj6NzQbvumd"
