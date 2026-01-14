@@ -42,7 +42,7 @@ export function formatUnitSummary(
       sequenceData.prior_knowledge_requirements = JSON.parse(
         sequenceData.prior_knowledge_requirements,
       );
-    } catch (e) {
+    } catch {
       // nop
     }
   }

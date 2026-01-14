@@ -30,7 +30,7 @@ async function handler() {
       { status: 200, statusText: 'ok', headers },
     );
     return response;
-  } catch (_) {
+  } catch {
     const response = new NextResponse(
       '<pingdom_http_custom_check><status>failure</status></pingdom_http_custom_check>',
       { status: 200, statusText: 'failure', headers },

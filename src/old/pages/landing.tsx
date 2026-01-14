@@ -23,11 +23,7 @@ export default function Page() {
         <title>Oak Curriculum API - Oak National Academy</title>
       </Head>
       <Navigation />
-      <MaxWidth
-        $ph="spacing-16"
-        $flexDirection={'row'}
-        $pv="spacing-64"
-      >
+      <MaxWidth $ph="spacing-16" $flexDirection={'row'} $pv="spacing-64">
         <BlockAndText></BlockAndText>
       </MaxWidth>
       <Footer />
