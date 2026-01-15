@@ -1,11 +1,12 @@
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import React from 'react';
 
-type Code = {
+interface Code {
   code: string | string[];
   language?: string;
-};
+}
 
-export const Code = ({ value }: { value: Code }) => {
+export const Code = ({ value }: { value: Code }): React.ReactElement => {
   return (
     <SyntaxHighlighter
       lineProps={{

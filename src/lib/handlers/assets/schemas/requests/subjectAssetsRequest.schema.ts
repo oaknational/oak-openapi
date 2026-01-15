@@ -13,8 +13,7 @@ export const subjectAssetsRequestSchema = z.object({
   }),
   type: downloadTypeEnum.optional(),
   unit: z
-    .string({
-      description: 'Optional unit slug to additionally filter by',
-    })
+    .string()
+    .describe('Optional unit slug to additionally filter by')
     .optional(),
 });

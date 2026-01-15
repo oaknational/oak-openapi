@@ -2,14 +2,15 @@ import { redis } from '@/lib/redis';
 import { defaultRateLimit } from './rateLimit';
 import { v4 as uuid } from 'uuid';
 
-export type UserUpdate = {
+export interface UserUpdate {
   email?: null | string;
   name?: null | string;
   company?: null | string;
   rateLimit?: number;
   key?: string;
   requests?: number;
-};
+  uuid?: string;
+}
 
 export type UserUpdateWithKey = UserUpdate & {
   key: string; // enforced
@@ -34,7 +35,7 @@ export async function updateUser(opts: UserUpdateWithKey): Promise<string> {
   return manageUser(opts);
 }
 
-export function addUser(opts: UserUpdate = {}) {
+export function addUser(opts: UserUpdate = {}): Promise<string> {
   return manageUser(opts);
 }
 
@@ -45,8 +46,11 @@ export async function manageUser({
   company = null,
   rateLimit = defaultRateLimit,
   requests = 0,
-  key = uuid(),
+  key,
 }: UserUpdate = {}): Promise<string> {
+  if (!key) {
+    key = uuid() as unknown as string;
+  }
   const userExists = await redis.exists(`user:${key}`);
 
   if (userExists) {
@@ -61,7 +65,9 @@ export async function manageUser({
     if (email) {
       // check if the email address has changed
       // and if it has, update the index
-      const existingUser = await redis.hgetall(`user:${key}`);
+      const existingUser = (await redis.hgetall(
+        `user:${key}`,
+      )) as unknown as User;
       if (existingUser && existingUser.email !== email) {
         await redis.del(`user:email:${existingUser.email}`);
       }
@@ -96,9 +102,9 @@ export async function manageUser({
 
 export async function findUserByKey(
   key: string,
-  log: boolean = true,
+  log = true,
 ): Promise<User | null> {
-  const user: User | null = await redis.hgetall(`user:${key}`);
+  const user: User | null = (await redis.hgetall(`user:${key}`)) as User | null;
 
   if (user) {
     // track how many requests in total (for a fast way to find busy
@@ -117,7 +123,7 @@ export async function findUserByKey(
 }
 
 export async function findUserByEmail(email: string): Promise<User | null> {
-  const key = (await redis.get(`user:email:${email}`)) as string | null;
+  const key = (await redis.get(`user:email:${email}`)) as string;
   if (!key) {
     return null;
   }
@@ -131,7 +137,9 @@ export async function findUsers(partial: string): Promise<User[]> {
   for (const key of keys) {
     console.log(`Fetching user from key: ${key}`);
     const user = await findUserByEmail(key.replace(/^user:email:/, ''));
-    if (user) users.push(user);
+    if (user) {
+      users.push(user);
+    }
   }
 
   return users;

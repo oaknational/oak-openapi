@@ -3,7 +3,7 @@ const RED = '\x1b[31m';
 const RESET = '\x1b[0m';
 const start = Date.now();
 
-function runtime() {
+function runtime(): string {
   // returns hours, minutes, seconds since start
   const elapsed = Date.now() - start;
   const seconds = Math.floor(elapsed / 1000);

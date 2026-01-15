@@ -35,9 +35,9 @@ export const lessonSummaryResponseSchema = z.object({
         misconception: z
           .string()
           .meta({ description: 'A common misconception' }),
-        response: z.string({
-          description: 'Suggested teacher response to a common misconception',
-        }),
+        response: z
+          .string()
+          .describe('Suggested teacher response to a common misconception'),
       }),
     )
     .meta({

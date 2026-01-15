@@ -19,9 +19,8 @@ export const lessonSearchRequestSchema = z.object({
     })
     .optional(),
   unit: z
-    .string({
-      description: 'Optional unit slug to additionally filter by',
-    })
+    .string()
+    .describe('Optional unit slug to additionally filter by')
     .optional(),
 });
 

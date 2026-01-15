@@ -1,7 +1,8 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import * as z from 'zod/v4';
-import { getClient, gql, ThreadWithUnits } from '../../owaClient';
+import type { ThreadWithUnits } from '@/lib/owaClient';
+import { getClient, gql } from '@/lib/owaClient';
 import { TRPCError } from '@trpc/server';
 import {
   allThreadsResponseOpenAPISchema,

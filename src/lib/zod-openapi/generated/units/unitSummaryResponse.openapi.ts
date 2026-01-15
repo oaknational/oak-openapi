@@ -15,7 +15,7 @@ export const unitSummaryResponseOpenAPISchema = z
       description: 'The slug identifier for the year to which the unit belongs',
       example: 'year-3',
     }),
-    year: z.union([z.number(), z.string({ description: 'All years' })]).meta({
+    year: z.union([z.number(), z.string().describe('All years')]).meta({
       description: 'The year to which the unit belongs',
       example: 3,
     }),

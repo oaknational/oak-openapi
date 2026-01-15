@@ -1,4 +1,6 @@
-export default function IconFeedback() {
+import React from 'react';
+
+export default function IconFeedback(): React.ReactElement {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

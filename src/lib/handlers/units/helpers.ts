@@ -1,5 +1,5 @@
-import { Sequence } from '@/lib/owaClient';
-import { Category, Metadata, Thread, UnitSchema } from './types';
+import type { Sequence } from '@/lib/owaClient';
+import type { Category, Metadata, Thread, UnitSchema } from './types';
 
 export function testIfUnitVariant(slug: string): boolean {
   return /-\d+$/.test(slug);
@@ -10,14 +10,14 @@ export function formatUnitSummary(
   sequenceData: Sequence,
 ): UnitSchema {
   const isUnitVariant = testIfUnitVariant(slug);
-  type RootUnitData = {
+  interface RootUnitData {
     unitTitle: string;
     notes: string;
     threads: Thread[];
     priorKnowledgeRequirements: string[];
     nationalCurriculumContent: string[];
     categories: Category[] | undefined;
-  };
+  }
 
   if (isUnitVariant) {
     // RADAR this is a hack that we hope to remove when
@@ -41,7 +41,7 @@ export function formatUnitSummary(
     try {
       sequenceData.prior_knowledge_requirements = JSON.parse(
         sequenceData.prior_knowledge_requirements,
-      );
+      ) as string[];
     } catch {
       // nop
     }

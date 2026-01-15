@@ -1,22 +1,21 @@
 import groupBy from 'object.groupby';
-import toSorted from 'array.prototype.tosorted';
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import { TRPCError } from '@trpc/server';
 import {
-  LessonView,
   getClient,
   gql,
   lessonView,
   lessonViewTable,
   querySQL,
 } from 'lib/owaClient';
-import * as z from 'zod/v4';
+import type { LessonView } from 'lib/owaClient';
+import type * as z from 'zod/v4';
 
 import { blockLessonForCopyrightText } from '../../queryGate';
 import Timing from '@/lib/serverTimings';
 
-import { LessonSearchResultType } from './schemas/lessonSearchResponse.schema';
+import type { LessonSearchResultType } from './schemas/lessonSearchResponse.schema';
 
 import {
   lessonSearchRequestOpenAPISchema,
@@ -25,7 +24,7 @@ import {
   lessonSummaryResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/lesson';
 
-toSorted.shim();
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 groupBy.shim();
 
 const timing = new Timing();
@@ -54,7 +53,10 @@ export const getLessons = router({
       timing.end('blockLessonForCopyrightText');
 
       if (blocked) {
-        resHeaders.set('Server-Timing', timing.toHeader(resHeaders).toString());
+        resHeaders.set(
+          'Server-Timing',
+          timing.toHeader(resHeaders as Headers).toString(),
+        );
 
         throw new TRPCError({
           message:
@@ -95,7 +97,10 @@ export const getLessons = router({
 
       const data = res[lessonView];
 
-      resHeaders.set('Server-Timing', timing.toHeader(resHeaders).toString());
+      resHeaders.set(
+        'Server-Timing',
+        timing.toHeader(resHeaders as Headers).toString(),
+      );
 
       if (data.length === 0) {
         throw new TRPCError({
@@ -157,11 +162,19 @@ export const getLessons = router({
       const financeWhere = `"subjectSlug" <> 'financial-education'`;
       const sql = `SELECT * from (SELECT "lessonSlug", SIMILARITY("lessonTitle", '${q}') FROM ${lessonViewTable} WHERE ${sqlWhere} AND ${financeWhere} group by "lessonSlug", "similarity") as a order by a.similarity desc limit 20`;
 
-      const result = await querySQL(sql).then((res) => res.json());
+      interface SQLResult {
+        result: [string, string][];
+      }
 
-      const slugs = result.result.slice(1).map(([slug]: [string]) => slug);
+      const result = (await querySQL(sql).then((res) =>
+        res.json(),
+      )) as SQLResult;
+
+      const slugs = result.result
+        .slice(1)
+        .map(([slug]: [string, string]) => slug);
       const similarity = result.result.slice(1).reduce(
-        (acc: { [x: string]: number }, [slug, _]: [string, string]) => {
+        (acc: Record<string, number>, [slug, _]: [string, string]) => {
           acc[slug] = parseFloat(_);
           return acc;
         },
@@ -170,7 +183,8 @@ export const getLessons = router({
 
       const client = getClient();
 
-      const variables: Record<string, string | number> = { slugs };
+      // reality is that this is never going to be string[]
+      const variables: Record<string, string | number | string[]> = { slugs };
 
       const _and: string[] = ['lessonSlug: { _in: $slugs }'];
       const queryArgs = [];
@@ -209,7 +223,7 @@ export const getLessons = router({
         }
       `;
 
-      type LessonResult = {
+      interface LessonResult {
         lessonSlug: string;
         lessonTitle: string;
         keyStageSlug: string;
@@ -217,11 +231,11 @@ export const getLessons = router({
         unitSlug: string;
         unitTitle: string;
         examBoardTitle: string;
-      };
+      }
 
-      type LessonQueryResult = {
+      interface LessonQueryResult {
         [lessonView]: LessonResult[];
-      };
+      }
 
       const res: LessonQueryResult = await client.request(query, variables);
 

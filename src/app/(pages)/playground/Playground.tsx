@@ -1,6 +1,6 @@
 'use client';
 import dynamic from 'next/dynamic';
-import { SwaggerUIProps } from 'swagger-ui-react';
+import type { SwaggerUIProps } from 'swagger-ui-react';
 import 'swagger-ui-react/swagger-ui.css';
 import './playground.css';
 
@@ -8,7 +8,7 @@ const SwaggerUI = dynamic<SwaggerUIProps>(() => import('swagger-ui-react'), {
   ssr: false,
 });
 
-export default function Playground() {
+export default function Playground(): React.ReactElement {
   return (
     <>
       <SwaggerUI url={`/api/v0/swagger.json`} />

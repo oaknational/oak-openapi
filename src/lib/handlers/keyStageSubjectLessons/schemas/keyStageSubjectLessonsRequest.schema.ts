@@ -12,9 +12,8 @@ export const keyStageSubjectLessonsRequestSchema = z.object({
       "Subject slug to filter by, e.g. 'english' - note that casing is important here, and should be lowercase",
   }),
   unit: z
-    .string({
-      description: 'Optional unit slug to additionally filter by',
-    })
+    .string()
+    .describe('Optional unit slug to additionally filter by')
     .optional(),
   offset: offsetSchema,
   limit: limitSchema,

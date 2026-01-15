@@ -1,5 +1,5 @@
 import { useStableId } from '@/lib/useStableId';
-import React, { useState, InputHTMLAttributes, ReactNode } from 'react';
+import { useState, type InputHTMLAttributes } from 'react';
 import styled from 'styled-components';
 
 interface CheckBoxProps extends Omit<
@@ -12,7 +12,7 @@ interface CheckBoxProps extends Omit<
   $hasError?: boolean;
   id?: string;
   labelId?: string;
-  children?: ReactNode;
+  children?: React.ReactNode;
 }
 
 const CheckboxContainer = styled.div`
@@ -71,7 +71,7 @@ const Label = styled.label`
   cursor: pointer;
 `;
 
-const CheckMarkIcon = () => (
+const CheckMarkIcon = (): React.ReactElement => (
   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none">
     <path
       fill="#fff"
@@ -92,7 +92,7 @@ const CheckBox: React.FC<CheckBoxProps> = ({
   // need to add `props` to allow for additional props to be passed down
   // that are valid for a checkbox input
   ...props
-}) => {
+}): React.ReactElement => {
   const [internalChecked, setInternalChecked] = useState(false);
 
   const isControlled = controlledChecked !== undefined;
@@ -101,7 +101,7 @@ const CheckBox: React.FC<CheckBoxProps> = ({
   const id = idProp ?? useStableId('chk');
   const labelId = labelIdProp ?? useStableId('lbl');
 
-  const handleCheckboxChange = () => {
+  const handleCheckboxChange = (): void => {
     const newCheckedState = !checked;
     if (isControlled && controlledOnChange) {
       controlledOnChange(newCheckedState);

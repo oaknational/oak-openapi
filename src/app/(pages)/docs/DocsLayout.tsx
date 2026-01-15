@@ -1,6 +1,6 @@
 'use client';
 
-import { CurriculumApiDocsNav } from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
+import type { CurriculumApiDocsNav } from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
 import DocsNav from '@/components/documentationPages/DocsNav';
 import 'highlight.js/styles/github.css';
 
@@ -16,7 +16,7 @@ export default function DocsLayout({
 }: {
   children: React.ReactNode;
   navigationItems: CurriculumApiDocsNav;
-}) {
+}): React.ReactElement {
   const location = usePathname();
   return (
     <>

@@ -12,10 +12,8 @@ export const allKeyStageAndSubjectUnitsResponseOpenAPISchema = z
       units: z
         .array(
           z.object({
-            unitSlug: z.string({
-              description: 'The unit slug identifier',
-            }),
-            unitTitle: z.string({ description: 'The unit title' }),
+            unitSlug: z.string().describe('The unit slug identifier'),
+            unitTitle: z.string().describe('The unit title'),
           }),
         )
         .meta({ description: 'List of units for the specified year' }),
