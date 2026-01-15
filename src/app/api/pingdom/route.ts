@@ -2,7 +2,7 @@ import { getClient, gql, views } from '@/lib/owaClient';
 import { performance } from 'node:perf_hooks';
 import { NextResponse } from 'next/server';
 
-async function handler() {
+async function handler(): Promise<Response> {
   const start = performance.now();
   const client = getClient();
   const query = gql`

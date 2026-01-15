@@ -1,12 +1,15 @@
-import { EndpointInfo } from '@/components/documentationPages/EndpointBlock';
-import { openApiDocument } from '@/lib/zod-openapi/schema/generateDocument';
-import {
+import type { EndpointInfo } from '@/components/documentationPages/EndpointBlock';
+import type {
   ZodOpenApiOperationObject,
-  ZodOpenApiPathItemObject,
   ZodOpenApiPathsObject,
   ZodOpenApiResponsesObject,
 } from 'zod-openapi';
-import type { SchemaObject, ParameterObject } from 'openapi3-ts/oas31';
+import { openApiDocument } from '@/lib/zod-openapi/schema/generateDocument';
+import type {
+  SchemaObject,
+  ParameterObject,
+  ReferenceObject,
+} from 'openapi3-ts/oas31';
 import { findAllObjectProperties, getPathEnd } from './helpers';
 
 export const groupedEndpointInfo = [
@@ -42,16 +45,27 @@ export const groupedEndpointInfo = [
   },
 ];
 
-const getSchemaFromResponse = (responses: ZodOpenApiResponsesObject) => {
+// RS: I don't honestly understand this return type, but it's a new TS ruleset
+// so this passes and it always worked previously.
+const getSchemaFromResponse = (
+  responses: ZodOpenApiResponsesObject,
+): (never[] | undefined | SchemaObject | ReferenceObject)[] => {
   return Object.values(responses).map((response) => {
-    const schemaRef = response.content['application/json'].schema.$ref;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const schemaRef = response.content['application/json'].schema
+      .$ref as string;
 
-    if (!schemaRef) return [];
+    if (!schemaRef) {
+      return [];
+    }
 
     const schemaName = getPathEnd(schemaRef);
 
     if (openApiDocument.components?.schemas) {
       const schema = openApiDocument.components?.schemas[schemaName];
+      if (!schema) {
+        return [];
+      }
       return schema;
     }
   });
@@ -72,15 +86,27 @@ const getParamType = (properties: SchemaObject): string | undefined => {
   }
 };
 
-const getOutputSchema = (responses: ZodOpenApiResponsesObject) => {
+interface OutputSchema {
+  name: string;
+  type: string;
+  description: string;
+}
+
+const getOutputSchema = (
+  responses: ZodOpenApiResponsesObject,
+): OutputSchema[][] => {
   if (!responses) {
     return [];
   }
   return Object.values(responses)
     .map((response) => {
-      const schemaRef = response.content['application/json'].schema.$ref;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const schemaRef = response.content['application/json'].schema
+        .$ref as string;
 
-      if (!schemaRef) return [];
+      if (!schemaRef) {
+        return [];
+      }
 
       const schemaName = getPathEnd(schemaRef);
 
@@ -110,25 +136,27 @@ const getOutputSchema = (responses: ZodOpenApiResponsesObject) => {
     .filter((res) => res !== undefined);
 };
 
-export const getEndpointContent = async (
+export const getEndpointContent = (
   paramSlug: string,
-): Promise<{ endpoints: EndpointInfo[] | []; title: string } | undefined> => {
+): { endpoints: EndpointInfo[] | []; title: string } | undefined => {
   const endpointMeta = groupedEndpointInfo.find(
     ({ slug }: { slug: string }) => slug === paramSlug,
   );
 
   const tags = endpointMeta?.tags;
 
-  if (!tags) return;
+  if (!tags) {
+    return;
+  }
 
   const data = openApiDocument;
   const pathsData = data.paths as ZodOpenApiPathsObject;
 
   const endpointsWithPath = Object.keys(pathsData).map((path) => ({
-    data: pathsData[path] as ZodOpenApiPathItemObject,
+    data: pathsData[path],
     path,
   }));
-  // only use get reqs for now
+  // only use get requests for now
   const filteredEndpoints = endpointsWithPath.filter((endpoint) =>
     endpoint.data.get?.tags?.some((tag: string) => tags.indexOf(tag) !== -1),
   );

@@ -15,7 +15,7 @@ const OakLinkLogo = styled(OakLink)`
   }
 `;
 
-export default function Banner() {
+export default function Banner(): React.ReactElement {
   return (
     <OakFlex
       as="header"

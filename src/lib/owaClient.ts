@@ -27,7 +27,7 @@ export const views = [
 export const sequenceViewWhereInput =
   'published_mv_curriculum_sequence_b_13_0_17_bool_exp';
 
-export function querySQL(sql: string) {
+export function querySQL(sql: string): Promise<Response> {
   return fetch(`${process.env.OAK_GRAPHQL_HOST}/v1/query`, {
     method: 'POST',
     headers: {
@@ -43,7 +43,7 @@ export function querySQL(sql: string) {
   });
 }
 
-export function getClient() {
+export function getClient(): GraphQLClient {
   return new GraphQLClient(`${process.env.OAK_GRAPHQL_HOST}/v1/graphql`, {
     headers: {
       'x-oak-auth-key': process.env.OAK_GRAPHQL_SECRET as string,
@@ -52,18 +52,18 @@ export function getClient() {
   });
 }
 
-export type LessonDetail = {
+export interface LessonDetail {
   has_slide_deck_asset_object: boolean;
   has_worksheet_asset_object: boolean;
   has_worksheet_answers_asset_object: boolean;
   has_supplementary_asset_object: boolean;
-};
+}
 
-export type SubjectPhaseView = {
+export interface SubjectPhaseView {
   [subjectPhaseView]: SubjectPhase[];
-};
+}
 
-export type SubjectPhase = {
+export interface SubjectPhase {
   cycle: string;
   title: string;
   slug: string;
@@ -71,22 +71,22 @@ export type SubjectPhase = {
   phases: TitleSlug[];
   ks4_options: TitleSlug[];
   display_order: number;
-};
+}
 
-export type LessonContentView = {
+export interface LessonContentView {
   [lessonContentView]: {
     transcript_sentences: string;
     transcript_vtt: string;
   }[];
-};
+}
 
-export type SequenceView = {
+export interface SequenceView {
   [sequenceView]: Sequence[];
-};
+}
 
-export type UnitVariantLessonsView = {
+export interface UnitVariantLessonsView {
   [unitVariantLessonsView]: UnitVariantLesson[];
-};
+}
 
 export type Sequence = TitleSlug & {
   unit_options: (TitleSlug & {
@@ -133,7 +133,7 @@ export type Sequence = TitleSlug & {
   };
 };
 
-export type UnitVariantLesson = {
+export interface UnitVariantLesson {
   unit_title: string; // via unit_data(path:"title")
   unit_slug: string;
   lesson_slug: string; // via lesson_data(path: "slug")
@@ -147,7 +147,7 @@ export type UnitVariantLesson = {
     unit_order: number;
     order_in_unit: number;
   };
-};
+}
 
 export type ThreadWithUnits = TitleSlug & {
   thread_units: {
@@ -156,9 +156,9 @@ export type ThreadWithUnits = TitleSlug & {
   }[];
 };
 
-export type DownloadView = {
+export interface DownloadView {
   published_mv_openapi_downloads_1_0_0: Download[];
-};
+}
 
 export interface Download {
   exitQuiz: SignedAsset;
@@ -195,16 +195,16 @@ export interface TitleSlug {
   slug: string;
 }
 
-export type LessonView = {
+export interface LessonView {
   published_mv_lesson_openapi_1_2_3: Lesson[];
-};
+}
 
 // Note: where any is used, the structure is currently unknown/undocumented
 // whilst at the same time, not exposed - I've only included them for completeness
 // and debugging - RS 2024-03-20
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type Lesson = {
+export interface Lesson {
   additionalMaterialUrl?: string;
   contentGuidance?: any;
   copyrightContent?: any;
@@ -249,11 +249,11 @@ export type Lesson = {
   yearTitle?: string;
   tpcMedia?: HasAttribution[];
   tpcWorks?: HasAttribution[];
-};
+}
 
-export type HasAttribution = {
+export interface HasAttribution {
   attribution?: string;
-};
+}
 
 export enum QuestionTypeEnum {
   Text = 'text',

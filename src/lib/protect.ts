@@ -1,15 +1,13 @@
 import { TRPCError } from '@trpc/server';
 import { t } from '@/lib/trpc';
-import {
-  RateLimitInfo,
-  rateLimiter,
-  rateLimits,
-  defaultRateLimit,
-} from './rateLimit';
-import { Context } from './context';
-import { OpenApiMeta } from 'trpc-to-openapi';
+import type { RateLimiter, RateLimitInfo } from './rateLimit';
+import { rateLimiter, rateLimits, defaultRateLimit } from './rateLimit';
+import type { Context } from './context';
+import type { OpenApiMeta } from 'trpc-to-openapi';
 
-export const getRateLimiter = (userLimit: number | undefined | null) => {
+export const getRateLimiter = (
+  userLimit: number | undefined | null,
+): RateLimiter => {
   if (userLimit !== defaultRateLimit && typeof userLimit === 'number') {
     return rateLimiter(rateLimits.custom(userLimit));
   } else {
@@ -64,7 +62,7 @@ export const protect = async (opts: {
   ctx: Context;
   next: (opts?: { ctx?: Context }) => Promise<unknown>;
   meta?: OpenApiMeta;
-}) => {
+}): Promise<unknown> => {
   const { ctx, next, meta } = opts;
 
   await protectLogic(ctx, meta);

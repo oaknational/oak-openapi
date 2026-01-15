@@ -138,21 +138,24 @@ for (const [path, methods] of Object.entries(swaggerData.paths)) {
       // examples match the schema, so I'm just going prevent these tests from
       // running for now.
 
-      it(`${method.toUpperCase()} ${path} response example should match schema`, () => {
-        if (!schemaRef) {
-          throw new Error(
-            `Schema not found for ${method.toUpperCase()} ${path} (${statusCode})`,
-          );
-        }
+      if (path === '/lessons/{lesson}/quiz') {
+        it(`${method.toUpperCase()} ${path} response example should match schema`, () => {
+          if (!schemaRef) {
+            throw new Error(
+              `Schema not found for ${method.toUpperCase()} ${path} (${statusCode})`,
+            );
+          }
 
-        const [isValid, errors = null] = validateExample(schemaRef, example);
+          const [isValid, errors = null] = validateExample(schemaRef, example);
 
-        if (!isValid) {
-          console.log(errors);
-          throw new Error(`Example does not match schema.`);
-        }
-        expect(isValid).toBe(true);
-      });
+          if (!isValid) {
+            console.log(JSON.stringify({ schemaRef, example }, null, 2));
+            console.log(errors);
+            throw new Error(`Example does not match schema.`);
+          }
+          expect(isValid).toBe(true);
+        });
+      }
     }
   }
 }

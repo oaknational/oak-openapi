@@ -2,11 +2,11 @@ import { TRPCError } from '@trpc/server';
 import { ks4Options, phases } from './oakConsts';
 import { subjectSlugs } from './keyStageAndSubjects';
 
-export type CurriculumSelectionSlugs = {
+export interface CurriculumSelectionSlugs {
   phaseSlug: string;
   subjectSlug: string;
   ks4OptionSlug: string | null;
-};
+}
 
 // modified from https://github.com/oaknational/Oak-Web-Application/blob/4fb366fbaa4d9cb3187a682ad9d4eb292db89db1/src/utils/curriculum/slugs.ts#L10-L33
 export const parseSubjectPhaseSlug = (

@@ -20,7 +20,10 @@ import {
   getGoogleCloudStorage,
   uploadToStorage,
 } from '../src/lib/bulk-data/data-stores';
-import { AssetPacks, UnitWithExamBoards } from '../src/lib/bulk-data/types';
+import type {
+  AssetPacks,
+  UnitWithExamBoards,
+} from '../src/lib/bulk-data/types';
 import {
   addStorageAssetToTar,
   addURLToQueue,
@@ -323,11 +326,18 @@ async function main() {
 
       if (processAssets) {
         // finalize all tarballs
-        if (assetPacks.worksheets) assetPacks.worksheets.finalize();
-        if (assetPacks.slideDecks) assetPacks.slideDecks.finalize();
-        if (assetPacks.starterQuizzes) assetPacks.starterQuizzes.finalize();
-        if (assetPacks.supplementaryResources)
+        if (assetPacks.worksheets) {
+          assetPacks.worksheets.finalize();
+        }
+        if (assetPacks.slideDecks) {
+          assetPacks.slideDecks.finalize();
+        }
+        if (assetPacks.starterQuizzes) {
+          assetPacks.starterQuizzes.finalize();
+        }
+        if (assetPacks.supplementaryResources) {
           assetPacks.supplementaryResources.finalize();
+        }
 
         // this is picked up by build-bulk-download-videos.sh
         await fs.appendFile(
@@ -344,7 +354,9 @@ async function main() {
         logError(`${error.message}`);
       } else {
         logError(`Failed to process ${s.sequenceSlug}: ${e}`);
-        if (error.stack) logError(error.stack);
+        if (error.stack) {
+          logError(error.stack);
+        }
       }
       await fs.rmdir(`${sequenceDir}`);
     }
@@ -354,7 +366,7 @@ async function main() {
   log(`Script completed`);
 }
 
-export function trackMemoryUsage() {
+export function trackMemoryUsage(): NodeJS.Timeout {
   type MemoryUsageKeys = keyof NodeJS.MemoryUsage;
 
   const maxUsage: Record<MemoryUsageKeys, number> = {

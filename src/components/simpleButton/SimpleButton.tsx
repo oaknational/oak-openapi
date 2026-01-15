@@ -5,7 +5,10 @@ interface SimpleButtonProps {
   onClick?: () => void;
 }
 
-export function SimpleButton({ label, onClick }: SimpleButtonProps) {
+export function SimpleButton({
+  label,
+  onClick,
+}: SimpleButtonProps): React.ReactElement {
   return (
     <button type="button" onClick={onClick}>
       {label}

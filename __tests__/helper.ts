@@ -1,6 +1,6 @@
 import { GET as _getLessonAsset } from '@/app/api/v0/lessons/[lesson]/assets/[type]/route';
 
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 import { vi } from 'vitest';
 export * from './make-call';
 

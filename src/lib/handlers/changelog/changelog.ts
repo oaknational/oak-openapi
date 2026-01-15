@@ -22,7 +22,7 @@ export const changelog = router({
       }),
     )
     .input(z.undefined())
-    .query(async () => {
+    .query(() => {
       return versions;
     }),
   latest: publicProcedure
@@ -44,7 +44,7 @@ export const changelog = router({
       }),
     )
     .input(z.undefined())
-    .query(async () => {
+    .query(() => {
       return versions[0];
     }),
 });

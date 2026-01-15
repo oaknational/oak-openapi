@@ -1,11 +1,11 @@
 import router from 'lib/router';
 import { createContext } from 'lib/context';
-import { type NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 import { createOpenApiFetchHandler } from 'trpc-to-openapi';
 
 export const dynamic = 'force-dynamic';
 
-const handler = (req: NextRequest) => {
+const handler = (req: NextRequest): Response => {
   return createOpenApiFetchHandler({
     endpoint: '/api/v0',
     router,

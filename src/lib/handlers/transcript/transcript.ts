@@ -1,12 +1,8 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import { TRPCError } from '@trpc/server';
-import {
-  getClient,
-  gql,
-  LessonContentView,
-  lessonContentView,
-} from 'lib/owaClient';
+import type { LessonContentView } from 'lib/owaClient';
+import { getClient, gql, lessonContentView } from 'lib/owaClient';
 
 import { checkLessonAllowedAsset } from '../../queryGate';
 import {

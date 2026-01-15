@@ -42,7 +42,7 @@ export const versions = [
   },
 ];
 
-export const getLatestVersion = (major: string) => {
+export const getLatestVersion = (major: string): string => {
   const found = versions.find((v) => v.version.startsWith(major + '.'));
 
   if (found) {
@@ -52,6 +52,6 @@ export const getLatestVersion = (major: string) => {
   return versions[0].version;
 };
 
-export const getLatestMajorVersion = () => {
+export const getLatestMajorVersion = (): string => {
   return versions[0].version.split('.')[0];
 };

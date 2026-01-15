@@ -1,21 +1,31 @@
-import { User, findUserByKey } from '@/lib/apikeys';
-import { RateLimitInfo } from './rateLimit';
+import type { User } from '@/lib/apikeys';
+import { findUserByKey } from '@/lib/apikeys';
+import type { RateLimitInfo } from './rateLimit';
 import type { TRPCRequestInfo } from '@trpc/server/http';
-import { NextApiResponse } from 'next';
+import type { NextApiResponse } from 'next';
 
 export type Context = Awaited<Promise<ReturnType<typeof createContext>>>;
 
-type FetchCreateContextFnOptions = {
+interface FetchCreateContextFnOptions {
   req: Request;
   res: NextApiResponse;
   info: TRPCRequestInfo;
-};
+}
+
+interface ContextWithUser {
+  req: Request;
+  resHeaders: {
+    set: (key: string, value: string) => void;
+  };
+  rateLimit: RateLimitInfo | undefined;
+  user: User | null;
+}
 
 const createContextWithUser = async ({
   req,
   info,
   res,
-}: FetchCreateContextFnOptions) => {
+}: FetchCreateContextFnOptions): Promise<ContextWithUser> => {
   // low fat cors
 
   const resHeaders = {
@@ -46,7 +56,7 @@ const createContextWithUser = async ({
   };
 };
 
-export const withUser = async (req: Request) => {
+export const withUser = async (req: Request): Promise<User | null> => {
   let user: User | null = null;
 
   const authorization = req.headers.get('authorization');

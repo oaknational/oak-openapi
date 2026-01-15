@@ -49,14 +49,26 @@ export const imageAnswer = z.object({
   content: imageContent,
 });
 
-export const multipleChoiceAnswer = z
-  .object({
+export const multipleChoiceAnswer = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('text').meta({
+      description: `The format of the quiz answer \nNote: currently, we are only returning text-based quiz answers. In the future, we will also have image-based questions available.`,
+    }),
+    content: z.string().meta({ description: 'Quiz question answer' }),
     distractor: z.boolean().meta({
       description:
         'Whether the multiple choice question response is the correct answer (false) or is a distractor (true)',
     }),
-  })
-  .and(z.union([textAnswer, imageAnswer]));
+  }),
+  z.object({
+    type: z.literal('image'),
+    content: imageContent,
+    distractor: z.boolean().meta({
+      description:
+        'Whether the multiple choice question response is the correct answer (false) or is a distractor (true)',
+    }),
+  }),
+]);
 
 export const shortAnswer = textAnswer;
 
@@ -86,16 +98,14 @@ export const questionZod = z
   })
   .and(
     z.discriminatedUnion('questionType', [
-      z.object(
-        {
+      z
+        .object({
           questionType: multipleChoiceLit,
           answers: z.array(multipleChoiceAnswer),
-        },
-        {
-          description:
-            'Multiple choice answer allows for one or more than one answer to be correct as defined by the distractor field being set to false',
-        },
-      ),
+        })
+        .describe(
+          'Multiple choice answer allows for one or more than one answer to be correct as defined by the distractor field being set to false',
+        ),
       z.object(
         {
           questionType: shortAnswerLit,

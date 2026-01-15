@@ -1,8 +1,9 @@
 import * as z from 'zod/v4';
 
 export const searchTranscriptRequestSchema = z.object({
-  q: z.string({
-    description:
+  q: z
+    .string()
+    .describe(
       'A snippet of text to search for in the lesson video transcripts',
-  }),
+    ),
 });
