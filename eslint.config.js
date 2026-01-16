@@ -68,7 +68,6 @@ export default [
       },
     },
     plugins: {
-      '@typescript-eslint': typescriptEslint,
       prettier: prettierPlugin,
       '@next/next': next,
     },
