@@ -11,23 +11,19 @@ export const typeToMime = new Map([
 ]);
 
 export const downloadTypeEnum = z
-  .enum(
-    [
-      'slideDeck',
-      'exitQuiz',
-      'exitQuizAnswers',
-      'starterQuiz', // note: graphql key is (currently) starter_quiz
-      'starterQuizAnswers',
-      'supplementaryResource',
-      'video',
-      'worksheet',
-      'worksheetAnswers',
-    ],
-
-    {
-      description:
-        'Use the this type and the lesson slug in conjunction to get a signed download URL to the asset type from the /api/lessons/{slug}/asset/{type} endpoint',
-    },
+  .enum([
+    'slideDeck',
+    'exitQuiz',
+    'exitQuizAnswers',
+    'starterQuiz', // note: graphql key is (currently) starter_quiz
+    'starterQuizAnswers',
+    'supplementaryResource',
+    'video',
+    'worksheet',
+    'worksheetAnswers',
+  ])
+  .describe(
+    'Use the this type and the lesson slug in conjunction to get a signed download URL to the asset type from the /api/lessons/{slug}/asset/{type} endpoint',
   )
   .meta({ example: 'slideDeck' });
 

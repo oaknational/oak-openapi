@@ -7,13 +7,15 @@ export const lessonSearchRequestSchema = z.object({
     example: 'gothic',
   }),
   keyStage: z
-    .enum(keyStageSlugs as [string], {
+    .enum(keyStageSlugs as [string])
+    .meta({
       description:
         "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
     })
     .optional(),
   subject: z
-    .enum(subjectSlugs as [string], {
+    .enum(subjectSlugs as [string])
+    .meta({
       description:
         "Subject slug to filter by, e.g. 'english' - note that casing is important here, and should be lowercase",
     })
