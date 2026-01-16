@@ -70,15 +70,15 @@ export default function MainDocsContent({
     <OakBox
       $color="text-primary"
       $bl={['', 'border-solid-s']}
-      $borderColor={["border-neutral-lighter", "border-neutral-lighter"]}
+      $borderColor={['border-neutral-lighter', 'border-neutral-lighter']}
     >
       <OakGrid
         $gridTemplateColumns={[`1fr`, '1fr', `1fr 200px`]}
         $gridTemplateAreas={[templateMobile, templateMobile, templateDesktop]}
-        $cg={['', "spacing-16"]}
+        $cg={['', 'spacing-16']}
         $rg="spacing-48"
-        $pa={["spacing-16", "spacing-40"]}
-        $pr={['', '', "spacing-0"]}
+        $pa={['spacing-16', 'spacing-40']}
+        $pr={['', '', 'spacing-0']}
       >
         <OakGridArea $gridArea="HEADER">
           <OakHeading tag="p" $font="heading-light-6">
@@ -96,12 +96,7 @@ export default function MainDocsContent({
             />
           ))}
           {isEndpointPage && (
-            <OakFlex
-              $pa="0"
-              $gap="spacing-12"
-              $ma="0"
-              $flexDirection="column"
-            >
+            <OakFlex $pa="0" $gap="spacing-12" $ma="0" $flexDirection="column">
               {endpoints.map((endpoint) => (
                 <EndpointBlock endpoint={endpoint} key={endpoint.path} />
               ))}

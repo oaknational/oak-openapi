@@ -20,7 +20,7 @@ export default function Banner() {
     <OakFlex
       as="header"
       $alignItems={'center'}
-      $gap={"spacing-56"}
+      $gap={'spacing-56'}
       $pv="spacing-12"
       $ph="spacing-16"
       $bb={'border-solid-m'}

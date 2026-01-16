@@ -18,4 +18,4 @@ export const Default: Story = {
   args: {
     label: 'Click Me',
   },
-}; 
+};

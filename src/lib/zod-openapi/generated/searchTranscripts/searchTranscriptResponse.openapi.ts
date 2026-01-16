@@ -4,18 +4,14 @@ import z from 'zod';
 export const searchTranscriptResponseOpenAPISchema = z
   .array(
     z.object({
-      lessonTitle: z
-        .string()
-        .openapi({
-          description: 'The lesson title',
-          example: 'The Roman invasion of Britain ',
-        }),
-      lessonSlug: z
-        .string()
-        .openapi({
-          description: 'The lesson slug identifier',
-          example: 'the-roman-invasion-of-britain',
-        }),
+      lessonTitle: z.string().openapi({
+        description: 'The lesson title',
+        example: 'The Roman invasion of Britain ',
+      }),
+      lessonSlug: z.string().openapi({
+        description: 'The lesson slug identifier',
+        example: 'the-roman-invasion-of-britain',
+      }),
       transcriptSnippet: z
         .string()
         .openapi({
