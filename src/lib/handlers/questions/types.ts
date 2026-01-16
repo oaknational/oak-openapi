@@ -87,57 +87,48 @@ export const orderAnswer = z
   })
   .and(textAnswer);
 
-export const questionZod = z
-  .object({
-    question: z.string().meta({ description: 'The question text' }),
-    questionType: availableQuestionTypes.meta({
-      description: `The type of quiz question which could be one of the following:\n- multiple-choice\n- order\n- match\n- explanatory-text
-- short-answer`,
-    }),
-    questionImage: imageContent.optional(),
-  })
-  .and(
-    z.discriminatedUnion('questionType', [
-      z
-        .object({
-          questionType: multipleChoiceLit,
-          answers: z.array(multipleChoiceAnswer),
-        })
-        .describe(
-          'Multiple choice answer allows for one or more than one answer to be correct as defined by the distractor field being set to false',
-        ),
-      z.object(
-        {
-          questionType: shortAnswerLit,
-          answers: z.array(shortAnswer),
-        },
-        {
-          description:
-            'Short answers allow students to enter a free text answer, and the answers array contains a list of acceptable answers',
-        },
-      ),
-      z.object(
-        {
-          questionType: matchAnswerLit,
-          answers: z.array(matchAnswer),
-        },
-        {
-          description:
-            'The student is offered a list from the `match_option` field in the answers array, and must correctly match them to the `correct_choice` value',
-        },
-      ),
-      z.object(
-        {
-          questionType: orderAnswerLit,
-          answers: z.array(orderAnswer),
-        },
-        {
-          description:
-            'The student is offered a list of items to order, and must correctly order them according to the `order` field. When presenting the answer options to the student, you should randomise the order of the items',
-        },
-      ),
-    ]),
-  );
+export const questionZod = z.discriminatedUnion('questionType', [
+  z
+    .object({
+      question: z.string().meta({ description: 'The question text' }),
+      questionType: multipleChoiceLit,
+      questionImage: imageContent.optional(),
+      answers: z.array(multipleChoiceAnswer),
+    })
+    .describe(
+      'Multiple choice answer allows for one or more than one answer to be correct as defined by the distractor field being set to false',
+    ),
+  z
+    .object({
+      question: z.string().meta({ description: 'The question text' }),
+      questionType: shortAnswerLit,
+      questionImage: imageContent.optional(),
+      answers: z.array(shortAnswer),
+    })
+    .describe(
+      'Short answers allow students to enter a free text answer, and the answers array contains a list of acceptable answers',
+    ),
+  z
+    .object({
+      question: z.string().meta({ description: 'The question text' }),
+      questionType: matchAnswerLit,
+      questionImage: imageContent.optional(),
+      answers: z.array(matchAnswer),
+    })
+    .describe(
+      'The student is offered a list from the `match_option` field in the answers array, and must correctly match them to the `correct_choice` value',
+    ),
+  z
+    .object({
+      question: z.string().meta({ description: 'The question text' }),
+      questionType: orderAnswerLit,
+      questionImage: imageContent.optional(),
+      answers: z.array(orderAnswer),
+    })
+    .describe(
+      'The student is offered a list of items to order, and must correctly order them according to the `order` field. When presenting the answer options to the student, you should randomise the order of the items',
+    ),
+]);
 
 export const starterQuizSchema = z.array(questionZod).meta({
   description: 'The starter quiz questions - which test prior knowledge',
