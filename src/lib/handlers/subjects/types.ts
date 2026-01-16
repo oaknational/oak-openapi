@@ -7,16 +7,12 @@ export const numberArrayResult = z.array(z.number()).openapi({
 export const keyStagesResult = z
   .array(
     z.object({
-      keyStageTitle: z
-        .string()
-        .openapi({
-          description: 'The key stage title for the given key stage',
-        }),
-      keyStageSlug: z
-        .string()
-        .openapi({
-          description: 'The unique identifier for a given key stage',
-        }),
+      keyStageTitle: z.string().openapi({
+        description: 'The key stage title for the given key stage',
+      }),
+      keyStageSlug: z.string().openapi({
+        description: 'The unique identifier for a given key stage',
+      }),
     }),
   )
   .openapi({

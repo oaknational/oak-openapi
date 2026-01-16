@@ -23,7 +23,7 @@ const curriculumApiLandingPageUsingTheApiSectionSchema = z.object({
   ),
 });
 
-const curriculumApiLandingPageSchema = z.array(
+export const curriculumApiLandingPageSchema = z.array(
   z.object({
     content: z.array(curriculumApiLandingPageContentBlockSchema),
     usingTheApiSection: curriculumApiLandingPageUsingTheApiSectionSchema,

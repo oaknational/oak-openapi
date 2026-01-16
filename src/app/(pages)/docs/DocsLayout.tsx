@@ -24,7 +24,7 @@ export default function DocsLayout({
       <OakFlex
         $flexDirection={['column', 'row']}
         $mh={'auto'}
-        $maxWidth={["spacing-480", "spacing-1280"]}
+        $maxWidth={['spacing-480', 'spacing-1280']}
         $gap="spacing-40"
       >
         <DocsNav items={navigationItems} location={location} />

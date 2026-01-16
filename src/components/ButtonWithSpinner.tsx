@@ -1,6 +1,5 @@
-import { OakPrimaryButton } from "@oaknational/oak-components";
-import styled, { css, keyframes } from "styled-components";
-
+import { OakPrimaryButton } from '@oaknational/oak-components';
+import styled, { css, keyframes } from 'styled-components';
 
 const SpinnerKeyframe = keyframes`
   0% {
@@ -26,12 +25,18 @@ export const ButtonWithSpinner = styled(OakPrimaryButton)<{
   ${(props) =>
     props.$width
       ? css`
-          --width: ${Array.isArray(props.$width) ? props.$width[0] : props.$width};
+          --width: ${Array.isArray(props.$width)
+            ? props.$width[0]
+            : props.$width};
           @media (min-width: 768px) {
-            --width: ${Array.isArray(props.$width) ? props.$width[1] || props.$width[0] : props.$width};
+            --width: ${Array.isArray(props.$width)
+              ? props.$width[1] || props.$width[0]
+              : props.$width};
           }
           @media (min-width: 1024px) {
-            --width: ${Array.isArray(props.$width) ? props.$width[2] || props.$width[1] || props.$width[0] : props.$width};
+            --width: ${Array.isArray(props.$width)
+              ? props.$width[2] || props.$width[1] || props.$width[0]
+              : props.$width};
           }
         `
       : css`
@@ -40,16 +45,20 @@ export const ButtonWithSpinner = styled(OakPrimaryButton)<{
   --inner-width: calc(var(--width) / 10 * 8);
   --thickness: calc(var(--width) / 12);
 
-  ${(props) => props.isLoading ? css`
-  button > div > div > span::after {
-    content: " ";
-    display: block;
-    width: var(--inner-width);
-    height: var(--inner-width);
-    margin: var(--thickness);
-    border-radius: 50%;
-    border: var(--thickness) solid currentcolor;
-    border-color: currentcolor currentcolor currentcolor transparent;
-    animation: ${SpinnerKeyframe} 1.2s linear infinite;
-  }` : null }
+  ${(props) =>
+    props.isLoading
+      ? css`
+          button > div > div > span::after {
+            content: ' ';
+            display: block;
+            width: var(--inner-width);
+            height: var(--inner-width);
+            margin: var(--thickness);
+            border-radius: 50%;
+            border: var(--thickness) solid currentcolor;
+            border-color: currentcolor currentcolor currentcolor transparent;
+            animation: ${SpinnerKeyframe} 1.2s linear infinite;
+          }
+        `
+      : null}
 `;
