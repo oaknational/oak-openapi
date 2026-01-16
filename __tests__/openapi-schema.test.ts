@@ -24,7 +24,7 @@ function getSchema(ref: string) {
 function fixNullable(schema: OpenAPIV3.SchemaObject): OpenAPIV3.SchemaObject {
   if (typeof schema !== 'object' || schema === null) return schema;
 
-  const newSchema = structuredClone(schema) as OpenAPIV3.SchemaObject;
+  const newSchema = structuredClone(schema);
 
   if ('nullable' in newSchema) {
     // delete newSchema.nullable;
@@ -121,41 +121,31 @@ for (const [path, methods] of Object.entries(swaggerData.paths)) {
           : content.schema
       ) as OpenAPIV3.SchemaObject;
 
-      let example = content.example ? content.example : schemaRef?.example;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const example = content.example ? content.example : schemaRef?.example;
       it(`${method.toUpperCase()} ${path} should have a response example`, () => {
         if (!example) {
           expect.fail(`${method.toUpperCase()} ${path} missing example`);
         }
       });
 
-      if (!example) continue;
+      it(`${method.toUpperCase()} ${path} response example should match schema`, () => {
+        if (!schemaRef) {
+          throw new Error(
+            `Schema not found for ${method.toUpperCase()} ${path} (${statusCode})`,
+          );
+        }
 
-      // FIXME I'm exiting early here. It's because trpc-openapi is generating
-      // the example schema in a way that doesn't match the actual the actual
-      // examples structurally. I think this is a bug in trpc-openapi, but it
-      // also maps the zod schema being transformed to json, so it's a bit more
-      // complicated than any quick fix. For now, I've manually verified that the
-      // examples match the schema, so I'm just going prevent these tests from
-      // running for now.
+        const [isValid, errors = null] = validateExample(schemaRef, example);
 
-      if (path === '/lessons/{lesson}/quiz') {
-        it(`${method.toUpperCase()} ${path} response example should match schema`, () => {
-          if (!schemaRef) {
-            throw new Error(
-              `Schema not found for ${method.toUpperCase()} ${path} (${statusCode})`,
-            );
-          }
-
-          const [isValid, errors = null] = validateExample(schemaRef, example);
-
-          if (!isValid) {
-            console.log(JSON.stringify({ schemaRef, example }, null, 2));
-            console.log(errors);
-            throw new Error(`Example does not match schema.`);
-          }
-          expect(isValid).toBe(true);
-        });
-      }
+        if (!isValid) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          console.log(JSON.stringify({ schemaRef, example }, null, 2));
+          console.log(errors);
+          throw new Error(`Example does not match schema.`);
+        }
+        expect(isValid).toBe(true);
+      });
     }
   }
 }
