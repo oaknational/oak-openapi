@@ -163,7 +163,6 @@ export const getSequences = router({
           title
           threads
           slug
-          domain
           examboard_slug
           keystage_slug
           order
