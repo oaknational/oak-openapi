@@ -133,7 +133,6 @@ export async function getAllSequenceData(
         threads
         slug
         actions
-        domain
         examboard
         examboard_slug
         keystage_slug
