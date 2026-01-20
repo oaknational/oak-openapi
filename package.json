@@ -140,7 +140,8 @@
     "webpack-bugsnag-plugins": "^1.8.0"
   },
   "prettier": {
-    "singleQuote": true
+    "singleQuote": true,
+    "useTabs": false
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
