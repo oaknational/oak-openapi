@@ -91,7 +91,7 @@ test('request power point', async () => {
 });
 
 test('blocked videos return 404', async () => {
-  const lessonSlug = placeholderVideos[5];
+  const lessonSlug = placeholderVideos[6];
 
   const res = await getLessonAsset({
     lesson: lessonSlug,
