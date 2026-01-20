@@ -21,6 +21,10 @@ export const keyStageSubjectLessonsRequestOpenAPISchema = z.object({
       example: 'word-class',
     })
     .optional(),
-  offset: offsetSchema,
-  limit: limitSchema,
+  offset: offsetSchema.describe(
+    'Limit the number of lessons returned per unit. Units with zero lessons after limiting are omitted.',
+  ),
+  limit: limitSchema.describe(
+    'Offset applied to lessons within each unit (not to the unit list).',
+  ),
 });
