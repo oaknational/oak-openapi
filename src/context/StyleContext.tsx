@@ -13,7 +13,7 @@ export default function StyleContext({
   children,
 }: {
   children: React.ReactNode;
-}) {
+}): React.ReactElement {
   return (
     <>
       <StyledComponentsRegistry>

@@ -1,5 +1,5 @@
 import { router } from '@/lib/trpc';
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { TRPCError } from '@trpc/server';
 import { protectedProcedure, getRateLimiter } from '../../protect';
 import { rateLimitResponseOpenAPISchema } from '@/lib/zod-openapi/generated/rate';

@@ -1,6 +1,6 @@
 import { GET as _getLessonAsset } from '@/app/api/v0/lessons/[lesson]/assets/[type]/route';
 
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 import { vi } from 'vitest';
 export * from './make-call';
 
@@ -20,10 +20,11 @@ vi.mock('@/lib/rateLimit', async (importOriginal: () => Promise<object>) => {
 
 export function mockWithUser() {
   vi.mock('@/lib/context', () => {
+    const user = { id: 1, name: 'Test User', key: 'test-user' };
     return {
-      withUser: vi.fn().mockResolvedValue({ id: 1, name: 'Test User' }),
+      withUser: vi.fn().mockResolvedValue(user),
       Context: vi.fn().mockImplementation(() => ({
-        user: { id: 1, name: 'Test User' },
+        user,
         resHeaders: new Headers(),
       })),
     };

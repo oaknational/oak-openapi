@@ -1,8 +1,7 @@
-import 'zod-openapi/extend';
-import { z } from 'zod';
+import * as z from 'zod/v4';
 
 export const subjectKeyStagesRequestOpenAPISchema = z.object({
   subject: z
     .string()
-    .openapi({ description: 'The subject slug identifier', example: 'art' }),
+    .meta({ description: 'The subject slug identifier', example: 'art' }),
 });

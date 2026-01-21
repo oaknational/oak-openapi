@@ -4,7 +4,7 @@
 
 `trpc-to-openapi` v2.1.5 - this is fixed in the package.json. DO NOT update unless trpc 11 support has been fully integrated and the underlying HTTP handlers use the correct request and responses.
 
-## OpenAPI schema generation
+## OpenAPI schema generation
 To generate, in the root directory, run `pnpm generate:openapi` to regenerate the schemas. The generated schemas live in:
 
 ```

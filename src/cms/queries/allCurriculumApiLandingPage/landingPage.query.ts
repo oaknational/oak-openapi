@@ -1,12 +1,12 @@
 import client from '@/cms/client';
-import { CurriculumApiLandingPage } from '@/cms/schemaTypes';
+import type { CurriculumApiLandingPage } from '@/cms/schemaTypes';
 import query from './landingPageQuery.gql';
 
-type CurriculumApiLandingPageQueryResponse = {
+interface CurriculumApiLandingPageQueryResponse {
   allCurriculumApiLandingPage: CurriculumApiLandingPage;
-};
+}
 
-const documentationQuery = async () => {
+const documentationQuery = async (): Promise<CurriculumApiLandingPage> => {
   const res = await client.request(query);
 
   const { allCurriculumApiLandingPage } =

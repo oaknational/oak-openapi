@@ -1,12 +1,24 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import { addUser } from '@/lib/apikeys';
 
-async function handler(req: NextRequest) {
+interface ApiKeyRequestBody {
+  name: string;
+  email: string;
+  company: string;
+}
+
+export interface ApiKeyResponse {
+  apiKey?: string;
+  error?: string;
+}
+
+async function handler(req: NextRequest): Promise<Response> {
   if (req.method !== 'POST') {
     return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 });
   }
 
-  const { name, email, company } = await req.json();
+  const { name, email, company } = (await req.json()) as ApiKeyRequestBody;
 
   if (!name || !email || !company) {
     return NextResponse.json(

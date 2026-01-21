@@ -1,7 +1,11 @@
 {
+  "vitest.nodeEnv": {
+    "DOTENV_CONFIG_PATH": ".env"
+  },
   "eslint.nodePath": "node_modules",
   "cSpell.words": [
     "apikeys",
+    "APIV",
     "commitlint",
     "Consts",
     "examboard",
@@ -21,6 +25,7 @@
     "nocheck",
     "oaknational",
     "officedocument",
+    "opblock",
     "openai",
     "openapi",
     "openxmlformats",
@@ -30,6 +35,7 @@
     "protego",
     "pshe",
     "Ratelimit",
+    "resumable",
     "rshe",
     "slidedeck",
     "slidedecks",

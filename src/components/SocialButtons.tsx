@@ -1,10 +1,10 @@
 import {
   OakFlex,
-  OakFlexProps,
-  OakIconName,
+  type OakFlexProps,
+  type OakIconName,
   OakLink,
 } from '@oaknational/oak-components';
-import { FC, useId } from 'react';
+import { type FC, useId, type ReactElement } from 'react';
 import styled from 'styled-components';
 
 const OakSocialLink = styled(OakLink)`
@@ -21,7 +21,10 @@ export const OAK_SOCIALS: Record<SocialNetwork, string> = {
   linkedIn: 'https://www.linkedin.com/company/oak-national-academy',
 };
 
-const getSocialUrl = (network: SocialNetwork, usernameOrUrl: string) => {
+const getSocialUrl = (
+  network: SocialNetwork,
+  usernameOrUrl: string,
+): string => {
   switch (network) {
     case 'instagram':
       return `https://instagram.com/${usernameOrUrl}`;
@@ -36,10 +39,10 @@ const getSocialUrl = (network: SocialNetwork, usernameOrUrl: string) => {
 
 const SOCIAL_NETWORKS = ['instagram', 'facebook', 'x', 'linkedIn'] as const;
 type SocialNetwork = (typeof SOCIAL_NETWORKS)[number];
-type SocialButtonConfig = {
+interface SocialButtonConfig {
   label: string;
   icon: OakIconName;
-};
+}
 const SOCIAL_BUTTON_CONFIGS: Record<SocialNetwork, SocialButtonConfig> = {
   instagram: {
     label: 'instagram',
@@ -72,7 +75,7 @@ type SocialButtonsProps = OakFlexProps & {
   size?: 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge' | 'xxxlarge';
   spaceBetween?: ResponsiveValues<number>;
 };
-const SocialButtons: FC<SocialButtonsProps> = (props) => {
+const SocialButtons: FC<SocialButtonsProps> = (props): ReactElement | null => {
   const { for: accountHolder, socialNetworks, ...flexProps } = props;
   const id = useId();
   const socialsToShow = SOCIAL_NETWORKS.filter(

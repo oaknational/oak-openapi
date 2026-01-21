@@ -1,9 +1,12 @@
 import client from '@/cms/client';
-import { CurriculumAPIDocumentationPage } from '@/cms/schemaTypes';
-import { documentationQuerySchema } from './documentationQuery.schema';
+import type { CurriculumAPIDocumentationPage } from '@/cms/schemaTypes';
+import {
+  documentationQuerySchema,
+  type DocumentationQuery,
+} from './documentationQuery.schema';
 import query from './documentationQuery.gql';
 
-const documentationQuery = async () => {
+const documentationQuery = async (): Promise<DocumentationQuery> => {
   const res = await client.request(query);
 
   const { allApiContentPage } = res as CurriculumAPIDocumentationPage;

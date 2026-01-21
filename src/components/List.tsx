@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import React from 'react';
 
 const Ul = styled.ul`
   list-style: none;
@@ -15,10 +16,10 @@ const Ul = styled.ul`
   }
 `;
 
-type ListProps = {
+interface ListProps {
   children: React.ReactNode;
-};
+}
 
-export default function List({ children }: ListProps) {
+export default function List({ children }: ListProps): React.ReactElement {
   return <Ul>{children}</Ul>;
 }

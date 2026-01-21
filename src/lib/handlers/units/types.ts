@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { unitSummaryResponseSchema } from './schemas/unitSummaryResponse.schema';
+import * as z from 'zod/v4';
+import type { unitSummaryResponseSchema } from './schemas/unitSummaryResponse.schema';
 
 export const threadSchema = z.object({
   slug: z.string(),
@@ -21,7 +21,7 @@ export type UnitSchema = z.infer<typeof unitSummaryResponseSchema> & {
   examboard?: string;
 };
 
-export type Metadata = {
+export interface Metadata {
   unitTitle: string;
   year: number | 'All years';
   yearSlug: string;
@@ -41,4 +41,4 @@ export type Metadata = {
   // cycle 2
   whyThisWhyNow?: string;
   description?: string;
-};
+}

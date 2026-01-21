@@ -1,6 +1,6 @@
 import type { Pack } from 'tar-stream';
-import { UnitSchema } from '@/lib/handlers/units/types';
-import { TitleSlug } from '@/lib/owaClient';
+import type { UnitSchema } from '@/lib/handlers/units/types';
+import type { TitleSlug } from '@/lib/owaClient';
 
 export interface Lesson {
   lessonTitle: string;
@@ -61,9 +61,7 @@ export interface LessonAssets {
   videoStream: LessonAsset;
 }
 
-export interface LessonAssetsMap {
-  [lessonSlug: string]: LessonAssets;
-}
+export type LessonAssetsMap = Record<string, LessonAssets>;
 
 export type ExamBoard = TitleSlug & { examSubjectTitle?: string };
 

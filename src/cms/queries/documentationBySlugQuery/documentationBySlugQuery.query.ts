@@ -27,11 +27,11 @@ const query = `*[
 const documentationBySlugQuery = async (
   navGroupSlug: string,
   docSlug: string,
-) => {
-  const allApiContentPage = await sanityClient.fetch(query, {
+): Promise<unknown> => {
+  const allApiContentPage = (await sanityClient.fetch(query, {
     docSlug,
     navGroupSlug,
-  });
+  })) as unknown;
 
   if (!allApiContentPage) {
     throw new Error(

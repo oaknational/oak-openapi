@@ -1,5 +1,6 @@
 'use client';
-import { createContext, useEffect, useContext, ReactNode } from 'react';
+import { createContext, useEffect, useContext } from 'react';
+import type { ReactNode } from 'react';
 import posthog from 'posthog-js';
 
 interface PostHogContextType {
@@ -12,7 +13,9 @@ interface PostHogProviderProps {
   children: ReactNode;
 }
 
-export const PostHogProvider = ({ children }: PostHogProviderProps) => {
+export const PostHogProvider = ({
+  children,
+}: PostHogProviderProps): React.ReactElement => {
   useEffect(() => {
     if (process.env.NODE_ENV !== 'production') {
       return;
@@ -39,4 +42,4 @@ export const PostHogProvider = ({ children }: PostHogProviderProps) => {
   );
 };
 
-export const usePostHog = () => useContext(PostHogContext);
+export const usePostHog = (): PostHogContextType => useContext(PostHogContext);

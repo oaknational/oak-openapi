@@ -6,7 +6,7 @@ type EnvValue = string | number;
 type ConfigValue = EnvValue | boolean;
 type DefaultValue = string | number | boolean | null;
 
-type EnvVar = {
+interface EnvVar {
   value: ConfigValue | undefined;
   required: boolean;
   availableInBrowser: boolean;
@@ -15,9 +15,11 @@ type EnvVar = {
   envName: string;
   description?: string;
   allowedValues?: EnvValue[] | boolean[];
-};
+}
 
-const parseValue = <T extends ConfigValue>(value: T | undefined) => {
+const parseValue = <T extends ConfigValue>(
+  value: T | undefined,
+): T | undefined => {
   if (value === 'undefined') {
     return undefined;
   }
@@ -83,7 +85,7 @@ for (const [, envVarConfig] of Object.entries(envVars)) {
      * @TODO we decide which var is required, etc, and set defaults and validations
      */
     if (shouldBePresent && !isPresent) {
-      console.error(`- - - WARNING (getServerConfig): No config value found for required env var:
+      throw new Error(`- - - WARNING (getServerConfig): No config value found for required env var:
       - - - ${envName}`);
     }
   }

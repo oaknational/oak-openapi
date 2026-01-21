@@ -1,21 +1,27 @@
-export function slugToTitle(str: string) {
+export function slugToTitle(str: string): string {
   return str
     .split('-')
     .reduce((acc, str) => acc + str[0].toUpperCase() + str.slice(1) + ' ', '');
 }
 
-export const getPathEnd = (path: string) => {
+export const getPathEnd = (path: string): string => {
   const pathSlugs = path.split('/');
   return pathSlugs[pathSlugs.length - 1];
 };
 
-export const findObjectProperty = (obj: object, target: string) =>
-  target in obj
+export const findObjectProperty = (obj: object, target: string): unknown => {
+  return target in obj
     ? obj[target as keyof typeof obj]
     : Object.values(obj).reduce((acc, val): object | null | undefined => {
-        if (acc !== undefined) return acc;
-        if (typeof val === 'object') return findObjectProperty(val, target);
+        if (acc !== undefined) {
+          return acc;
+        }
+        if (typeof val === 'object') {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          return findObjectProperty(val, target) as object | null | undefined;
+        }
       }, undefined);
+};
 
 export const findAllObjectProperties = (
   obj: object,

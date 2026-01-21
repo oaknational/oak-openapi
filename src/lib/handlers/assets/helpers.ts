@@ -1,5 +1,5 @@
-import { lessonView, LessonView } from '@/lib/owaClient';
-import { Storage } from '@google-cloud/storage';
+import type { lessonView, LessonView } from '@/lib/owaClient';
+import type { Storage } from '@google-cloud/storage';
 import {
   isBlockedUnitOrSubject,
   isSubjectSupported,
@@ -10,7 +10,7 @@ export function isApprovedLesson(
   subjectSlug: string,
   unitSlug: string,
   lessonSlug: string,
-) {
+): boolean {
   // Return false immediately if a blocked subject
   if (isBlockedUnitOrSubject({ unitSlug, subjectSlug })) {
     return false;
@@ -25,10 +25,16 @@ export function isApprovedLesson(
   }
   // TODO: If all else is not true, check the lesson slug
 
-  if (lessonSlug) return false;
+  if (lessonSlug) {
+    return false;
+  }
+
+  return false;
 }
 
-export function getAttribution(attribution: LessonView[typeof lessonView][0]) {
+export function getAttribution(
+  attribution: LessonView[typeof lessonView][0],
+): string[] {
   return Array.from(
     new Set(
       [
@@ -41,11 +47,16 @@ export function getAttribution(attribution: LessonView[typeof lessonView][0]) {
   );
 }
 
+interface FileWithMimeType {
+  name: string;
+  mimeType: string;
+}
+
 export async function listFilesWithMimeType(
   storage: Storage,
   bucketName: string,
   prefix: string,
-) {
+): Promise<FileWithMimeType[]> {
   // make sure to get a listing for the directory (requires trailing slash)
   if (!prefix.endsWith('/')) {
     prefix += '/';

@@ -1,6 +1,12 @@
 import styled from 'styled-components';
 import { OakJauntyAngleLabel as _OakJauntyAngleLabel } from '@oaknational/oak-components';
 
+interface JauntyAngleLabelProps {
+  y?: string;
+  $clickThrough?: boolean;
+  $error?: boolean;
+}
+
 export const JauntyAngleLabel = styled(_OakJauntyAngleLabel)`
   width: fit-content;
   background: #ffe555;
@@ -9,16 +15,18 @@ export const JauntyAngleLabel = styled(_OakJauntyAngleLabel)`
   cursor: pointer;
   position: absolute;
   padding: 4px 8px;
-  transform: rotate(-1.5deg) translateY(${(props) => props.y || '-15px'})
+  transform: rotate(-1.5deg)
+    translateY(${(props: JauntyAngleLabelProps) => props.y || '-15px'})
     translateX(8px);
 
-  ${(props) => props.$clickThrough && `pointer-events: none;`}
+  ${(props: JauntyAngleLabelProps) =>
+    props.$clickThrough && `pointer-events: none;`}
 
   strong {
     font-weight: 600;
   }
 
-  ${(props) =>
+  ${(props: JauntyAngleLabelProps) =>
     props.$error &&
     `
     background: #dd0035;

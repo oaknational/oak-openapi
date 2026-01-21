@@ -12,7 +12,7 @@ import {
 import { JauntyAngleLabel } from '../JauntyAngleLabel';
 import styled from 'styled-components';
 
-export type HubspotPayload = {
+export interface HubspotPayload {
   fields: {
     name: string;
     value: string | undefined;
@@ -22,13 +22,13 @@ export type HubspotPayload = {
     pageName: string;
     hutk?: string | undefined;
   };
-};
+}
 
 const FlexedBox = styled(OakBox)`
   flex: 1;
 `;
 
-export function GetUpdates() {
+export function GetUpdates(): React.ReactElement {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [success, setSuccess] = useState(false);
@@ -38,7 +38,9 @@ export function GetUpdates() {
   const hubspotUrl =
     'https://hubspot-forms.thenational.academy/submissions/v3/integration/submit';
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     // Prevent default form submission
     e.preventDefault();
 
@@ -85,7 +87,9 @@ export function GetUpdates() {
       return;
     }
 
-    const { inlineMessage } = await res.json();
+    const { inlineMessage } = (await res.json()) as {
+      inlineMessage?: string;
+    };
     if (inlineMessage) {
       // If the submission was successful, show a success message
       setMessage(inlineMessage);
