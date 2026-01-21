@@ -7,6 +7,7 @@ mockWithUser();
 
 vi.mock('@google-cloud/storage', async () => {
   const { EventEmitter } = await import('events');
+
   class Stream extends EventEmitter {
     pipe(res: { write: (data: Buffer) => void }) {
       setTimeout(() => this.emit('end'), 0);
@@ -14,33 +15,35 @@ vi.mock('@google-cloud/storage', async () => {
       return vi.fn();
     }
   }
-  return {
-    Storage: vi.fn().mockImplementation(() => {
-      return {
-        getFiles: vi.fn().mockResolvedValue([
-          [
-            {
-              name: 'LESS-ID/slidedeck/PDF.pdf',
-              metadata: {
-                contentType: 'application/pdf',
-              },
-            },
-            {
-              name: 'LESS-ID/slidedeck/PowerPoint.pptx',
-              metadata: {
-                contentType:
-                  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-              },
-            },
-          ],
-        ]),
-        bucket: vi.fn().mockReturnThis(),
-        file: vi.fn().mockReturnThis(),
-        createReadStream() {
-          return new Stream();
+
+  class StorageMock {
+    getFiles = vi.fn().mockResolvedValue([
+      [
+        {
+          name: 'LESS-ID/slidedeck/PDF.pdf',
+          metadata: {
+            contentType: 'application/pdf',
+          },
         },
-      };
-    }),
+        {
+          name: 'LESS-ID/slidedeck/PowerPoint.pptx',
+          metadata: {
+            contentType:
+              'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+          },
+        },
+      ],
+    ]);
+
+    bucket = vi.fn(() => this);
+
+    file = vi.fn(() => this);
+
+    createReadStream = vi.fn(() => new Stream());
+  }
+
+  return {
+    Storage: StorageMock,
   };
 });
 
@@ -91,7 +94,7 @@ test('request power point', async () => {
 });
 
 test('blocked videos return 404', async () => {
-  const lessonSlug = placeholderVideos[5];
+  const lessonSlug = placeholderVideos[6];
 
   const res = await getLessonAsset({
     lesson: lessonSlug,
@@ -182,7 +185,7 @@ test('lessons not in the supported lessons array are not allowed', async () => {
   expect(res.status).toBe(404);
   const body = await res.json();
   expect(body).toHaveProperty('message');
-  expect(body.message).toBe('Lesson not available');
+  expect(body.message).toContain('Lesson not available');
 });
 
 test('cycling down the quality of videos against mux', async () => {
@@ -267,7 +270,7 @@ test('financial education is hidden: returns invalid enum value', async () => {
         keyStage: 'ks2',
         type: 'slideDeck',
       }),
-  ).rejects.toThrow('Invalid enum value');
+  ).rejects.toThrow('Invalid option');
 });
 
 // test('isApprovedLesson: blocked subjects return false', () => {

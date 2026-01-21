@@ -1,10 +1,9 @@
-import z from 'zod';
-import 'zod-openapi/extend';
+import * as z from 'zod/v4';
 
 export const lessonSearchResultSchema = z.object({
-  lessonSlug: z.string().openapi({ description: 'The lesson slug identifier' }),
-  lessonTitle: z.string().openapi({ description: 'The lesson title' }),
-  similarity: z.number().openapi({
+  lessonSlug: z.string().meta({ description: 'The lesson slug identifier' }),
+  lessonTitle: z.string().meta({ description: 'The lesson title' }),
+  similarity: z.number().meta({
     description: 'The snippet of the transcript that matched the search term',
   }),
   units: z
@@ -17,7 +16,7 @@ export const lessonSearchResultSchema = z.object({
         subjectSlug: z.string(),
       }),
     )
-    .openapi({
+    .meta({
       description:
         'The units that the lesson is part of. See sample response below',
     }),
@@ -25,8 +24,8 @@ export const lessonSearchResultSchema = z.object({
 
 export const lessonSearchResponseOpenAPISchema = z
   .array(lessonSearchResultSchema)
-  .openapi({
-    ref: 'LessonSearchResponseSchema',
+  .meta({
+    id: 'LessonSearchResponseSchema',
     example: [
       {
         lessonSlug: 'performing-your-chosen-gothic-poem',

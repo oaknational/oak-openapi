@@ -1,16 +1,17 @@
 import {
   OakBox,
-  OakIconName,
+  type OakIconName,
   OakInlineBanner,
 } from '@oaknational/oak-components';
+import React from 'react';
 
-type Notice = {
+interface Notice {
   text: string;
   icon: string;
   type: string;
-};
+}
 
-export const Notice = ({ value }: { value: Notice }) => {
+export const Notice = ({ value }: { value: Notice }): React.ReactElement => {
   return (
     <OakBox $mb="spacing-24">
       <OakInlineBanner

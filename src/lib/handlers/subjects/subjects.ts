@@ -1,13 +1,13 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
-import { z } from 'zod';
+import * as z from 'zod/v4';
+import type { SubjectPhaseView } from '@/lib/owaClient';
 import {
   currentCycle,
   getClient,
   gql,
-  SubjectPhaseView,
   subjectPhaseView,
-} from '../../owaClient';
+} from '@/lib/owaClient';
 import { TRPCError } from '@trpc/server';
 import {
   getSubjectPhase,

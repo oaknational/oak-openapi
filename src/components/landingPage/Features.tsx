@@ -37,7 +37,7 @@ const navItems = [
   { title: 'Give feedback', href: '#give-feedback' },
 ];
 
-export default function Features() {
+export default function Features(): React.ReactElement {
   return (
     <OakMaxWidth
       $background="bg-primary"

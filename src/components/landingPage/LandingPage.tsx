@@ -10,16 +10,16 @@ import {
   OakP as _OakP,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
+import type { UsingTheApiSection } from '@/cms/queries/allCurriculumApiLandingPage/landingPageTransform';
 import {
   transformContentBlocks,
   transformUsingTheAPI,
-  UsingTheApiSection,
 } from '@/cms/queries/allCurriculumApiLandingPage/landingPageTransform';
-import { CMSCta, CurriculumApiLandingPage } from '@/cms/schemaTypes';
+import type { CMSCta, CurriculumApiLandingPage } from '@/cms/schemaTypes';
 import { MaxWidth } from '../MaxWidth';
 import { SanityCtaLink } from '../SanityCtaLink';
 
-function OakP(props: (typeof _OakP)['props']) {
+function OakP(props: (typeof _OakP)['props']): React.ReactElement {
   return <_OakP {...props} $mv="spacing-24" $color="text-primary" />;
 }
 
@@ -37,7 +37,7 @@ export default function Page({
   documentationData,
 }: {
   documentationData: CurriculumApiLandingPage;
-}) {
+}): React.ReactElement {
   const data = transformContentBlocks(documentationData);
   const usingTheAPI = transformUsingTheAPI(documentationData);
   return (
@@ -74,7 +74,12 @@ export default function Page({
   );
 }
 
-function UsingTheAPI({ title, image, link, blocks }: UsingTheApiSection) {
+function UsingTheAPI({
+  title,
+  image,
+  link,
+  blocks,
+}: UsingTheApiSection): React.ReactElement {
   return (
     <OakFlex
       $alignItems="center"
@@ -146,7 +151,7 @@ function BlockAndText1({
   image?: { src: string; width?: number; height?: number };
   link?: CMSCta;
   align?: 'left' | 'right';
-}) {
+}): React.ReactElement {
   const flexDirection = align === 'left' ? 'row' : 'row-reverse';
 
   return (

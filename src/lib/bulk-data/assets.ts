@@ -1,8 +1,8 @@
-import { Storage } from '@google-cloud/storage';
+import type { Storage } from '@google-cloud/storage';
 import fs from 'node:fs/promises';
-import { Pack } from 'tar-stream';
+import type { Pack } from 'tar-stream';
 import tar from 'tar-stream';
-import {
+import type {
   LessonAssetsMap,
   ValidDownloadTypes,
   Lesson,
@@ -19,13 +19,15 @@ export async function downloadQuiz(
   packs: AssetPacks,
   slug: string,
   storage: Storage,
-) {
+): Promise<void> {
   // Process starter quiz if available and has bucket_name
   type ValidKeys =
     | ValidDownloadTypes
     | ('exitQuizAnswers' | 'starterQuizAnswers' | 'worksheetAnswers');
 
-  const findPackKey = (key: ValidDownloadTypes) => {
+  type PackKey = 'starterQuizzes' | 'exitQuizzes' | 'worksheets';
+
+  const findPackKey = (key: ValidDownloadTypes): PackKey => {
     if (key === 'starterQuiz') {
       return 'starterQuizzes';
     } else if (key === 'exitQuiz') {
@@ -71,7 +73,9 @@ export async function downloadQuiz(
           `${tarFilename}:${lesson.lessonSlug}_${type}_${suffix}_answers.pdf`;
       }
     } catch (e) {
-      logError(`Failed to process ${type} for ${lesson.lessonSlug}: ${e}`);
+      logError(
+        `Failed to process ${type} for ${lesson.lessonSlug}: ${e as string}`,
+      );
       logError(
         `${type} data: ${JSON.stringify(assetLinks[lesson.lessonSlug][key])}`,
       );
@@ -118,8 +122,11 @@ export async function addStorageAssetToTar(
           size: size,
         },
         (err) => {
-          if (err) reject(err);
-          else resolve(void 0);
+          if (err) {
+            reject(err);
+          } else {
+            resolve(void 0);
+          }
         },
       );
 
@@ -130,7 +137,7 @@ export async function addStorageAssetToTar(
       });
     });
   } catch (error) {
-    logError(`Error getting file metadata: ${error}`);
+    logError(`Error getting file metadata: ${error as string}`);
     throw error;
   }
 }
@@ -142,7 +149,7 @@ export function buildAssetPacks(
   sequenceDir: string,
   slug: string,
   assetPacks: AssetPacks,
-) {
+): void {
   // Create tarballs for different asset types
   const worksheetsOutput = createWriteStream(
     `${sequenceDir}/${slug}-worksheets.tar`,

@@ -1,10 +1,11 @@
 'use client';
 import { OakBox, OakFlex, OakHeading, OakP } from '@oaknational/oak-components';
 import styled from 'styled-components';
-import { Table } from '../Table';
+import React from 'react';
+import { Table, type TableInterface } from '../Table';
 import { Roboto_Mono } from 'next/font/google';
 import { capitalize } from 'lodash';
-import { DocumentationContentPageBlock } from '@/cms/schemaTypes';
+import type { DocumentationContentPageBlock } from '@/cms/schemaTypes';
 import { Code } from '../Code';
 
 const robotoMono = Roboto_Mono({
@@ -13,17 +14,17 @@ const robotoMono = Roboto_Mono({
   weight: ['400'],
 });
 
-export type InputOutputTableRow = {
+export interface InputOutputTableRow {
   name: string;
   type: string;
   description?: string;
   example?: string;
   required?: boolean;
-};
+}
 
 export type InputOutputTable = InputOutputTableRow[];
 
-export type EndpointInfo = {
+export interface EndpointInfo {
   order: number;
   title: string;
   requestType: string;
@@ -34,14 +35,14 @@ export type EndpointInfo = {
   output: InputOutputTable;
   sampleResponse?: string;
   slug: string;
-};
+}
 
-export type EndpointDocsProps = {
+export interface EndpointDocsProps {
   title: string;
   slug: string;
   endpoints: EndpointInfo[];
   docs: DocumentationContentPageBlock[];
-};
+}
 
 // RS note - I've reduced this heading down to allow for long URLs to fit better
 // but it needs Helen's sign off (TODO - remove this comment when done)
@@ -54,7 +55,8 @@ const EndpointHeading = styled(OakHeading)`
   line-height: 1rem;
   word-break: break-all;
 `;
-const generateTableRows = (data: InputOutputTable) => {
+
+const generateTableRows = (data: InputOutputTable): TableInterface => {
   const header = data[0]
     ? Object.keys(data[0]).map((key) => capitalize(key))
     : [];
@@ -77,7 +79,7 @@ const TableSection = ({
 }: {
   title: string;
   tableData: InputOutputTable | undefined;
-}) => {
+}): React.ReactElement => {
   return (
     <OakBox>
       <OakHeading tag="h3" $font="heading-5">
@@ -94,7 +96,9 @@ const TableSection = ({
   );
 };
 
-export default function EndpointBlock(props: { endpoint: EndpointInfo }) {
+export default function EndpointBlock(props: {
+  endpoint: EndpointInfo;
+}): React.ReactElement {
   const {
     title,
     description,

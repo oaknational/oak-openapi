@@ -58,7 +58,7 @@ const SecondaryButtonWithoutText = styled(OakSecondaryButton)`
   }
 `;
 
-export function Navigation() {
+export function Navigation(): React.ReactElement {
   return (
     <MenuContainer $bb={'border-solid-s'} $borderColor="grey40">
       <MaxWidth
@@ -90,7 +90,21 @@ export function Navigation() {
   );
 }
 
-function OakAPINavigationLink({ $font = 'heading-light-7', ...props }) {
+interface OakAPINavigationLinkProps {
+  children: React.ReactNode;
+  role: string;
+  href: string;
+  className?: string | null | undefined;
+  isTrailingIcon?: boolean;
+  iconName?: string;
+  target?: string;
+  $font?: string;
+}
+
+function OakAPINavigationLink({
+  $font = 'heading-light-7',
+  ...props
+}: OakAPINavigationLinkProps): React.ReactElement {
   const children = props.children;
 
   // this is a workaround because the font can't be passed directly to links… apparently
@@ -125,7 +139,7 @@ function Menu({
 }: {
   children: React.ReactNode;
   className?: string;
-}) {
+}): React.ReactElement {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <OakFlex $flexGrow="1" $justifyContent="end" className={className}>
@@ -163,12 +177,12 @@ function MenuContents({
 }: {
   wide: boolean;
   className?: string;
-}) {
+}): React.ReactElement {
   const flexDirection = wide ? 'row' : 'column';
 
   const pathname = usePathname();
 
-  const select = (test: boolean) => (test ? 'selected' : null);
+  const select = (test: boolean): string | null => (test ? 'selected' : null);
 
   const focusLink = {
     docs: select(pathname.startsWith('/docs')),

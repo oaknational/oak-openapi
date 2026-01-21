@@ -1,6 +1,7 @@
 import { OakBox } from '@oaknational/oak-components';
 import Markdown from 'react-markdown';
 import styled from 'styled-components';
+import React from 'react';
 
 const Td = styled.td`
   p {
@@ -68,16 +69,20 @@ const OakTable = styled.table`
   }
 `;
 
-export type TableRowData = {
+export interface TableRowData {
   cells: string[];
   _key: string;
-};
+}
 
-export type Table = {
+export interface TableInterface {
   rows: TableRowData[];
-};
+}
 
-export const Table = ({ value }: { value: Table }) => {
+export const Table = ({
+  value,
+}: {
+  value: TableInterface;
+}): React.ReactElement => {
   const rows = Array.from(value.rows);
   const header = rows.shift();
   return (
@@ -102,7 +107,11 @@ export const Table = ({ value }: { value: Table }) => {
   );
 };
 
-export const TableRow = ({ row }: { row: TableRowData }) => {
+export const TableRow = ({
+  row,
+}: {
+  row: TableRowData;
+}): React.ReactElement => {
   return (
     <tr>
       {row.cells.map((cell, index) => (

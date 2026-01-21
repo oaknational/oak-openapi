@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: 'Oak Curriculum API Playground',
 };
 
-export default function Page() {
+export default function Page(): React.ReactElement {
   return (
     <>
       <Playground />

@@ -1,6 +1,6 @@
 import { Ratelimit as RateLimit } from '@upstash/ratelimit';
 import { redis } from '@/lib/redis';
-import { User } from './apikeys';
+import type { User } from './apikeys';
 
 export const defaultRateLimit = 1000;
 
@@ -32,9 +32,9 @@ export type RateLimitInfo =
       reset: number;
     };
 
-export type RateLimiter = {
+export interface RateLimiter {
   check: (user: User, noCost?: boolean) => Promise<RateLimitInfo>;
-};
+}
 
 /**
  * Function to create a user-based rate limiter with a given rate limit

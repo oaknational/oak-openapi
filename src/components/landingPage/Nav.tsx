@@ -1,9 +1,12 @@
 'use client';
 
-import { OakLI, OakLink, OakUL } from '@oaknational/oak-components';
+import {
+  OakAnchorTarget,
+  OakLI,
+  OakLink,
+  OakUL,
+} from '@oaknational/oak-components';
 import styled from 'styled-components';
-
-import { OakAnchorTarget } from '@oaknational/oak-components';
 
 const StyledNav = styled.nav`
   outline: none;
@@ -40,13 +43,13 @@ const StyledULItem = styled(OakLI)`
   }
 `;
 
-export type NavProps = {
+export interface NavProps {
   title?: string;
   items: { title: string; href: string }[];
   ariaLabel?: string;
   anchorTarget?: string;
   onClick?: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
-};
+}
 
 const Nav = ({
   items,
@@ -54,7 +57,7 @@ const Nav = ({
   anchorTarget,
   onClick,
   ...rest
-}: NavProps) => {
+}: NavProps): React.ReactElement => {
   return (
     <StyledNav aria-label={ariaLabel} {...rest}>
       {anchorTarget && <OakAnchorTarget id={anchorTarget} />}

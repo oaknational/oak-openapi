@@ -1,4 +1,5 @@
-import { OakFlex, OakFlexProps } from '@oaknational/oak-components';
+import { OakFlex, type OakFlexProps } from '@oaknational/oak-components';
+import React from 'react';
 
 const defaultProps: OakFlexProps = {
   $maxWidth: ['100vw', 'spacing-1280'],
@@ -9,6 +10,6 @@ const defaultProps: OakFlexProps = {
   $mh: 'auto',
 };
 
-export const MaxWidth = (props: OakFlexProps & { as?: string }) => (
-  <OakFlex {...{ ...defaultProps, ...props }} />
-);
+export const MaxWidth = (
+  props: OakFlexProps & { as?: string },
+): React.ReactElement => <OakFlex {...{ ...defaultProps, ...props }} />;

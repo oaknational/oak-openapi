@@ -43,8 +43,8 @@ const OakTextInput = styled(_OakTextInput)`
 async function startDownload(
   selectedSubjectKeys: string[],
   apiKey: string,
-  done: (ok: boolean) => undefined | void,
-) {
+  done: (ok: boolean) => undefined,
+): Promise<void> {
   const res = await fetch('/api/bulk', {
     method: 'POST',
     headers: {
@@ -64,21 +64,21 @@ async function startDownload(
 
   try {
     const downloadStream = new ReadableStream({
-      start(controller) {
+      async start(controller) {
         const reader = stream.getReader();
 
-        function push() {
-          reader.read().then(({ done, value }) => {
+        async function push(): Promise<void> {
+          await reader.read().then(({ done, value }) => {
             if (done) {
               controller.close();
               return;
             }
             controller.enqueue(value);
-            push();
+            return push();
           });
         }
 
-        push();
+        await push();
       },
     });
 
@@ -106,7 +106,7 @@ export function Authenticate({
   hasSelectedSubject,
   setHasError,
   selectedSubjects,
-}: AuthenticateProps) {
+}: AuthenticateProps): React.ReactElement {
   const [apiKey, setApiKey] = useState('');
   const [termsChecked, setTermsChecked] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -123,7 +123,7 @@ export function Authenticate({
     }
   }, [apiKeyError, termsError, subjectError, setHasError]);
 
-  const handleDownload = async () => {
+  const handleDownload = async (): Promise<void> => {
     setIsLoading(true);
     let hasError = false;
 
@@ -191,7 +191,7 @@ export function Authenticate({
         return acc;
       }, []);
 
-    startDownload(selectedSubjectKeys, apiKey, (ok) => {
+    await startDownload(selectedSubjectKeys, apiKey, (ok) => {
       setIsLoading(false);
       if (ok) {
         router.push('/bulk-download/success');
