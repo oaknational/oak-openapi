@@ -1,11 +1,7 @@
 import React from 'react';
 import CheckBox from '../CheckBox';
-import {
-  OakFlex,
-  OakSpan,
-  OakIcon,
-  OakIconName,
-} from '@oaknational/oak-components';
+import { OakFlex, OakSpan, OakIcon } from '@oaknational/oak-components';
+import type { OakIconName } from '@oaknational/oak-components';
 import { useStableId } from '@/lib/useStableId';
 
 interface SelectCardProps {
@@ -117,7 +113,7 @@ function DownloadOption({
   onChange,
   $hasError = false,
   errorId,
-}: DownloadOptionProps) {
+}: DownloadOptionProps): React.ReactElement {
   const id = useStableId('chk');
   return (
     <OakFlex

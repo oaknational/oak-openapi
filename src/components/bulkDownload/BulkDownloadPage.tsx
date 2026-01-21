@@ -4,7 +4,7 @@ import Head from 'next/head';
 import { Navigation } from '../Nav';
 import { MaxWidth } from '../MaxWidth';
 import Footer from '../Footer';
-import { useReducer, useEffect, useState } from 'react';
+import React, { useReducer, useEffect, useState } from 'react';
 import {
   OakBox,
   OakFieldError,
@@ -35,7 +35,10 @@ type Action =
   | { type: 'SET_ALL_PRIMARY'; payload: boolean }
   | { type: 'SET_ALL_SECONDARY'; payload: boolean };
 
-const selectionReducer = (state: SelectionState, action: Action) => {
+const selectionReducer = (
+  state: SelectionState,
+  action: Action,
+): SelectionState => {
   switch (action.type) {
     case 'TOGGLE_PRIMARY':
       return {
@@ -76,7 +79,9 @@ const WhiteBoxHeading = styled(OakHeading)`
   margin-top: -6px;
 `;
 
-export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
+export default function BulkDownloadPage({
+  subjects,
+}: BulkDownloadPageProps): React.ReactElement {
   const [hasError, setHasError] = useState(false);
   const initialSelectionState = subjects.reduce((acc, subject) => {
     acc[subject.slug] = { primary: false, secondary: false };
@@ -102,27 +107,27 @@ export default function BulkDownloadPage({ subjects }: BulkDownloadPageProps) {
     setAllSecondaryChecked(allSecondary);
   }, [selectedSubjects, subjects]);
 
-  const handlePrimaryChange = (subjectSlug: string) => {
+  const handlePrimaryChange = (subjectSlug: string): void => {
     setHasError(false);
     dispatch({ type: 'TOGGLE_PRIMARY', payload: subjectSlug });
   };
 
-  const handleSecondaryChange = (subjectSlug: string) => {
+  const handleSecondaryChange = (subjectSlug: string): void => {
     setHasError(false);
     dispatch({ type: 'TOGGLE_SECONDARY', payload: subjectSlug });
   };
 
-  const handleSelectAllPrimary = (checked: boolean) => {
+  const handleSelectAllPrimary = (checked: boolean): void => {
     setHasError(false);
     dispatch({ type: 'SET_ALL_PRIMARY', payload: checked });
   };
 
-  const handleSelectAllSecondary = (checked: boolean) => {
+  const handleSelectAllSecondary = (checked: boolean): void => {
     setHasError(false);
     dispatch({ type: 'SET_ALL_SECONDARY', payload: checked });
   };
 
-  const hasSelectedSubject = () => {
+  const hasSelectedSubject = (): boolean => {
     for (const subjectSlug in selectedSubjects) {
       if (
         selectedSubjects[subjectSlug].primary ||

@@ -11,18 +11,18 @@ import {
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
 
-import { CurriculumApiDocsNav } from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
+import type { CurriculumApiDocsNav } from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
 import { useState } from 'react';
 import { JauntyAngleLabel } from '../JauntyAngleLabel';
 import { useStableId } from '@/lib/useStableId';
 
-export type NavProps = {
+export interface NavProps {
   title?: string;
   location: string;
   items: CurriculumApiDocsNav;
   anchorTarget?: string;
   onClick?: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
-};
+}
 
 const StyledOakLink = styled(OakLink)`
   color: #222222;
@@ -51,8 +51,8 @@ const createNavItem = (
   slug: string,
   index: number,
   onClick?: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void,
-  selected: boolean = false,
-) => (
+  selected = false,
+): React.ReactElement => (
   <StyledULItem
     $background={selected ? ['grey20', 'mint50'] : ['white']}
     $borderRadius="border-radius-s"
@@ -90,7 +90,7 @@ export default function DocsNav({
   anchorTarget,
   onClick,
   ...rest
-}: NavProps) {
+}: NavProps): React.ReactElement {
   const [menuIsOpen, setMenuIsOpen] = useState(false);
 
   const currentPageTitle = items.reduce(

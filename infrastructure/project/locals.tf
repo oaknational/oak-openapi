@@ -1,4 +1,34 @@
 locals {
+  required_env_keys = {
+    website = {
+      shared  = ["AUTH_USERNAME", "NEXT_PUBLIC_OAK_ASSETS_HOST", "NEXT_PUBLIC_OAK_ASSETS_PATH", "NEXT_PUBLIC_POSTHOG_API_HOST", "NEXT_PUBLIC_POSTHOG_API_KEY", "NEXT_PUBLIC_SANITY_DATASET", "NEXT_PUBLIC_SANITY_PROJECT_ID", "UPSTASH_REDIS_REST_URL"]
+      prod    = ["NEXT_PUBLIC_POSTHOG_KEY", "OAK_GRAPHQL_HOST", "PRODUCTION_API_URL"]
+      preview = ["OAK_GRAPHQL_HOST"]
+    }
+
+    storybook = {
+      shared  = []
+      prod    = []
+      preview = []
+    }
+  }
+
+  required_sensitive_env_keys = {
+    website = {
+      shared  = ["AUTH_PASSWORD", "GOOGLE_APPLICATION_CREDENTIALS_JSON", "OAK_API_AUTH_TOKEN", "OAK_GRAPHQL_SECRET", "SANITY_AUTH_SECRET", "UPSTASH_REDIS_REST_TOKEN"]
+      prod    = ["PRISMA_ACCELERATE_DATABASE_URL_PROD"]
+      preview = ["PRISMA_ACCELERATE_DATABASE_URL_PREVIEW"]
+    }
+    storybook = {
+      shared  = []
+      prod    = []
+      preview = []
+    }
+  }
+
+  required_current_env           = local.required_env_keys[local.build_type]
+  required_current_sensitive_env = local.required_sensitive_env_keys[local.build_type]
+
   env_groups = {
     shared  = ["production", "preview"]
     prod    = ["production"]

@@ -15,7 +15,7 @@ import {
 } from '@oaknational/oak-components';
 
 // Success Illustration Component
-function SuccessIllustration() {
+function SuccessIllustration(): React.ReactElement {
   return (
     <OakBox>
       <OakImage
@@ -35,7 +35,7 @@ function SuccessIllustration() {
 }
 
 // Success Content Component
-function SuccessContent() {
+function SuccessContent(): React.ReactElement {
   return (
     <OakFlex
       $maxWidth="spacing-640"
@@ -62,7 +62,7 @@ function SuccessContent() {
 }
 
 // Action Buttons Component
-function ActionButtons() {
+function ActionButtons(): React.ReactElement {
   return (
     <OakFlex $gap="spacing-16" $flexDirection={['column', 'column', 'row']}>
       <OakSecondaryButton
@@ -86,7 +86,7 @@ function ActionButtons() {
 }
 
 // Main Success Page Component
-export default function BulkDownloadSuccessPage() {
+export default function BulkDownloadSuccessPage(): React.ReactElement {
   return (
     <>
       <Head>

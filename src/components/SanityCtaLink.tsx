@@ -1,19 +1,20 @@
-import { CMSCta } from '@/cms/schemaTypes';
+import type { CMSCta } from '@/cms/schemaTypes';
 import {
   OakBox,
   OakFlex,
-  OakIconName,
+  type OakIconName,
   OakPrimaryButton,
   OakSecondaryButton,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
+import React from 'react';
 
-type SanityCtaLinkProps = {
+interface SanityCtaLinkProps {
   value: CMSCta;
-};
+}
 
 const OakFlexWithImage = styled(OakFlex)`
-  ${(props) =>
+  ${(props: { background: string }) =>
     `background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), ${props.background};`}
   background-size: cover;
   width: 100%;
@@ -21,7 +22,9 @@ const OakFlexWithImage = styled(OakFlex)`
   aspect-ratio: 1.5;
 `;
 
-export const SanityCtaLink = (props: SanityCtaLinkProps) => {
+export const SanityCtaLink = (
+  props: SanityCtaLinkProps,
+): React.ReactElement => {
   const { externalLink, label, variant, backgroundImageUrl } = props.value;
   const icon = props.value.icon as OakIconName;
 

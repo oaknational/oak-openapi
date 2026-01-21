@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getClient, gql, views } from '@/lib/owaClient';
 
-async function handler() {
+async function handler(): Promise<Response> {
   const client = getClient();
   const query = gql`
     query {

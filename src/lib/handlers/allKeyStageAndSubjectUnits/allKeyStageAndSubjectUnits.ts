@@ -6,11 +6,9 @@ import {
 } from '@/lib/zod-openapi/generated/allKeyStageAndSubjectUnits';
 import { gql } from 'graphql-request';
 
-import {
-  UnitVariantLessonsView,
-  getClient,
-  unitVariantLessonsView,
-} from 'lib/owaClient';
+import type { UnitVariantLessonsView } from 'lib/owaClient';
+
+import { getClient, unitVariantLessonsView } from 'lib/owaClient';
 
 export const getAllKeyStageAndSubjectUnits = router({
   getAllKeyStageAndSubjectUnits: protectedProcedure

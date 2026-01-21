@@ -1,15 +1,15 @@
 import client from '@/cms/client';
-import { NavDocsListQuery } from './navDocsListQuery.schema';
+import type { NavDocsListQuery } from './navDocsListQuery.schema';
 import {
   type CurriculumApiDocsNav,
   curriculumApiDocsNavSchema,
-  NavGroup,
+  type NavGroup,
 } from '@/cms/schemaTypes/curriculumApiDocsNav.schema';
 import query from './navDocsListQuery.gql';
 
 const API_ENDPOINTS_SLUG = 'api-endpoints';
 
-const navDocsListQuery = async () => {
+const navDocsListQuery = async (): Promise<CurriculumApiDocsNav> => {
   const res = await client.request(query);
   const { groups, pages } = res as NavDocsListQuery;
 

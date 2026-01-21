@@ -1,24 +1,23 @@
-import 'zod-openapi/extend';
-import z from 'zod';
+import * as z from 'zod/v4';
 
 export const rateLimitResponseOpenAPISchema = z
   .object({
-    limit: z.number().openapi({
+    limit: z.number().meta({
       description:
         'The maximum number of requests you can make in the current window.',
       example: 1000,
     }),
-    remaining: z.number().openapi({
+    remaining: z.number().meta({
       description: 'The number of requests remaining in the current window.',
       example: 953,
     }),
-    reset: z.number().openapi({
+    reset: z.number().meta({
       description:
         'The time at which the current window resets, in milliseconds since the Unix epoch.',
       example: 1740164400000,
     }),
   })
-  .openapi({
-    ref: 'RateLimitResponseSchema',
+  .meta({
+    id: 'RateLimitResponseSchema',
     example: { limit: 1000, remaining: 953, reset: 1740164400000 },
   });

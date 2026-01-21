@@ -1,9 +1,11 @@
 import { PassThrough } from 'stream';
 
-import { type NextRequest, NextResponse } from 'next/server';
-import { type Context, withUser } from '@/lib/context';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import type { Context } from '@/lib/context';
+import { withUser } from '@/lib/context';
 import { protect } from '@/lib/protect';
-import { File } from '@google-cloud/storage';
+import type { File } from '@google-cloud/storage';
 import codes from 'http-codes';
 import archiver from 'archiver';
 import { getGoogleCloudStorage } from '@/lib/bulk-data/data-stores';
@@ -13,29 +15,26 @@ const bucketName = process.env.BULK_DATA_BUCKET || 'oak-prod-ldn-bulk-uploader';
 
 const storage = getGoogleCloudStorage();
 
-const handler = async (req: NextRequest) => {
+const handler = async (req: NextRequest): Promise<Response> => {
   // 1. get the user
 
   const user = await withUser(req);
   const ctx = {
     user,
     resHeaders: req.headers,
-  } as Context;
+    req,
+  } as unknown as Context;
 
   // manually check the protect
-  await new Promise(async (resolve, reject) => {
-    try {
-      await protect({
-        ctx,
-        next: async () => resolve(void 0),
-        meta: { noCost: false },
-      });
-    } catch (error) {
-      reject(error);
-    }
+  await new Promise<void>((resolve, reject) => {
+    protect({
+      ctx,
+      next: () => Promise.resolve().then(resolve),
+      meta: { noCost: false },
+    }).catch(reject);
   });
 
-  const body = await req.json();
+  const body = (await req.json()) as { subjects?: string[] };
   const subjects = body.subjects || [];
   const allFiles: File[] = [];
 
@@ -60,7 +59,7 @@ const handler = async (req: NextRequest) => {
     });
   }
 
-  archive.finalize();
+  await archive.finalize();
 
   return new Response(zipStream as unknown as BodyInit, {
     headers: {
@@ -69,7 +68,7 @@ const handler = async (req: NextRequest) => {
   });
 };
 
-async function handlerWrapper(req: NextRequest) {
+async function handlerWrapper(req: NextRequest): Promise<Response> {
   try {
     return await handler(req);
   } catch (e: unknown) {

@@ -24,10 +24,10 @@ export const searchTranscripts = router({
     .query(async ({ input }) => {
       const { q } = input;
 
-      type SearchRow = {
+      interface SearchRow {
         lesson_id: string;
         source_content: string;
-      };
+      }
 
       // console.time('snippet search');
 
@@ -42,11 +42,11 @@ export const searchTranscripts = router({
 
       const ids = search.map((r) => r.lesson_id);
 
-      type Record = {
+      interface Record {
         id: string;
         title: string;
         slug: string;
-      };
+      }
       const res: Record[] = await prisma.lesson.findMany({
         where: {
           id: {

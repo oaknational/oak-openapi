@@ -1,5 +1,4 @@
-import 'zod-openapi/extend';
-import z from 'zod';
+import * as z from 'zod/v4';
 import {
   exitQuizSchema,
   starterQuizSchema,
@@ -10,8 +9,8 @@ export const questionForLessonsResponseOpenAPISchema = z
     starterQuiz: starterQuizSchema,
     exitQuiz: exitQuizSchema,
   })
-  .openapi({
-    ref: 'QuestionForLessonsResponseSchema',
+  .meta({
+    id: 'QuestionForLessonsResponseSchema',
     example: {
       starterQuiz: [
         {
@@ -25,6 +24,7 @@ export const questionForLessonsResponseOpenAPISchema = z
           ],
         },
       ],
+
       exitQuiz: [
         {
           question: 'Which word is a verb?',

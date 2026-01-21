@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export function middleware(req: NextRequest) {
+export function middleware(req: NextRequest): NextResponse {
   const authHeader = req.headers.get('authorization');
 
   if (!authHeader) {
