@@ -28,9 +28,14 @@ const createContextWithUser = async ({
 }: FetchCreateContextFnOptions): Promise<ContextWithUser> => {
   // low fat cors
 
+  const headers = new Headers(req.headers);
   const resHeaders = {
     set: (key: string, value: string) => {
       res.setHeader(key, value);
+      headers.set(key, value);
+    },
+    get: (key: string) => {
+      return headers.get(key);
     },
   };
 
