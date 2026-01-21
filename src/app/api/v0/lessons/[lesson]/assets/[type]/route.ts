@@ -175,9 +175,16 @@ async function handlerWrapper(
   } catch (e: unknown) {
     const { code, message } = e as { code: string; message: string };
 
-    // if (process.env.NODE_ENV === 'test') {
-    //   console.log((e as Error).stack);
-    // }
+    // if this is a TRPCError, we can map the code to status codes
+    if (e instanceof TRPCError) {
+      // if code === 'NOT_FOUND', return 404
+      if (code === 'NOT_FOUND') {
+        return new NextResponse(JSON.stringify({ message, code }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+    }
 
     const statusCode =
       typeof code === 'string' && code in codes
