@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { imageSchema, cta, raw } from './shared/cms/image.schema';
 
 const curriculumApiLandingPageContentBlockSchema = z.object({
@@ -33,6 +33,7 @@ export const curriculumApiLandingPageSchema = z.array(
 export type CurriculumApiLandingPageContentBlock = z.infer<
   typeof curriculumApiLandingPageContentBlockSchema
 >;
+
 export type CurriculumApiLandingPageUsingTheApiSection = z.infer<
   typeof curriculumApiLandingPageUsingTheApiSectionSchema
 >;

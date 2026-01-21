@@ -1,15 +1,16 @@
-import z from 'zod';
+import * as z from 'zod/v4';
 
 export const keyStageSubjectLessonsResponseSchema = z.array(
   z.object({
-    unitSlug: z.string({ description: 'The unit slug identifier' }),
-    unitTitle: z.string({ description: 'The unit title' }),
-    lessons: z.array(
-      z.object({
-        lessonSlug: z.string({ description: 'The lesson slug identifier' }),
-        lessonTitle: z.string({ description: 'The lesson title' }),
-      }),
-      { description: 'List of lessons for the specified unit' },
-    ),
+    unitSlug: z.string().describe('The unit slug identifier'),
+    unitTitle: z.string().describe('The unit title'),
+    lessons: z
+      .array(
+        z.object({
+          lessonSlug: z.string().describe('The lesson slug identifier'),
+          lessonTitle: z.string().describe('The lesson title'),
+        }),
+      )
+      .meta({ description: 'List of lessons for the specified unit' }),
   }),
 );

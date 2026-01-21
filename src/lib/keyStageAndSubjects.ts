@@ -1,12 +1,17 @@
 import source from './keyStageAndSubjects.json' with { type: 'json' };
 
+interface SlugTitle {
+  slug: string;
+  title: string;
+}
+
 export const keyStageSlugs = getSource().map(({ slug }) => slug);
 export const keyStages = getSource().map(({ slug, title }) => ({
   slug: slug,
   title: title,
 }));
 
-export const subjectsByKeyStage = (ks: string) =>
+export const subjectsByKeyStage = (ks: string): SlugTitle[] =>
   getSource().filter(({ slug }) => ks === slug)[0].subjects;
 
 export const subjectSlugs = Array.from(
@@ -19,7 +24,13 @@ export const subjectSlugs = Array.from(
   ),
 ).sort();
 
-export const subjectsWithKeyStages = () => {
+interface SubjectWithKeyStages {
+  subjectTitle: string;
+  subjectSlug: string;
+  keyStages: string[];
+}
+
+export const subjectsWithKeyStages = (): SubjectWithKeyStages[] => {
   const obj = getSource().reduce(
     (acc, { slug: keyStageSlug, subjects }) => {
       subjects.forEach(({ slug: subjectSlug, title }) => {
@@ -57,11 +68,11 @@ export const subjects = Array.from(
   ),
 ).sort((a, b) => a.localeCompare(b));
 
-export type SourceRecord = {
+export interface SourceRecord {
   slug: string;
   title: string;
   subjects: { slug: string; title: string }[];
-};
+}
 
 // note that these are pre-filtered by "new" lessons
 function getSource(): SourceRecord[] {

@@ -1,15 +1,14 @@
-import 'zod-openapi/extend';
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
 
 export const lessonSearchRequestOpenAPISchema = z.object({
-  q: z.string().openapi({
+  q: z.string().meta({
     description: 'Search query text snippet',
     example: 'gothic',
   }),
   keyStage: z
     .enum(keyStageSlugs as [string])
-    .openapi({
+    .meta({
       description:
         "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
       example: 'ks2',
@@ -17,7 +16,7 @@ export const lessonSearchRequestOpenAPISchema = z.object({
     .optional(),
   subject: z
     .enum(subjectSlugs as [string])
-    .openapi({
+    .meta({
       description:
         "Subject slug to filter by, e.g. 'english' - note that casing is important here, and should be lowercase",
       example: 'english',
@@ -25,7 +24,7 @@ export const lessonSearchRequestOpenAPISchema = z.object({
     .optional(),
   unit: z
     .string()
-    .openapi({
+    .meta({
       description: 'Optional unit slug to additionally filter by',
       example: 'Gothic poetry',
     })

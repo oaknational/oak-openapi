@@ -16,7 +16,7 @@ import {
 
 import styled from 'styled-components';
 
-export default function Hero() {
+export default function Hero(): React.ReactElement {
   return (
     <OakBox $background="bg-decorative1-main" $color="text-primary">
       <OakMaxWidth

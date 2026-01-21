@@ -9,14 +9,10 @@ allow access to the following lessons:
 
 */
 
-import { gql, GraphQLClient } from 'graphql-request';
-import {
-  LessonView,
-  lessonView,
-  SequenceView,
-  sequenceView,
-  sequenceViewWhereInput,
-} from './owaClient';
+import { gql } from 'graphql-request';
+import type { GraphQLClient } from 'graphql-request';
+import type { LessonView, SequenceView } from './owaClient';
+import { lessonView, sequenceView, sequenceViewWhereInput } from './owaClient';
 
 // blocked always overrules
 import assetBlockedLessons from './queryGateData/assets/blockedLessons.json' with { type: 'json' };
@@ -28,18 +24,18 @@ import supportedLessons from './queryGateData/supportedLessons.json' with { type
 const supportedSubjects = ['maths'];
 export const blockedSubjects = ['english', 'financial-education'];
 
-function isLessonBlocked(lessonSlug: string) {
+function isLessonBlocked(lessonSlug: string): boolean {
   return (assetBlockedLessons as string[]).includes(lessonSlug);
 }
 
-function isUnitBlocked(unitSlug: string) {
-  return (assetBlockedUnits as string[]).includes(unitSlug);
+function isUnitBlocked(unitSlug: string): boolean {
+  return assetBlockedUnits.includes(unitSlug);
 }
 
 export async function blockLessonForCopyrightText(
   client: GraphQLClient,
   lessonSlug: string,
-) {
+): Promise<boolean> {
   if (supportedLessons.includes(lessonSlug)) {
     // not copyright
     return false;
@@ -77,11 +73,11 @@ export function isBlockedUnitOrSubject({
 export async function blockUnitForCopyrightText(
   client: GraphQLClient,
   unitSlug: string,
-) {
+): Promise<boolean> {
   // it's possible we're dealing with an unit optional, which always end in a
   // number, so we'll remove that for the moment, and then check
 
-  if (/\-\d+$/.test(unitSlug)) {
+  if (/-\d+$/.test(unitSlug)) {
     if (supportedUnits.includes(unitSlug.replace(/-\d+$/, ''))) {
       return false;
     }
@@ -111,7 +107,7 @@ export async function blockUnitForCopyrightText(
 export async function checkLessonAllowedAsset(
   client: GraphQLClient,
   lessonSlug: string,
-) {
+): Promise<boolean> {
   // if the lesson is blocked, return false
   if (isLessonBlocked(lessonSlug)) {
     return false;
@@ -138,19 +134,19 @@ export async function checkLessonAllowedAsset(
   );
 }
 
-export function supportsImages(subject: string, unit: string) {
+export function supportsImages(subject: string, unit: string): boolean {
   return isSubjectSupported(subject) || isUnitSupported(unit);
 }
 
-export function isSubjectSupported(subject: string) {
+export function isSubjectSupported(subject: string): boolean {
   return supportedSubjects.includes(subject);
 }
 
-export function isUnitSupported(unit: string) {
+export function isUnitSupported(unit: string): boolean {
   return supportedUnits.includes(unit);
 }
 
-export function isLessonSupported(lesson: string) {
+export function isLessonSupported(lesson: string): boolean {
   return supportedLessons.includes(lesson);
 }
 

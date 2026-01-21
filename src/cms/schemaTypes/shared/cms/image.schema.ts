@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod/v4';
 
 const assetSchema = z.object({
   _id: z.string().optional(),
@@ -27,13 +27,13 @@ export const cta = z.object({
   variant: z.enum(['primary', 'secondary']).optional(),
 });
 
-export type CMSCta = {
+export interface CMSCta {
   externalLink: string;
   label: string;
   variant?: 'primary' | 'secondary';
   icon?: string;
   backgroundImageUrl?: { asset: Asset };
-};
+}
 
 export const raw = z.array(
   z.object({

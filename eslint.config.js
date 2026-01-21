@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import typescriptEslint from '@typescript-eslint/eslint-plugin';
@@ -5,16 +7,60 @@ import typescriptParser from '@typescript-eslint/parser';
 import prettier from 'eslint-config-prettier';
 import prettierPlugin from 'eslint-plugin-prettier';
 import next from '@next/eslint-plugin-next';
+import prettierRecommended from 'eslint-plugin-prettier/recommended';
+import { importX } from 'eslint-plugin-import-x';
+import { configs as tsEslintConfigs } from 'typescript-eslint';
+import globals from 'globals';
+import eslint from '@eslint/js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+const baseRules = {
+  'no-console': 'off',
+  'no-debugger': 'error',
+  'no-empty': 'error',
+  'no-empty-function': 'error',
+  'no-constant-condition': 'error',
+  'prefer-const': 'error',
+  'no-var': 'error',
+};
+
+const baseLanguageOptions = {
+  globals: { ...globals.node, ...globals.es2022 },
+};
+
+const baseConfig = [
+  eslint.configs.recommended,
+  importX.flatConfigs.recommended,
+  prettierRecommended,
+];
+/* -------------------------------------------------------------------------- */
+/* Presets                                                                    */
+/* -------------------------------------------------------------------------- */
+const tsUntypedPresets = [
+  importX.flatConfigs.typescript,
+  ...tsEslintConfigs.strict,
+  ...tsEslintConfigs.stylistic,
+];
+
 /** @type {import("eslint").Linter.Config[]} */
 export default [
+  ...baseConfig,
+  ...tsUntypedPresets,
+  { languageOptions: baseLanguageOptions, rules: baseRules },
   {
-    ignores: ['**/*.md', 'generated/**/*', 'tmp/**/*', 'dist/**/*'],
+    ignores: [
+      '**/*.md',
+      'generated/**/*',
+      'tmp/**/*',
+      'dist/**/*',
+      // 'eslint.config.js',
+    ],
+    // Untyped checks everywhere
     files: ['**/*.{js,jsx,ts,tsx}', '**/*.stories.tsx'],
     languageOptions: {
+      // ...baseLanguageOptions,
       parser: typescriptParser,
       parserOptions: {
         tsconfigRootDir: __dirname,
@@ -22,15 +68,21 @@ export default [
       },
     },
     plugins: {
-      '@typescript-eslint': typescriptEslint,
       prettier: prettierPlugin,
       '@next/next': next,
     },
     rules: {
       ...typescriptEslint.configs.recommended.rules,
+      ...typescriptEslint.configs['recommended-requiring-type-checking'].rules,
       ...prettier.rules,
       ...next.configs.recommended.rules,
       ...next.configs['core-web-vitals'].rules,
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'warn',
+      '@typescript-eslint/no-unsafe-return': 'warn',
+      'import-x/no-named-as-default': 'off',
+      'import-x/no-named-as-default-member': 'off',
     },
   },
 ];

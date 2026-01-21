@@ -1,12 +1,9 @@
 import styled from 'styled-components';
+import React from 'react';
 
-import {
-  OakBox,
-  OakBoxProps,
-  OakColorToken,
-} from '@oaknational/oak-components';
+import type { OakColorToken } from '@oaknational/oak-components';
 
-type SvgProps = OakBoxProps & {
+interface SvgProps {
   name: string;
   className?: string;
   width?: string;
@@ -14,14 +11,16 @@ type SvgProps = OakBoxProps & {
   fill?: OakColorToken;
   color?: OakColorToken;
   filter?: string;
-};
+}
 
-const StyledSvg_ = styled.svg<OakBoxProps>`
-  ${OakBox};
+const StyledSvg_ = styled.svg`
   transition: all 0.3s ease;
 `;
 
-export default function StyledSvg({ name, ...props }: SvgProps) {
+export default function StyledSvg({
+  name,
+  ...props
+}: SvgProps): React.ReactElement {
   return (
     <StyledSvg_
       aria-hidden={true}
