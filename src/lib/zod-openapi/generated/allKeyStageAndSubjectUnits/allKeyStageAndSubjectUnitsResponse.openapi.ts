@@ -1,29 +1,26 @@
-import z from 'zod';
-import 'zod-openapi/extend';
+import * as z from 'zod/v4';
 
 export const allKeyStageAndSubjectUnitsResponseOpenAPISchema = z
   .array(
     z.object({
       yearSlug: z
         .string()
-        .openapi({ description: 'The year identifier', example: 'year-3' }),
+        .meta({ description: 'The year identifier', example: 'year-3' }),
       yearTitle: z
         .string()
-        .openapi({ description: 'The year title', example: 'Year 3' }),
+        .meta({ description: 'The year title', example: 'Year 3' }),
       units: z
         .array(
           z.object({
-            unitSlug: z.string({
-              description: 'The unit slug identifier',
-            }),
-            unitTitle: z.string({ description: 'The unit title' }),
+            unitSlug: z.string().describe('The unit slug identifier'),
+            unitTitle: z.string().describe('The unit title'),
           }),
         )
-        .openapi({ description: 'List of units for the specified year' }),
+        .meta({ description: 'List of units for the specified year' }),
     }),
   )
-  .openapi({
-    ref: 'AllKeyStageAndSubjectUnitsResponseSchema',
+  .meta({
+    id: 'AllKeyStageAndSubjectUnitsResponseSchema',
     example: [
       {
         units: [
@@ -40,6 +37,7 @@ export const allKeyStageAndSubjectUnitsResponseOpenAPISchema = z
               'Bridging 100: counting on and back in 10s, adding/subtracting multiples of 10',
           },
         ],
+
         yearSlug: 'year-3',
         yearTitle: 'Year 3',
       },

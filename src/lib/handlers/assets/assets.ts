@@ -3,19 +3,21 @@ import { gql } from 'graphql-request';
 
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '../../trpc';
-import {
+import type {
   Download,
   DownloadView,
   LessonView,
   UnitVariantLessonsView,
+  SequenceView,
+} from '@/lib/owaClient';
+import {
   downloadView,
   getClient,
   lessonView,
   unitVariantLessonsView,
   sequenceView,
   sequenceViewWhereInput,
-  SequenceView,
-} from '../../owaClient';
+} from '@/lib/owaClient';
 
 import { baseUrl } from '../../baseUrl';
 
@@ -28,7 +30,8 @@ import {
 import { sequenceWhere } from '../sequences/sequences';
 import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
 import { blockedSequenceSubjects } from '../../blockedContent';
-import { DownloadTypeEnum, downloadTypeEnum, LessonAssetsType } from './types';
+import { downloadTypeEnum } from './types';
+import type { DownloadTypeEnum, LessonAssetsType } from './types';
 import { getAttribution } from './helpers';
 
 import {
@@ -46,12 +49,21 @@ import placeholderVideoLessons from '@/lib/queryGateData/placeholderVideoLessons
 
 const graphqlClient = getClient();
 
-export async function assetsForLesson(lessonSlug: string) {
+type Attribution = (string | undefined)[] | undefined;
+
+interface AssetsForLesson {
+  assets: Download;
+  attribution: Attribution;
+}
+
+export async function assetsForLesson(
+  lessonSlug: string,
+): Promise<AssetsForLesson> {
   const supported = await checkLessonAllowedAsset(graphqlClient, lessonSlug);
 
   if (!supported) {
     throw new TRPCError({
-      message: 'Lesson not available',
+      message: `Lesson not available: "${lessonSlug}"`,
       code: 'NOT_FOUND',
     });
   }
@@ -116,7 +128,7 @@ export async function assetsForLesson(lessonSlug: string) {
 
   const attribution = tpcViewResult[lessonView][0];
 
-  let mappedAttribution: (string | undefined)[] = [];
+  let mappedAttribution: Attribution = [];
 
   if (attribution) {
     mappedAttribution = [
@@ -131,11 +143,17 @@ export async function assetsForLesson(lessonSlug: string) {
   };
 }
 
+interface AssetDownload {
+  label: string;
+  type: DownloadTypeEnum;
+  url: string;
+}
+
 function assetDownloads(
   lessonSlug: string,
   download: Download,
   filter?: DownloadTypeEnum,
-) {
+): AssetDownload[] {
   const assetUrls = [];
 
   if (download.slideDeck && download.slideDeck.bucket_path) {
@@ -280,10 +298,10 @@ This endpoint contains licence information for any third-party content contained
           });
           return acc;
         },
-        {} as { [key: string]: string },
+        {} as Record<string, string>,
       );
 
-      const isLessonAllowed = (slug: string) => {
+      const isLessonAllowed = (slug: string): boolean => {
         if (isSubjectSupported(subjectSlug)) {
           return true;
         }
@@ -444,20 +462,21 @@ This endpoint contains licence information for any third-party content contained
         }
       `;
 
-      type LessonQueryVariables = {
+      interface LessonQueryVariables {
         _contains: {
           keystage_slug: string;
           subject_slug: string;
         };
         unit?: string;
-      };
+        [key: string]: unknown;
+      }
 
-      const lessonQueryVariables = {
+      const lessonQueryVariables: LessonQueryVariables = {
         _contains: {
           keystage_slug: keyStage,
           subject_slug: subject,
         },
-      } as LessonQueryVariables;
+      };
 
       if (unit) {
         lessonQueryVariables.unit = unit;
@@ -538,7 +557,7 @@ This endpoint contains licence information for any third-party content contained
 
       const tpc = tpcViewResult[lessonView];
 
-      const isLessonAllowed = (slug: string) => {
+      const isLessonAllowed = (slug: string): boolean => {
         if (isSubjectSupported(subject)) {
           return true;
         }
@@ -586,7 +605,7 @@ This endpoint contains licence information for any third-party content contained
         summary: 'Downloadable lesson assets',
         path: '/lessons/{lesson}/assets',
         errorResponses: [],
-        description: `This endpoint returns the types of available assets for a given lesson, and the download endpoints for each. 
+        description: `This endpoint returns the types of available assets for a given lesson, and the download endpoints for each.
         This endpoint contains licence information for any third-party content contained in the lesson’s downloadable resources. Third-party content is exempt from the open-government license, and users will need to consider whether their use is covered by the stated licence, or if they need to procure their own agreement.
           `,
       },
@@ -618,7 +637,7 @@ This endpoint contains licence information for any third-party content contained
     })
     .input(lessonAssetRequestOpenAPISchema)
     .output(lessonAssetResponseOpenAPISchema) // no output, but file is streamed to the request
-    .query(async () => {
+    .query(() => {
       // IMPORTANT - this endpoint specific returns a stream of the
       // file (video, slides, etc), but the actual execution isn't
       // done here, but in the handler at:

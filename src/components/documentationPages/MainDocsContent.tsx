@@ -9,15 +9,15 @@ import {
   OakLink,
 } from '@oaknational/oak-components';
 import ContentPortableText from '@/cms/sanityResolvers/ContentPortableText';
-import { DocumentationContentPageBlock } from '@/cms/schemaTypes';
+import type { DocumentationContentPageBlock } from '@/cms/schemaTypes';
 import styled from 'styled-components';
-import EndpointBlock, { EndpointInfo } from './EndpointBlock';
-// import { MaxWidth } from '../MaxWidth';
+import type { EndpointInfo } from './EndpointBlock';
+import EndpointBlock from './EndpointBlock';
 
-type CMSDocumentationProps = {
+interface CMSDocumentationProps {
   endpoints?: EndpointInfo[];
   docs: DocumentationContentPageBlock[];
-};
+}
 
 const OakGridArea = styled(_OakGridArea)`
   display: block;
@@ -27,7 +27,7 @@ const OakGridArea = styled(_OakGridArea)`
 export default function MainDocsContent({
   docs,
   endpoints,
-}: CMSDocumentationProps) {
+}: CMSDocumentationProps): React.ReactElement {
   const isEndpointPage = endpoints && endpoints.length > 0;
   const contentsRaw =
     docs?.[0]?.docsBlocks?.filter(

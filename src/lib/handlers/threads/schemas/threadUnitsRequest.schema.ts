@@ -1,7 +1,5 @@
-import { z } from 'zod';
+import * as z from 'zod/v4';
 
 export const threadUnitsRequestSchema = z.object({
-  threadSlug: z.string({
-    description: 'The thread identifier for a given unit',
-  }),
+  threadSlug: z.string().describe('The thread identifier for a given unit'),
 });

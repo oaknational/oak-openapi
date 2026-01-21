@@ -1,9 +1,8 @@
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import {
   sequenceSlugSchema,
   sequenceYearEnumSchema,
 } from '@/lib/handlers/sequences/types';
-import 'zod-openapi/extend';
 
 export const sequenceUnitsRequestSchema = z.object({
   sequence: sequenceSlugSchema,

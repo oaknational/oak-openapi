@@ -1,20 +1,19 @@
-import 'zod-openapi/extend';
-import z from 'zod';
+import * as z from 'zod/v4';
 
 export const keyStageResponseOpenAPISchema = z
   .array(
     z.object({
-      slug: z.string().openapi({
+      slug: z.string().meta({
         description: 'The key stage slug identifier',
         example: 'ks1',
       }),
-      title: z.string().openapi({
+      title: z.string().meta({
         description: 'The key stage title',
         example: 'Key Stage 1',
       }),
     }),
   )
-  .openapi({
-    ref: 'KeyStageResponseSchema',
+  .meta({
+    id: 'KeyStageResponseSchema',
     example: [{ slug: 'ks1', title: 'Key Stage 1' }],
   });

@@ -1,13 +1,12 @@
+import type { SubjectPhase, SubjectPhaseView } from '@/lib/owaClient';
+import type { SequenceResult } from './types';
 import {
   getClient,
   gql,
-  SubjectPhase,
-  SubjectPhaseView,
   subjectPhaseView,
   currentCycle,
 } from '@/lib/owaClient';
 import { TRPCError } from '@trpc/server';
-import { SequenceResult } from './types';
 
 export function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
   const keyStageLookup: Record<string, string[]> = {
@@ -56,7 +55,12 @@ export function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
   return sequences;
 }
 
-export function phaseToKeyStages(subject: SubjectPhase) {
+interface KeyStageResponse {
+  keyStageSlug: string;
+  keyStageTitle: string;
+}
+
+export function phaseToKeyStages(subject: SubjectPhase): KeyStageResponse[] {
   return subject.keystages.map(({ slug, title }) => {
     return { keyStageSlug: slug, keyStageTitle: title };
   });
@@ -64,7 +68,7 @@ export function phaseToKeyStages(subject: SubjectPhase) {
 
 export function yearsFromKeyStages(
   keyStages: { keyStageSlug: string; keyStageTitle: string }[],
-) {
+): number[] {
   const years = keyStages.reduce((acc: number[], { keyStageSlug }) => {
     switch (keyStageSlug) {
       case 'ks1':

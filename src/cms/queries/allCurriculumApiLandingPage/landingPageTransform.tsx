@@ -1,4 +1,4 @@
-import {
+import type {
   CMSCta,
   CMSImage,
   CMSRaw,
@@ -7,32 +7,32 @@ import {
 import React from 'react'; // required for tests
 import { OakP } from '@oaknational/oak-components';
 
-type Image = {
+interface Image {
   src: string;
   width?: number;
   height?: number;
   altText?: string;
-};
+}
 
-type Block = {
+interface Block {
   title: React.ReactNode;
   description: React.ReactNode | string;
   link: CMSCta;
-};
+}
 
-export type LandingPageContent = {
+export interface LandingPageContent {
   title: React.ReactNode;
   description: React.ReactNode | string;
   image: Image;
   link?: CMSCta;
-};
+}
 
-export type UsingTheApiSection = {
+export interface UsingTheApiSection {
   title: React.ReactNode;
   image?: Image;
   link?: CMSCta;
   blocks: Block[];
-};
+}
 
 function parseTitle(data: CMSRaw): React.ReactNode | string {
   if (data.length > 0) {

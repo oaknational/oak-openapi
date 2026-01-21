@@ -1,8 +1,8 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import { TRPCError } from '@trpc/server';
+import type { SequenceView } from 'lib/owaClient';
 import {
-  SequenceView,
   getClient,
   gql,
   sequenceView,

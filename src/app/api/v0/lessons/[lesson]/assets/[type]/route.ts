@@ -1,11 +1,13 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { type Context, withUser } from '@/lib/context';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import type { Context } from '@/lib/context';
+import { withUser } from '@/lib/context';
 import {
   getVideoFromMux,
   listFilesWithMimeType,
 } from '@/lib/handlers/assets/helpers';
-import { typeToMime, DownloadTypeEnum } from '@/lib/handlers/assets/types';
-import { SignedAsset, Video } from '@/lib/owaClient';
+import { typeToMime, type DownloadTypeEnum } from '@/lib/handlers/assets/types';
+import type { SignedAsset, Video } from '@/lib/owaClient';
 import { protect } from '@/lib/protect';
 import { TRPCError } from '@trpc/server';
 import { assetBaseVideoUrl } from '@/lib/baseUrl';
@@ -21,26 +23,22 @@ const storage = getGoogleCloudStorage();
 const handler = async (
   req: NextRequest,
   { params }: { params: Promise<{ lesson: string; type: string }> },
-) => {
+): Promise<Response> => {
   // 1. get the user
-
   const user = await withUser(req);
   const ctx = {
     user,
     resHeaders: req.headers,
-  } as Context;
+    req,
+  } as unknown as Context;
 
   // manually check the protect
-  await new Promise(async (resolve, reject) => {
-    try {
-      await protect({
-        ctx,
-        next: async () => resolve(void 0),
-        meta: { noCost: false },
-      });
-    } catch (error) {
-      reject(error);
-    }
+  await new Promise<void>((resolve, reject) => {
+    protect({
+      ctx,
+      next: () => Promise.resolve().then(resolve),
+      meta: { noCost: false },
+    }).catch(reject);
   });
 
   let { type } = await params;
@@ -171,11 +169,22 @@ const handler = async (
 async function handlerWrapper(
   req: NextRequest,
   { params }: { params: Promise<{ lesson: string; type: string }> },
-) {
+): Promise<Response> {
   try {
     return await handler(req, { params });
   } catch (e: unknown) {
     const { code, message } = e as { code: string; message: string };
+
+    // if this is a TRPCError, we can map the code to status codes
+    if (e instanceof TRPCError) {
+      // if code === 'NOT_FOUND', return 404
+      if (code === 'NOT_FOUND') {
+        return new NextResponse(JSON.stringify({ message, code }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+    }
 
     const statusCode =
       typeof code === 'string' && code in codes

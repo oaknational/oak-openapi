@@ -1,12 +1,8 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 
-import {
-  UnitVariantLessonsView,
-  getClient,
-  gql,
-  unitVariantLessonsView,
-} from 'lib/owaClient';
+import type { UnitVariantLessonsView } from 'lib/owaClient';
+import { getClient, gql, unitVariantLessonsView } from 'lib/owaClient';
 
 import { baseUrl } from '../../baseUrl';
 import {
@@ -72,12 +68,9 @@ export const getKeyStageSubjectLessons = router({
         limit,
       };
 
-      const res = (await client.request(
-        query,
-        variables,
-      )) as UnitVariantLessonsView;
+      const res = await client.request(query, variables);
 
-      const lessons = res[unitVariantLessonsView];
+      const lessons = (res as UnitVariantLessonsView)[unitVariantLessonsView];
 
       if (lessons.length === 0) {
         return [];
