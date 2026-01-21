@@ -3,7 +3,7 @@ import { parse } from 'graphql';
 export default function (source) {
   try {
     // Parse the GraphQL query
-    const doc = parse(source);
+    parse(source);
 
     // You can add custom processing here
     // For example, validation, transformation, etc.

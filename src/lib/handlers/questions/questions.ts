@@ -19,18 +19,15 @@ import {
   supportsImages,
 } from '../../queryGate';
 import allowedUnits from '../../queryGateData/supportedUnits.json' with { type: 'json' };
+import type { Question, QuizKey } from './types';
 import { TRPCError } from '@trpc/server';
 import { sequenceWhere } from '../sequences/sequences';
 import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
 import { blockedSequenceSubjects } from '../../blockedContent';
-import { Question, QuizKey } from './types';
-
+import { questionsForQuiz } from './helpers';
 import {
   questionForLessonsRequestOpenAPISchema,
   questionForLessonsResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/questions';
-import { questionsForQuiz } from './helpers';
-import {
   questionsForKeyStageAndSubjectRequestOpenAPISchema,
   questionsForKeyStageAndSubjectResponseOpenAPISchema,
   questionsForSequenceRequestOpenAPISchema,

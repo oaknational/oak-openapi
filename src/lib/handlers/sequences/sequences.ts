@@ -1,25 +1,24 @@
-import toSorted from 'array.prototype.tosorted';
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
+import type { Sequence, SequenceView } from '@/lib/owaClient';
 import {
   getClient,
   gql,
-  Sequence,
-  SequenceView,
   sequenceView,
   sequenceViewWhereInput,
-} from '../../owaClient';
+} from '@/lib/owaClient';
 import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
 import { examBoards } from '../../oakConsts';
 import { blockedSequenceSubjects } from '../../blockedContent';
 import { TRPCError } from '@trpc/server';
-import {
+import type {
   Category,
   ExamSubjectsWithoutTiers,
   ExamSubjectsWithTiers,
   SequenceSchema,
   YearSequence,
   Tier,
+  Unit,
 } from '@/lib/handlers/sequences/types';
 
 import {
@@ -27,26 +26,24 @@ import {
   sequenceUnitsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/sequences';
 
-toSorted.shim();
-
-type WhereCondition = {
-  _and: Array<{
-    _or?: Array<{
+interface WhereCondition {
+  _and: {
+    _or?: {
       subject_slug?: { _eq: string };
       subject_parent_slug?: { _eq: string };
-    }>;
+    }[];
     phase_slug?: { _eq: string };
     state?: { _eq: string };
     year?: { _eq: string };
     non_curriculum?: { _eq: boolean };
-  }>;
-};
+  }[];
+}
 
 export function sequenceWhere(
   sequence: string,
   year?: string,
   ignorePathway = false,
-) {
+): WhereCondition {
   const { phaseSlug, subjectSlug, ks4OptionSlug } =
     parseSubjectPhaseSlug(sequence);
 
@@ -336,7 +333,7 @@ export const getSequences = router({
     }),
 });
 
-export function formatUnit(unit: Sequence) {
+export function formatUnit(unit: Sequence): Unit {
   let categories: Category[] | undefined;
 
   const threads =
@@ -379,14 +376,14 @@ export function formatUnit(unit: Sequence) {
 
 type UnitFilter = (unit: Sequence) => boolean;
 
-function formatUnits(units: Sequence[], filter: UnitFilter = () => true) {
+function formatUnits(
+  units: Sequence[],
+  filter: UnitFilter = () => true,
+): Unit[] {
   return units.filter(filter).map(formatUnit);
 }
 
-function formatUnitsForTiers(
-  units: Sequence[],
-  subject?: string | undefined,
-): Tier[] {
+function formatUnitsForTiers(units: Sequence[], subject?: string): Tier[] {
   const tiers = units.reduce<Tier[]>((acc, curr) => {
     const { tier_slug: tierSlug, tier: tierTitle } = curr;
 

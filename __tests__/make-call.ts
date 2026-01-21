@@ -25,15 +25,26 @@ export function makeResHeaders() {
   } as unknown as Headers;
 }
 
-export function makeCaller(opts = {}, res = makeRes()) {
+export function makeCaller(opts = {}) {
   const createCaller = createCallerFactory(router);
+  const headers = makeResHeaders();
+
   const callerOptions = {
-    req: {} as NextRequest,
-    resHeaders: makeResHeaders(),
+    req: {
+      headers,
+    } as NextRequest,
+    resHeaders: headers,
     rateLimit: undefined,
-    user: null,
+    user: null as User | null,
     ...opts,
   };
+
+  if (typeof callerOptions.user === 'number') {
+    callerOptions.user = {
+      id: callerOptions.user,
+      key: `test-key-${callerOptions.user}`,
+    } as User;
+  }
 
   return createCaller(callerOptions);
 }

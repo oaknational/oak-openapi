@@ -6,21 +6,21 @@ import {
   OakLink,
 } from '@oaknational/oak-components';
 
-type FeatureProps = {
+interface FeatureProps {
   title: string;
   children: React.ReactNode;
   cta?: string;
   ctaHref?: string;
   anchorTarget?: string;
   variant?: 'default' | 'mint';
-};
+}
 
 export default function Feature({
   title,
   children,
   variant = 'default',
   anchorTarget,
-}: FeatureProps) {
+}: FeatureProps): React.ReactElement {
   return (
     <OakFlex
       $width="100%"

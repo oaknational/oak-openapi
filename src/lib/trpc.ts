@@ -1,7 +1,7 @@
 import { initTRPC } from '@trpc/server';
 import util from 'node:util';
 import superjson from 'superjson';
-import { OpenApiMeta } from 'trpc-to-openapi';
+import type { OpenApiMeta } from 'trpc-to-openapi';
 import { ZodError } from 'zod';
 
 import type { Context } from '@/lib/context';
@@ -13,9 +13,9 @@ export const t = initTRPC
     transformer: superjson,
     errorFormatter({ shape, error }) {
       if (error.code === 'INTERNAL_SERVER_ERROR') {
-        if (error.cause && Array.isArray((error.cause as ZodError).errors)) {
-          const cause = error.cause as ZodError;
-          // const errors = cause.errors.map(
+        if (error.cause && error.cause instanceof ZodError) {
+          const cause = error.cause;
+          // const errors = cause.issues.map(
           //   (err) => `${err.message}: ${err.path.join('.')} (${err.code})`,
           // );
 
@@ -23,7 +23,7 @@ export const t = initTRPC
             util.inspect(
               {
                 type: 'ZodError',
-                errors: cause.errors,
+                errors: cause.issues,
                 trpcPath: shape.data.path,
               },
               { depth: null, colors: true },
@@ -55,7 +55,7 @@ export const t = initTRPC
           ...shape,
           data: {
             ...shape.data,
-            zodError: error.cause.flatten(),
+            zodError: error.cause.issues,
           },
         };
       }
@@ -93,7 +93,7 @@ export const t = initTRPC
           ...shape,
           data: {
             ...shape.data,
-            zodError: error.cause.flatten(),
+            zodError: error.cause.issues,
           },
         };
       }

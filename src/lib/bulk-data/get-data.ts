@@ -1,6 +1,6 @@
 import { parseSubjectPhaseSlug } from '@/lib/sequenceSlugParser';
 import { logError } from './logger';
-import {
+import type {
   ExamBoard,
   LessonAssets,
   LessonAssetsMap,
@@ -8,32 +8,35 @@ import {
   UnitWithExamBoards,
   Lesson,
 } from './types';
-import { gql, GraphQLClient } from 'graphql-request';
+import { gql } from 'graphql-request';
+import type { GraphQLClient } from 'graphql-request';
+import type {
+  DownloadView,
+  SequenceView,
+  SubjectPhase,
+  SubjectPhaseView,
+  TitleSlug,
+} from '@/lib/owaClient';
 import {
   currentCycle,
-  DownloadView,
   downloadView,
   lessonContentViewTable,
   lessonViewTable,
-  SequenceView,
   sequenceView,
   sequenceViewTable,
   sequenceViewWhereInput,
-  SubjectPhase,
-  SubjectPhaseView,
   subjectPhaseView,
-  TitleSlug,
 } from '@/lib/owaClient';
 import { formatUnitSummary } from '@/lib/handlers/units/helpers';
 import { sequenceWhere } from '@/lib/handlers/sequences/sequences';
 import { runSQL } from './data-stores';
 
-export type SubjectWithLessonCount = {
+export interface SubjectWithLessonCount {
   title: string;
   slug: string;
   phase: string;
   lessonCount: number;
-};
+}
 
 export async function getSubjectsWithLessonCounts(): Promise<
   SubjectWithLessonCount[]
@@ -48,7 +51,7 @@ export async function getSubjectsWithLessonCounts(): Promise<
 export async function getAllSubjects(
   client: GraphQLClient,
   subjectPhaseFilter?: string,
-) {
+): Promise<SlimSequenceResult[]> {
   let slugFilter = '';
   if (subjectPhaseFilter) {
     const { subjectSlug } = parseSubjectPhaseSlug(subjectPhaseFilter);
@@ -87,7 +90,10 @@ export async function getAllSubjects(
   return reply;
 }
 
-export function getUnit(sequence: UnitWithExamBoards[], unit: string) {
+export function getUnit(
+  sequence: UnitWithExamBoards[],
+  unit: string,
+): UnitWithExamBoards {
   const found = sequence.find((_) => _.unitSlug === unit);
 
   if (!found) {

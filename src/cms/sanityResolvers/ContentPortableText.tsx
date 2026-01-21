@@ -1,5 +1,5 @@
-import { PortableTextComponents, PortableText } from '@portabletext/react';
-import { FC } from 'react';
+import { PortableText, type PortableTextComponents } from '@portabletext/react';
+import type { FC } from 'react';
 import {
   OakHeading,
   OakLI,
@@ -9,7 +9,7 @@ import {
   OakSecondaryLink,
   OakSpan,
 } from '@oaknational/oak-components';
-import { PortableTextJSON } from '@/cms/schemaTypes/shared/cms/portableText.schema';
+import type { PortableTextJSON } from '@/cms/schemaTypes/shared/cms/portableText.schema';
 import { Table } from '@/components/Table';
 import styled from 'styled-components';
 import { Code } from '@/components/Code';
@@ -140,8 +140,11 @@ const contentPortableTextComponents: PortableTextComponents = {
     em: (props) => {
       return <OakSpan as="em">{props.children}</OakSpan>;
     },
-    link: (props) => {
-      if (props.value.external) {
+    link: (props: {
+      value?: { href: string; external?: boolean };
+      children: React.ReactNode;
+    }) => {
+      if (props.value?.external) {
         return (
           <StrongBox $font="body-2">
             <OakSecondaryLink target="_blank" href={props.value.href}>
@@ -156,7 +159,7 @@ const contentPortableTextComponents: PortableTextComponents = {
           </StrongBox>
         );
       }
-      return <OakLink href={props.value.href}>{props.children}</OakLink>;
+      return <OakLink href={props.value?.href}>{props.children}</OakLink>;
     },
   },
   types: {
@@ -168,9 +171,9 @@ const contentPortableTextComponents: PortableTextComponents = {
   },
 };
 
-export type PortableTextRawProps = {
+export interface PortableTextRawProps {
   portableText: PortableTextJSON;
-};
+}
 
 export const ContentPortableText: FC<PortableTextRawProps> = (props) => {
   const { portableText } = props;

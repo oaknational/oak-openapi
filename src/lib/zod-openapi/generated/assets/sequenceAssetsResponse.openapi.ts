@@ -1,8 +1,7 @@
-import 'zod-openapi/extend';
 import { lessonsAssetsType } from '@/lib/handlers/assets/types';
 
-export const sequenceAssetsResponseOpenAPISchema = lessonsAssetsType.openapi({
-  ref: 'SequenceAssetsResponseSchema',
+export const sequenceAssetsResponseOpenAPISchema = lessonsAssetsType.meta({
+  id: 'SequenceAssetsResponseSchema',
   example: [
     {
       lessonSlug: 'using-numerals',

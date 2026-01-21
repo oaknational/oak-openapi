@@ -1,5 +1,5 @@
 import { subjectResult } from '@/lib/handlers/subjects/types';
-import { z } from 'zod';
+import * as z from 'zod/v4';
 
 export const allSubjectsResponseSchema = z.array(subjectResult);
 

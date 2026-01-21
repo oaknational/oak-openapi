@@ -1,8 +1,7 @@
-import z from 'zod';
-import 'zod-openapi/extend';
+import * as z from 'zod/v4';
 
 export const subjectYearsRequestSchema = z.object({
-  subject: z.string().openapi({
+  subject: z.string().meta({
     example: 'cooking-nutrition',
     description: 'Subject slug to filter by',
   }),

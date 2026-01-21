@@ -6,12 +6,12 @@ import { tuplesToObjects } from './utils';
 const bucketName = process.env.BUCKET_NAME;
 
 // Initialize Google Cloud Storage
-export function getGoogleCloudStorage() {
+export function getGoogleCloudStorage(): Storage {
   let storage: Storage;
   if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
     const credentials = JSON.parse(
       process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
-    );
+    ) as object;
     storage = new Storage({ credentials });
   } else {
     storage = new Storage();
@@ -40,7 +40,12 @@ export async function runSQL(sql: string): Promise<unknown> {
     body: JSON.stringify(body),
   });
 
-  const json = await res.json();
+  interface SQLResponse {
+    error?: string;
+    result: [string[], ...string[][]];
+  }
+
+  const json = (await res.json()) as SQLResponse;
 
   if (json.error) {
     console.error('Error running SQL:', json);
@@ -58,7 +63,7 @@ export function uploadToStorage(
   sequenceDir: string,
   slug: string,
   storage: Storage,
-) {
+): void {
   // if there's no bucket, let the workflow handle the uploading to GCP storage
   if (!bucketName) {
     return;

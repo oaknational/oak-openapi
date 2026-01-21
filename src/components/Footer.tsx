@@ -10,6 +10,7 @@ import {
   OakHandDrawnHR,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
+import React from 'react';
 import { footerSections } from '@/lib/footerSections';
 import SocialButtons, { OAK_SOCIALS } from './SocialButtons';
 import Logo from './Logo';
@@ -18,7 +19,7 @@ import IconFeedback from './IconFeedback';
 import { MaxWidth } from './MaxWidth';
 import { GetUpdates } from './landingPage/GetUpdates';
 
-export type HubspotPayload = {
+export interface HubspotPayload {
   fields: {
     name: string;
     value: string | undefined;
@@ -28,7 +29,7 @@ export type HubspotPayload = {
     pageName: string;
     hutk?: string | undefined;
   };
-};
+}
 
 const TopOakHandDrawnHR = styled(OakHandDrawnHR)`
   position: relative;
@@ -75,7 +76,7 @@ const FooterOakLink = styled(OakLink)`
   }
 `;
 
-export default function Footer() {
+export default function Footer(): React.ReactElement {
   return (
     <footer>
       <TopOakHandDrawnHR $height="spacing-4" />
@@ -163,20 +164,23 @@ export default function Footer() {
   );
 }
 
-type FooterLink = {
+interface FooterLink {
   text: string;
   href?: string;
   type?: 'page';
   icon?: 'external';
   ariaLabel?: string;
-};
+}
 
-type FooterSectionLinksProps = {
+interface FooterSectionLinksProps {
   title: string;
   links: FooterLink[];
-};
+}
 
-const FooterSectionLinks = ({ title, links }: FooterSectionLinksProps) => {
+const FooterSectionLinks = ({
+  title,
+  links,
+}: FooterSectionLinksProps): React.ReactElement => {
   // $mt={['space-between-m2', 'space-between-none']}
   // $mb="space-between-ssx"
   return (
@@ -202,7 +206,12 @@ const FooterSectionLinks = ({ title, links }: FooterSectionLinksProps) => {
   );
 };
 
-const FooterLink = ({ text, href, ariaLabel, icon }: FooterLink) => {
+const FooterLink = ({
+  text,
+  href,
+  ariaLabel,
+  icon,
+}: FooterLink): React.ReactElement => {
   return (
     <OakFlex $gap={'spacing-8'} $display={'inline-flex'} $alignItems="center">
       <FooterOakLink
@@ -217,7 +226,7 @@ const FooterLink = ({ text, href, ariaLabel, icon }: FooterLink) => {
   );
 };
 
-function ContactUs() {
+function ContactUs(): React.ReactElement {
   return (
     <FlexedBox $color="black">
       <OakFlex as="h2" $font="heading-5" $gap="spacing-8">
@@ -240,7 +249,7 @@ function ContactUs() {
   );
 }
 
-function GiveFeedback() {
+function GiveFeedback(): React.ReactElement {
   return (
     <FlexedBox $color="black">
       <OakFlex as="h2" $font="heading-5" $gap="spacing-8">

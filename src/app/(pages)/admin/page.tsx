@@ -15,8 +15,9 @@ import {
 
 import { useState } from 'react';
 import { MaxWidth } from '@/components/MaxWidth';
+import type { ApiKeyResponse } from '@/app/api/admin/create-api-key/route';
 
-export default function AdminPage() {
+export default function AdminPage(): React.ReactElement {
   return (
     <>
       <OakBox $width="100%" $background="bg-primary" $color="text-primary">
@@ -51,14 +52,16 @@ export default function AdminPage() {
   );
 }
 
-function CreateAPIKey() {
+function CreateAPIKey(): React.ReactElement {
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [key, setKey] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     e.preventDefault();
     const response = await fetch('/api/admin/create-api-key', {
       method: 'POST',
@@ -67,10 +70,10 @@ function CreateAPIKey() {
       },
       body: JSON.stringify({ name, company, email }),
     });
-    const data = await response.json();
+    const data = (await response.json()) as ApiKeyResponse;
     if (data.error) {
       setError(data.error);
-    } else {
+    } else if (data.apiKey) {
       setKey(data.apiKey);
     }
   };

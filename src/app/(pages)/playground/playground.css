@@ -64,8 +64,8 @@ div.swagger-ui,
 }
 
 .swagger-ui select {
-  background-color:  var(--oak-white);
-  border-color:  var(--oak-black);
+  background-color: var(--oak-white);
+  border-color: var(--oak-black);
   border-width: 2px;
   border-radius: 4px;
   box-shadow: none;
@@ -140,8 +140,8 @@ div.swagger-ui,
 /* Accordion */
 .swagger-ui .opblock.opblock-get .opblock-summary {
   color: var(--oak-black);
-  background:  var(--mint-30);
-  border-color:  var(--mint);
+  background: var(--mint-30);
+  border-color: var(--mint);
   border-bottom-color: var(--mint);
   border-radius: 2px;
   box-shadow: none;

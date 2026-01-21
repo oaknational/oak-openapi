@@ -1,6 +1,6 @@
 // Generated from: src/cms/queries/documentationBySlugQuery/documentationBySlugQuery.gql
 // using bin/zod-from-gql.ts
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { portableTextContentSchema } from '@/cms/schemaTypes/shared/cms/portableText.schema';
 
 export const documentationBySlugQuerySchema = z.array(

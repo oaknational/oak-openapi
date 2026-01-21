@@ -1,13 +1,13 @@
-import 'zod-openapi/extend';
-import { z } from 'zod';
+import * as z from 'zod/v4';
 import { threadSchema } from '@/lib/handlers/threads/types';
 
-export const allThreadsResponseOpenAPISchema = z.array(threadSchema).openapi({
+export const allThreadsResponseOpenAPISchema = z.array(threadSchema).meta({
   example: [
     {
       title: 'Number: Multiplication and division',
       slug: 'number-multiplication-and-division',
     },
   ],
-  ref: 'AllThreadsResponseSchema',
+
+  id: 'AllThreadsResponseSchema',
 });

@@ -12,7 +12,7 @@ import type {
 
 import { TRPCError } from '@trpc/server';
 
-import {
+import type {
   ImageDataSchemaType,
   MatchAnswer,
   MultipleChoiceAnswer,
@@ -123,13 +123,19 @@ function formatMultipleChoiceAnswer(
   });
 }
 
-function formatImageUrl(url: string) {
+function formatImageUrl(url: string): string {
   const urlObj = new URL(url);
   urlObj.hostname = 'cloudinary-res.thenational.academy';
   return urlObj.href;
 }
 
-function formatImage(image: ImageStem, text: null | { text: string } = null) {
+function formatImage(
+  image: ImageStem,
+  text: null | { text: string } = null,
+): ImageDataSchemaType {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  const attrText = image.image_object.metadata?.attribution as string;
+  const attribution = attrText ?? undefined;
   const content: ImageDataSchemaType = {
     url: formatImageUrl(
       image.image_object.secure_url || image.image_object.url || '',
@@ -138,7 +144,7 @@ function formatImage(image: ImageStem, text: null | { text: string } = null) {
     height: image.image_object.height || 0,
     alt: image.image_object.context?.custom?.alt || undefined,
     text: text?.text || undefined,
-    attribution: image.image_object.metadata?.attribution || undefined,
+    attribution,
   };
 
   return content;
@@ -146,7 +152,7 @@ function formatImage(image: ImageStem, text: null | { text: string } = null) {
 
 function formatQuestion(
   question: DBQuestion,
-  imagesAllowed: boolean = false,
+  imagesAllowed = false,
 ): Question | undefined {
   const questionText = question.questionStem
     .filter((_) => _.type === 'text')
@@ -208,7 +214,7 @@ function formatQuestion(
 
 export function questionsForQuiz(
   lesson: Lesson,
-  imagesAllowed: boolean = false,
+  imagesAllowed = false,
 ): Record<QuizKey, Question[]> {
   const result = emptyQuizResults();
   for (const quiz of ['starterQuiz', 'exitQuiz'] as QuizKey[]) {

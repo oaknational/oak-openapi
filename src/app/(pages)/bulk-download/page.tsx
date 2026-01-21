@@ -9,7 +9,7 @@ export type Subjects = {
   secondary: number;
 }[];
 
-export default async function Page() {
+export default async function Page(): Promise<React.ReactElement> {
   const subjects = await getAllSubjects(getClient());
 
   // reduce and restructure the subjects to match the expected format:
