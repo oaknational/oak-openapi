@@ -1,6 +1,6 @@
 import { protectedProcedure } from '@/lib/protect';
 
-import { router } from '@/lib/trpc';
+import { HTTPStatusError, router } from '@/lib/trpc';
 
 import {
   getClient,
@@ -66,9 +66,10 @@ export const getQuestions = router({
       const blocked = isBlockedUnitOrSubject(subjectUnit);
 
       if (blocked) {
-        throw new TRPCError({
-          message: 'Lesson not available for this query',
+        throw new HTTPStatusError({
+          message: `Lesson not available: "${slug}"`,
           code: 'NOT_FOUND',
+          statusCode: 451,
         });
       }
 
@@ -134,9 +135,10 @@ export const getQuestions = router({
       const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
 
       if (blockedSequenceSubjects.includes(subjectSlug)) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
+        throw new HTTPStatusError({
           message: `The subject "${subjectSlug}" is not currently available`,
+          code: 'NOT_FOUND',
+          statusCode: 451,
         });
       }
 

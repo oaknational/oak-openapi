@@ -154,7 +154,7 @@ test('specifically blocked lessons (assets only)', async () => {
       type: 'slideDeck',
     });
 
-    expect(res.status, `${lesson} should be blocked`).toBe(404);
+    expect(res.status, `${lesson} should be blocked`).toBe(451);
 
     const apiCall = () =>
       caller.getLessons.getLesson({
@@ -186,7 +186,7 @@ test('lessons not in the supported lessons array are not allowed', async () => {
     message: string;
   }
 
-  expect(res.status).toBe(404);
+  expect(res.status).toBe(451);
   const body = (await res.json()) as Body;
   expect(body).toHaveProperty('message');
   expect(body.message).toContain('Lesson not available');
@@ -213,7 +213,7 @@ test('blocked lesson: growing-rearing-and-catching-our-food', async () => {
     lesson: slug,
     type: 'slideDeck',
   });
-  expect(res404.status).toBe(404);
+  expect(res404.status).toBe(451);
 
   // make sure it doesn't also turn up in the sequence assets
   const res = await caller.getAssets.getSequenceAssets({
