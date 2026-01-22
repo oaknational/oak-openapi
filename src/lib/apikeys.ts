@@ -20,6 +20,7 @@ export type UserUpdateWithKey = UserUpdate & {
 export type User = UserUpdate & {
   key: string; // enforced
   id: number;
+  lastRequest?: string;
 };
 
 export async function updateUser(opts: UserUpdateWithKey): Promise<string> {
