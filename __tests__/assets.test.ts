@@ -182,8 +182,12 @@ test('lessons not in the supported lessons array are not allowed', async () => {
     type: 'video',
   });
 
+  interface Body {
+    message: string;
+  }
+
   expect(res.status).toBe(404);
-  const body = await res.json();
+  const body = (await res.json()) as Body;
   expect(body).toHaveProperty('message');
   expect(body.message).toContain('Lesson not available');
 });
