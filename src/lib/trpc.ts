@@ -6,6 +6,18 @@ import { ZodError } from 'zod';
 
 import type { Context } from '@/lib/context';
 
+export class HTTPStatusError extends Error {
+  code: string;
+  statusCode: number;
+
+  constructor(opts: { code: string; message: string; statusCode: number }) {
+    super(opts.message);
+    this.code = opts.code;
+    this.statusCode = opts.statusCode || 500;
+    this.name = 'HTTPStatusError';
+  }
+}
+
 export const t = initTRPC
   .context<Context>()
   .meta<OpenApiMeta>()

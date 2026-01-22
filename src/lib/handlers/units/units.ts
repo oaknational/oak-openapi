@@ -1,5 +1,5 @@
 import { protectedProcedure } from '@/lib/protect';
-import { router } from '@/lib/trpc';
+import { HTTPStatusError, router } from '@/lib/trpc';
 import { TRPCError } from '@trpc/server';
 import type { SequenceView } from 'lib/owaClient';
 import {
@@ -39,9 +39,10 @@ export const getUnits = router({
       const blocked = await blockUnitForCopyrightText(client, slug);
 
       if (blocked) {
-        throw new TRPCError({
+        throw new HTTPStatusError({
           message: 'Unit not available for this query (blocked copyright text)',
           code: 'NOT_FOUND',
+          statusCode: 451,
         });
       }
 
