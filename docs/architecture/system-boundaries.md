@@ -54,6 +54,6 @@ V0/V1 alignment
 - V1: add owner/SLA notes per domain and tighten operational constraints.
 
 Related docs
-- `docs/architecture/overview.md`
-- `docs/architecture/infrastructure-topology.md`
-- `docs/architecture/architecture-map.md`
+- [docs/architecture/overview.md](docs/architecture/overview.md)
+- [docs/architecture/infrastructure-topology.md](docs/architecture/infrastructure-topology.md)
+- [docs/architecture/architecture-map.md](docs/architecture/architecture-map.md)

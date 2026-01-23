@@ -95,5 +95,5 @@ Modernization notes (V1, lower priority)
 - Reduce lodash usage by replacing it with targeted utilities or native equivalents.
 
 Related docs
-- `docs/engineering/v0-v1-improvements.md`
-- `docs/engineering/upgrade-tracker.md`
+- [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md)
+- [docs/engineering/upgrade-tracker.md](docs/engineering/upgrade-tracker.md)
