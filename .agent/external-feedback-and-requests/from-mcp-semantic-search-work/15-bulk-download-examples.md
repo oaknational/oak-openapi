@@ -1,6 +1,6 @@
 # Bulk Download Examples
 
-These examples mirror the bulk download data integrity issues listed in `00-overview-and-known-issues.md`.
+These examples mirror the bulk download data integrity issues listed in [00-overview-and-known-issues.md](00-overview-and-known-issues.md).
 
 ## Example 1: Title fields null despite slug fields populated
 
@@ -125,7 +125,7 @@ These examples mirror the bulk download data integrity issues listed in `00-over
 
 ## Bulk Download Completeness Examples (2025-12-30)
 
-These examples relate to the enhancement requests (ER4-ER8) in `00-overview-and-known-issues.md`.
+These examples relate to the enhancement requests (ER4-ER8) in [00-overview-and-known-issues.md](00-overview-and-known-issues.md).
 
 ## Example 8: Missing RSHE-PSHE bulk file (ER4)
 

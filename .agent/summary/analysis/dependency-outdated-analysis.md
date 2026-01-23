@@ -2,7 +2,7 @@
 
 Version framing
 - The public API is v0 (public alpha moving toward public beta); prioritize V0 critical fixes first.
-- V1 improvements are deeper refinements after v0 stability goals; see `.agent/summary/analysis/versioned-improvements.md` for the split.
+- V1 improvements are deeper refinements after v0 stability goals; see [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md) for the split.
 
 Purpose
 - Provide a clear, supportive path for dependency maintenance without disrupting v0 stability.
@@ -15,7 +15,7 @@ Priority override (V0): Zod 4 + zod-openapi 4.x
 - This is a stated high priority even though it is a major upgrade.
 - Target: `zod` 4.x and the latest `zod-openapi` 4.x (not 5.x).
 - Suggested steps: upgrade, regenerate OpenAPI schemas, run tests, and spot-check docs/Swagger UI.
-- Cross-reference: `.agent/summary/analysis/v0-dependency-upgrade-checklist.md`.
+- Cross-reference: [.agent/summary/analysis/v0-dependency-upgrade-checklist.md](.agent/summary/analysis/v0-dependency-upgrade-checklist.md).
 
 V0-friendly updates (patch/minor, lower risk)
 These are generally safe to schedule within the v0 stabilization window, assuming tests pass.
@@ -91,7 +91,7 @@ Tooling and test ecosystem
 - posthog-js 1.259.0 -> 1.311.0
 
 Pinned or cautionary updates
-- trpc-to-openapi 2.1.5 -> 3.1.0: the repo explicitly warns not to update until tRPC 11 integration is complete (see `bin/zod-openapi-schema-gen/README.md`). Treat as V1+ with extra care.
+- trpc-to-openapi 2.1.5 -> 3.1.0: the repo explicitly warns not to update until tRPC 11 integration is complete (see [bin/zod-openapi-schema-gen/README.md](bin/zod-openapi-schema-gen/README.md)). Treat as V1+ with extra care.
 
 Modernization notes (V1, lower priority)
 - Explore a path off Babel for schema generation if a lighter or more modern tool fits.
@@ -100,5 +100,5 @@ Modernization notes (V1, lower priority)
 Suggested approach
 - V0: apply patch/minor updates in small batches, run tests, and document any behavior changes.
 - V1: plan major upgrades as coordinated workstreams (framework, data stack, CMS, tooling).
-- Maintain a short upgrade log in `.agent/summary/analysis/versioned-improvements.md` so stakeholders can track progress.
-- Use `.agent/summary/analysis/v0-dependency-upgrade-checklist.md` and `.agent/summary/analysis/v1-upgrade-roadmap.md` to keep sequencing clear.
+- Maintain a short upgrade log in [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md) so stakeholders can track progress.
+- Use [.agent/summary/analysis/v0-dependency-upgrade-checklist.md](.agent/summary/analysis/v0-dependency-upgrade-checklist.md) and [.agent/summary/analysis/v1-upgrade-roadmap.md](.agent/summary/analysis/v1-upgrade-roadmap.md) to keep sequencing clear.

@@ -78,23 +78,23 @@ These tables mirror the external summary list in [`.agent/external-feedback-and-
 | Transcript segments + maths normalisation (`21-maths-education-enhancements.md`) | Not captured; add to [`docs/engineering/v0-v1-improvements.md`](../../../docs/engineering/v0-v1-improvements.md) | `/lessons/{lesson}/transcript` | v1 |
 | Transcript search filters + richer context (`21-maths-education-enhancements.md`) | Not captured; add to [`docs/engineering/v0-v1-improvements.md`](../../../docs/engineering/v0-v1-improvements.md) | `/search/transcripts` | v1 |
 | Maths glossary + keyword IDs (`21-maths-education-enhancements.md`) | Not captured; add to [`docs/engineering/v0-v1-improvements.md`](../../../docs/engineering/v0-v1-improvements.md) | `/subjects/{subject}/keywords` | v1 |
-| "Use this when" descriptions (`16-schema-and-metadata-examples.md`) | Not captured; add to `docs/engineering/v0-v1-improvements.md` (quick win) | OpenAPI metadata across endpoints | v1 |
-| Operation summaries (`16-schema-and-metadata-examples.md`) | Not captured; add to `docs/engineering/v0-v1-improvements.md` (quick win) | OpenAPI metadata across endpoints | v1 |
-| `/ontology` endpoint (`17-ontology-and-threads-examples.md`) | Not captured; add to `docs/engineering/v0-v1-improvements.md` | `/ontology` | v1 |
-| Error response docs (`16-schema-and-metadata-examples.md`) | Not captured; add to `docs/engineering/gap-analysis.md` (contract clarity) | All endpoints | v0 |
-| Programme variant metadata (`18-programmes-and-identifiers-examples.md`) | Not captured; add to `docs/engineering/v0-v1-improvements.md` | `/programmes`, sequences | v1 |
-| Consistent resource IDs (`18-programmes-and-identifiers-examples.md`) | Not captured; add to `docs/engineering/v0-v1-improvements.md` | Lessons, units, sequences, programmes | v1 |
-| Parameter examples (`16-schema-and-metadata-examples.md`) | Not captured; add to `docs/engineering/v0-v1-improvements.md` | OpenAPI metadata across endpoints | v1 |
-| Custom schema extensions (`16-schema-and-metadata-examples.md`) | Not captured; add to `docs/engineering/v0-v1-improvements.md` | OpenAPI metadata across endpoints | v1 |
-| Behavioural metadata (`16-schema-and-metadata-examples.md`) | Not captured; add to `docs/engineering/v0-v1-improvements.md` | OpenAPI metadata across endpoints | v1 |
-| Thread enhancements (`17-ontology-and-threads-examples.md`) | Not captured; add to `docs/engineering/v0-v1-improvements.md` | `/threads`, `/threads/{thread}/units` | v1 |
-| Standardise types with `$ref` (`16-schema-and-metadata-examples.md`) | Not captured; add to `docs/engineering/v0-v1-improvements.md` | OpenAPI components | v1 |
-| Expose Zod validators (`09-schemas-endpoint-rfc.md`, `20-validation-and-schema-examples.md`) | Not captured; add to `docs/engineering/v0-v1-improvements.md` | `/schemas` | v1 |
-| Response examples (`16-schema-and-metadata-examples.md`) | Not captured; add to `docs/engineering/v0-v1-improvements.md` | OpenAPI metadata across endpoints | v1 |
-| Canonical URL patterns (`16-schema-and-metadata-examples.md`) | Not captured; add to `docs/engineering/v0-v1-improvements.md` | OpenAPI metadata across endpoints | v1 |
-| Resource timestamps (`16-schema-and-metadata-examples.md`) | Not captured; add to `docs/engineering/v0-v1-improvements.md` | Resource responses across endpoints | v1 |
-| Performance hints (`16-schema-and-metadata-examples.md`) | Not captured; add to `docs/engineering/v0-v1-improvements.md` | OpenAPI metadata across endpoints | v1 |
-| OpenAPI best practices (`16-schema-and-metadata-examples.md`) | Not captured; add to `docs/engineering/v0-v1-improvements.md` | OpenAPI document | v1 |
+| "Use this when" descriptions (`16-schema-and-metadata-examples.md`) | Not captured; add to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) (quick win) | OpenAPI metadata across endpoints | v1 |
+| Operation summaries (`16-schema-and-metadata-examples.md`) | Not captured; add to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) (quick win) | OpenAPI metadata across endpoints | v1 |
+| `/ontology` endpoint (`17-ontology-and-threads-examples.md`) | Not captured; add to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) | `/ontology` | v1 |
+| Error response docs (`16-schema-and-metadata-examples.md`) | Not captured; add to [docs/engineering/gap-analysis.md](docs/engineering/gap-analysis.md) (contract clarity) | All endpoints | v0 |
+| Programme variant metadata (`18-programmes-and-identifiers-examples.md`) | Not captured; add to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) | `/programmes`, sequences | v1 |
+| Consistent resource IDs (`18-programmes-and-identifiers-examples.md`) | Not captured; add to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) | Lessons, units, sequences, programmes | v1 |
+| Parameter examples (`16-schema-and-metadata-examples.md`) | Not captured; add to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) | OpenAPI metadata across endpoints | v1 |
+| Custom schema extensions (`16-schema-and-metadata-examples.md`) | Not captured; add to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) | OpenAPI metadata across endpoints | v1 |
+| Behavioural metadata (`16-schema-and-metadata-examples.md`) | Not captured; add to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) | OpenAPI metadata across endpoints | v1 |
+| Thread enhancements (`17-ontology-and-threads-examples.md`) | Not captured; add to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) | `/threads`, `/threads/{thread}/units` | v1 |
+| Standardise types with `$ref` (`16-schema-and-metadata-examples.md`) | Not captured; add to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) | OpenAPI components | v1 |
+| Expose Zod validators (`09-schemas-endpoint-rfc.md`, `20-validation-and-schema-examples.md`) | Not captured; add to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) | `/schemas` | v1 |
+| Response examples (`16-schema-and-metadata-examples.md`) | Not captured; add to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) | OpenAPI metadata across endpoints | v1 |
+| Canonical URL patterns (`16-schema-and-metadata-examples.md`) | Not captured; add to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) | OpenAPI metadata across endpoints | v1 |
+| Resource timestamps (`16-schema-and-metadata-examples.md`) | Not captured; add to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) | Resource responses across endpoints | v1 |
+| Performance hints (`16-schema-and-metadata-examples.md`) | Not captured; add to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) | OpenAPI metadata across endpoints | v1 |
+| OpenAPI best practices (`16-schema-and-metadata-examples.md`) | Not captured; add to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) | OpenAPI document | v1 |
 
 ## Disparate concerns
 
@@ -127,4 +127,4 @@ These are high-impact external items not yet captured in internal v0/v1 lists:
 - Structural pattern documentation (especially KS4 science traversal).
 - Programme context and identifier consistency for OWA links.
 
-If adopted, add them to `docs/engineering/v0-v1-improvements.md` and the relevant v0/v1 plan.
+If adopted, add them to [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) and the relevant v0/v1 plan.
