@@ -33,8 +33,16 @@ export const getUnits = router({
     .input(unitSummaryRequestOpenAPISchema)
     .output(unitSummaryResponseOpenAPISchema)
     .query(async ({ input }) => {
-      const { unit: slug } = input;
+      let { unit: slug } = input;
       const client = getClient();
+
+      const isUnitVariant = testIfUnitVariant(slug);
+      const originalSlug = slug;
+
+      if (isUnitVariant) {
+        // we'll get the base unit for variants, then reconstruct later
+        slug = slug.replace(/-\d+$/, '');
+      }
 
       const blocked = await blockUnitForCopyrightText(client, slug);
 
@@ -46,20 +54,8 @@ export const getUnits = router({
         });
       }
 
-      const isUnitVariant = testIfUnitVariant(slug);
-
       // Ensure that non-curriculum units don't come through
-      const whereNonCurriculum = { non_curriculum: { _eq: false } };
-
-      let whereSlug;
-
-      if (isUnitVariant) {
-        whereSlug = { slug: { _like: `${slug.replace(/-\d+$/, '-')}%` } };
-      } else {
-        whereSlug = { slug: { _eq: slug } };
-      }
-
-      const where = { ...whereSlug, ...whereNonCurriculum };
+      const where = { slug: { _eq: slug }, non_curriculum: { _eq: false } };
 
       const query = gql`
         query getUnit($where: ${sequenceViewWhereInput}) @cached(ttl: 300) {
@@ -92,6 +88,24 @@ export const getUnits = router({
 
       const sequenceData = res[sequenceView][0];
 
-      return formatUnitSummary(slug, sequenceData);
+      if (isUnitVariant) {
+        // move the unit variant data into the root
+        const unitOption = sequenceData.unit_options.find(
+          (option) => option.slug === originalSlug,
+        );
+
+        if (unitOption) {
+          // loop through all the keys in unitOption and copy them to sequenceData
+          Object.keys(unitOption).forEach((key) => {
+            if (key in sequenceData) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+              (sequenceData as any)[key] =
+                unitOption[key as keyof typeof unitOption];
+            }
+          });
+        }
+      }
+
+      return formatUnitSummary(originalSlug, sequenceData);
     }),
 });
