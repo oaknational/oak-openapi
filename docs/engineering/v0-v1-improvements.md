@@ -285,10 +285,108 @@ V1 Improvements
 
 ## New Endpoints and Features
 
-- **`/ontology` endpoint**: Structural pattern documentation for curriculum navigation.
-- **`/schemas` bundle**: Expose Zod validators for SDK reuse.
-- **`semantic_summary` field**: AI-friendly summaries for lessons, units, sequences.
-- **Thread metadata enhancements**: Progression tracking and prerequisites.
+### `/ontology` endpoint
+
+- **Source**: [`04-high-priority-requests.md` Item 3](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/04-high-priority-requests.md#3-create-ontology-or-schemacurriculum-endpoint)
+- **Examples**: [`17-ontology-and-threads-examples.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/17-ontology-and-threads-examples.md)
+- **Rationale**: Provides structural knowledge that AI models cannot infer from individual endpoint schemas. Enables intelligent tool composition and reduces trial-and-error API exploration.
+- **Example payload**:
+
+```json
+{
+  "entities": {
+    "lesson": { "primaryKey": "lessonSlug", "fields": ["lessonTitle", "keyStageSlug", "subjectSlug"] },
+    "unit": { "primaryKey": "unitSlug", "fields": ["unitTitle", "year", "keyStageSlug"] }
+  },
+  "relationships": [
+    { "from": "unit", "to": "lesson", "type": "contains" },
+    { "from": "sequence", "to": "unit", "type": "contains" }
+  ]
+}
+```
+
+- **Impact**: Reduces multi-turn discovery conversations by ~60%; enables AI to plan efficient tool call sequences.
+
+---
+
+### `/schemas` bundle endpoint
+
+- **Source**: [`09-schemas-endpoint-rfc.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/09-schemas-endpoint-rfc.md) (full RFC)
+- **Rationale**: The API already defines Zod schemas internally. Consuming applications currently rehydrate Zod from OpenAPI, losing fidelity. A bundle endpoint allows the SDK build process to use the same validators the API uses.
+- **Proposed endpoint**: `GET /api/v0/schemas`
+- **Example payload**:
+
+```json
+{
+  "version": "v0",
+  "generatedAt": "2025-01-05T12:00:00Z",
+  "openapi": { "url": "https://open-api.thenational.academy/api/v0/swagger.json", "etag": "\"abc123\"" },
+  "schemas": {
+    "LessonSummaryResponse": {
+      "zodSource": "export const lessonSummaryResponseSchema = z.object({ ... })",
+      "jsonSchema": { "type": "object", "properties": {} },
+      "typeScript": "export interface LessonSummaryResponse { ... }"
+    }
+  }
+}
+```
+
+- **Impact**: SDK/MCP engineers can reuse exact API validators; API consumers get optional runtime checks without schema drift.
+
+---
+
+### `semantic_summary` field
+
+- **Source**: [`02-semantic-summary.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/02-semantic-summary.md) (286 lines, comprehensive)
+- **Examples**: [`19-semantic-summary-examples.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/19-semantic-summary-examples.md)
+- **Rationale**: Full transcripts (5000+ tokens) are too long for effective embeddings; titles (~10 tokens) lack semantic signal. Pre-computed ~150-250 token summaries provide optimal density for vector search and reranking.
+- **Composition for lessons**: Title + keywords + learning objectives + key vocabulary + prior knowledge + common misconceptions + transcript excerpt
+- **Example payload**:
+
+```json
+{
+  "lessonSlug": "adding-fractions-same-denominator",
+  "lessonTitle": "Adding fractions with the same denominator",
+  "semantic_summary": "This KS2 maths lesson teaches Year 4 students to add fractions with common denominators. Students learn that when denominators match, only numerators are added. Key vocabulary includes numerator, denominator, and proper fraction. Prior knowledge: understanding fractions as parts of a whole."
+}
+```
+
+- **Impact**: Enables high-quality semantic search, reranking, and RAG without latency penalty from full transcript processing.
+
+---
+
+### Thread metadata enhancements
+
+- **Source**: [`05-medium-priority-requests.md` Item 10](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/05-medium-priority-requests.md#10-enhance-thread-endpoints-for-progression-analysis) (lines 204-346)
+- **Examples**: [`17-ontology-and-threads-examples.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/17-ontology-and-threads-examples.md)
+- **Current state**: `/threads` returns only `slug` and `title`. No progression context, prerequisites, or key stage coverage.
+- **Desired state**:
+
+```json
+{
+  "threads": [{
+    "slug": "number",
+    "title": "Number",
+    "description": "Core number concepts from counting to surds",
+    "keyStagesCovered": ["ks1", "ks2", "ks3", "ks4"],
+    "unitCount": 118
+  }]
+}
+```
+
+- **Unit-level enhancements**: Add `prerequisiteUnits`, `nextUnits`, `conceptualLevel`, and `appearsInProgrammes` fields.
+- **Impact**: Critical for Layer 4 tools: `trace-concept-progression`, `find-prerequisites`, `compare-programme-paths`.
+
+---
+
+### Programme variant endpoint
+
+- **Source**: [`04-high-priority-requests.md` Item 5](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/04-high-priority-requests.md#5-expose-programme-context-and-variant-metadata) (lines 480-686)
+- **Rationale**: The API uses "sequences" but OWA uses "programmes" in user-facing URLs. One sequence (e.g., `science-secondary-aqa`) maps to 8+ programmes (Foundation/Higher × 4 exam subjects).
+- **Proposed endpoint**: `GET /programmes` and `GET /programmes/{programmeSlug}/units`
+- **Impact**: Critical for accurate OWA URL generation and programme-based filtering.
+
+---
 
 ## Data Access and Resilience
 
@@ -326,12 +424,18 @@ V1 Improvements
 
 ## Maths-Specific Enhancements
 
-- Maths sequence bundle endpoint.
-- Maths lesson thread tags and thread metadata.
-- Structured maths answers and marking metadata.
-- Maths representation tags.
-- Transcript segments with maths normalisation.
-- Maths glossary and keyword IDs.
+- **Source**: [`21-maths-education-enhancements.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/21-maths-education-enhancements.md) (8 items, 520 lines)
+
+| Item | Priority | Description |
+| ---- | -------- | ----------- |
+| Sequence bundle endpoint | High | One call delivers progression context including `priorKnowledgeRequirements`, `whyThisWhyNow`, and lesson metadata |
+| Lesson-level thread tags | Medium | Add `threadSlugs` array to lesson responses for domain filtering (number, algebra, geometry) |
+| Structured maths answers | High | Numeric tolerance, algebraic equivalence rules, and marking metadata for quiz questions |
+| Image-based quiz items | High | Return diagram/graph questions explicitly instead of silent omission |
+| Maths representation tags | Medium | Add `representations` array (place-value-chart, number-line, bar-model) to lessons |
+| Transcript segments | Medium | Add `segments` array with `startMs`, `endMs`, `text`, and optional `mathsNormalisedText` |
+| Transcript search filters | Medium | Add `subject`, `keyStage`, `year` filters to `/search/transcripts` |
+| Maths glossary endpoint | Medium | `GET /subjects/{subject}/keywords` with stable `keywordId` for cross-year tracking |
 
 ---
 
