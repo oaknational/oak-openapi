@@ -48,7 +48,7 @@ const handler = async (req: NextRequest): Promise<Response> => {
     }
   }
 
-  const archive = archiver('zip', { zlib: { level: 9 } });
+  const archive = archiver('zip', { zlib: { level: 1 } });
 
   const zipStream = new PassThrough();
   archive.pipe(zipStream);
@@ -86,14 +86,8 @@ async function handlerWrapper(req: NextRequest): Promise<Response> {
   }
 }
 
-export {
-  handlerWrapper as GET,
-  handlerWrapper as POST,
-  handlerWrapper as PUT,
-  handlerWrapper as PATCH,
-  handlerWrapper as DELETE,
-  handlerWrapper as OPTIONS,
-  handlerWrapper as HEAD,
-};
+export { handlerWrapper as POST };
 
-export const maxDuration = 120; // seconds
+// by default Vercel set the max limit to 5 minutes
+// https://vercel.com/docs/functions/limitations#max-duration
+// export const maxDuration = 60 * 5; // seconds
