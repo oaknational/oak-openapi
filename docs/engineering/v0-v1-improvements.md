@@ -40,7 +40,7 @@ V1 Improvements
 
 ### V0-001: Pagination `Link` header URL construction
 
-- **Status**: Needs verification (may be resolved)
+- **Status**: Confirmed
 - **Severity**: Medium
 - **Endpoints**: `/key-stages/{keyStage}/subject/{subject}/lessons`, `/sequences/{sequence}/questions`, `/key-stages/{keyStage}/subject/{subject}/questions`
 - **Description**: The pagination URL is constructed by concatenating `baseUrl + ctx.req.url + "?offset=..."`. If `ctx.req.url` already contains query parameters (e.g., `?limit=10`), this produces an invalid URL with duplicate `?` characters.
@@ -58,13 +58,15 @@ V1 Improvements
 
 ### V0-002: Transcript search result ordering
 
-- **Status**: Needs clarification
+- **Status**: Confirmed
 - **Severity**: Low
 - **Endpoints**: `/search/transcripts`
-- **Description**: The sorting logic at line 72-73 compares `ids.indexOf(a.lessonSlug)` where `ids` is an array of `lesson_id` values (UUIDs), not slugs. Since `indexOf` returns `-1` for non-matches, all results get sorted to the front with identical sort keys.
-- **Code reference**: [`searchTranscripts.ts:72-74`](../../../src/lib/handlers/searchTranscripts/searchTranscripts.ts#L72-L74)
-- **Analysis**: The *intent* is to preserve the order from the initial `snippets` query (which is ordered by similarity). The lookup at line 69 correctly uses `s.lesson_id === r.id`. The sort comparison is redundant/incorrect, but may not affect the final output since `findMany` with caching may return results in a stable order. This needs testing to confirm whether the order is actually wrong.
-- **Fix**: Either remove the sort (if `findMany` preserves order) or use a Map lookup with `id` as the key.
+- **Description**: The sorting logic compares apples to oranges - `ids` contains `lesson_id` UUIDs but the sort uses `lessonSlug` strings.
+- **Code references**:
+  - [`searchTranscripts.ts:43`](../../../src/lib/handlers/searchTranscripts/searchTranscripts.ts#L43) — `ids = search.map((r) => r.lesson_id)` (UUIDs)
+  - [`searchTranscripts.ts:72-73`](../../../src/lib/handlers/searchTranscripts/searchTranscripts.ts#L72-L73) — `ids.indexOf(a.lessonSlug)` (slugs)
+- **Impact**: Since `indexOf` returns `-1` for all non-matches (slugs vs UUIDs), the sort has no effect. Results are returned in `findMany` order rather than similarity-ranked order from the snippets query.
+- **Fix**: Use `ids.indexOf(res.find(r => r.slug === a.lessonSlug)?.id)` or build a Map for O(1) lookup.
 
 ### V0-003: `/search/lessons` excludes `financial-education` subject
 
