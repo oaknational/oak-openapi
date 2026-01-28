@@ -51,7 +51,7 @@
     "highlight.js": "^11.11.1",
     "http-codes": "^1.0.0",
     "lodash": "^4.17.21",
-    "next": "^15.3.8",
+    "next": "^16.1.5",
     "next-hubspot": "^2.0.0",
     "next-sanity": "9",
     "object.groupby": "^1.0.3",
