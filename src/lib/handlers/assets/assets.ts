@@ -2,7 +2,7 @@ import { TRPCError } from '@trpc/server';
 import { gql } from 'graphql-request';
 
 import { protectedProcedure } from '@/lib/protect';
-import { router } from '../../trpc';
+import { router, HTTPStatusError } from '@/lib/trpc';
 import type {
   Download,
   DownloadView,
@@ -62,9 +62,10 @@ export async function assetsForLesson(
   const supported = await checkLessonAllowedAsset(graphqlClient, lessonSlug);
 
   if (!supported) {
-    throw new TRPCError({
+    throw new HTTPStatusError({
       message: `Lesson not available: "${lessonSlug}"`,
       code: 'NOT_FOUND',
+      statusCode: 451,
     });
   }
 
