@@ -306,7 +306,7 @@ GET /threads?contains=unit-slug-here
 
 **Impact:** **High for Layer 4 tools**. Threads enable the most sophisticated AI capabilities:
 **User impact:** Teachers and curriculum leaders can trace conceptual progression; students and adult learners benefit from coherent learning pathways.
-**Related maths-specific follow-up:** `21-maths-education-enhancements.md` items 2 and 5 (lesson-level thread tags and representation tags).
+**Related maths-specific follow-up:** [21-maths-education-enhancements.md](21-maths-education-enhancements.md) items 2 and 5 (lesson-level thread tags and representation tags).
 
 - `trace-concept-progression`: Show how ideas build across years
 - `find-prerequisites`: Map prerequisite chains
@@ -477,7 +477,7 @@ SequenceUnitsResponseSchema:
 
 ### 12. Expose Zod Validators for Perfect Type Fidelity
 
-See `09-schemas-endpoint-rfc.md` for the endpoint proposal, payload shape, and SDK type-gen integration plan.
+See [09-schemas-endpoint-rfc.md](09-schemas-endpoint-rfc.md) for the endpoint proposal, payload shape, and SDK type-gen integration plan.
 
 **Current state:**
 

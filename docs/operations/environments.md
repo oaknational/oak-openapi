@@ -25,6 +25,6 @@ TODO: environment differences
 - TODO: bulk pipeline schedule and job environments.
 
 Related docs
-- `docs/operations/runbook.md`
-- `docs/architecture/infrastructure-topology.md`
+- [docs/operations/runbook.md](docs/operations/runbook.md)
+- [docs/architecture/infrastructure-topology.md](docs/architecture/infrastructure-topology.md)
 - `.env.example`

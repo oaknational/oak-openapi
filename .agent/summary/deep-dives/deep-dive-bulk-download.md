@@ -2,7 +2,7 @@
 
 Version framing
 - The public API is v0 (public alpha moving toward public beta); prioritize V0 critical fixes first.
-- V1 improvements are deeper refinements after v0 stability goals; see `.agent/summary/analysis/versioned-improvements.md` for the split.
+- V1 improvements are deeper refinements after v0 stability goals; see [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md) for the split.
 
 Scope
 - Bulk data generation script, asset packaging, and download/transfer pipeline.
@@ -12,7 +12,7 @@ Primary files
 - `bin/prepare-bulk.ts`
 - `src/lib/bulk-data/*`
 - `bin/bulk-download-videos.sh`
-- `README_BULK_DOWNLOAD.md`
+- [README_BULK_DOWNLOAD.md](README_BULK_DOWNLOAD.md)
 
 Pipeline flow
 ```
@@ -83,4 +83,4 @@ Evidence list
 - `src/lib/bulk-data/get-data.ts`
 - `src/lib/bulk-data/utils.ts`
 - `bin/bulk-download-videos.sh`
-- `README_BULK_DOWNLOAD.md`
+- [README_BULK_DOWNLOAD.md](README_BULK_DOWNLOAD.md)

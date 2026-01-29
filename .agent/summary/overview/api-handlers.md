@@ -2,7 +2,7 @@
 
 Version framing
 - The public API is v0 (public alpha moving toward public beta); prioritize V0 critical fixes first.
-- V1 improvements are deeper refinements after v0 stability goals; see `.agent/summary/analysis/versioned-improvements.md` for the split.
+- V1 improvements are deeper refinements after v0 stability goals; see [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md) for the split.
 
 tRPC router composition
 - `src/lib/router.ts` aggregates handlers into `getSequences`, `getLessonTranscript`, `searchTranscripts`, `getAssets`, `getSubjects`, `getKeyStages`, `getKeyStageSubjectLessons`, `getAllKeyStageAndSubjectUnits`, `getQuestions`, `getLessons`, `getUnits`, `getThreads`, `changelog`, and `getRateLimit`.

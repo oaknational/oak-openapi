@@ -2,21 +2,21 @@
 
 Version framing
 - The public API is v0 (public alpha moving toward public beta); prioritize V0 critical fixes first.
-- V1 improvements are deeper refinements after v0 stability goals; see `docs/engineering/v0-v1-improvements.md` for the split.
+- V1 improvements are deeper refinements after v0 stability goals; see [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md) for the split.
 
 Purpose
 - Provide a clear path for new contributors to run the API locally, understand the repo structure, and validate changes.
 
 Start here (short)
-1) Read `README.md` for quickstart.
+1) Read [README.md](README.md) for quickstart.
 2) Follow the steps below to run locally.
-3) Use `docs/engineering/working-on-repo.md` for day-to-day workflow.
+3) Use [docs/engineering/working-on-repo.md](docs/engineering/working-on-repo.md) for day-to-day workflow.
 
 Role-based onboarding paths
-- Junior: start with `docs/engineering/first-contribution.md`, then `docs/engineering/working-on-repo.md`, and review the glossary in `docs/glossary.md`.
-- Mid-level: read `docs/architecture/overview.md`, then `docs/architecture/architecture-map.md` for where to change code.
-- Senior: review `docs/architecture/system-boundaries.md` and `docs/architecture/infrastructure-topology.md`, then skim ADRs.
-- Want a fast-track orientation: start with `docs/architecture/fast-track-orientation.md`.
+- Junior: start with [docs/engineering/first-contribution.md](docs/engineering/first-contribution.md), then [docs/engineering/working-on-repo.md](docs/engineering/working-on-repo.md), and review the glossary in [docs/glossary.md](docs/glossary.md).
+- Mid-level: read [docs/architecture/overview.md](docs/architecture/overview.md), then [docs/architecture/architecture-map.md](docs/architecture/architecture-map.md) for where to change code.
+- Senior: review [docs/architecture/system-boundaries.md](docs/architecture/system-boundaries.md) and [docs/architecture/infrastructure-topology.md](docs/architecture/infrastructure-topology.md), then skim ADRs.
+- Want a fast-track orientation: start with [docs/architecture/fast-track-orientation.md](docs/architecture/fast-track-orientation.md).
 
 Prerequisites
 - Node 22+
@@ -48,13 +48,13 @@ Run locally
    - Swagger UI: `http://localhost:2727/playground`
 
 How to use the API
-- See `docs/api/quickstart.md` for headers, sample requests, and the playground.
+- See [docs/api/quickstart.md](docs/api/quickstart.md) for headers, sample requests, and the playground.
 
 How to work on the repo
-- See `docs/engineering/working-on-repo.md` for common workflows and codegen steps.
+- See [docs/engineering/working-on-repo.md](docs/engineering/working-on-repo.md) for common workflows and codegen steps.
 
 First contribution
-- See `docs/engineering/first-contribution.md` for a safe first change path.
+- See [docs/engineering/first-contribution.md](docs/engineering/first-contribution.md) for a safe first change path.
 
 Working with API keys
 - Admin UI: `http://localhost:2727/admin`
@@ -67,23 +67,23 @@ Common tasks
 - Lint: `pnpm lint`
 
 Bulk download
-- See `README_BULK_DOWNLOAD.md` for prerequisites and running `pnpm bulk`.
-- Bulk output layout is described in `README_BULK_DOWNLOAD.md` and `docs/architecture/bulk-download.md`.
+- See [README_BULK_DOWNLOAD.md](README_BULK_DOWNLOAD.md) for prerequisites and running `pnpm bulk`.
+- Bulk output layout is described in [README_BULK_DOWNLOAD.md](README_BULK_DOWNLOAD.md) and [docs/architecture/bulk-download.md](docs/architecture/bulk-download.md).
 - If you run with `INCLUDE_ASSETS=true`, Node 22+ is required.
 
 Docs and CMS
-- CMS notes: `src/cms/README.md`
+- CMS notes: [src/cms/README.md](src/cms/README.md)
 - Docs pages: `src/app/(pages)/docs`
 
 Deep background (optional)
-- `docs/README.md` (full docs index)
-- `docs/architecture/decision-records/README.md` (ADRs)
-- `.agent/summary/README.md` (technical summary index)
-- `.agent/summary/analysis/versioned-improvements.md` (v0/v1 priorities)
+- [docs/README.md](docs/README.md) (full docs index)
+- [docs/architecture/decision-records/README.md](docs/architecture/decision-records/README.md) (ADRs)
+- [.agent/summary/README.md](.agent/summary/README.md) (technical summary index)
+- [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md) (v0/v1 priorities)
 
 Related docs
-- `README.md` (repo overview and quickstart)
-- `docs/engineering/README.md` (planning structure)
-- `README_BULK_DOWNLOAD.md` (bulk download process)
-- `src/cms/README.md` (CMS integration)
-- `docs/architecture/README.md` (architecture overview)
+- [README.md](README.md) (repo overview and quickstart)
+- [docs/engineering/README.md](docs/engineering/README.md) (planning structure)
+- [README_BULK_DOWNLOAD.md](README_BULK_DOWNLOAD.md) (bulk download process)
+- [src/cms/README.md](src/cms/README.md) (CMS integration)
+- [docs/architecture/README.md](docs/architecture/README.md) (architecture overview)

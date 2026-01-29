@@ -2,7 +2,7 @@
 
 Version framing
 - The public API is v0 (public alpha moving toward public beta); prioritize V0 critical fixes first.
-- V1 improvements are deeper refinements after v0 stability goals; see `.agent/summary/analysis/versioned-improvements.md` for the split.
+- V1 improvements are deeper refinements after v0 stability goals; see [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md) for the split.
 
 Scope
 - OpenAPI document generation, schema/example workflows, and documentation rendering.
@@ -71,7 +71,7 @@ Findings (medium/low)
   - Evidence: `__tests__/openapi-schema.test.ts`.
 - The OpenAPI document is generated at module load; changes to schemas or tags require server restart in dev and a full deploy in prod.
 - Request schema generation requires inline Zod declarations; this constraint can be easy to miss and can silently degrade OpenAPI examples.
-  - Evidence: `bin/zod-openapi-schema-gen/README.md`.
+  - Evidence: [bin/zod-openapi-schema-gen/README.md](bin/zod-openapi-schema-gen/README.md).
 
 Recommendations
 
@@ -89,6 +89,6 @@ Evidence list
 - `src/app/api/v0/swagger.json/route.ts`
 - `src/lib/endpoint-docs/getEndpointDocs.ts`
 - `bin/zod-openapi-schema-gen/addExamplesToZodSchema.mjs`
-- `bin/zod-openapi-schema-gen/README.md`
+- [bin/zod-openapi-schema-gen/README.md](bin/zod-openapi-schema-gen/README.md)
 - `__tests__/openapi-schema.test.ts`
 - `src/app/(pages)/docs/*`
