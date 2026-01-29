@@ -5,19 +5,9 @@ on: [push]
 jobs:
   terraform-lint-format:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - config: bulk-upload
-            workspace: open-api-bulk-loader-prod
-          - config: project
-            workspace: oak-openapi-project-website
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Run Terraform Action from oak-terraform-actions in ${{ matrix.config }}
+      - name: Run Terraform Action from oak-terraform-actions
         uses: oaknational/oak-terraform-actions/actions/terraform-checks@main
-        with:
-          terraform_base_dir: infrastructure/${{ matrix.config }}
-        env:
-          TF_WORKSPACE: ${{ matrix.workspace }}
