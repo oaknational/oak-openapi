@@ -6,18 +6,32 @@ import { ZodError } from 'zod';
 
 import type { Context } from '@/lib/context';
 
+export class HTTPStatusError extends Error {
+  code: string;
+  statusCode: number;
+
+  constructor(opts: { code: string; message: string; statusCode: number }) {
+    super(opts.message);
+    this.code = opts.code;
+    this.statusCode = opts.statusCode || 500;
+    this.name = 'HTTPStatusError';
+  }
+}
+
 export const t = initTRPC
   .context<Context>()
   .meta<OpenApiMeta>()
   .create({
     transformer: superjson,
     errorFormatter({ shape, error }) {
+      if (process.env.NODE_ENV !== 'development') {
+        // let's not air our dirty laundry in production
+        delete shape?.data?.stack;
+      }
+
       if (error.code === 'INTERNAL_SERVER_ERROR') {
         if (error.cause && error.cause instanceof ZodError) {
           const cause = error.cause;
-          // const errors = cause.issues.map(
-          //   (err) => `${err.message}: ${err.path.join('.')} (${err.code})`,
-          // );
 
           console.error(
             util.inspect(
@@ -42,7 +56,6 @@ export const t = initTRPC
           code: error.code,
           message: shape.message,
           trpcPath: shape.data.path,
-          // line: shape.data.stack?.split('\n')[1].trim(),
         });
       }
 
@@ -69,22 +82,18 @@ export const t = initTRPC
         // if dev, surface all the errors to our hard-working developers
         if (process.env.NODE_ENV === 'development') {
           return {
-            ...shape,
-            message: JSON.stringify({ error, shape }),
+            ...error.cause,
+            message: shape.message,
             data: {
               ...shape.data,
-              stack: undefined,
+              stack: shape.data.stack?.split('\n')[1].trim(),
             },
           };
         }
 
         return {
-          ...shape,
-          message: 'Internal server error',
-          data: {
-            ...shape.data,
-            stack: undefined,
-          },
+          ...error.cause,
+          message: shape.message,
         };
       }
 
