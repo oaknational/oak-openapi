@@ -20,7 +20,7 @@ vi.mock('@/lib/rateLimit', async (importOriginal: () => Promise<object>) => {
 
 export function mockWithUser() {
   vi.mock('@/lib/context', () => {
-    const user = { id: 1, name: 'Test User', key: 'test-user' };
+    const user = { id: 1, name: 'Test User', key: 'test-user', rateLimit: 0 };
     return {
       withUser: vi.fn().mockResolvedValue(user),
       Context: vi.fn().mockImplementation(() => ({
