@@ -7,7 +7,7 @@ The public API is currently v0 (public alpha moving toward public beta).
 ## Improving the repo (start here)
 
 For potential improvement work and sequencing, start with:
-`docs/engineering/v0-v1-improvements.md`
+[docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md)
 
 ## Contents
 
@@ -29,7 +29,7 @@ For potential improvement work and sequencing, start with:
 
 ## Onboarding
 
-Short onboarding is below; a more detailed guide is in `docs/engineering/onboarding.md` and the docs index is in `docs/README.md`.
+Short onboarding is below; a more detailed guide is in [docs/engineering/onboarding.md](docs/engineering/onboarding.md) and the docs index is in [docs/README.md](docs/README.md).
 
 ## Quickstart
 
@@ -42,14 +42,14 @@ Short onboarding is below; a more detailed guide is in `docs/engineering/onboard
 
 ## Repository docs
 
-- `docs/README.md` (docs index and start-here links)
-- `docs/engineering/README.md` (lightweight planning structure)
-- `docs/engineering/onboarding.md` (detailed onboarding)
-- `docs/api/quickstart.md` (API usage and auth examples)
-- `README_BULK_DOWNLOAD.md` (bulk download process)
-- `src/cms/README.md` (CMS integration)
-- `docs/architecture/decision-records/README.md` (ADRs)
-- `.agent/summary/README.md` (technical summary index)
+- [docs/README.md](docs/README.md) (docs index and start-here links)
+- [docs/engineering/README.md](docs/engineering/README.md) (lightweight planning structure)
+- [docs/engineering/onboarding.md](docs/engineering/onboarding.md) (detailed onboarding)
+- [docs/api/quickstart.md](docs/api/quickstart.md) (API usage and auth examples)
+- [README_BULK_DOWNLOAD.md](README_BULK_DOWNLOAD.md) (bulk download process)
+- [src/cms/README.md](src/cms/README.md) (CMS integration)
+- [docs/architecture/decision-records/README.md](docs/architecture/decision-records/README.md) (ADRs)
+- [.agent/summary/README.md](.agent/summary/README.md) (technical summary index)
 
 ## Development
 
@@ -88,7 +88,7 @@ bin/g prod /subjects/maths
 
 ## Documentation and CMS
 
-See `src/cms/README.md` for detail.
+See [src/cms/README.md](src/cms/README.md) for detail.
 
 ## API keys
 
@@ -181,7 +181,7 @@ The results.csv file is a CSV (without a header) that contains the URL and the l
 
 The bulk download feature allows you to download all assets (videos, worksheets, slide decks, quizzes, etc.) for entire sequences, organized into tar archives.
 
-See `README_BULK_DOWNLOAD.md` for the full release and ops process.
+See [README_BULK_DOWNLOAD.md](README_BULK_DOWNLOAD.md) for the full release and ops process.
 
 ## Using the Bulk Download Script
 

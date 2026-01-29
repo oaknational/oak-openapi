@@ -2,16 +2,16 @@
 
 Version framing
 - The public API is v0 (public alpha moving toward public beta); prioritize V0 critical fixes first.
-- V1 improvements are deeper refinements after v0 stability goals; see `.agent/summary/analysis/versioned-improvements.md` for the split.
+- V1 improvements are deeper refinements after v0 stability goals; see [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md) for the split.
 
 Purpose
 - Provide a grouped roadmap for major upgrades and modernization tasks that benefit from broader testing.
 - This roadmap assumes the Zod 4 + zod-openapi 4.x upgrade is handled in the v0 track.
 
 Cross-references
-- Full list and grouping: `.agent/summary/analysis/dependency-outdated-analysis.md`.
-- V0/V1 split: `.agent/summary/analysis/versioned-improvements.md`.
-- V0 batching: `.agent/summary/analysis/v0-dependency-upgrade-checklist.md`.
+- Full list and grouping: [.agent/summary/analysis/dependency-outdated-analysis.md](.agent/summary/analysis/dependency-outdated-analysis.md).
+- V0/V1 split: [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md).
+- V0 batching: [.agent/summary/analysis/v0-dependency-upgrade-checklist.md](.agent/summary/analysis/v0-dependency-upgrade-checklist.md).
 
 1) Framework and runtime
 - Next.js: 15.x -> 16.x

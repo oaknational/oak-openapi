@@ -63,9 +63,9 @@ V0/V1 alignment
 - V1: add manifests, checksums, and optional gating alignment for bulk runs.
 
 Related ADRs
-- `docs/architecture/decision-records/0008-bulk-download-pipeline.md`
-- `docs/architecture/decision-records/0007-asset-delivery-gcs-mux.md`
+- [docs/architecture/decision-records/0008-bulk-download-pipeline.md](docs/architecture/decision-records/0008-bulk-download-pipeline.md)
+- [docs/architecture/decision-records/0007-asset-delivery-gcs-mux.md](docs/architecture/decision-records/0007-asset-delivery-gcs-mux.md)
 
 Related docs
-- `README_BULK_DOWNLOAD.md`
-- `docs/architecture/content-gating.md`
+- [README_BULK_DOWNLOAD.md](README_BULK_DOWNLOAD.md)
+- [docs/architecture/content-gating.md](docs/architecture/content-gating.md)

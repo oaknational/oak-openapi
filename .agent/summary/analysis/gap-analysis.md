@@ -2,7 +2,7 @@
 
 Version framing
 - The public API is v0 (public alpha moving toward public beta); prioritize V0 critical fixes first.
-- V1 improvements are deeper refinements after v0 stability goals; see `.agent/summary/analysis/versioned-improvements.md` for the split.
+- V1 improvements are deeper refinements after v0 stability goals; see [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md) for the split.
 
 Tags
 - area=correctness,trust,bulk,gating
@@ -84,5 +84,5 @@ These are items that could impact correctness, security, or core workflows in th
 - Suggested fix: document the differences explicitly or apply consistent gating rules across bulk and API outputs.
 
 External alignment
-- See `.agent/summary/analysis/internal-external-crosswalk.md` for overlaps and gaps between internal fixes and external requests.
-- External summary tables live in `.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md`.
+- See [.agent/summary/analysis/internal-external-crosswalk.md](.agent/summary/analysis/internal-external-crosswalk.md) for overlaps and gaps between internal fixes and external requests.
+- External summary tables live in [.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md](.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md).
