@@ -68,13 +68,14 @@ clear
 title "# LESSONS"
 get "/lessons/developing-an-understanding-of-the-wild-robot-through-rich-discussions/summary" ".code | not"
 get "/lessons/learning-about-the-context-of-whale-rider/summary" ".code"
+get "/lessons/personal-finance-and-economic-citizenship/summary" ".code | not"
 
 title "# UNITS"
 get "/units/the-unforgotten-coat-book-club/summary" ".code | not"
 get "/units/victorian-childhood-non-fiction-reading-and-writing/summary" '.code == "NOT_FOUND"'
 
 title "# ASSETS"
-get "/key-stages/ks1/subject/english/assets" '.code == "NOT_FOUND"'
+get "/key-stages/ks1/subject/english/assets" '.code? != "NOT_FOUND"'
 get "/key-stages/ks1/subject/maths/assets" '.code? != "NOT_FOUND"'
 get "/key-stages/ks3/subject/english/assets" '.code? | not'
 
@@ -99,7 +100,7 @@ get "/lessons/theatre-trips/assets" '.code == "NOT_FOUND"'
 get "/units/life-in-a-capital-city-london-cardiff/summary" '.code == "NOT_FOUND"'
 get "/units/life-in-a-capital-city-london-cardiff-776/summary" '.unitTitle == "What is life like in Cardiff?"'
 
-get "/key-stages/ks3/subject/english/assets?unit=victorian-childhood-non-fiction-reading-and-writing&offset=0&limit=10" '.exitQuiz | map(select(.questionImage)) | length > 0'
+get "/key-stages/ks3/subject/english/assets?unit=victorian-childhood-non-fiction-reading-and-writing&offset=0&limit=10" 'map(.assets | map(select(.type == "exitQuiz"))) | flatten | length > 0'
 
 get $FILTER
 title "FIN $TESTS tests run"

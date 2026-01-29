@@ -1,6 +1,5 @@
 import { protectedProcedure } from '@/lib/protect';
-import { router } from '@/lib/trpc';
-import { TRPCError } from '@trpc/server';
+import { HTTPStatusError, router } from '@/lib/trpc';
 import type { LessonContentView } from 'lib/owaClient';
 import { getClient, gql, lessonContentView } from 'lib/owaClient';
 
@@ -33,9 +32,10 @@ export const getLessonTranscript = router({
       const allowed = await checkLessonAllowedAsset(client, slug);
 
       if (!allowed) {
-        throw new TRPCError({
-          message: 'Transcript not available for this query',
+        throw new HTTPStatusError({
+          message: `Transcript not available: "${slug}"`,
           code: 'NOT_FOUND',
+          statusCode: 451,
         });
       }
 
