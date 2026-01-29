@@ -4,11 +4,11 @@ Purpose
 - Track dependency and modernization work in small, testable batches.
 
 References
-- Primary plan: `docs/engineering/dependency-upgrades.md`
+- Primary plan: [docs/engineering/dependency-upgrades.md](docs/engineering/dependency-upgrades.md)
 - Deep background:
-  - `.agent/summary/analysis/v0-dependency-upgrade-checklist.md`
-  - `.agent/summary/analysis/v1-upgrade-roadmap.md`
-  - `.agent/summary/analysis/dependency-outdated-analysis.md`
+  - [.agent/summary/analysis/v0-dependency-upgrade-checklist.md](.agent/summary/analysis/v0-dependency-upgrade-checklist.md)
+  - [.agent/summary/analysis/v1-upgrade-roadmap.md](.agent/summary/analysis/v1-upgrade-roadmap.md)
+  - [.agent/summary/analysis/dependency-outdated-analysis.md](.agent/summary/analysis/dependency-outdated-analysis.md)
 
 V0 priority (requested)
 - [ ] Zod 4 + latest zod-openapi 4.x (regenerate schemas + tests)

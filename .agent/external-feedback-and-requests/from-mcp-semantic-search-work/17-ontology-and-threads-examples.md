@@ -58,4 +58,4 @@ These examples focus on the proposed `/ontology` endpoint and enriched thread me
 }
 ```
 
-**Related maths-specific enhancements:** `21-maths-education-enhancements.md` items 2 and 5 (lesson-level thread tags and representation tags).
+**Related maths-specific enhancements:** [21-maths-education-enhancements.md](21-maths-education-enhancements.md) items 2 and 5 (lesson-level thread tags and representation tags).

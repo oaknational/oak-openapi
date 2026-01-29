@@ -1,7 +1,7 @@
 # Architecture Decision Records index
 
 These ADRs document the current architecture and were created retroactively from existing code and documentation.
-Use `docs/architecture/decision-records/template.md` for new ADRs to keep structure consistent.
+Use [docs/architecture/decision-records/template.md](docs/architecture/decision-records/template.md) for new ADRs to keep structure consistent.
 
 - 0001: Adopt Next.js App Router for UI and API routes
 - 0002: Use tRPC with OpenAPI metadata for the public API

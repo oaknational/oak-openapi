@@ -48,7 +48,7 @@ Update docs content
 ```
 
 Related docs
-- `docs/architecture/system-boundaries.md`
-- `docs/architecture/openapi-generation.md`
-- `docs/engineering/working-on-repo.md`
-- `docs/architecture/decision-records/README.md`
+- [docs/architecture/system-boundaries.md](docs/architecture/system-boundaries.md)
+- [docs/architecture/openapi-generation.md](docs/architecture/openapi-generation.md)
+- [docs/engineering/working-on-repo.md](docs/engineering/working-on-repo.md)
+- [docs/architecture/decision-records/README.md](docs/architecture/decision-records/README.md)

@@ -54,8 +54,8 @@ V0/V1 alignment
 - V1: centralize gating policy with explicit precedence and versioned config.
 
 Related ADRs
-- `docs/architecture/decision-records/0012-content-gating-allowlists.md`
+- [docs/architecture/decision-records/0012-content-gating-allowlists.md](docs/architecture/decision-records/0012-content-gating-allowlists.md)
 
 Related docs
-- `docs/architecture/runtime-architecture.md`
-- `docs/architecture/data-sources.md`
+- [docs/architecture/runtime-architecture.md](docs/architecture/runtime-architecture.md)
+- [docs/architecture/data-sources.md](docs/architecture/data-sources.md)
