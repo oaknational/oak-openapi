@@ -2,7 +2,7 @@
 
 Version framing
 - The public API is v0 (public alpha moving toward public beta); prioritize V0 critical fixes first.
-- V1 improvements are deeper refinements after v0 stability goals; see `.agent/summary/analysis/versioned-improvements.md` for the split.
+- V1 improvements are deeper refinements after v0 stability goals; see [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md) for the split.
 
 Tests
 - Vitest is used for unit/integration tests (`__tests__/*`).
@@ -22,4 +22,4 @@ Linting and formatting
 - ESLint via `next lint .` and Prettier with single quotes.
 
 Dependency maintenance
-- Prefer a two-track upgrade plan: v0 for patch/minor updates and v1 for major upgrades; see `.agent/summary/analysis/dependency-outdated-analysis.md`.
+- Prefer a two-track upgrade plan: v0 for patch/minor updates and v1 for major upgrades; see [.agent/summary/analysis/dependency-outdated-analysis.md](.agent/summary/analysis/dependency-outdated-analysis.md).

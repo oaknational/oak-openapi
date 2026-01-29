@@ -32,7 +32,7 @@ Adding or changing an endpoint
 5) Update docs or examples if behavior changed.
 
 Docs changes
-- API docs and OpenAPI: `docs/api/*` and `docs/architecture/openapi-generation.md`.
+- API docs and OpenAPI: `docs/api/*` and [docs/architecture/openapi-generation.md](docs/architecture/openapi-generation.md).
 - Architecture docs: `docs/architecture/*`.
 - Engineering docs: `docs/engineering/*`.
 - CMS content: `src/cms/*` and `src/app/(pages)/docs/*`.
@@ -41,6 +41,6 @@ Commit conventions
 - Commit messages should be Conventional Commits when commitlint is enforced.
 
 Related docs
-- `docs/engineering/safe-change-checklist.md`
-- `docs/engineering/first-contribution.md`
-- `docs/architecture/architecture-map.md`
+- [docs/engineering/safe-change-checklist.md](docs/engineering/safe-change-checklist.md)
+- [docs/engineering/first-contribution.md](docs/engineering/first-contribution.md)
+- [docs/architecture/architecture-map.md](docs/architecture/architecture-map.md)
