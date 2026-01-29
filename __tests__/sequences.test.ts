@@ -130,50 +130,44 @@ test('sequence with unit optionality', async () => {
   expect(optional.unitOptions.length).toBe(2);
 });
 
-test('cannot access RSHE sequence contents', async () => {
+test('can access RSHE sequence contents', async () => {
   const { caller } = authedCaller();
 
   await expect(
-    async () =>
-      await caller.getSequences.getSequenceUnits({
-        sequence: 'rshe-pshe-primary',
-      }),
-  ).rejects.toThrowError();
+    caller.getSequences.getSequenceUnits({
+      sequence: 'rshe-pshe-primary',
+    }),
+  ).resolves.not.toThrowError();
 
   await expect(
-    async () =>
-      await caller.getSequences.getSequenceUnits({
-        sequence: 'rshe-pshe-secondary',
-      }),
-  ).rejects.toThrowError();
+    caller.getSequences.getSequenceUnits({
+      sequence: 'rshe-pshe-secondary',
+    }),
+  ).resolves.not.toThrowError();
 
   await expect(
-    async () =>
-      await caller.getAssets.getSequenceAssets({
-        sequence: 'rshe-pshe-primary',
-      }),
-  ).rejects.toThrowError();
+    caller.getAssets.getSequenceAssets({
+      sequence: 'rshe-pshe-primary',
+    }),
+  ).resolves.not.toThrowError();
 
   await expect(
-    async () =>
-      await caller.getAssets.getSequenceAssets({
-        sequence: 'rshe-pshe-secondary',
-      }),
-  ).rejects.toThrowError();
+    caller.getAssets.getSequenceAssets({
+      sequence: 'rshe-pshe-secondary',
+    }),
+  ).resolves.not.toThrowError();
 
   await expect(
-    async () =>
-      await caller.getQuestions.getQuestionsForSequence({
-        sequence: 'rshe-pshe-primary',
-      }),
-  ).rejects.toThrowError();
+    caller.getQuestions.getQuestionsForSequence({
+      sequence: 'rshe-pshe-primary',
+    }),
+  ).resolves.not.toThrowError();
 
   await expect(
-    async () =>
-      await caller.getQuestions.getQuestionsForSequence({
-        sequence: 'rshe-pshe-secondary',
-      }),
-  ).rejects.toThrowError();
+    caller.getQuestions.getQuestionsForSequence({
+      sequence: 'rshe-pshe-secondary',
+    }),
+  ).resolves.not.toThrowError();
 });
 
 test('new structure', async () => {
