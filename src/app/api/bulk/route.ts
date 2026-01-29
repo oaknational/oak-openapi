@@ -15,10 +15,9 @@ const storage = getGoogleCloudStorage();
 
 const handler = async (req: NextRequest): Promise<Response> => {
   // 1. get the user
-  console.log('[bulk] Handler started');
 
   const user = await withUser(req);
-  console.log('[bulk] User retrieved:', user?.id);
+
   const ctx = {
     user,
     resHeaders: req.headers,
@@ -26,7 +25,7 @@ const handler = async (req: NextRequest): Promise<Response> => {
   } as unknown as Context;
 
   // manually check the protect
-  console.log('[bulk] Checking protect...');
+
   await new Promise<void>((resolve, reject) => {
     protect({
       ctx,
@@ -34,40 +33,33 @@ const handler = async (req: NextRequest): Promise<Response> => {
       meta: { noCost: false },
     }).catch(reject);
   });
-  console.log('[bulk] Protect check passed');
 
   const body = (await req.json()) as { subjects?: string[] };
   const subjects = body.subjects || [];
-  console.log('[bulk] Subjects requested:', subjects);
+
   const allFiles: File[] = [];
 
   for (const subject of subjects) {
-    console.log(`[bulk] Fetching files for subject: ${subject}`);
     const [files] = await storage
       .bucket(bucketName)
       .getFiles({ prefix: `${subject}/${subject}.json`, delimiter: '/' });
 
-    console.log(`[bulk] Found ${files?.length || 0} files for ${subject}`);
     if (files && files.length > 0) {
       allFiles.push(...files);
     }
   }
 
-  console.log('[bulk] Total files to archive:', allFiles.length);
   const zipFile = new yazl.ZipFile();
 
   for (const file of allFiles) {
-    console.log(`[bulk] Adding file to archive: ${file.name}`);
     zipFile.addReadStream(
       file.createReadStream(),
       file.name.split('/').pop() || file.name,
     );
   }
 
-  console.log('[bulk] Finalizing archive...');
   zipFile.end();
   const zipStream = zipFile.outputStream;
-  console.log('[bulk] Archive finalized, returning response');
 
   return new Response(zipStream as unknown as BodyInit, {
     headers: {
