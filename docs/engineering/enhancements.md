@@ -58,5 +58,5 @@ Future guardrails (planned, not yet enforced)
 - Prefer in-place refactors over compatibility layers or parallel versions.
 
 Related docs
-- `docs/engineering/v0-v1-improvements.md`
-- `docs/engineering/dependency-upgrades.md`
+- [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md)
+- [docs/engineering/dependency-upgrades.md](docs/engineering/dependency-upgrades.md)

@@ -2,15 +2,15 @@
 
 Version framing
 - The public API is v0 (public alpha moving toward public beta); prioritize V0 critical fixes first.
-- V1 improvements are deeper refinements after v0 stability goals; see `.agent/summary/analysis/versioned-improvements.md` for the split.
+- V1 improvements are deeper refinements after v0 stability goals; see [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md) for the split.
 
 Purpose
 - Provide small, low‑risk upgrade batches for v0 stability, with clear checkpoints and cross‑references.
 
 Cross-references
-- Full list and grouping: `.agent/summary/analysis/dependency-outdated-analysis.md`.
-- V0/V1 split: `.agent/summary/analysis/versioned-improvements.md`.
-- V1 planning: `.agent/summary/analysis/v1-upgrade-roadmap.md`.
+- Full list and grouping: [.agent/summary/analysis/dependency-outdated-analysis.md](.agent/summary/analysis/dependency-outdated-analysis.md).
+- V0/V1 split: [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md).
+- V1 planning: [.agent/summary/analysis/v1-upgrade-roadmap.md](.agent/summary/analysis/v1-upgrade-roadmap.md).
 
 Batch 0 (priority): Zod 4 + zod-openapi 4.x
 - Goal: deliver the requested Zod 4 upgrade while staying on the latest zod-openapi 4.x.
@@ -46,7 +46,7 @@ Execution checklist (for each batch)
 - Update dependencies in `package.json`/lockfile.
 - Run `pnpm lint` and `pnpm test`.
 - Run a quick smoke test (start dev server, hit `/api/v0/subjects`, `/api/v0/swagger.json`).
-- Note any changes in `.agent/summary/analysis/dependency-outdated-analysis.md`.
+- Note any changes in [.agent/summary/analysis/dependency-outdated-analysis.md](.agent/summary/analysis/dependency-outdated-analysis.md).
 
 Notes
 - Keep batches small to make rollbacks easy if a regression appears.

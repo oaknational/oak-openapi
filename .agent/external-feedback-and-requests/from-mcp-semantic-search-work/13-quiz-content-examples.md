@@ -27,4 +27,4 @@ GET /api/v0/lessons/some-lesson/questions
 }
 ```
 
-**Related maths-specific enhancements:** `21-maths-education-enhancements.md` items 3 and 4 (structured maths answers and image-based quiz items).
+**Related maths-specific enhancements:** [21-maths-education-enhancements.md](21-maths-education-enhancements.md) items 3 and 4 (structured maths answers and image-based quiz items).

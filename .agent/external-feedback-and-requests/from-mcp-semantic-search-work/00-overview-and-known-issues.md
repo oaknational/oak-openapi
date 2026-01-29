@@ -9,7 +9,7 @@
 - Does OpenAPI 3.0 support `examples` at the path level, rather than just at the parameter level?
 - Can we update the OpenAPI spec to OpenAPI 3.1? Does GCP support this?
 - Can we make sure that the API uses Zod 4?
-- Can we make sure that the API ships the Zod schemas as code snippets, in addition to JSON Schema? (See `09-schemas-endpoint-rfc.md`.)
+- Can we make sure that the API ships the Zod schemas as code snippets, in addition to JSON Schema? (See [09-schemas-endpoint-rfc.md](09-schemas-endpoint-rfc.md).)
 - Can we enhance the metadata of the API to make it more useful for AI agents?
 - Can we improve data integrity at the API level?
 
@@ -25,7 +25,7 @@
 **Impact**: Consumers cannot scope assets to a year; results require client-side filtering and contradict the documented parameter.  
 **User impact**: SDK/MCP engineers and API consumers get mis-scoped asset sets; teachers see irrelevant resources in year-specific workflows.  
 **Requested fix**: Apply the year filter in the query or remove the parameter until supported.  
-**Examples**: See `11-assets-and-transcripts-examples.md`.
+**Examples**: See [11-assets-and-transcripts-examples.md](11-assets-and-transcripts-examples.md).
 
 ### 2. Subject gating is not documented (blocked subjects and allowlists)
 
@@ -39,7 +39,7 @@
 **User impact**: API consumers and SDK/MCP engineers cannot anticipate availability; teachers and curriculum leaders see inconsistent access.
 
 **Requested fix**: Document availability rules in OpenAPI and return explicit reason codes (or provide a discovery endpoint or availability flags).  
-**Examples**: See `10-availability-and-gating-examples.md`.
+**Examples**: See [10-availability-and-gating-examples.md](10-availability-and-gating-examples.md).
 
 ### 3. `/search/lessons` excludes `financial-education`
 
@@ -47,7 +47,7 @@
 **Impact**: Search results are incomplete relative to other endpoints.  
 **User impact**: Teachers and learners miss relevant lessons; API consumers cannot rely on search completeness.  
 **Requested fix**: Document this constraint or add an explicit flag/parameter and reason code.  
-**Examples**: See `12-search-and-enums-examples.md`.
+**Examples**: See [12-search-and-enums-examples.md](12-search-and-enums-examples.md).
 
 ### 4. Questions endpoints silently drop image-based questions for unsupported content
 
@@ -55,7 +55,7 @@
 **Impact**: Consumers receive incomplete quizzes without any indication of omitted items.  
 **User impact**: Teachers and students may miss key questions; SDK/MCP engineers cannot report omissions reliably.  
 **Requested fix**: Add response metadata (`imagesAllowed`, `questionsOmitted`, or `omittedReason`) or expose licence/availability flags.  
-**Examples**: See `13-quiz-content-examples.md`.
+**Examples**: See [13-quiz-content-examples.md](13-quiz-content-examples.md).
 
 ### 5. Key stage and subject enums come from a static, pre-filtered list
 
@@ -63,13 +63,13 @@
 **Impact**: Valid subjects/key stages may be missing from enum lists or lag the underlying data.  
 **User impact**: API consumers face rejected requests; SDK/MCP engineers cannot target newly available content.  
 **Requested fix**: Generate these lists from live data or document that the enums represent currently supported (non-legacy) content only.  
-**Examples**: See `12-search-and-enums-examples.md`.
+**Examples**: See [12-search-and-enums-examples.md](12-search-and-enums-examples.md).
 
 ---
 
 ## PATTERN ANALYSIS: Data Completeness Issues (2025-12-29, Updated)
 
-**Examples**: See `14-listing-and-pagination-examples.md` and `15-bulk-download-examples.md`.
+**Examples**: See [14-listing-and-pagination-examples.md](14-listing-and-pagination-examples.md) and [15-bulk-download-examples.md](15-bulk-download-examples.md).
 
 ### Issue Classification
 
@@ -142,7 +142,7 @@ See individual issues below for endpoint-specific details.
 
 ## Binary Response Schema Fix (2025-12-16)
 
-**Examples**: See `11-assets-and-transcripts-examples.md`.
+**Examples**: See [11-assets-and-transcripts-examples.md](11-assets-and-transcripts-examples.md).
 
 **Status**: 🔴 HIGH PRIORITY — Causes `z.unknown()` in generated SDK  
 **Endpoint**: `/api/v0/lessons/{lessonSlug}/assets/{assetSlug}`  
@@ -211,7 +211,7 @@ We currently accept `z.unknown()` for this endpoint because:
 
 ## Legitimate `z.unknown()` Exceptions Registry (2025-12-16)
 
-**Examples**: See `20-validation-and-schema-examples.md`.
+**Examples**: See [20-validation-and-schema-examples.md](20-validation-and-schema-examples.md).
 
 **Context**: Our strictness requirements mandate that all Zod schemas be explicit. However, some `z.unknown()` usages are **legitimate** due to genuinely dynamic data. This registry documents those exceptions.
 
@@ -251,7 +251,7 @@ const AggregationsSchema = z.record(z.string(), z.unknown()).default({});
 
 ## Unit Summary `unitLessons` Truncation (2025-12-20)
 
-**Examples**: See `14-listing-and-pagination-examples.md`.
+**Examples**: See [14-listing-and-pagination-examples.md](14-listing-and-pagination-examples.md).
 
 **Status**: 🔴 HIGH PRIORITY — OpenAPI schema claims "All" but returns truncated data  
 **Endpoint**: `/api/v0/units/{unitSlug}/summary`  
@@ -343,7 +343,7 @@ Refactor ingestion to use the paginated lessons endpoint (`/key-stages/{ks}/subj
 
 ## Lessons Endpoint Pagination Bug (2025-12-22)
 
-**Examples**: See `14-listing-and-pagination-examples.md`.
+**Examples**: See [14-listing-and-pagination-examples.md](14-listing-and-pagination-examples.md).
 
 **Status**: 🔴 CRITICAL — Unfiltered pagination returns incomplete data  
 **Endpoint**: `/api/v0/key-stages/{keyStage}/subject/{subject}/lessons`  
@@ -432,7 +432,7 @@ This workaround:
 
 ## Bulk Download Data Integrity Issues (2025-12-19)
 
-**Examples**: See `15-bulk-download-examples.md`.
+**Examples**: See [15-bulk-download-examples.md](15-bulk-download-examples.md).
 
 **Context**: Analysis of the bulk download data (`/bulk-download` endpoint) revealed inconsistencies that affect downstream filtering and search capabilities.
 
@@ -778,7 +778,7 @@ Enhance the ingestion pipeline to detect subjects with `examSubjects` at KS4 and
 
 ## Subject Assets Endpoint: TPC License Filtering (2025-12-29)
 
-**Examples**: See `10-availability-and-gating-examples.md`.
+**Examples**: See [10-availability-and-gating-examples.md](10-availability-and-gating-examples.md).
 
 **Status**: 🟡 CLARIFIED — Not a bug; intentional Third Party Content license filtering  
 **Endpoint**: `/api/v0/key-stages/{keyStage}/subject/{subject}/assets`  
@@ -856,7 +856,7 @@ The TPC filtering is correct behavior, but should be documented in the OpenAPI s
 
 ### Future Mitigation
 
-See Item 13 in `05-medium-priority-requests.md`: Add `hasVideo`/`hasTranscript` boolean flags directly to lesson list responses. This would eliminate the need to use the assets endpoint for video availability detection.
+See Item 13 in [05-medium-priority-requests.md](05-medium-priority-requests.md): Add `hasVideo`/`hasTranscript` boolean flags directly to lesson list responses. This would eliminate the need to use the assets endpoint for video availability detection.
 
 ---
 
@@ -908,7 +908,7 @@ HTTP 404 Not Found
 
 ## Empty Transcript Responses (2025-12-30)
 
-**Examples**: See `11-assets-and-transcripts-examples.md`.
+**Examples**: See [11-assets-and-transcripts-examples.md](11-assets-and-transcripts-examples.md).
 
 **Status**: 🟡 KNOWN ISSUE — API returns 200 with empty string instead of 404  
 **Endpoint**: `/api/v0/lessons/{lesson}/transcript`  
@@ -975,7 +975,7 @@ HTTP 404 Not Found
 }
 ```
 
-See Item 15 in `05-medium-priority-requests.md` for full enhancement request.
+See Item 15 in [05-medium-priority-requests.md](05-medium-priority-requests.md) for full enhancement request.
 
 ### Related Documentation
 
@@ -1152,7 +1152,7 @@ Add a dedicated documentation page (e.g., `https://open-api.thenational.academy/
                         type: boolean         # EXISTING (currently on some responses)
 ```
 
-**See also**: Item 13 in `05-medium-priority-requests.md` (boolean resource flags)
+**See also**: Item 13 in [05-medium-priority-requests.md](05-medium-priority-requests.md) (boolean resource flags)
 
 ---
 
