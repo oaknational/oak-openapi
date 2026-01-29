@@ -516,4 +516,4 @@ components:
 
 Effort estimates are very approximate and for orientation only. Every task needs proper sizing by the person doing the work.
 
-**Related wishlist sections:** `05-medium-priority-requests.md` (thread enhancements), `11-assets-and-transcripts-examples.md` (transcript availability), `12-search-and-enums-examples.md` (search constraints), `13-quiz-content-examples.md` (quiz omissions), `17-ontology-and-threads-examples.md` (thread metadata).
+**Related wishlist sections:** [05-medium-priority-requests.md](05-medium-priority-requests.md) (thread enhancements), [11-assets-and-transcripts-examples.md](11-assets-and-transcripts-examples.md) (transcript availability), [12-search-and-enums-examples.md](12-search-and-enums-examples.md) (search constraints), [13-quiz-content-examples.md](13-quiz-content-examples.md) (quiz omissions), [17-ontology-and-threads-examples.md](17-ontology-and-threads-examples.md) (thread metadata).

@@ -59,4 +59,4 @@ GET /api/v0/lessons/some-lesson/transcript
 }
 ```
 
-**Related maths-specific enhancements:** `21-maths-education-enhancements.md` items 6 and 7 (transcript segments and maths-aware transcript search).
+**Related maths-specific enhancements:** [21-maths-education-enhancements.md](21-maths-education-enhancements.md) items 6 and 7 (transcript segments and maths-aware transcript search).

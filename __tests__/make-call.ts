@@ -25,7 +25,7 @@ export function makeResHeaders() {
   } as unknown as Headers;
 }
 
-export function makeCaller(opts = {}) {
+export function makeCaller(opts = {}, rateLimit = false) {
   const createCaller = createCallerFactory(router);
   const headers = makeResHeaders();
 
@@ -42,7 +42,8 @@ export function makeCaller(opts = {}) {
   if (typeof callerOptions.user === 'number') {
     callerOptions.user = {
       id: callerOptions.user,
-      key: `test-key-${callerOptions.user}`,
+      key: `test-key-${callerOptions.user as string}`,
+      rateLimit: rateLimit ? 1000 : 0,
     } as User;
   }
 

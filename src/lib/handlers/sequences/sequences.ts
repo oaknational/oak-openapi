@@ -1,5 +1,5 @@
 import { protectedProcedure } from '@/lib/protect';
-import { router } from '@/lib/trpc';
+import { HTTPStatusError, router } from '@/lib/trpc';
 import type { Sequence, SequenceView } from '@/lib/owaClient';
 import {
   getClient,
@@ -10,7 +10,6 @@ import {
 import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
 import { examBoards } from '../../oakConsts';
 import { blockedSequenceSubjects } from '../../blockedContent';
-import { TRPCError } from '@trpc/server';
 import type {
   Category,
   ExamSubjectsWithoutTiers,
@@ -143,9 +142,10 @@ export const getSequences = router({
       const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
 
       if (blockedSequenceSubjects.includes(subjectSlug)) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
+        throw new HTTPStatusError({
           message: `The subject "${subjectSlug}" is not currently available`,
+          code: 'NOT_FOUND',
+          statusCode: 451,
         });
       }
 
@@ -160,7 +160,6 @@ export const getSequences = router({
           title
           threads
           slug
-          domain
           examboard_slug
           keystage_slug
           order
