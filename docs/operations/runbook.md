@@ -24,5 +24,5 @@ Bulk pipeline operations (TODO)
 - TODO: where to check bulk job logs and outputs.
 
 Related docs
-- `docs/operations/environments.md`
-- `infrastructure/bulk-upload/README.md`
+- [docs/operations/environments.md](docs/operations/environments.md)
+- [infrastructure/bulk-upload/README.md](infrastructure/bulk-upload/README.md)

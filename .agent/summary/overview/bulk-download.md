@@ -2,10 +2,10 @@
 
 Version framing
 - The public API is v0 (public alpha moving toward public beta); prioritize V0 critical fixes first.
-- V1 improvements are deeper refinements after v0 stability goals; see `.agent/summary/analysis/versioned-improvements.md` for the split.
+- V1 improvements are deeper refinements after v0 stability goals; see [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md) for the split.
 
 Bulk data generation (script)
-- Main script: `bin/prepare-bulk.ts` (see `README_BULK_DOWNLOAD.md`).
+- Main script: `bin/prepare-bulk.ts` (see [README_BULK_DOWNLOAD.md](README_BULK_DOWNLOAD.md)).
 - Produces `out/{sequence-slug}/` with `{sequence-slug}.json` plus optional tar archives for videos, worksheets, slide decks, quizzes, and resources.
 - Uses OWA GraphQL/SQL for sequence, unit, and lesson data; writes `lessons.jsonl` during processing.
 - Optional asset processing is gated by `INCLUDE_ASSETS=true` and uses subject/unit gating from `src/lib/queryGate.ts`.

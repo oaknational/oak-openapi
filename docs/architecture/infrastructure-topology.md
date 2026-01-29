@@ -45,7 +45,7 @@ V0/V1 alignment
 - V1: add explicit reliability targets (timeouts, retries, and SLO notes).
 
 Related docs
-- `docs/architecture/system-boundaries.md`
-- `docs/architecture/data-sources.md`
-- `infrastructure/README.md`
-- `infrastructure/bulk-upload/README.md`
+- [docs/architecture/system-boundaries.md](docs/architecture/system-boundaries.md)
+- [docs/architecture/data-sources.md](docs/architecture/data-sources.md)
+- [infrastructure/README.md](infrastructure/README.md)
+- [infrastructure/bulk-upload/README.md](infrastructure/bulk-upload/README.md)

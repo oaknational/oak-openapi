@@ -12,4 +12,4 @@ Checklist
 - API examples updated if output shape changed.
 
 Related docs
-- `docs/engineering/working-on-repo.md`
+- [docs/engineering/working-on-repo.md](docs/engineering/working-on-repo.md)

@@ -9,7 +9,7 @@ Version framing
 
 Option A: Documentation-only change (recommended)
 1) Pick a small doc update (typo fix, clarification, or adding an example).
-2) Make the change in `docs/` or `README.md`.
+2) Make the change in `docs/` or [README.md](README.md).
 3) Run a quick format check: `pnpm format:check`.
 4) Open a PR with a short summary and a screenshot if UI docs changed.
 
@@ -25,5 +25,5 @@ Definition of done
 - Docs updated if behavior changed.
 
 Related docs
-- `docs/engineering/safe-change-checklist.md`
-- `docs/engineering/working-on-repo.md`
+- [docs/engineering/safe-change-checklist.md](docs/engineering/safe-change-checklist.md)
+- [docs/engineering/working-on-repo.md](docs/engineering/working-on-repo.md)

@@ -2,7 +2,7 @@
 
 Version framing
 - The public API is v0 (public alpha moving toward public beta); prioritize V0 critical fixes first.
-- V1 improvements are deeper refinements after v0 stability goals; see `.agent/summary/analysis/versioned-improvements.md` for the split.
+- V1 improvements are deeper refinements after v0 stability goals; see [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md) for the split.
 
 Use this list to run systematic deep dives and produce consistent reports.
 
@@ -14,7 +14,7 @@ Use this list to run systematic deep dives and produce consistent reports.
 - Confirm configuration and env dependencies.
 - Check test coverage and note gaps.
 - Produce findings split into: high-impact gaps vs optional enhancements.
-- Write a report file and update `.agent/summary/analysis/gap-analysis.md` and `.agent/summary/analysis/enhancements.md` if needed.
+- Write a report file and update [.agent/summary/analysis/gap-analysis.md](.agent/summary/analysis/gap-analysis.md) and [.agent/summary/analysis/enhancements.md](.agent/summary/analysis/enhancements.md) if needed.
 
 Report template
 - Summary of scope and goals.
@@ -36,7 +36,7 @@ Todos
 - Identify any route methods that should be restricted or are inconsistent.
 
 Deliverable
-- `.agent/summary/deep-dives/deep-dive-api-lifecycle.md`
+- [.agent/summary/deep-dives/deep-dive-api-lifecycle.md](.agent/summary/deep-dives/deep-dive-api-lifecycle.md)
 
 ---
 
@@ -50,7 +50,7 @@ Todos
 - Validate docs rendering flow in `src/app/(pages)/docs/*` and `src/components/documentationPages/*`.
 
 Deliverable
-- `.agent/summary/deep-dives/deep-dive-openapi-docs.md`
+- [.agent/summary/deep-dives/deep-dive-openapi-docs.md](.agent/summary/deep-dives/deep-dive-openapi-docs.md)
 
 ---
 
@@ -64,7 +64,7 @@ Todos
 - Confirm error handling and schema validation around external calls.
 
 Deliverable
-- `.agent/summary/deep-dives/deep-dive-data-access.md`
+- [.agent/summary/deep-dives/deep-dive-data-access.md](.agent/summary/deep-dives/deep-dive-data-access.md)
 
 ---
 
@@ -78,7 +78,7 @@ Todos
 - Propose a centralized policy layer if fragmentation is high.
 
 Deliverable
-- `.agent/summary/deep-dives/deep-dive-gating.md`
+- [.agent/summary/deep-dives/deep-dive-gating.md](.agent/summary/deep-dives/deep-dive-gating.md)
 
 ---
 
@@ -92,7 +92,7 @@ Todos
 - Confirm storage bucket selection and upload behaviors across stages.
 
 Deliverable
-- `.agent/summary/deep-dives/deep-dive-bulk-download.md`
+- [.agent/summary/deep-dives/deep-dive-bulk-download.md](.agent/summary/deep-dives/deep-dive-bulk-download.md)
 
 ---
 
@@ -105,4 +105,4 @@ Todos
 - Review subject/sequence slug parsing and error patterns for consistency.
 
 Deliverable
-- `.agent/summary/deep-dives/deep-dive-pagination-consistency.md`
+- [.agent/summary/deep-dives/deep-dive-pagination-consistency.md](.agent/summary/deep-dives/deep-dive-pagination-consistency.md)

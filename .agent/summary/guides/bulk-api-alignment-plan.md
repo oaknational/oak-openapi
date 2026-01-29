@@ -2,7 +2,7 @@
 
 Version framing
 - The public API is v0 (public alpha moving toward public beta); prioritize V0 critical fixes first.
-- V1 improvements are deeper refinements after v0 stability goals; see `.agent/summary/analysis/versioned-improvements.md` for the split.
+- V1 improvements are deeper refinements after v0 stability goals; see [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md) for the split.
 
 Goal
 - Reduce surprises for integrators by aligning bulk exports and API responses, while preserving flexibility for offline use cases.
@@ -48,5 +48,5 @@ Success criteria
 - Bulk output structure remains stable or versioned when changes occur.
 
 External evidence
-- Bulk integrity examples live in `.agent/external-feedback-and-requests/from-mcp-semantic-search-work/15-bulk-download-examples.md`.
-- External summary tables are in `.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md`.
+- Bulk integrity examples live in [.agent/external-feedback-and-requests/from-mcp-semantic-search-work/15-bulk-download-examples.md](.agent/external-feedback-and-requests/from-mcp-semantic-search-work/15-bulk-download-examples.md).
+- External summary tables are in [.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md](.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md).

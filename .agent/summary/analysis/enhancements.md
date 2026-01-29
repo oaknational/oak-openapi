@@ -2,7 +2,7 @@
 
 Version framing
 - The public API is v0 (public alpha moving toward public beta); prioritize V0 critical fixes first.
-- V1 improvements are deeper refinements after v0 stability goals; see `.agent/summary/analysis/versioned-improvements.md` for the split.
+- V1 improvements are deeper refinements after v0 stability goals; see [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md) for the split.
 
 These are lower-urgency improvements that can increase maintainability, UX, or observability.
 
@@ -39,5 +39,5 @@ These are lower-urgency improvements that can increase maintainability, UX, or o
 ## Tooling and developer experience
 - Add a "smoke test" script that calls a few endpoints with a test key and validates status codes.
 - Align README dependency versions with `package.json` to avoid confusion for new contributors.
-- Plan dependency upgrades in two tracks (v0 patch/minor and v1 majors) to reduce release risk; see `.agent/summary/analysis/dependency-outdated-analysis.md`.
-- Treat Babel replacement and lodash reduction as lower‑priority modernization tasks; see `.agent/summary/analysis/v1-upgrade-roadmap.md`.
+- Plan dependency upgrades in two tracks (v0 patch/minor and v1 majors) to reduce release risk; see [.agent/summary/analysis/dependency-outdated-analysis.md](.agent/summary/analysis/dependency-outdated-analysis.md).
+- Treat Babel replacement and lodash reduction as lower‑priority modernization tasks; see [.agent/summary/analysis/v1-upgrade-roadmap.md](.agent/summary/analysis/v1-upgrade-roadmap.md).
