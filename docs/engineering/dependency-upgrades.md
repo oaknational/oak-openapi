@@ -75,7 +75,6 @@ Tooling and test ecosystem
 - @types/node 20.19.10 -> 25.0.3
 - @types/react 18.3.23 -> 19.2.7
 - @types/react-dom 18.3.7 -> 19.2.3
-- @types/archiver 6.0.3 -> 7.0.0
 - @types/swagger-ui-react 4.19.0 -> 5.18.0
 - @types/uuid 10.0.0 -> 11.0.0
 - vitest 1.6.1 -> 4.0.16
