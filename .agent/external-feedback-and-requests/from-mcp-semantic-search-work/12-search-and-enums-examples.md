@@ -32,4 +32,4 @@ Several request schemas use enums derived from a static JSON list of supported s
 - Generate enums from live data, or
 - Document that enums represent currently supported (non-legacy) content only.
 
-**Related maths-specific enhancements:** `21-maths-education-enhancements.md` item 7 (transcript search filters and richer context).
+**Related maths-specific enhancements:** [21-maths-education-enhancements.md](21-maths-education-enhancements.md) item 7 (transcript search filters and richer context).

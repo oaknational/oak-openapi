@@ -7,7 +7,7 @@ vi.mock(
     const actual = await importOriginal();
     return {
       ...actual,
-      getVideoFromMux: vi.fn().mockImplementation(async (streamUrl: string) => {
+      getVideoFromMux: vi.fn().mockImplementation((streamUrl: string) => {
         return streamUrl.replace('.mp4', '.m3u8');
       }),
     };

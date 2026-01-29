@@ -1,6 +1,6 @@
 import groupBy from 'object.groupby';
 import { protectedProcedure } from '@/lib/protect';
-import { router } from '@/lib/trpc';
+import { HTTPStatusError, router } from '@/lib/trpc';
 import { TRPCError } from '@trpc/server';
 import {
   getClient,
@@ -58,10 +58,11 @@ export const getLessons = router({
           timing.toHeader(resHeaders as Headers).toString(),
         );
 
-        throw new TRPCError({
+        throw new HTTPStatusError({
           message:
             'Lesson not available for this query (blocked for copyright text)',
           code: 'NOT_FOUND',
+          statusCode: 451,
         });
       }
 

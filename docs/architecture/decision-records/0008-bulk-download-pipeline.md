@@ -39,4 +39,4 @@ References
 - `bin/prepare-bulk.ts`
 - `src/lib/bulk-data/*`
 - `bin/bulk-download-videos.sh`
-- `README_BULK_DOWNLOAD.md`
+- [README_BULK_DOWNLOAD.md](README_BULK_DOWNLOAD.md)

@@ -15,6 +15,7 @@ import codes from 'http-codes';
 import { assetsForLesson } from '@/lib/handlers/assets/assets';
 import placeholderVideoLessons from '@/lib/queryGateData/placeholderVideoLessons.json' with { type: 'json' };
 import { getGoogleCloudStorage } from '@/lib/bulk-data/data-stores';
+import { HTTPStatusError } from '@/lib/trpc';
 
 export const dynamic = 'force-dynamic';
 
@@ -184,6 +185,13 @@ async function handlerWrapper(
           headers: { 'Content-Type': 'application/json' },
         });
       }
+    }
+
+    if (e instanceof HTTPStatusError) {
+      return new NextResponse(JSON.stringify({ message, code }), {
+        status: e.statusCode,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     const statusCode =

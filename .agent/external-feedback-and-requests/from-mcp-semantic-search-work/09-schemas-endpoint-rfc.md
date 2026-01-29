@@ -4,7 +4,7 @@
 
 Provide a schema bundle endpoint that exposes the API's internal Zod validators (and related metadata) so downstream tooling can reuse the exact runtime validation logic at type-generation time. This avoids OpenAPI -> Zod round-trips, enables optional validation in generated tooling (including MCP tools), and keeps the API as the source of truth.
 
-This RFC expands item 12 in `05-medium-priority-requests.md`.
+This RFC expands item 12 in [05-medium-priority-requests.md](05-medium-priority-requests.md).
 
 ## Goals
 
