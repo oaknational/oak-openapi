@@ -72,8 +72,8 @@ V1 candidates
 - OpenAPI metadata upgrades (summaries, examples, behaviour tags, canonical URLs, timestamps).
 
 Related docs
-- `docs/engineering/gap-analysis.md`
-- `docs/engineering/enhancements.md`
-- `docs/engineering/dependency-upgrades.md`
-- `.agent/summary/analysis/internal-external-crosswalk.md`
-- `.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md`
+- [docs/engineering/gap-analysis.md](docs/engineering/gap-analysis.md)
+- [docs/engineering/enhancements.md](docs/engineering/enhancements.md)
+- [docs/engineering/dependency-upgrades.md](docs/engineering/dependency-upgrades.md)
+- [.agent/summary/analysis/internal-external-crosswalk.md](.agent/summary/analysis/internal-external-crosswalk.md)
+- [.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md](.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md)

@@ -60,9 +60,9 @@ V0/V1 alignment
 - V1: consider generating a static OpenAPI artifact at build time.
 
 Related ADRs
-- `docs/architecture/decision-records/0002-trpc-openapi.md`
-- `docs/architecture/decision-records/0003-zod-openapi-generation.md`
+- [docs/architecture/decision-records/0002-trpc-openapi.md](docs/architecture/decision-records/0002-trpc-openapi.md)
+- [docs/architecture/decision-records/0003-zod-openapi-generation.md](docs/architecture/decision-records/0003-zod-openapi-generation.md)
 
 Related docs
-- `docs/architecture/runtime-architecture.md`
-- `docs/architecture/overview.md`
+- [docs/architecture/runtime-architecture.md](docs/architecture/runtime-architecture.md)
+- [docs/architecture/overview.md](docs/architecture/overview.md)

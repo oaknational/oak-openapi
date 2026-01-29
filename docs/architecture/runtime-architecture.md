@@ -80,6 +80,6 @@ V0/V1 alignment
 - V1: introduce a shared wrapper for custom routes and structured request logging.
 
 Related docs
-- `docs/architecture/openapi-generation.md`
-- `docs/architecture/content-gating.md`
-- `docs/architecture/bulk-download.md`
+- [docs/architecture/openapi-generation.md](docs/architecture/openapi-generation.md)
+- [docs/architecture/content-gating.md](docs/architecture/content-gating.md)
+- [docs/architecture/bulk-download.md](docs/architecture/bulk-download.md)

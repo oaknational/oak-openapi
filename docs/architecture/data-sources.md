@@ -51,12 +51,12 @@ V0/V1 alignment
 - V1: consolidate SQL helpers, add retries, and expand output validation.
 
 Related ADRs
-- `docs/architecture/decision-records/0004-hasura-graphql-views.md`
-- `docs/architecture/decision-records/0005-prisma-transcript-search.md`
-- `docs/architecture/decision-records/0006-upstash-redis-rate-limits.md`
-- `docs/architecture/decision-records/0007-asset-delivery-gcs-mux.md`
-- `docs/architecture/decision-records/0009-sanity-cms-docs.md`
+- [docs/architecture/decision-records/0004-hasura-graphql-views.md](docs/architecture/decision-records/0004-hasura-graphql-views.md)
+- [docs/architecture/decision-records/0005-prisma-transcript-search.md](docs/architecture/decision-records/0005-prisma-transcript-search.md)
+- [docs/architecture/decision-records/0006-upstash-redis-rate-limits.md](docs/architecture/decision-records/0006-upstash-redis-rate-limits.md)
+- [docs/architecture/decision-records/0007-asset-delivery-gcs-mux.md](docs/architecture/decision-records/0007-asset-delivery-gcs-mux.md)
+- [docs/architecture/decision-records/0009-sanity-cms-docs.md](docs/architecture/decision-records/0009-sanity-cms-docs.md)
 
 Related docs
-- `docs/architecture/runtime-architecture.md`
-- `docs/architecture/openapi-generation.md`
+- [docs/architecture/runtime-architecture.md](docs/architecture/runtime-architecture.md)
+- [docs/architecture/openapi-generation.md](docs/architecture/openapi-generation.md)

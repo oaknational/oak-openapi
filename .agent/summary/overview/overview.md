@@ -2,7 +2,7 @@
 
 Version framing
 - The public API is v0 (public alpha moving toward public beta); prioritize V0 critical fixes first.
-- V1 improvements are deeper refinements after v0 stability goals; see `.agent/summary/analysis/versioned-improvements.md` for the split.
+- V1 improvements are deeper refinements after v0 stability goals; see [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md) for the split.
 
 Purpose
 - Oak OpenAPI is a Next.js app that serves a REST-like API (via tRPC + OpenAPI), a Swagger playground, and documentation pages for Oak National curriculum data.

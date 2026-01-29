@@ -38,10 +38,10 @@ Notes
 - These items should be addressed before V1 refactors whenever possible.
 
 Related docs
-- `docs/engineering/v0-v1-improvements.md`
-- `docs/architecture/runtime-architecture.md`
-- `docs/architecture/openapi-generation.md`
-- `docs/architecture/content-gating.md`
-- `docs/architecture/bulk-download.md`
-- `.agent/summary/analysis/internal-external-crosswalk.md`
-- `.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md`
+- [docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md)
+- [docs/architecture/runtime-architecture.md](docs/architecture/runtime-architecture.md)
+- [docs/architecture/openapi-generation.md](docs/architecture/openapi-generation.md)
+- [docs/architecture/content-gating.md](docs/architecture/content-gating.md)
+- [docs/architecture/bulk-download.md](docs/architecture/bulk-download.md)
+- [.agent/summary/analysis/internal-external-crosswalk.md](.agent/summary/analysis/internal-external-crosswalk.md)
+- [.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md](.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md)
