@@ -48,6 +48,7 @@
     "tsvector",
     "unitvariant",
     "UPSTASH",
-    "vectorstores"
+    "vectorstores",
+    "yazl"
   ]
 }
