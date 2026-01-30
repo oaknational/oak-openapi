@@ -1,5 +1,3 @@
-import { PassThrough } from 'stream';
-
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import type { Context } from '@/lib/context';
@@ -7,7 +5,7 @@ import { withUser } from '@/lib/context';
 import { protect } from '@/lib/protect';
 import type { File } from '@google-cloud/storage';
 import codes from 'http-codes';
-import archiver from 'archiver';
+import yazl from 'yazl';
 import { getGoogleCloudStorage } from '@/lib/bulk-data/data-stores';
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +17,7 @@ const handler = async (req: NextRequest): Promise<Response> => {
   // 1. get the user
 
   const user = await withUser(req);
+
   const ctx = {
     user,
     resHeaders: req.headers,
@@ -26,6 +25,7 @@ const handler = async (req: NextRequest): Promise<Response> => {
   } as unknown as Context;
 
   // manually check the protect
+
   await new Promise<void>((resolve, reject) => {
     protect({
       ctx,
@@ -36,6 +36,7 @@ const handler = async (req: NextRequest): Promise<Response> => {
 
   const body = (await req.json()) as { subjects?: string[] };
   const subjects = body.subjects || [];
+
   const allFiles: File[] = [];
 
   for (const subject of subjects) {
@@ -48,18 +49,17 @@ const handler = async (req: NextRequest): Promise<Response> => {
     }
   }
 
-  const archive = archiver('zip', { zlib: { level: 9 } });
-
-  const zipStream = new PassThrough();
-  archive.pipe(zipStream);
+  const zipFile = new yazl.ZipFile();
 
   for (const file of allFiles) {
-    archive.append(file.createReadStream(), {
-      name: file.name.split('/').pop() || file.name,
-    });
+    zipFile.addReadStream(
+      file.createReadStream(),
+      file.name.split('/').pop() || file.name,
+    );
   }
 
-  await archive.finalize();
+  zipFile.end();
+  const zipStream = zipFile.outputStream;
 
   return new Response(zipStream as unknown as BodyInit, {
     headers: {
@@ -86,14 +86,8 @@ async function handlerWrapper(req: NextRequest): Promise<Response> {
   }
 }
 
-export {
-  handlerWrapper as GET,
-  handlerWrapper as POST,
-  handlerWrapper as PUT,
-  handlerWrapper as PATCH,
-  handlerWrapper as DELETE,
-  handlerWrapper as OPTIONS,
-  handlerWrapper as HEAD,
-};
+export { handlerWrapper as POST };
 
-export const maxDuration = 120; // seconds
+// by default Vercel set the max limit to 5 minutes
+// https://vercel.com/docs/functions/limitations#max-duration
+// export const maxDuration = 60 * 5; // seconds
