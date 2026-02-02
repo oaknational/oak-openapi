@@ -34,7 +34,7 @@
   "dependencies": {
     "@google-cloud/storage": "^7.14.0",
     "@next/eslint-plugin-next": "^15.3.3",
-    "@oaknational/oak-components": "^1.166.0",
+    "@oaknational/oak-components": "https://github.com/weronika-szalas/tmp-oak-components-build.git",
     "@oaknational/oak-curriculum-schema": "^2.0.0",
     "@portabletext/react": "^3.2.1",
     "@prisma/client": "^5.22.0",
