@@ -8,7 +8,7 @@
   "scripts": {
     "build": "next build",
     "build-subjects": "tsx bin/build-subjects-and-key-stages.ts",
-    "dev": "pnpm with-env next dev --port 2727",
+    "dev": "pnpm with-env next dev --port ${PORT:-2727}",
     "bulk": "NODE_OPTIONS='--max-old-space-size=4096' tsx bin/prepare-bulk.ts",
     "postinstall": "prisma generate --schema ./schema.prisma",
     "format:check": "prettier '**/*.{mj,j,t}{s,sx}' --check",
