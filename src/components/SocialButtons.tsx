@@ -17,7 +17,6 @@ const OakSocialLink = styled(OakLink)`
 export const OAK_SOCIALS: Record<SocialNetwork, string> = {
   instagram: 'oaknational',
   facebook: 'oaknationalacademy',
-  x: 'oaknational',
   linkedIn: 'https://www.linkedin.com/company/oak-national-academy',
 };
 
@@ -49,10 +48,6 @@ const SOCIAL_BUTTON_CONFIGS: Record<SocialNetwork, SocialButtonConfig> = {
   facebook: {
     label: 'facebook',
     icon: 'facebook',
-  },
-  x: {
-    label: 'x',
-    icon: 'x',
   },
   linkedIn: {
     label: 'linkedIn',
