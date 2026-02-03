@@ -30,14 +30,12 @@ const getSocialUrl = (
       return `https://instagram.com/${usernameOrUrl}`;
     case 'facebook':
       return `https://facebook.com/${usernameOrUrl}`;
-    case 'x':
-      return `https://x.com/${usernameOrUrl}`;
     case 'linkedIn':
       return usernameOrUrl;
   }
 };
 
-const SOCIAL_NETWORKS = ['instagram', 'facebook', 'x', 'linkedIn'] as const;
+const SOCIAL_NETWORKS = ['instagram', 'facebook', 'linkedIn'] as const;
 type SocialNetwork = (typeof SOCIAL_NETWORKS)[number];
 interface SocialButtonConfig {
   label: string;
