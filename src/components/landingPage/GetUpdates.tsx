@@ -105,7 +105,7 @@ export function GetUpdates(): React.ReactElement {
     <FlexedBox
       as="form"
       $action="/"
-      $color="black"
+      $color="text-primary"
       noValidate
       onSubmit={handleSubmit}
     >
