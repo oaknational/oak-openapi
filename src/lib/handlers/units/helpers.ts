@@ -1,8 +1,27 @@
-import type { Sequence } from '@/lib/owaClient';
+import { gql } from 'graphql-request';
+import type { GraphQLClient } from 'graphql-request';
+import { SequenceView, sequenceView, type Sequence } from '@/lib/owaClient';
 import type { Category, Metadata, Thread, UnitSchema } from './types';
 
 export function testIfUnitVariant(slug: string): boolean {
   return /-\d+$/.test(slug);
+}
+
+export async function doesUnitExist(
+  client: GraphQLClient,
+  slug: string,
+): Promise<boolean> {
+  const query = gql`
+    query ($slug: String!) @cached(ttl: 300) {
+      ${sequenceView}(where: { slug: { _eq: $slug } }) {
+        slug
+      }
+    }
+  `;
+
+  const res: SequenceView = await client.request(query, { slug });
+
+  return res[sequenceView].length > 0;
 }
 
 export function formatUnitSummary(
