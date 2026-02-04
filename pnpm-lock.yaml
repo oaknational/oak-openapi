@@ -15,8 +15,8 @@ importers:
         specifier: ^15.3.3
         version: 15.5.9
       '@oaknational/oak-components':
-        specifier: https://github.com/weronika-szalas/tmp-oak-components-build.git
-        version: https://codeload.github.com/weronika-szalas/tmp-oak-components-build/tar.gz/022cf37b73cde2bbb06abd9f82d68eec19e8bf31(next-cloudinary@6.17.5(next@15.5.9(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3))(next@15.5.9(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(styled-components@6.3.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
+        specifier: ^2.2.0
+        version: 2.2.0(next-cloudinary@6.17.5(next@15.5.9(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3))(next@15.5.9(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(styled-components@6.3.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       '@oaknational/oak-curriculum-schema':
         specifier: ^2.0.0
         version: 2.0.0(zod@4.3.5)
@@ -2314,9 +2314,8 @@ packages:
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
 
-  '@oaknational/oak-components@https://codeload.github.com/weronika-szalas/tmp-oak-components-build/tar.gz/022cf37b73cde2bbb06abd9f82d68eec19e8bf31':
-    resolution: {tarball: https://codeload.github.com/weronika-szalas/tmp-oak-components-build/tar.gz/022cf37b73cde2bbb06abd9f82d68eec19e8bf31}
-    version: 1.188.0
+  '@oaknational/oak-components@2.2.0':
+    resolution: {integrity: sha512-n6f6ot+iLzPG2ifDdPD96wwQUBP+TLjyzYwRACvaKHiQililHrWOJTxktK1xKn+BujGz5iLhANpX+cqIZ3FMZQ==}
     peerDependencies:
       next: '>=14.2.12'
       next-cloudinary: '>=6.16.0'
@@ -11904,7 +11903,7 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
-  '@oaknational/oak-components@https://codeload.github.com/weronika-szalas/tmp-oak-components-build/tar.gz/022cf37b73cde2bbb06abd9f82d68eec19e8bf31(next-cloudinary@6.17.5(next@15.5.9(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3))(next@15.5.9(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(styled-components@6.3.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3))':
+  '@oaknational/oak-components@2.2.0(next-cloudinary@6.17.5(next@15.5.9(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3))(next@15.5.9(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(styled-components@6.3.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3))':
     dependencies:
       next: 15.5.9(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       next-cloudinary: 6.17.5(next@15.5.9(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3)
