@@ -39,6 +39,7 @@ import {
 } from '../src/lib/bulk-data/get-data';
 
 const processAssets = process.env.INCLUDE_ASSETS ? true : false;
+const reportMemoryUsage = process.env.REPORT_MEMORY_USAGE ? true : false;
 
 if (processAssets && process.version < 'v22') {
   // this is because node 18 leaves sockets open 😱
@@ -373,6 +374,10 @@ async function main() {
 }
 
 export function trackMemoryUsage(): NodeJS.Timeout {
+  if (!reportMemoryUsage) {
+    return {} as NodeJS.Timeout;
+  }
+
   type MemoryUsageKeys = keyof NodeJS.MemoryUsage;
 
   const maxUsage: Record<MemoryUsageKeys, number> = {
