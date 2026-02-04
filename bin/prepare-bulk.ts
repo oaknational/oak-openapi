@@ -69,7 +69,7 @@ const storage = getGoogleCloudStorage();
 
 const memoryTracker = trackMemoryUsage();
 
-main().finally(() => {
+void main().finally(() => {
   clearInterval(memoryTracker);
 });
 
@@ -101,7 +101,7 @@ async function buildLessonData(
   await fs.mkdir(sequenceDir, { recursive: true });
 
   // walk sequence and at the lowest level, get the units array
-  const unitSlugs: string[] = deepSearchAll(sequence, 'unitSlug');
+  const unitSlugs: string[] = deepSearchAll(sequence, 'unitSlug') as string[];
 
   // const totalLessonCount = sequence.reduce((acc, _) => {
   //   const lessons = _.unitLessons.filter((l) => l.state === 'published').length;
@@ -165,7 +165,9 @@ async function buildLessonData(
             await addURLToQueue(url, `${lesson.lessonSlug}.mp4`, slug);
             lesson.video = `${slug}-videos.tar:${lesson.lessonSlug}.mp4`;
           } catch (e) {
-            logError(`Failed to process video for ${lesson.lessonSlug}: ${e}`);
+            logError(
+              `Failed to process video for ${lesson.lessonSlug}: ${e instanceof Error ? e.message : String(e)}`,
+            );
           }
 
           // Process slide deck if available and has bucket_name - replace extension with PPTX
@@ -196,7 +198,7 @@ async function buildLessonData(
               lesson.slideDeck = `${slug}-slide-decks.tar:${lesson.lessonSlug}_slide_deck.pptx`;
             } catch (e) {
               logError(
-                `Failed to process slide deck for ${lesson.lessonSlug}: ${e}`,
+                `Failed to process slide deck for ${lesson.lessonSlug}: ${e instanceof Error ? e.message : String(e)}`,
               );
               logError(
                 `Slide deck data: ${JSON.stringify(assetLinks[lesson.lessonSlug].slideDeck)}`,
@@ -223,7 +225,7 @@ async function buildLessonData(
               // log(`Supplementary resource processed: ${lesson.lessonSlug}`);
             } catch (e) {
               logError(
-                `Failed to process supplementary resource for ${lesson.lessonSlug}: ${e}`,
+                `Failed to process supplementary resource for ${lesson.lessonSlug}: ${e instanceof Error ? e.message : String(e)}`,
               );
               logError(
                 `Supplementary resource data: ${JSON.stringify(assetLinks[lesson.lessonSlug].supplementaryResource)}`,
@@ -244,7 +246,9 @@ async function buildLessonData(
           JSON.stringify(lesson) + '\n',
         );
       } catch (error) {
-        logError(`Failed processing lesson ${lesson.lessonSlug}: ${error}`);
+        logError(
+          `Failed processing lesson ${lesson.lessonSlug}: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
     }
   }
@@ -353,7 +357,9 @@ async function main() {
       if (error.name === 'AssertionError') {
         logError(`${error.message}`);
       } else {
-        logError(`Failed to process ${s.sequenceSlug}: ${e}`);
+        logError(
+          `Failed to process ${s.sequenceSlug}: ${e instanceof Error ? e.message : String(e)}`,
+        );
         if (error.stack) {
           logError(error.stack);
         }
