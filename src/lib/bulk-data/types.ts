@@ -16,9 +16,9 @@ export interface Lesson {
   misconceptionsAndCommonMistakes: string;
   pupilLessonOutcome: string;
   teacherTips: string;
-  contentGuidance: string;
+  contentGuidance: string | null;
   downloadsAvailable: boolean;
-  supervisionLevel: string;
+  supervisionLevel: string | null;
   transcript_sentences?: string;
   transcript_vtt?: string;
   supplementaryResource?: string;
