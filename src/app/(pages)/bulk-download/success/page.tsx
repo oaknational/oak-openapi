@@ -97,7 +97,7 @@ export default function BulkDownloadSuccessPage(): React.ReactElement {
         $flexDirection="column"
         $pv="spacing-64"
         $gap="spacing-180"
-        $color="black"
+        $color="text-primary"
       >
         <OakFlex
           $alignItems="center"
