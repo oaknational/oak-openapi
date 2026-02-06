@@ -43,24 +43,40 @@ export const getLessons = router({
     })
     .input(lessonSummaryRequestOpenAPISchema)
     .output(lessonSummaryResponseOpenAPISchema)
-    .query(async ({ ctx, input }) => {
-      const { resHeaders } = ctx;
+    .query(async ({ input }) => {
       const slug = decodeURIComponent(input.lesson);
       const client = getClient();
 
-      timing.start('blockLessonForCopyrightText');
       const blocked = await blockLessonForCopyrightText(client, slug);
-      timing.end('blockLessonForCopyrightText');
 
       if (blocked) {
-        resHeaders.set(
-          'Server-Timing',
-          timing.toHeader(resHeaders as Headers).toString(),
-        );
+        // blocking actually gets true for a real 404 too, so we're
+        // going to do a quick check to see if the lesson exists at all, and if not, we'll return a 404 instead of a 451. This is because we don't want to leak information about what lessons are blocked by returning a different status code for blocked vs non-existent lessons.
+
+        const existsQuery = gql`
+          query ($slug: String!) @cached(ttl: 300) {
+            ${lessonView}(
+              where: { lessonSlug: { _eq: $slug }, isLegacy: { _eq: false } }
+            ) {
+              lessonSlug
+            }
+          }
+        `;
+
+        const existsRes: LessonView = await client.request(existsQuery, {
+          slug,
+        });
+
+        if (existsRes[lessonView].length === 0) {
+          // lesson doesn't exist - return 404
+          throw new TRPCError({
+            message: 'Lesson not found',
+            code: 'NOT_FOUND',
+          });
+        }
 
         throw new HTTPStatusError({
-          message:
-            'Lesson not available for this query (blocked for copyright text)',
+          message: `Lesson (${slug}) not available for this query (blocked for copyright text)`,
           code: 'NOT_FOUND',
           statusCode: 451,
         });
@@ -97,11 +113,6 @@ export const getLessons = router({
       timing.end('getLesson graphql');
 
       const data = res[lessonView];
-
-      resHeaders.set(
-        'Server-Timing',
-        timing.toHeader(resHeaders as Headers).toString(),
-      );
 
       if (data.length === 0) {
         throw new TRPCError({
