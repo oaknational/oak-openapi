@@ -11,7 +11,7 @@ import {
 
 import { blockUnitForCopyrightText } from '../../queryGate';
 
-import { formatUnitSummary, testIfUnitVariant } from './helpers';
+import { doesUnitExist, formatUnitSummary, testIfUnitVariant } from './helpers';
 import {
   unitSummaryRequestOpenAPISchema,
   unitSummaryResponseOpenAPISchema,
@@ -42,6 +42,12 @@ export const getUnits = router({
       if (isUnitVariant) {
         // we'll get the base unit for variants, then reconstruct later
         slug = slug.replace(/-\d+$/, '');
+      }
+
+      const exists = await doesUnitExist(client, slug);
+
+      if (!exists) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
       }
 
       const blocked = await blockUnitForCopyrightText(client, slug);
