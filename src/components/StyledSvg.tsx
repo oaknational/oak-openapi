@@ -1,15 +1,15 @@
 import styled from 'styled-components';
 import React from 'react';
 
-import type { OakColorToken } from '@oaknational/oak-components';
+import type { OakUiRoleToken } from '@oaknational/oak-components';
 
 interface SvgProps {
   name: string;
   className?: string;
   width?: string;
   height?: string;
-  fill?: OakColorToken;
-  color?: OakColorToken;
+  fill?: OakUiRoleToken;
+  color?: OakUiRoleToken;
   filter?: string;
 }
 
