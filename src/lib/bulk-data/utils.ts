@@ -58,7 +58,7 @@ export function tuplesToObjects<K extends string, V>(
             return [k, row[i] === 't'];
           }
 
-          if (row[i] === 'null') {
+          if (row[i] === 'null' || row[i] === 'NULL') {
             return [k, null];
           }
 
