@@ -8,6 +8,7 @@ import codes from 'http-codes';
 import yazl from 'yazl';
 import { getGoogleCloudStorage } from '@/lib/bulk-data/data-stores';
 export const dynamic = 'force-dynamic';
+import schema from './schema.json' assert { type: 'json' };
 
 const bucketName = process.env.BULK_DATA_BUCKET || 'oak-prod-ldn-bulk-uploader';
 
@@ -50,6 +51,10 @@ const handler = async (req: NextRequest): Promise<Response> => {
   }
 
   const zipFile = new yazl.ZipFile();
+
+  // read ./schema.json and add it to the zip
+  // const schemaContent = await readFile('./schema.json');
+  zipFile.addBuffer(new Buffer(JSON.stringify(schema)), 'schema.json');
 
   for (const file of allFiles) {
     zipFile.addReadStream(
