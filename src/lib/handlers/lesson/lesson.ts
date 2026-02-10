@@ -1,4 +1,5 @@
 import groupBy from 'object.groupby';
+import pgFormat from 'pg-format';
 import { protectedProcedure } from '@/lib/protect';
 import { HTTPStatusError, router } from '@/lib/trpc';
 import { TRPCError } from '@trpc/server';
@@ -151,7 +152,7 @@ export const getLessons = router({
     .output(lessonSearchResponseOpenAPISchema)
     .query(async ({ input }) => {
       // store q from input.q and sanitize for use as an sql query:
-      const q = input.q.replace(/'/g, "''");
+      const q = input.q;
       const unit = input.unit || null;
       const subject = input.subject || null;
       const keyStage = input.keyStage || null;
@@ -172,7 +173,12 @@ export const getLessons = router({
 
       // Added clause to filter out finance lessons from search
       const financeWhere = `"subjectSlug" <> 'financial-education'`;
-      const sql = `SELECT * from (SELECT "lessonSlug", SIMILARITY("lessonTitle", '${q}') FROM ${lessonViewTable} WHERE ${sqlWhere} AND ${financeWhere} group by "lessonSlug", "similarity") as a order by a.similarity desc limit 20`;
+      const sql = String(
+        pgFormat(
+          `SELECT * from (SELECT "lessonSlug", SIMILARITY("lessonTitle", %L) FROM ${lessonViewTable} WHERE ${sqlWhere} AND ${financeWhere} group by "lessonSlug", "similarity") as a order by a.similarity desc limit 20`,
+          q,
+        ),
+      );
 
       interface SQLResult {
         result: [string, string][];
