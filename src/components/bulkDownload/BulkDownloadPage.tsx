@@ -152,7 +152,7 @@ export default function BulkDownloadPage({
         $flexDirection={'column'}
         $pv="spacing-64"
         $gap="spacing-72"
-        $color={'black'}
+        $color={'text-primary'}
       >
         <OakGrid
           $pv={['spacing-40', 'spacing-48']}

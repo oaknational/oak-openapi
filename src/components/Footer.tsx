@@ -228,7 +228,7 @@ const FooterLink = ({
 
 function ContactUs(): React.ReactElement {
   return (
-    <FlexedBox $color="black">
+    <FlexedBox $color="text-primary">
       <OakFlex as="h2" $font="heading-5" $gap="spacing-8">
         <OakIcon iconName="send" />
         Contact us
@@ -251,7 +251,7 @@ function ContactUs(): React.ReactElement {
 
 function GiveFeedback(): React.ReactElement {
   return (
-    <FlexedBox $color="black">
+    <FlexedBox $color="text-primary">
       <OakFlex as="h2" $font="heading-5" $gap="spacing-8">
         <IconFeedback />
         Give Feedback
