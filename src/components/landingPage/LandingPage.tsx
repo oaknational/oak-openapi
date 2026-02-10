@@ -51,7 +51,7 @@ export default function Page({
         $flexDirection={'column'}
         $pv="spacing-64"
         $gap="spacing-120"
-        $color={'black'}
+        $color={'text-primary'}
       >
         {data.map((data, index) => {
           return (

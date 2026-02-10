@@ -8,7 +8,7 @@
   "scripts": {
     "build": "next build",
     "build-subjects": "tsx bin/build-subjects-and-key-stages.ts",
-    "dev": "pnpm with-env next dev --port 2727",
+    "dev": "pnpm with-env next dev --port ${PORT:-2727}",
     "bulk": "NODE_OPTIONS='--max-old-space-size=4096' tsx bin/prepare-bulk.ts",
     "bulk:schema-check": "tsx bin/bulk-data-checks/run_checks.ts --schema ./src/app/api/bulk/schema.json",
     "postinstall": "prisma generate --schema ./schema.prisma",
@@ -35,7 +35,7 @@
   "dependencies": {
     "@google-cloud/storage": "^7.14.0",
     "@next/eslint-plugin-next": "^15.3.3",
-    "@oaknational/oak-components": "^1.166.0",
+    "@oaknational/oak-components": "^2.2.0",
     "@oaknational/oak-curriculum-schema": "^2.0.0",
     "@portabletext/react": "^3.2.1",
     "@prisma/client": "^5.22.0",
