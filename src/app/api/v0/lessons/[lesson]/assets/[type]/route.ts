@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import type { Context } from '@/lib/context';
-import { withUser } from '@/lib/context';
+import { getApiKeyFromRequest, withUser } from '@/lib/context';
 import {
   getVideoFromMux,
   listFilesWithMimeType,
@@ -16,154 +16,237 @@ import { assetsForLesson } from '@/lib/handlers/assets/assets';
 import placeholderVideoLessons from '@/lib/queryGateData/placeholderVideoLessons.json' with { type: 'json' };
 import { getGoogleCloudStorage } from '@/lib/bulk-data/data-stores';
 import { HTTPStatusError } from '@/lib/trpc';
+import {
+  captureApiRequestEvent,
+  parseQueryParams,
+} from '@/lib/analytics/posthogServer';
 
 export const dynamic = 'force-dynamic';
 
 const storage = getGoogleCloudStorage();
+const endpointPath = '/api/v0/lessons/{lesson}/assets/{type}';
+
+const hasErrorCode = (error: unknown): error is { code: string } => {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    typeof (error as { code: unknown }).code === 'string'
+  );
+};
 
 const handler = async (
   req: NextRequest,
   { params }: { params: Promise<{ lesson: string; type: string }> },
 ): Promise<Response> => {
-  // 1. get the user
-  const user = await withUser(req);
-  const ctx = {
-    user,
-    resHeaders: req.headers,
-    req,
-  } as unknown as Context;
+  const startedAt = Date.now();
+  const apiKey = getApiKeyFromRequest(req);
+  const queryParams = parseQueryParams(req.url);
+  let args: { lesson: string; type: string } | undefined;
+  let userId: number | undefined;
 
-  // manually check the protect
-  await new Promise<void>((resolve, reject) => {
-    protect({
-      ctx,
-      next: () => Promise.resolve().then(resolve),
-      meta: { noCost: false },
-    }).catch(reject);
-  });
+  try {
+    // 1. get the user
+    const user = await withUser(req, apiKey);
+    userId = user?.id;
+    const ctx = {
+      user,
+      resHeaders: req.headers,
+      req,
+    } as unknown as Context;
 
-  let { type } = await params;
-  const { lesson } = await params;
-
-  const { assets } = await assetsForLesson(lesson);
-
-  const usePPTX = type === 'slideDeck';
-  if (usePPTX) {
-    type = type.replace('PPTX', '') as DownloadTypeEnum;
-  }
-
-  const asset = assets[type as DownloadTypeEnum];
-
-  if (type !== 'video') {
-    let { bucket_path } = asset as SignedAsset;
-    const { bucket_name } = asset as SignedAsset;
-
-    const list = await listFilesWithMimeType(
-      storage,
-      bucket_name,
-      bucket_path.split('/').slice(0, -1).join('/'),
-    );
-
-    const ext = usePPTX ? 'pptx' : bucket_path.split('.').pop() || 'pdf';
-
-    const mime = typeToMime.get(ext.toLowerCase());
-
-    if (!mime) {
-      throw new TRPCError({
-        message: 'Unsupported file type',
-        code: 'BAD_REQUEST',
-      });
-    }
-
-    // find the file with the correct extension (pptx) or file name for pdf
-    const found = list.find((file) => {
-      if (usePPTX) {
-        return file.mimeType === mime;
-      } else {
-        return file.name === bucket_path;
-      }
+    // manually check the protect
+    await new Promise<void>((resolve, reject) => {
+      protect({
+        ctx,
+        next: () => Promise.resolve().then(resolve),
+        meta: { noCost: false },
+      }).catch(reject);
     });
 
-    if (found) {
-      bucket_path = found.name;
+    const resolvedParams = await params;
+    let { type } = resolvedParams;
+    const { lesson } = resolvedParams;
+    args = { lesson, type };
+
+    const { assets } = await assetsForLesson(lesson);
+
+    const usePPTX = type === 'slideDeck';
+    if (usePPTX) {
+      type = type.replace('PPTX', '') as DownloadTypeEnum;
     }
 
-    const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext.toLowerCase()}`;
+    const asset = assets[type as DownloadTypeEnum];
 
-    const stream = storage
-      .bucket(bucket_name)
-      .file(bucket_path)
-      .createReadStream();
+    if (type !== 'video') {
+      let { bucket_path } = asset as SignedAsset;
+      const { bucket_name } = asset as SignedAsset;
 
-    // we need to convert the stream to a BodyInit even though it's a ReadableStream
-    // and ReadableStreams are allowed to be passed to new Response(s) - but there's
-    // something weird in the types that requires it to be converted to a BodyInit
-    const res = new NextResponse(stream as unknown as BodyInit);
-    res.headers.set('Content-Type', 'application/octet-stream');
-    res.headers.set(
-      'Content-Disposition',
-      `attachment; filename="${filename}"`,
-    );
+      const list = await listFilesWithMimeType(
+        storage,
+        bucket_name,
+        bucket_path.split('/').slice(0, -1).join('/'),
+      );
 
-    return res;
-  } else {
-    const { stream } = asset as Video;
-    let { download } = asset as Video;
+      const ext = usePPTX ? 'pptx' : bucket_path.split('.').pop() || 'pdf';
 
-    if (placeholderVideoLessons.includes(lesson)) {
-      throw new TRPCError({
-        message: `Failed to fetch: ${lesson} - video is not available`,
-        code: 'NOT_FOUND',
+      const mime = typeToMime.get(ext.toLowerCase());
+
+      if (!mime) {
+        throw new TRPCError({
+          message: 'Unsupported file type',
+          code: 'BAD_REQUEST',
+        });
+      }
+
+      // find the file with the correct extension (pptx) or file name for pdf
+      const found = list.find((file) => {
+        if (usePPTX) {
+          return file.mimeType === mime;
+        } else {
+          return file.name === bucket_path;
+        }
       });
-    }
 
-    if (!download) {
-      // test if the download is there as our db is often out of sync with mux
-      download = await getVideoFromMux(stream);
-    }
+      if (found) {
+        bucket_path = found.name;
+      }
 
-    const response = await fetch(download || stream);
+      const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext.toLowerCase()}`;
 
-    const url = new URL(download || stream);
-    const ext = url.pathname.split('.').pop();
+      const stream = storage
+        .bucket(bucket_name)
+        .file(bucket_path)
+        .createReadStream();
 
-    if (ext === 'm3u8') {
-      // redirect to the video stream
-      url.hostname = new URL(assetBaseVideoUrl).hostname;
+      // we need to convert the stream to a BodyInit even though it's a ReadableStream
+      // and ReadableStreams are allowed to be passed to new Response(s) - but there's
+      // something weird in the types that requires it to be converted to a BodyInit
+      const res = new NextResponse(stream as unknown as BodyInit);
+      res.headers.set('Content-Type', 'application/octet-stream');
+      res.headers.set(
+        'Content-Disposition',
+        `attachment; filename="${filename}"`,
+      );
 
-      // TODO test me
-      return NextResponse.redirect(url.toString(), 302);
-    }
-
-    const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext}`;
-
-    if (!response.ok) {
-      throw new TRPCError({
-        message: `Failed to fetch: ${response.status} ${response.statusText}`,
-        code: 'INTERNAL_SERVER_ERROR',
+      captureApiRequestEvent({
+        apiKey,
+        args,
+        durationMs: Date.now() - startedAt,
+        endpointPath,
+        httpMethod: req.method || 'GET',
+        queryParams,
+        source: 'lesson_assets_route',
+        success: true,
+        userId,
       });
-    }
 
-    const res = new NextResponse(response.body);
+      return res;
+    } else {
+      const { stream } = asset as Video;
+      let { download } = asset as Video;
 
-    // Set headers for streaming the file to the client
-    res.headers.set(
-      'Content-Type',
-      response.headers.get('content-type') || 'application/octet-stream',
-    );
-    res.headers.set(
-      'Content-Disposition',
-      `attachment; filename="${filename}"`,
-    );
+      if (placeholderVideoLessons.includes(lesson)) {
+        throw new TRPCError({
+          message: `Failed to fetch: ${lesson} - video is not available`,
+          code: 'NOT_FOUND',
+        });
+      }
 
-    if (response.body === null) {
-      throw new TRPCError({
-        message: 'Video could not be streamed',
-        code: 'INTERNAL_SERVER_ERROR',
+      if (!download) {
+        // test if the download is there as our db is often out of sync with mux
+        download = await getVideoFromMux(stream);
+      }
+
+      const response = await fetch(download || stream);
+
+      const url = new URL(download || stream);
+      const ext = url.pathname.split('.').pop();
+
+      if (ext === 'm3u8') {
+        // redirect to the video stream
+        url.hostname = new URL(assetBaseVideoUrl).hostname;
+
+        const redirectResponse = NextResponse.redirect(url.toString(), 302);
+        captureApiRequestEvent({
+          apiKey,
+          args,
+          durationMs: Date.now() - startedAt,
+          endpointPath,
+          httpMethod: req.method || 'GET',
+          queryParams,
+          source: 'lesson_assets_route',
+          success: true,
+          userId,
+        });
+
+        return redirectResponse;
+      }
+
+      const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext}`;
+
+      if (!response.ok) {
+        throw new TRPCError({
+          message: `Failed to fetch: ${response.status} ${response.statusText}`,
+          code: 'INTERNAL_SERVER_ERROR',
+        });
+      }
+
+      const res = new NextResponse(response.body);
+
+      // Set headers for streaming the file to the client
+      res.headers.set(
+        'Content-Type',
+        response.headers.get('content-type') || 'application/octet-stream',
+      );
+      res.headers.set(
+        'Content-Disposition',
+        `attachment; filename="${filename}"`,
+      );
+
+      if (response.body === null) {
+        throw new TRPCError({
+          message: 'Video could not be streamed',
+          code: 'INTERNAL_SERVER_ERROR',
+        });
+      }
+
+      captureApiRequestEvent({
+        apiKey,
+        args,
+        durationMs: Date.now() - startedAt,
+        endpointPath,
+        httpMethod: req.method || 'GET',
+        queryParams,
+        source: 'lesson_assets_route',
+        success: true,
+        userId,
       });
+
+      return res;
+    }
+  } catch (e: unknown) {
+    let errorCode = 'UNKNOWN_ERROR';
+    if (hasErrorCode(e)) {
+      errorCode = e.code;
+    } else if (e instanceof Error) {
+      errorCode = e.name;
     }
 
-    return res;
+    captureApiRequestEvent({
+      apiKey,
+      args,
+      durationMs: Date.now() - startedAt,
+      endpointPath,
+      errorCode,
+      httpMethod: req.method || 'GET',
+      queryParams,
+      source: 'lesson_assets_route',
+      success: false,
+      userId,
+    });
+
+    throw e;
   }
 };
 

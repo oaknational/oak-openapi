@@ -1,76 +1,136 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import type { Context } from '@/lib/context';
-import { withUser } from '@/lib/context';
+import { getApiKeyFromRequest, withUser } from '@/lib/context';
 import { protect } from '@/lib/protect';
 import type { File } from '@google-cloud/storage';
 import codes from 'http-codes';
 import yazl from 'yazl';
 import { getGoogleCloudStorage } from '@/lib/bulk-data/data-stores';
+import {
+  captureApiRequestEvent,
+  parseQueryParams,
+} from '@/lib/analytics/posthogServer';
 export const dynamic = 'force-dynamic';
 import schema from './schema.json' assert { type: 'json' };
 
 const bucketName = process.env.BULK_DATA_BUCKET || 'oak-prod-ldn-bulk-uploader';
+const endpointPath = '/api/bulk';
 
 const storage = getGoogleCloudStorage();
 
+const hasErrorCode = (error: unknown): error is { code: string } => {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    typeof (error as { code: unknown }).code === 'string'
+  );
+};
+
 const handler = async (req: NextRequest): Promise<Response> => {
-  // 1. get the user
+  const startedAt = Date.now();
+  const apiKey = getApiKeyFromRequest(req);
+  const queryParams = parseQueryParams(req.url);
+  let args: { subjects?: string[] } | undefined;
+  let userId: number | undefined;
 
-  const user = await withUser(req);
+  try {
+    // 1. get the user
 
-  const ctx = {
-    user,
-    resHeaders: req.headers,
-    req,
-  } as unknown as Context;
+    const user = await withUser(req, apiKey);
+    userId = user?.id;
 
-  // manually check the protect
+    const ctx = {
+      user,
+      resHeaders: req.headers,
+      req,
+    } as unknown as Context;
 
-  await new Promise<void>((resolve, reject) => {
-    protect({
-      ctx,
-      next: () => Promise.resolve().then(resolve),
-      meta: { noCost: false },
-    }).catch(reject);
-  });
+    // manually check the protect
 
-  const body = (await req.json()) as { subjects?: string[] };
-  const subjects = body.subjects || [];
+    await new Promise<void>((resolve, reject) => {
+      protect({
+        ctx,
+        next: () => Promise.resolve().then(resolve),
+        meta: { noCost: false },
+      }).catch(reject);
+    });
 
-  const allFiles: File[] = [];
+    const body = (await req.json()) as { subjects?: string[] };
+    args = body;
+    const subjects = body.subjects || [];
 
-  for (const subject of subjects) {
-    const [files] = await storage
-      .bucket(bucketName)
-      .getFiles({ prefix: `${subject}/${subject}.json`, delimiter: '/' });
+    const allFiles: File[] = [];
 
-    if (files && files.length > 0) {
-      allFiles.push(...files);
+    for (const subject of subjects) {
+      const [files] = await storage
+        .bucket(bucketName)
+        .getFiles({ prefix: `${subject}/${subject}.json`, delimiter: '/' });
+
+      if (files && files.length > 0) {
+        allFiles.push(...files);
+      }
     }
+
+    const zipFile = new yazl.ZipFile();
+
+    // read ./schema.json and add it to the zip
+    // const schemaContent = await readFile('./schema.json');
+    zipFile.addBuffer(new Buffer(JSON.stringify(schema)), 'schema.json');
+
+    for (const file of allFiles) {
+      zipFile.addReadStream(
+        file.createReadStream(),
+        file.name.split('/').pop() || file.name,
+      );
+    }
+
+    zipFile.end();
+    const zipStream = zipFile.outputStream;
+
+    const response = new Response(zipStream as unknown as BodyInit, {
+      headers: {
+        'Content-Type': 'application/zip',
+      },
+    });
+
+    captureApiRequestEvent({
+      apiKey,
+      args,
+      durationMs: Date.now() - startedAt,
+      endpointPath,
+      httpMethod: req.method || 'POST',
+      queryParams,
+      source: 'bulk_route',
+      success: true,
+      userId,
+    });
+
+    return response;
+  } catch (e: unknown) {
+    let errorCode = 'UNKNOWN_ERROR';
+    if (hasErrorCode(e)) {
+      errorCode = e.code;
+    } else if (e instanceof Error) {
+      errorCode = e.name;
+    }
+
+    captureApiRequestEvent({
+      apiKey,
+      args,
+      durationMs: Date.now() - startedAt,
+      endpointPath,
+      errorCode,
+      httpMethod: req.method || 'POST',
+      queryParams,
+      source: 'bulk_route',
+      success: false,
+      userId,
+    });
+
+    throw e;
   }
-
-  const zipFile = new yazl.ZipFile();
-
-  // read ./schema.json and add it to the zip
-  // const schemaContent = await readFile('./schema.json');
-  zipFile.addBuffer(new Buffer(JSON.stringify(schema)), 'schema.json');
-
-  for (const file of allFiles) {
-    zipFile.addReadStream(
-      file.createReadStream(),
-      file.name.split('/').pop() || file.name,
-    );
-  }
-
-  zipFile.end();
-  const zipStream = zipFile.outputStream;
-
-  return new Response(zipStream as unknown as BodyInit, {
-    headers: {
-      'Content-Type': 'application/zip',
-    },
-  });
 };
 
 async function handlerWrapper(req: NextRequest): Promise<Response> {
