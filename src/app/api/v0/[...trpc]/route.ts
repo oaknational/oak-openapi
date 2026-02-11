@@ -1,10 +1,13 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import router from 'lib/router';
-import { createContext } from 'lib/context';
+import { createContext, getApiKeyFromRequest } from 'lib/context';
 import type { NextRequest } from 'next/server';
 import { createOpenApiFetchHandler } from 'trpc-to-openapi';
 import type { NextApiResponse } from 'next';
 
+import {
+  captureApiRequestEvent,
+  parseQueryParams,
+} from '@/lib/analytics/posthogServer';
 import { HTTPStatusError } from '@/lib/trpc';
 
 export const dynamic = 'force-dynamic';
@@ -46,6 +49,27 @@ const handler = async (req: NextRequest): Promise<Response> => {
       }
 
       return {};
+    },
+    onError: (opts) => {
+      if (opts.type !== 'unknown' && opts.path) {
+        return;
+      }
+
+      const req = opts.req;
+      const ctx = opts.ctx;
+      const apiKey = ctx?.apiKey ?? getApiKeyFromRequest(req);
+
+      captureApiRequestEvent({
+        apiKey,
+        endpointPath: opts.path || '/unknown',
+        httpMethod: req.method || 'UNKNOWN',
+        source: 'trpc_on_error',
+        success: false,
+        trpcPath: opts.path,
+        errorCode: opts.error.code,
+        userId: ctx?.user?.id,
+        queryParams: parseQueryParams(req.url),
+      });
     },
     req,
   });
