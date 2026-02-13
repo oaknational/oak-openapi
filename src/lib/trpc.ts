@@ -9,12 +9,19 @@ import type { Context } from '@/lib/context';
 export class HTTPStatusError extends Error {
   code: string;
   statusCode: number;
+  cause?: string;
 
-  constructor(opts: { code: string; message: string; statusCode: number }) {
+  constructor(opts: {
+    code: string;
+    message: string;
+    statusCode: number;
+    cause?: string;
+  }) {
     super(opts.message);
     this.code = opts.code;
     this.statusCode = opts.statusCode || 500;
     this.name = 'HTTPStatusError';
+    this.cause = opts.cause;
   }
 }
 

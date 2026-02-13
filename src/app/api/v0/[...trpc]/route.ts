@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import router from 'lib/router';
 import { createContext } from 'lib/context';
 import type { NextRequest } from 'next/server';
