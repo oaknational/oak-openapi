@@ -52,11 +52,12 @@ export const getUnits = router({
 
       const blocked = await blockUnitForCopyrightText(client, slug);
 
-      if (blocked) {
+      if (blocked.isBlocked()) {
         throw new HTTPStatusError({
           message: 'Unit not available for this query (blocked copyright text)',
           code: 'NOT_FOUND',
           statusCode: 451,
+          cause: blocked.reason,
         });
       }
 

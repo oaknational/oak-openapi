@@ -9,7 +9,6 @@ import {
 } from '@/lib/owaClient';
 import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
 import { examBoards } from '../../oakConsts';
-import { blockedSequenceSubjects } from '../../blockedContent';
 import type {
   Category,
   ExamSubjectsWithoutTiers,
@@ -24,6 +23,7 @@ import {
   sequenceUnitsRequestOpenAPISchema,
   sequenceUnitsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/sequences';
+import { isSequenceSubjectBlocked } from '@/lib/queryGate';
 
 interface WhereCondition {
   _and: {
@@ -140,12 +140,14 @@ export const getSequences = router({
       }
 
       const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
+      const gateTest = isSequenceSubjectBlocked(subjectSlug);
 
-      if (blockedSequenceSubjects.includes(subjectSlug)) {
+      if (gateTest.isBlocked()) {
         throw new HTTPStatusError({
           message: `The subject "${subjectSlug}" is not currently available`,
           code: 'NOT_FOUND',
           statusCode: 451,
+          cause: gateTest.reason,
         });
       }
 

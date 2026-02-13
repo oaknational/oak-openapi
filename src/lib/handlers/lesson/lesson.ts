@@ -50,7 +50,7 @@ export const getLessons = router({
 
       const blocked = await blockLessonForCopyrightText(client, slug);
 
-      if (blocked) {
+      if (blocked.isBlocked()) {
         // blocking actually gets true for a real 404 too, so we're
         // going to do a quick check to see if the lesson exists at all, and if not, we'll return a 404 instead of a 451. This is because we don't want to leak information about what lessons are blocked by returning a different status code for blocked vs non-existent lessons.
 
@@ -80,6 +80,7 @@ export const getLessons = router({
           message: `Lesson (${slug}) not available for this query (blocked for copyright text)`,
           code: 'NOT_FOUND',
           statusCode: 451,
+          cause: blocked.reason,
         });
       }
 

@@ -24,12 +24,12 @@ import { baseUrl } from '../../baseUrl';
 import {
   checkLessonAllowedAsset,
   isLessonSupported,
+  isSequenceSubjectBlocked,
   isSubjectSupported,
   isUnitSupported,
 } from '@/lib/queryGate';
 import { sequenceWhere } from '../sequences/sequences';
 import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
-import { blockedSequenceSubjects } from '../../blockedContent';
 import { downloadTypeEnum } from './types';
 import type { DownloadTypeEnum, LessonAssetsType } from './types';
 import { getAttribution } from './helpers';
@@ -61,10 +61,11 @@ export async function assetsForLesson(
 ): Promise<AssetsForLesson> {
   const supported = await checkLessonAllowedAsset(graphqlClient, lessonSlug);
 
-  if (!supported) {
+  if (supported.isBlocked()) {
     throw new HTTPStatusError({
       message: `Lesson not available: "${lessonSlug}"`,
       code: 'NOT_FOUND',
+      cause: supported.reason,
       statusCode: 451,
     });
   }
@@ -260,11 +261,13 @@ This endpoint contains licence information for any third-party content contained
       const client = getClient();
 
       const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
+      const gateTest = isSequenceSubjectBlocked(subjectSlug);
 
-      if (blockedSequenceSubjects.includes(subjectSlug)) {
+      if (gateTest.isBlocked()) {
         throw new TRPCError({
           code: 'BAD_REQUEST',
           message: `The subject in "${sequence}" is not currently available`,
+          cause: gateTest.reason,
         });
       }
 
@@ -303,15 +306,15 @@ This endpoint contains licence information for any third-party content contained
       );
 
       const isLessonAllowed = (slug: string): boolean => {
-        if (isSubjectSupported(subjectSlug)) {
+        if (isSubjectSupported(subjectSlug).isAllowed()) {
           return true;
         }
 
-        if (isUnitSupported(lessonToUnitLookup[slug])) {
+        if (isUnitSupported(lessonToUnitLookup[slug]).isAllowed()) {
           return true;
         }
 
-        if (isLessonSupported(slug)) {
+        if (isLessonSupported(slug).isAllowed()) {
           return true;
         }
 
@@ -559,15 +562,15 @@ This endpoint contains licence information for any third-party content contained
       const tpc = tpcViewResult[lessonView];
 
       const isLessonAllowed = (slug: string): boolean => {
-        if (isSubjectSupported(subject)) {
+        if (isSubjectSupported(subject).isAllowed()) {
           return true;
         }
 
-        if (isUnitSupported(lessonToUnitLookup[slug])) {
+        if (isUnitSupported(lessonToUnitLookup[slug]).isAllowed()) {
           return true;
         }
 
-        if (isLessonSupported(slug)) {
+        if (isLessonSupported(slug).isAllowed()) {
           return true;
         }
 

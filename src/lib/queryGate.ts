@@ -7,6 +7,8 @@ allow access to the following lessons:
 - All of Maths
 - more… hopefully (via units or based on links in database related to licence data)
 
+– Oct 18, 2024 ("Short term")
+
 */
 
 import { gql } from 'graphql-request';
@@ -19,8 +21,31 @@ import assetBlockedLessons from './queryGateData/assets/blockedLessons.json' wit
 import assetBlockedUnits from './queryGateData/assets/blockedUnits.json' with { type: 'json' };
 import supportedUnits from './queryGateData/supportedUnits.json' with { type: 'json' };
 import supportedLessons from './queryGateData/supportedLessons.json' with { type: 'json' };
+import { blockedSequenceSubjects } from './blockedContent';
 
-// TODO move these to JSON too
+// Custom result class that requires explicit narrowing via type guards
+class GateWithReason {
+  readonly blocked: boolean;
+  readonly reason: string;
+
+  constructor(blocked: boolean, reason = '') {
+    this.blocked = blocked;
+    this.reason = reason;
+  }
+
+  toString() {
+    return this.reason || String(this.blocked);
+  }
+
+  isAllowed(): this is GateWithReason & { blocked: false } {
+    return this.blocked === false;
+  }
+
+  isBlocked(): this is GateWithReason & { blocked: true } {
+    return this.blocked === true;
+  }
+}
+
 const supportedSubjects = ['maths'];
 export const blockedSubjects = ['english', 'financial-education'];
 
@@ -32,20 +57,28 @@ function isUnitBlocked(unitSlug: string): boolean {
   return assetBlockedUnits.includes(unitSlug);
 }
 
+export function isSequenceSubjectBlocked(subjectSlug: string): GateWithReason {
+  if (blockedSequenceSubjects.includes(subjectSlug)) {
+    return new GateWithReason(true, `Subject '${subjectSlug}' is blocked`);
+  }
+
+  return new GateWithReason(false, `Subject '${subjectSlug}' is not blocked`);
+}
+
 export async function blockLessonForCopyrightText(
   client: GraphQLClient,
   lessonSlug: string,
-): Promise<boolean> {
+): Promise<GateWithReason> {
   if (supportedLessons.includes(lessonSlug)) {
     // not copyright
-    return false;
+    return new GateWithReason(false, 'Lesson is in supported content');
   }
 
   const res = await getSubjectAndUnitForLesson(client, lessonSlug);
 
   if (!res) {
     // unknown subject - block
-    return true;
+    return new GateWithReason(true, 'Unknown subject');
   }
 
   return isBlockedUnitOrSubject(res);
@@ -57,97 +90,132 @@ export function isBlockedUnitOrSubject({
 }: {
   unitSlug: string;
   subjectSlug: string;
-}): boolean {
+}): GateWithReason {
   if (supportedUnits.includes(unitSlug)) {
     // not copyright
-    return false;
+    return new GateWithReason(false, 'Unit is in supported content');
   }
 
   if (blockedSubjects.includes(subjectSlug)) {
-    return true;
+    return new GateWithReason(true, 'Subject is blocked');
   }
 
-  return false;
+  return new GateWithReason(false, 'Unit and subject are supported');
 }
 
 export async function blockUnitForCopyrightText(
   client: GraphQLClient,
   unitSlug: string,
-): Promise<boolean> {
+): Promise<GateWithReason> {
   // it's possible we're dealing with an unit optional, which always end in a
   // number, so we'll remove that for the moment, and then check
 
   if (/-\d+$/.test(unitSlug)) {
     if (supportedUnits.includes(unitSlug.replace(/-\d+$/, ''))) {
-      return false;
+      return new GateWithReason(false, 'Unit base is in supported content');
     }
   }
 
   if (supportedUnits.includes(unitSlug)) {
     // not copyright
-    return false;
+    return new GateWithReason(false, 'Unit is in supported content');
   }
 
   const res = await getSubjectForUnit(client, unitSlug);
 
   if (!res) {
     // unknown subject - block
-    return true;
+    return new GateWithReason(true, 'Unknown subject');
   }
 
   const { subjectSlug } = res;
 
   if (blockedSubjects.includes(subjectSlug)) {
-    return true;
+    return new GateWithReason(true, 'Subject is blocked');
   }
 
-  return false;
+  return new GateWithReason(false, 'Unit and subject are supported');
 }
 
 export async function checkLessonAllowedAsset(
   client: GraphQLClient,
   lessonSlug: string,
-): Promise<boolean> {
+): Promise<GateWithReason> {
   // if the lesson is blocked, return false
   if (isLessonBlocked(lessonSlug)) {
-    return false;
+    return new GateWithReason(true, 'Lesson is blocked');
   }
 
   // otherwise get the subject and unit to see if those are supported
   const res = await getSubjectAndUnitForLesson(client, lessonSlug);
 
   if (!res) {
-    return false;
+    return new GateWithReason(true, 'Subject and unit not found');
   }
 
   const { subjectSlug, unitSlug } = res;
 
   if (isUnitBlocked(unitSlug)) {
     // blocked unit
-    return false;
+    return new GateWithReason(true, 'Unit is blocked');
   }
 
-  return (
-    isSubjectSupported(subjectSlug) ||
-    isUnitSupported(unitSlug) ||
-    supportedLessons.includes(lessonSlug)
+  if (isSubjectSupported(subjectSlug).isAllowed()) {
+    return new GateWithReason(false, `Subject (${subjectSlug}) is supported`);
+  }
+
+  if (isUnitSupported(unitSlug).isAllowed()) {
+    return new GateWithReason(false, `Unit (${unitSlug}) is supported`);
+  }
+
+  if (isLessonSupported(lessonSlug).isAllowed()) {
+    return new GateWithReason(false, `Lesson (${lessonSlug}) is supported`);
+  }
+
+  return new GateWithReason(true, 'Lesson not in supported content');
+}
+
+export function supportsImages(subject: string, unit: string): GateWithReason {
+  const subjectSupported = isSubjectSupported(subject);
+  const unitSupported = isUnitSupported(unit);
+
+  if (subjectSupported.isBlocked()) {
+    return new GateWithReason(true, 'Subject supports images');
+  }
+
+  if (unitSupported.isBlocked()) {
+    return new GateWithReason(true, 'Unit supports images');
+  }
+
+  return new GateWithReason(false, 'Neither subject nor unit support images');
+}
+
+export function isSubjectSupported(subject: string): GateWithReason {
+  const blocked = !supportedSubjects.includes(subject);
+  return new GateWithReason(
+    blocked,
+    blocked
+      ? `Subject '${subject}' is not supported`
+      : `Subject '${subject}' is supported`,
   );
 }
 
-export function supportsImages(subject: string, unit: string): boolean {
-  return isSubjectSupported(subject) || isUnitSupported(unit);
+export function isUnitSupported(unit: string): GateWithReason {
+  const blocked = !supportedUnits.includes(unit);
+  return new GateWithReason(
+    blocked,
+    blocked ? `Unit '${unit}' is not supported` : `Unit '${unit}' is supported`,
+  );
 }
 
-export function isSubjectSupported(subject: string): boolean {
-  return supportedSubjects.includes(subject);
-}
-
-export function isUnitSupported(unit: string): boolean {
-  return supportedUnits.includes(unit);
-}
-
-export function isLessonSupported(lesson: string): boolean {
-  return supportedLessons.includes(lesson);
+export function isLessonSupported(lesson: string): GateWithReason {
+  const blocked = !supportedLessons.includes(lesson);
+  return new GateWithReason(
+    blocked,
+    blocked
+      ? `Lesson '${lesson}' is not supported`
+      : `Lesson '${lesson}' is supported`,
+  );
 }
 
 export async function getSubjectAndUnitForLesson(

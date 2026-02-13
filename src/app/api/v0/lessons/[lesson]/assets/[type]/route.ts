@@ -188,10 +188,13 @@ async function handlerWrapper(
     }
 
     if (e instanceof HTTPStatusError) {
-      return new NextResponse(JSON.stringify({ message, code }), {
-        status: e.statusCode,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new NextResponse(
+        JSON.stringify({ message, code, cause: e.cause }),
+        {
+          status: e.statusCode,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
     }
 
     const statusCode =

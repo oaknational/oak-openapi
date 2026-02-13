@@ -276,39 +276,3 @@ test('financial education is hidden: returns invalid enum value', async () => {
       }),
   ).rejects.toThrow('Invalid option');
 });
-
-// test('isApprovedLesson: blocked subjects return false', () => {
-//   expect(isApprovedLesson('english', 'poetry', 'lesson 1')).toBe(false);
-// });
-
-// test('isApprovedLesson: made up subjects return false', () => {
-//   expect(
-//     isApprovedLesson(
-//       'defence-against-dark-arts',
-//       'defensive-spells',
-//       'protego',
-//     ),
-//   ).toBe(false);
-// });
-
-// test('isApprovedLesson: supported subject returns true', () => {
-//   expect(isApprovedLesson('maths', 'unit-1', 'lesson-1')).toBe(true);
-// });
-
-// test('isApprovedLesson: supported unit returns true', () => {
-//   expect(
-//     isApprovedLesson(
-//       'english',
-//       'apostrophes-and-speech-punctuation',
-//       'lesson-1',
-//     ),
-//   ).toBe(true);
-// });
-
-// test('isApprovedLesson: random unit returns false', () => {
-//   expect(isApprovedLesson('english', 'random-unit', 'lesson-1')).toBe(false);
-// });
-
-// test('isApprovedLesson: random lesson returns false', () => {
-//   expect(isApprovedLesson('english', 'random-unit', 'lesson-1')).toBe(false);
-// });
