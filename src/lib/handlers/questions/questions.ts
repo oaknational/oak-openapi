@@ -17,7 +17,7 @@ import {
   isSequenceSubjectBlocked,
   supportsImages,
 } from '../../queryGate';
-import allowedUnits from '../../queryGateData/supportedUnits.json' with { type: 'json' };
+import allowedUnits from '../../queryGateData/copyright/supportedUnits.json' with { type: 'json' };
 import type { Question, QuizKey } from './types';
 import { TRPCError } from '@trpc/server';
 import { sequenceWhere } from '../sequences/sequences';

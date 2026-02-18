@@ -19,8 +19,8 @@ import { lessonView, sequenceView, sequenceViewWhereInput } from './owaClient';
 // blocked always overrules
 import assetBlockedLessons from './queryGateData/assets/blockedLessons.json' with { type: 'json' };
 import assetBlockedUnits from './queryGateData/assets/blockedUnits.json' with { type: 'json' };
-import supportedUnits from './queryGateData/supportedUnits.json' with { type: 'json' };
-import supportedLessons from './queryGateData/supportedLessons.json' with { type: 'json' };
+import supportedUnits from './queryGateData/copyright/supportedUnits.json' with { type: 'json' };
+import supportedLessons from './queryGateData/copyright/supportedLessons.json' with { type: 'json' };
 import { blockedSequenceSubjects } from './blockedContent';
 
 // Custom result class that requires explicit narrowing via type guards
