@@ -1,7 +1,7 @@
 import groupBy from 'object.groupby';
 import pgFormat from 'pg-format';
 import { protectedProcedure } from '@/lib/protect';
-import { HTTPStatusError, router } from '@/lib/trpc';
+import { router } from '@/lib/trpc';
 import { TRPCError } from '@trpc/server';
 import {
   getClient,
@@ -76,10 +76,9 @@ export const getLessons = router({
           });
         }
 
-        throw new HTTPStatusError({
+        throw new TRPCError({
           message: `Lesson (${slug}) not available for this query (blocked for copyright text)`,
-          code: 'NOT_FOUND',
-          statusCode: 451,
+          code: 'BAD_REQUEST',
           cause: blocked.reason,
         });
       }
