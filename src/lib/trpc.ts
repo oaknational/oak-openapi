@@ -1,4 +1,4 @@
-import { initTRPC } from '@trpc/server';
+import { initTRPC, TRPCDefaultErrorShape, TRPCError } from '@trpc/server';
 import util from 'node:util';
 import superjson from 'superjson';
 import type { OpenApiMeta } from 'trpc-to-openapi';
@@ -8,92 +8,98 @@ import type { Context } from '@/lib/context';
 
 const extraDebug = process.env.NODE_ENV === 'development';
 
-export const t = initTRPC
-  .context<Context>()
-  .meta<OpenApiMeta>()
-  .create({
-    transformer: superjson,
-    errorFormatter({ shape, error }) {
-      if (extraDebug) {
-        if (error.code === 'INTERNAL_SERVER_ERROR') {
-          if (error.cause && error.cause instanceof ZodError) {
-            const cause = error.cause;
+export const t = initTRPC.context<Context>().meta<OpenApiMeta>().create({
+  transformer: superjson,
+  errorFormatter,
+});
 
-            console.error(
-              'trpc error',
-              util.inspect(
-                {
-                  type: 'ZodError',
-                  errors: cause.issues,
-                  trpcPath: shape.data.path,
-                },
-                { depth: null, colors: true },
-              ),
-            );
-          } else {
-            console.error('trpc error', {
-              code: error.code,
-              message: shape.message,
+export function errorFormatter({
+  shape,
+  error,
+}: {
+  shape: TRPCDefaultErrorShape;
+  error: TRPCError;
+}) {
+  if (extraDebug) {
+    if (error.code === 'INTERNAL_SERVER_ERROR') {
+      if (error.cause && error.cause instanceof ZodError) {
+        const cause = error.cause;
+
+        console.error(
+          'trpc error',
+          util.inspect(
+            {
+              type: 'ZodError',
+              errors: cause.issues,
               trpcPath: shape.data.path,
-              line: shape.data.stack?.split('\n')[1].trim(),
-            });
-          }
-        } else {
-          console.error('trpc error', {
-            code: error.code,
-            message: shape.message,
-            trpcPath: shape.data.path,
-          });
-        }
+            },
+            { depth: null, colors: true },
+          ),
+        );
+      } else {
+        console.error('trpc error', {
+          code: error.code,
+          message: shape.message,
+          trpcPath: shape.data.path,
+          line: shape.data.stack?.split('\n')[1].trim(),
+        });
       }
-
-      let customCause = true;
-
-      if (
-        error.cause &&
-        typeof error.cause === 'object' &&
-        Object.keys(error.cause).length > 0
-      ) {
-        customCause = false;
-      }
-
-      interface Reply {
-        message: string;
-        data?: {
-          trace?: string;
-          cause?: string;
-        };
-      }
-
-      const reply: Reply = {
+    } else {
+      console.error('trpc error', {
+        code: error.code,
         message: shape.message,
-        data: {},
-      };
+      });
+    }
+  }
 
-      if (reply.data) {
-        if (customCause && error.cause?.toString()) {
-          reply.data.cause = error.cause?.toString();
-        }
+  let customCause = true;
 
-        if (extraDebug && shape.data.stack && reply.data) {
-          // if dev, surface all the errors to our hard-working developers
-          const traceLine = shape.data.stack
-            .split('\n')
-            .find((_) => _.trim().startsWith('at '));
+  if (
+    error.cause &&
+    typeof error.cause === 'object' &&
+    Object.keys(error.cause).length > 0
+  ) {
+    customCause = false;
+  }
 
-          if (traceLine) {
-            reply.data.trace = traceLine.trim();
-          }
-        }
+  interface Reply {
+    message: string;
+    data?: {
+      trace?: string;
+      cause?: string;
+    };
+  }
 
-        if (reply.data && Object.keys(reply.data).length === 0) {
-          delete reply.data;
-        }
+  const reply: Reply = {
+    message: shape.data.path
+      ? shape.message
+      : 'Not found - non existent endpoint',
+    data: {},
+  };
+
+  if (reply.data) {
+    if (customCause && error.cause?.toString()) {
+      reply.data.cause = error.cause?.toString();
+    }
+
+    if (extraDebug && shape.data.stack && reply.data) {
+      // if dev, surface all the errors to our hard-working developers
+      const traceLine = shape.data.stack
+        .split('\n')
+        .find((_) => _.trim().startsWith('at '));
+
+      if (traceLine) {
+        reply.data.trace = traceLine.trim();
       }
+    }
 
-      return reply;
-    },
-  });
+    if (reply.data && Object.keys(reply.data).length === 0) {
+      delete reply.data;
+    }
+  }
+
+  return reply;
+}
 
 export const router = t.router;
 export const publicProcedure = t.procedure;

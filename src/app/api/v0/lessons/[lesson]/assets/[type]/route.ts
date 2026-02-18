@@ -1,7 +1,29 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { TRPCError } from '@trpc/server';
+import { TRPC_ERROR_CODES_BY_KEY } from '@trpc/server/rpc';
+import { StatusCodes } from 'http-status-codes';
+
 import type { Context } from '@/lib/context';
 import { withUser } from '@/lib/context';
+
+// Map TRPC error codes to HTTP status codes
+const trpcErrorCodeToHttpStatus: Record<string, number> = {
+  PARSE_ERROR: StatusCodes.BAD_REQUEST,
+  BAD_REQUEST: StatusCodes.BAD_REQUEST,
+  UNAUTHORIZED: StatusCodes.UNAUTHORIZED,
+  FORBIDDEN: StatusCodes.FORBIDDEN,
+  NOT_FOUND: StatusCodes.NOT_FOUND,
+  METHOD_NOT_SUPPORTED: StatusCodes.METHOD_NOT_ALLOWED,
+  TIMEOUT: StatusCodes.REQUEST_TIMEOUT,
+  CONFLICT: StatusCodes.CONFLICT,
+  PRECONDITION_FAILED: StatusCodes.PRECONDITION_FAILED,
+  PAYLOAD_TOO_LARGE: 413,
+  UNPROCESSABLE_CONTENT: 422,
+  TOO_MANY_REQUESTS: StatusCodes.TOO_MANY_REQUESTS,
+  CLIENT_CLOSED_REQUEST: 499,
+  INTERNAL_SERVER_ERROR: StatusCodes.INTERNAL_SERVER_ERROR,
+};
 import {
   getVideoFromMux,
   listFilesWithMimeType,
@@ -9,12 +31,12 @@ import {
 import { typeToMime, type DownloadTypeEnum } from '@/lib/handlers/assets/types';
 import type { SignedAsset, Video } from '@/lib/owaClient';
 import { protect } from '@/lib/protect';
-import { TRPCError } from '@trpc/server';
 import { assetBaseVideoUrl } from '@/lib/baseUrl';
 import codes from 'http-codes';
 import { assetsForLesson } from '@/lib/handlers/assets/assets';
 import placeholderVideoLessons from '@/lib/queryGateData/placeholderVideoLessons.json' with { type: 'json' };
 import { getGoogleCloudStorage } from '@/lib/bulk-data/data-stores';
+import { errorFormatter } from '@/lib/trpc';
 
 export const dynamic = 'force-dynamic';
 
@@ -112,6 +134,7 @@ const handler = async (
     if (placeholderVideoLessons.includes(lesson)) {
       throw new TRPCError({
         message: `Failed to fetch: ${lesson} - video is not available`,
+        cause: 'Video is a placeholder and not available',
         code: 'NOT_FOUND',
       });
     }
@@ -177,13 +200,31 @@ async function handlerWrapper(
 
     // if this is a TRPCError, we can map the code to status codes
     if (e instanceof TRPCError) {
-      // if code === 'NOT_FOUND', return 404
-      if (code === 'NOT_FOUND') {
-        return new NextResponse(JSON.stringify({ message, code }), {
-          status: 404,
+      const errorPayload = errorFormatter({
+        error: e,
+        shape: {
+          code: TRPC_ERROR_CODES_BY_KEY[e.code],
+          message: e.message,
+          data: {
+            path: req.url,
+            code: e.code,
+            httpStatus:
+              trpcErrorCodeToHttpStatus[e.code] ||
+              StatusCodes.INTERNAL_SERVER_ERROR,
+          },
+        },
+      });
+
+      const status =
+        trpcErrorCodeToHttpStatus[e.code] || StatusCodes.INTERNAL_SERVER_ERROR;
+
+      return new NextResponse(
+        JSON.stringify({ ...errorPayload, code: e.code }),
+        {
+          status,
           headers: { 'Content-Type': 'application/json' },
-        });
-      }
+        },
+      );
     }
 
     const statusCode =
