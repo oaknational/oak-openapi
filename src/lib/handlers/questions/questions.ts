@@ -1,5 +1,5 @@
 import { protectedProcedure } from '@/lib/protect';
-import { HTTPStatusError, router } from '@/lib/trpc';
+import { router } from '@/lib/trpc';
 import {
   getClient,
   gql,
@@ -64,10 +64,9 @@ export const getQuestions = router({
       const blocked = isBlockedUnitOrSubject(subjectUnit);
 
       if (blocked.isBlocked()) {
-        throw new HTTPStatusError({
+        throw new TRPCError({
           message: `Lesson not available: "${slug}"`,
-          code: 'NOT_FOUND',
-          statusCode: 451,
+          code: 'BAD_REQUEST',
           cause: blocked.reason,
         });
       }
@@ -135,10 +134,9 @@ export const getQuestions = router({
       const gateTest = isSequenceSubjectBlocked(subjectSlug);
 
       if (gateTest.isBlocked()) {
-        throw new HTTPStatusError({
+        throw new TRPCError({
           message: `The subject "${subjectSlug}" is not currently available`,
-          code: 'NOT_FOUND',
-          statusCode: 451,
+          code: 'BAD_REQUEST',
           cause: gateTest.reason,
         });
       }

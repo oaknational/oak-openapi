@@ -1,4 +1,5 @@
 import { GET as _getLessonAsset } from '@/app/api/v0/lessons/[lesson]/assets/[type]/route';
+import { TRPCError } from '@trpc/server';
 
 import type { NextRequest } from 'next/server';
 import { vi } from 'vitest';
@@ -17,6 +18,20 @@ vi.mock('@/lib/rateLimit', async (importOriginal: () => Promise<object>) => {
     }),
   };
 });
+
+export function extractCauseFromTRPCError(
+  error: TRPCError,
+): string | undefined {
+  if ('cause' in error) {
+    const cause = error.cause;
+    if (typeof cause === 'string') {
+      return cause;
+    } else if (cause instanceof Error) {
+      return cause.toString();
+    }
+  }
+  return undefined;
+}
 
 export function mockWithUser() {
   vi.mock('@/lib/context', () => {

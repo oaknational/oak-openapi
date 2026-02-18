@@ -97,7 +97,10 @@ export function isBlockedUnitOrSubject({
   }
 
   if (blockedSubjects.includes(subjectSlug)) {
-    return new GateWithReason(true, 'Subject is blocked');
+    return new GateWithReason(
+      true,
+      'Subject is blocked, without unit allow rule',
+    );
   }
 
   return new GateWithReason(false, 'Unit and subject are supported');
@@ -131,7 +134,10 @@ export async function blockUnitForCopyrightText(
   const { subjectSlug } = res;
 
   if (blockedSubjects.includes(subjectSlug)) {
-    return new GateWithReason(true, 'Subject is blocked');
+    return new GateWithReason(
+      true,
+      'Subject is blocked, without unit or lesson allow rule',
+    );
   }
 
   return new GateWithReason(false, 'Unit and subject are supported');
