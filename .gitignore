@@ -46,3 +46,5 @@ terraform.rc
 # Storybook
 /storybook-static
 doctor-storybook.log
+
+tsconfig.tsbuildinfo

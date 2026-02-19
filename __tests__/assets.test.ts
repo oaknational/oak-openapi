@@ -154,7 +154,7 @@ test('specifically blocked lessons (assets only)', async () => {
       type: 'slideDeck',
     });
 
-    expect(res.status, `${lesson} should be blocked`).toBe(451);
+    expect(res.status, `${lesson} should be blocked`).toBe(400);
 
     const apiCall = () =>
       caller.getLessons.getLesson({
@@ -186,7 +186,7 @@ test('lessons not in the supported lessons array are not allowed', async () => {
     message: string;
   }
 
-  expect(res.status).toBe(451);
+  expect(res.status).toBe(400);
   const body = (await res.json()) as Body;
   expect(body).toHaveProperty('message');
   expect(body.message).toContain('Lesson not available');
@@ -213,7 +213,7 @@ test('blocked lesson: growing-rearing-and-catching-our-food', async () => {
     lesson: slug,
     type: 'slideDeck',
   });
-  expect(res404.status).toBe(451);
+  expect(res404.status).toBe(400);
 
   // make sure it doesn't also turn up in the sequence assets
   const res = await caller.getAssets.getSequenceAssets({
@@ -276,39 +276,3 @@ test('financial education is hidden: returns invalid enum value', async () => {
       }),
   ).rejects.toThrow('Invalid option');
 });
-
-// test('isApprovedLesson: blocked subjects return false', () => {
-//   expect(isApprovedLesson('english', 'poetry', 'lesson 1')).toBe(false);
-// });
-
-// test('isApprovedLesson: made up subjects return false', () => {
-//   expect(
-//     isApprovedLesson(
-//       'defence-against-dark-arts',
-//       'defensive-spells',
-//       'protego',
-//     ),
-//   ).toBe(false);
-// });
-
-// test('isApprovedLesson: supported subject returns true', () => {
-//   expect(isApprovedLesson('maths', 'unit-1', 'lesson-1')).toBe(true);
-// });
-
-// test('isApprovedLesson: supported unit returns true', () => {
-//   expect(
-//     isApprovedLesson(
-//       'english',
-//       'apostrophes-and-speech-punctuation',
-//       'lesson-1',
-//     ),
-//   ).toBe(true);
-// });
-
-// test('isApprovedLesson: random unit returns false', () => {
-//   expect(isApprovedLesson('english', 'random-unit', 'lesson-1')).toBe(false);
-// });
-
-// test('isApprovedLesson: random lesson returns false', () => {
-//   expect(isApprovedLesson('english', 'random-unit', 'lesson-1')).toBe(false);
-// });
