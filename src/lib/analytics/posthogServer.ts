@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { PostHog } from 'posthog-node';
 
 const POSTHOG_CAPTURE_EVENT = 'api_request';
 const FALLBACK_DISTINCT_ID = 'api-anonymous';
@@ -23,13 +24,6 @@ export interface ApiRequestCapturePayload {
   userId?: number | string | null;
 }
 
-interface PostHogCaptureBody {
-  api_key: string;
-  distinct_id: string;
-  event: string;
-  properties: Record<string, unknown>;
-}
-
 const getPostHogApiKey = (): string | undefined => {
   return process.env.POSTHOG_API_KEY || process.env.NEXT_PUBLIC_POSTHOG_API_KEY;
 };
@@ -42,6 +36,31 @@ const getPostHogApiHost = (): string | undefined => {
 
 const normaliseApiHost = (apiHost: string): string => {
   return apiHost.endsWith('/') ? apiHost.slice(0, -1) : apiHost;
+};
+
+let postHogClient: PostHog | undefined;
+
+const getPostHogClient = (): PostHog | undefined => {
+  if (process.env.NODE_ENV !== 'production') {
+    return undefined;
+  }
+
+  const posthogApiKey = getPostHogApiKey();
+  const posthogApiHost = getPostHogApiHost();
+  if (!posthogApiKey || !posthogApiHost) {
+    return undefined;
+  }
+
+  if (postHogClient) {
+    return postHogClient;
+  }
+
+  postHogClient = new PostHog(posthogApiKey, {
+    flushAt: 1,
+    host: normaliseApiHost(posthogApiHost),
+  });
+
+  return postHogClient;
 };
 
 export const parseQueryParams = (
@@ -130,8 +149,11 @@ export const getDistinctId = (opts: {
 
 const buildCaptureBody = (
   payload: ApiRequestCapturePayload,
-  posthogApiKey: string,
-): PostHogCaptureBody => {
+): {
+  distinctId: string;
+  event: string;
+  properties: Record<string, unknown>;
+} => {
   const apiKeyFingerprint = createApiKeyFingerprint(payload.apiKey);
   const distinctId = getDistinctId({
     userId: payload.userId,
@@ -139,9 +161,8 @@ const buildCaptureBody = (
   });
 
   return {
-    api_key: posthogApiKey,
     event: POSTHOG_CAPTURE_EVENT,
-    distinct_id: distinctId,
+    distinctId,
     properties: {
       args: serialiseAnalyticsValue(payload.args),
       duration_ms: payload.durationMs,
@@ -161,32 +182,19 @@ const buildCaptureBody = (
 export const captureApiRequestEvent = (
   payload: ApiRequestCapturePayload,
 ): void => {
-  const posthogApiKey = getPostHogApiKey();
-  const posthogApiHost = getPostHogApiHost();
-
-  if (
-    !posthogApiKey ||
-    !posthogApiHost ||
-    process.env.NODE_ENV !== 'production'
-  ) {
+  const client = getPostHogClient();
+  if (!client) {
     return;
   }
 
-  const url = `${normaliseApiHost(posthogApiHost)}/capture/`;
-  const body = buildCaptureBody(payload, posthogApiKey);
-
-  void fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  }).catch((error: unknown) => {
+  try {
+    client.capture(buildCaptureBody(payload));
+  } catch (error: unknown) {
     // Analytics must never interfere with API responses.
     console.error('posthog capture failed', {
       message: error instanceof Error ? error.message : String(error),
       source: payload.source,
       trpcPath: payload.trpcPath || undefined,
     });
-  });
+  }
 };
