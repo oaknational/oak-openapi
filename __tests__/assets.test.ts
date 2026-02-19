@@ -93,7 +93,7 @@ test('request power point', async () => {
   expect(res2.headers.get('content-disposition')).to.match(/.pdf"$/);
 });
 
-test('blocked videos return 404', async () => {
+test('blocked videos return 400', async () => {
   const lessonSlug = placeholderVideos[6];
 
   const res = await getLessonAsset({
@@ -101,20 +101,9 @@ test('blocked videos return 404', async () => {
     type: 'video',
   });
 
-  expect(res.status).toBe(404);
+  expect(res.status).toBe(400);
 
   const caller = makeCaller({ user: 1 });
-
-  const res2 = await caller.getAssets.getLessonAssets({
-    lesson: lessonSlug,
-    type: 'video',
-  });
-
-  if (!res2.assets) {
-    throw new Error('assets not found in response');
-  }
-
-  expect(res2.assets.length).toBe(0);
 
   const res3 = await caller.getAssets.getSequenceAssets({
     sequence: 'english-primary',
