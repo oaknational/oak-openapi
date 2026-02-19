@@ -1,5 +1,5 @@
 import { protectedProcedure } from '@/lib/protect';
-import { HTTPStatusError, router } from '@/lib/trpc';
+import { router } from '@/lib/trpc';
 import type { Sequence, SequenceView } from '@/lib/owaClient';
 import {
   getClient,
@@ -9,7 +9,6 @@ import {
 } from '@/lib/owaClient';
 import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
 import { examBoards } from '../../oakConsts';
-import { blockedSequenceSubjects } from '../../blockedContent';
 import type {
   Category,
   ExamSubjectsWithoutTiers,
@@ -24,6 +23,8 @@ import {
   sequenceUnitsRequestOpenAPISchema,
   sequenceUnitsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/sequences';
+import { isSequenceSubjectBlocked } from '@/lib/queryGate';
+import { TRPCError } from '@trpc/server';
 
 interface WhereCondition {
   _and: {
@@ -140,12 +141,13 @@ export const getSequences = router({
       }
 
       const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
+      const gateTest = isSequenceSubjectBlocked(subjectSlug);
 
-      if (blockedSequenceSubjects.includes(subjectSlug)) {
-        throw new HTTPStatusError({
+      if (gateTest.isBlocked()) {
+        throw new TRPCError({
           message: `The subject "${subjectSlug}" is not currently available`,
-          code: 'NOT_FOUND',
-          statusCode: 451,
+          code: 'BAD_REQUEST',
+          cause: gateTest.reason,
         });
       }
 

@@ -1,6 +1,6 @@
 import { getLatestMajorVersion } from '@/lib/handlers/changelog/helpers';
 
-let domain = 'http://localhost:2727';
+let domain = `http://localhost:${process.env.PORT || 2727}`;
 
 if (process.env.VERCEL_URL) {
   domain = `https://${process.env.VERCEL_URL}`;

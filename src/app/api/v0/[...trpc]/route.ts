@@ -1,11 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import router from 'lib/router';
 import { createContext } from 'lib/context';
 import type { NextRequest } from 'next/server';
 import { createOpenApiFetchHandler } from 'trpc-to-openapi';
 import type { NextApiResponse } from 'next';
-
-import { HTTPStatusError } from '@/lib/trpc';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,21 +32,20 @@ const handler = async (req: NextRequest): Promise<Response> => {
 
       return context;
     },
-    responseMeta: ({ errors }) => {
-      // console.log(JSON.stringify(errors, null, 2));
-      const httpStatusError = errors?.find(
-        (err) => err?.cause instanceof HTTPStatusError,
-      );
-
-      if (httpStatusError?.cause instanceof HTTPStatusError) {
-        return { status: httpStatusError.cause.statusCode };
-      }
-
-      return {};
-    },
     req,
   });
 };
+
+function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'access-control-allow-origin': '*',
+      'access-control-allow-methods': 'GET, POST, OPTIONS',
+      'access-control-allow-headers': 'Content-Type, Authorization',
+    },
+  });
+}
 
 export {
   handler as GET,
@@ -57,6 +53,6 @@ export {
   handler as PUT,
   handler as PATCH,
   handler as DELETE,
-  handler as OPTIONS,
+  OPTIONS,
   handler as HEAD,
 };
