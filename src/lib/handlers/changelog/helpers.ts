@@ -1,5 +1,12 @@
 export const versions = [
   {
+    version: '0.6.0',
+    date: '2026-02-19',
+    changes: [
+      'Change to how blocked content is handled, using BAD_REQUEST & .data.cause instead of 451',
+    ],
+  },
+  {
     version: '0.5.0',
     date: '2025-03-06',
     changes: [
