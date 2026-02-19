@@ -1,5 +1,5 @@
 import { protectedProcedure } from '@/lib/protect';
-import { HTTPStatusError, router } from '@/lib/trpc';
+import { router } from '@/lib/trpc';
 import type { LessonContentView } from 'lib/owaClient';
 import { getClient, gql, lessonContentView } from 'lib/owaClient';
 
@@ -8,6 +8,7 @@ import {
   transcriptRequestOpenAPISchema,
   transcriptResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/transcript';
+import { TRPCError } from '@trpc/server';
 
 export const getLessonTranscript = router({
   getLessonTranscript: protectedProcedure
@@ -29,13 +30,13 @@ export const getLessonTranscript = router({
 
       const client = getClient();
 
-      const allowed = await checkLessonAllowedAsset(client, slug);
+      const gated = await checkLessonAllowedAsset(client, slug);
 
-      if (!allowed) {
-        throw new HTTPStatusError({
+      if (gated.isBlocked()) {
+        throw new TRPCError({
           message: `Transcript not available: "${slug}"`,
-          code: 'NOT_FOUND',
-          statusCode: 451,
+          code: 'BAD_REQUEST',
+          cause: gated.reason,
         });
       }
 

@@ -84,12 +84,15 @@ function isLessonAssetsAllowed(lesson: {
 }): boolean {
   const { subjectSlug, unitSlug, lessonSlug } = lesson;
 
-  if (isLessonSupported(lessonSlug)) {
+  if (isLessonSupported(lessonSlug).isAllowed()) {
     return true;
   }
 
   // Check if subject is supported or unit is in allowed list
-  return isSubjectSupported(subjectSlug) || isUnitSupported(unitSlug);
+  return (
+    isSubjectSupported(subjectSlug).isAllowed() ||
+    isUnitSupported(unitSlug).isAllowed()
+  );
 }
 
 async function buildLessonData(
