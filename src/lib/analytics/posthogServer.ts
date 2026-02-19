@@ -48,12 +48,21 @@ const getPostHogClient = (): PostHog | undefined => {
   const posthogApiKey = getPostHogApiKey();
   const posthogApiHost = getPostHogApiHost();
   if (!posthogApiKey || !posthogApiHost) {
+    console.log(
+      'PostHog API key or host not configured, analytics will be disabled',
+    );
     return undefined;
   }
 
   if (postHogClient) {
     return postHogClient;
   }
+
+  console.log(
+    'PostHog client initialized with host:',
+    normaliseApiHost(posthogApiHost),
+    posthogApiKey.slice(0, 4) + '****',
+  );
 
   postHogClient = new PostHog(posthogApiKey, {
     flushAt: 1,
