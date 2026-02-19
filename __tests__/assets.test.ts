@@ -128,7 +128,7 @@ test('blocked videos return 404', async () => {
 
   const res3 = await caller.getAssets.getSequenceAssets({
     sequence: 'english-primary',
-    year: 2,
+    year: 4,
   });
 
   const lesson = res3.find((a) => a.lessonSlug === lessonSlug);
