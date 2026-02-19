@@ -61,7 +61,7 @@ const getPostHogClient = (): PostHog | undefined => {
   console.log(
     'PostHog client initialized with host:',
     normaliseApiHost(posthogApiHost),
-    posthogApiKey.slice(0, 4) + '****',
+    posthogApiKey.slice(0, 8) + '****',
   );
 
   postHogClient = new PostHog(posthogApiKey, {
