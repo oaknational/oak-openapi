@@ -178,7 +178,10 @@ export async function checkLessonAllowedAsset(
     return new GateWithReason(false, `Lesson (${lessonSlug}) is supported`);
   }
 
-  return blockLessonForCopyrightText(client, lessonSlug);
+  return new GateWithReason(
+    true,
+    `Lesson (${lessonSlug}) not available, and subject (${subjectSlug}) and unit (${unitSlug}) are blocked for assets`,
+  );
 }
 
 export function supportsImages(subject: string, unit: string): GateWithReason {
