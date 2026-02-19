@@ -1,18 +1,24 @@
 import { TRPCError } from '@trpc/server';
-import {
-  afterEach,
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as z from 'zod/v4';
 
 import type { User } from '@/lib/apikeys';
 import { createCallerFactory, publicProcedure, router } from '@/lib/trpc';
+
+const mocks = vi.hoisted(() => ({
+  captureMock: vi.fn(),
+  postHogConstructorMock: vi.fn(),
+}));
+
+vi.mock('posthog-node', () => ({
+  PostHog: class {
+    capture = mocks.captureMock;
+
+    constructor(...args: unknown[]) {
+      mocks.postHogConstructorMock(...args);
+    }
+  },
+}));
 
 const analyticsTestRouter = router({
   fail: publicProcedure.query(() => {
@@ -58,25 +64,13 @@ const makeContext = (opts?: {
 };
 
 describe('tRPC analytics middleware', () => {
-  const originalFetch = global.fetch;
-  const fetchMock = vi.fn();
-
-  beforeAll(() => {
-    global.fetch = fetchMock as unknown as typeof fetch;
-  });
-
   afterEach(() => {
     vi.unstubAllEnvs();
   });
 
-  afterAll(() => {
-    vi.unstubAllEnvs();
-    global.fetch = originalFetch;
-  });
-
   beforeEach(() => {
-    fetchMock.mockReset();
-    fetchMock.mockResolvedValue(new Response(JSON.stringify({ status: 1 })));
+    mocks.captureMock.mockReset();
+    mocks.postHogConstructorMock.mockReset();
     vi.stubEnv('NODE_ENV', 'production');
     vi.stubEnv('POSTHOG_API_KEY', 'test-posthog-api-key');
     vi.stubEnv('POSTHOG_API_HOST', 'https://eu.i.posthog.com');
@@ -97,25 +91,25 @@ describe('tRPC analytics middleware', () => {
       subject: 'maths',
     });
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe('https://eu.i.posthog.com/capture/');
+    expect(mocks.postHogConstructorMock).toHaveBeenCalledTimes(1);
+    expect(mocks.captureMock).toHaveBeenCalledTimes(1);
+    const [message] = mocks.captureMock.mock.calls[0] as [
+      {
+        distinctId: string;
+        event: string;
+        properties: Record<string, unknown>;
+      },
+    ];
 
-    const body = JSON.parse(options.body as string) as {
-      distinct_id: string;
-      event: string;
-      properties: Record<string, unknown>;
-    };
-
-    expect(body.event).toBe('api_request');
-    expect(body.distinct_id).toBe('api-user:42');
-    expect(body.properties.success).toBe(true);
-    expect(body.properties.error_code).toBeUndefined();
-    expect(body.properties.args).toEqual({
+    expect(message.event).toBe('api_request');
+    expect(message.distinctId).toBe('api-user:42');
+    expect(message.properties.success).toBe(true);
+    expect(message.properties.error_code).toBeUndefined();
+    expect(message.properties.args).toEqual({
       includeUnits: true,
       subject: 'maths',
     });
-    expect(body.properties.query_params).toEqual({
+    expect(message.properties.query_params).toEqual({
       includeUnits: 'true',
       subject: 'maths',
       tag: ['one', 'two'],
@@ -136,14 +130,15 @@ describe('tRPC analytics middleware', () => {
       'forced error',
     );
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [, options] = fetchMock.mock.calls[0] as [string, RequestInit];
-    const body = JSON.parse(options.body as string) as {
-      properties: Record<string, unknown>;
-    };
+    expect(mocks.captureMock).toHaveBeenCalledTimes(1);
+    const [message] = mocks.captureMock.mock.calls[0] as [
+      {
+        properties: Record<string, unknown>;
+      },
+    ];
 
-    expect(body.properties.success).toBe(false);
-    expect(body.properties.error_code).toBe('BAD_REQUEST');
+    expect(message.properties.success).toBe(false);
+    expect(message.properties.error_code).toBe('BAD_REQUEST');
   });
 
   it('does not fail procedure calls if analytics capture transport fails', async () => {
@@ -151,7 +146,9 @@ describe('tRPC analytics middleware', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => undefined);
 
-    fetchMock.mockRejectedValue(new Error('capture transport error'));
+    mocks.captureMock.mockImplementation(() => {
+      throw new Error('capture transport error');
+    });
 
     const caller = createCaller(
       makeContext({
@@ -172,12 +169,7 @@ describe('tRPC analytics middleware', () => {
       subject: 'maths',
     });
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-
-    // Flush microtasks so the failed fetch's `.catch` executes.
-    await new Promise<void>((resolve) => {
-      queueMicrotask(resolve);
-    });
+    expect(mocks.captureMock).toHaveBeenCalledTimes(1);
 
     expect(consoleErrorSpy).toHaveBeenCalled();
     consoleErrorSpy.mockRestore();
