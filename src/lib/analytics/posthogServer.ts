@@ -29,7 +29,6 @@ const getPostHogApiKey = (): string | undefined => {
 };
 
 const getPostHogApiHost = (): string | undefined => {
-  return 'https://webhook.site/89fe29ae-89b9-4d3e-8da4-f4ae5cfe18a1';
   return (
     process.env.POSTHOG_API_HOST || process.env.NEXT_PUBLIC_POSTHOG_API_HOST
   );
@@ -42,7 +41,7 @@ const normaliseApiHost = (apiHost: string): string => {
 let postHogClient: PostHog | undefined;
 
 const getPostHogClient = (): PostHog | undefined => {
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV === 'development' || process.env.TEST) {
     return undefined;
   }
 
