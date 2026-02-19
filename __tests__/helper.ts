@@ -54,8 +54,10 @@ export async function getLessonAsset({
   lesson: string;
   type: string;
 }): Promise<Response> {
+  const url = `http://localhost/lessons/${lesson}/assets/${type}`;
   const request = {
-    nextUrl: new URL(`http://localhost/lessons/${lesson}/assets/${type}`),
+    nextUrl: new URL(url),
+    url,
     headers: new Headers({
       authorization: 'Bearer 123',
     }),
