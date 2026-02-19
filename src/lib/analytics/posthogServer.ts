@@ -173,6 +173,7 @@ const buildCaptureBody = (
     event: POSTHOG_CAPTURE_EVENT,
     distinctId,
     properties: {
+      $current_url: payload.endpointPath,
       args: serialiseAnalyticsValue(payload.args),
       duration_ms: payload.durationMs,
       endpoint_path: payload.endpointPath,
