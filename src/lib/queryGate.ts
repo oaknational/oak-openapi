@@ -50,7 +50,7 @@ const supportedSubjects = ['maths'];
 export const blockedSubjects = ['english', 'financial-education'];
 
 function isLessonBlocked(lessonSlug: string): boolean {
-  return (assetBlockedLessons as string[]).includes(lessonSlug);
+  return assetBlockedLessons.includes(lessonSlug);
 }
 
 function isUnitBlocked(unitSlug: string): boolean {
