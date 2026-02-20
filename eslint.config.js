@@ -12,6 +12,7 @@ import { importX } from 'eslint-plugin-import-x';
 import { configs as tsEslintConfigs } from 'typescript-eslint';
 import globals from 'globals';
 import eslint from '@eslint/js';
+import noGateWithReasonBoolean from './eslint-rules/no-gate-with-reason-boolean.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -70,6 +71,11 @@ export default [
     plugins: {
       prettier: prettierPlugin,
       '@next/next': next,
+      'custom-rules': {
+        rules: {
+          'no-gate-with-reason-boolean': noGateWithReasonBoolean,
+        },
+      },
     },
     rules: {
       ...typescriptEslint.configs.recommended.rules,
@@ -81,6 +87,7 @@ export default [
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'warn',
       '@typescript-eslint/no-unsafe-return': 'warn',
+      'custom-rules/no-gate-with-reason-boolean': 'error',
       'import-x/no-named-as-default': 'off',
       'import-x/no-named-as-default-member': 'off',
     },

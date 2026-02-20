@@ -1,7 +1,5 @@
 import { protectedProcedure } from '@/lib/protect';
-
-import { HTTPStatusError, router } from '@/lib/trpc';
-
+import { router } from '@/lib/trpc';
 import {
   getClient,
   gql,
@@ -16,14 +14,14 @@ import {
   blockedSubjects,
   getSubjectAndUnitForLesson,
   isBlockedUnitOrSubject,
+  isSequenceSubjectBlocked,
   supportsImages,
 } from '../../queryGate';
-import allowedUnits from '../../queryGateData/supportedUnits.json' with { type: 'json' };
+import allowedUnits from '../../queryGateData/copyright/supportedUnits.json' with { type: 'json' };
 import type { Question, QuizKey } from './types';
 import { TRPCError } from '@trpc/server';
 import { sequenceWhere } from '../sequences/sequences';
 import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
-import { blockedSequenceSubjects } from '../../blockedContent';
 import { questionsForQuiz } from './helpers';
 import {
   questionForLessonsRequestOpenAPISchema,
@@ -65,11 +63,11 @@ export const getQuestions = router({
 
       const blocked = isBlockedUnitOrSubject(subjectUnit);
 
-      if (blocked) {
-        throw new HTTPStatusError({
+      if (blocked.isBlocked()) {
+        throw new TRPCError({
           message: `Lesson not available: "${slug}"`,
-          code: 'NOT_FOUND',
-          statusCode: 451,
+          code: 'BAD_REQUEST',
+          cause: blocked.reason,
         });
       }
 
@@ -113,7 +111,7 @@ export const getQuestions = router({
         subjectUnit.unitSlug,
       );
 
-      return questionsForQuiz(lesson, imagesAllowed);
+      return questionsForQuiz(lesson, imagesAllowed.isAllowed());
     }),
   getQuestionsForSequence: protectedProcedure
     .meta({
@@ -133,12 +131,13 @@ export const getQuestions = router({
       const client = getClient();
 
       const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
+      const gateTest = isSequenceSubjectBlocked(subjectSlug);
 
-      if (blockedSequenceSubjects.includes(subjectSlug)) {
-        throw new HTTPStatusError({
+      if (gateTest.isBlocked()) {
+        throw new TRPCError({
           message: `The subject "${subjectSlug}" is not currently available`,
-          code: 'NOT_FOUND',
-          statusCode: 451,
+          code: 'BAD_REQUEST',
+          cause: gateTest.reason,
         });
       }
 
@@ -230,7 +229,7 @@ export const getQuestions = router({
 
         const results = questionsForQuiz(
           { exitQuiz, starterQuiz },
-          imagesAllowed,
+          imagesAllowed.isAllowed(),
         );
 
         lessons.push({
@@ -365,7 +364,7 @@ export const getQuestions = router({
 
         const results = questionsForQuiz(
           { exitQuiz, starterQuiz },
-          imagesAllowed,
+          imagesAllowed.isAllowed(),
         );
 
         lessons.push({

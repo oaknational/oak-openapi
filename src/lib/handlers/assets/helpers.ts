@@ -1,36 +1,5 @@
 import type { lessonView, LessonView } from '@/lib/owaClient';
 import type { Storage } from '@google-cloud/storage';
-import {
-  isBlockedUnitOrSubject,
-  isSubjectSupported,
-  isUnitSupported,
-} from '@/lib/queryGate';
-
-export function isApprovedLesson(
-  subjectSlug: string,
-  unitSlug: string,
-  lessonSlug: string,
-): boolean {
-  // Return false immediately if a blocked subject
-  if (isBlockedUnitOrSubject({ unitSlug, subjectSlug })) {
-    return false;
-  }
-  // If it's a supported subject, all good
-  if (isSubjectSupported(subjectSlug)) {
-    return true;
-  }
-  // If it's a supported unit, even better - all lessons are valid
-  if (isUnitSupported(unitSlug)) {
-    return true;
-  }
-  // TODO: If all else is not true, check the lesson slug
-
-  if (lessonSlug) {
-    return false;
-  }
-
-  return false;
-}
 
 export function getAttribution(
   attribution: LessonView[typeof lessonView][0],

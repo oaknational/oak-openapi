@@ -1,4 +1,5 @@
 import { GET as _getLessonAsset } from '@/app/api/v0/lessons/[lesson]/assets/[type]/route';
+import { TRPCError } from '@trpc/server';
 
 import type { NextRequest } from 'next/server';
 import { vi } from 'vitest';
@@ -17,6 +18,20 @@ vi.mock('@/lib/rateLimit', async (importOriginal: () => Promise<object>) => {
     }),
   };
 });
+
+export function extractCauseFromTRPCError(
+  error: TRPCError,
+): string | undefined {
+  if ('cause' in error) {
+    const cause = error.cause;
+    if (typeof cause === 'string') {
+      return cause;
+    } else if (cause instanceof Error) {
+      return cause.toString();
+    }
+  }
+  return undefined;
+}
 
 export function mockWithUser() {
   vi.mock('@/lib/context', () => {
@@ -40,8 +55,10 @@ export async function getLessonAsset({
   lesson: string;
   type: string;
 }): Promise<Response> {
+  const url = `http://localhost/lessons/${lesson}/assets/${type}`;
   const request = {
-    nextUrl: new URL(`http://localhost/lessons/${lesson}/assets/${type}`),
+    nextUrl: new URL(url),
+    url,
     headers: new Headers({
       authorization: 'Bearer 123',
     }),
