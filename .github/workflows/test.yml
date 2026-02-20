@@ -17,19 +17,17 @@ jobs:
       PRISMA_ACCELERATE_DATABASE_URL: ${{ secrets.PRISMA_ACCELERATE_DATABASE_URL }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: '20'
+          version: 10
 
-      - name: Install pnpm
-        run: npm install -g pnpm@10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
 
-      - name: Install dependencies
-        run: pnpm install
+      - run: pnpm install --frozen-lockfile
 
-      - name: Run tests
-        run: pnpm test
+      - run: pnpm test
