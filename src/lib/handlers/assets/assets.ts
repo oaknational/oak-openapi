@@ -255,8 +255,7 @@ This endpoint contains licence information for any third-party content contained
     .input(sequenceAssetsRequestOpenAPISchema)
     .output(sequenceAssetsResponseOpenAPISchema)
     .query(async ({ input }) => {
-      // FIXME year was never being used to filter
-      const { sequence, type } = input;
+      const { sequence, type, year } = input;
       const client = getClient();
 
       const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
@@ -270,7 +269,7 @@ This endpoint contains licence information for any third-party content contained
         });
       }
 
-      const where = sequenceWhere(sequence);
+      const where = sequenceWhere(sequence, year ? year.toString() : undefined);
 
       const query = gql`
       query ($where: ${sequenceViewWhereInput}!) {
@@ -371,8 +370,6 @@ This endpoint contains licence information for any third-party content contained
       });
 
       const tpc = tpcViewResult[lessonView];
-
-      // FIXME add the year filter if provided
 
       const result = downloads
         .filter(({ lessonSlug }) => isLessonAllowed(lessonSlug))
