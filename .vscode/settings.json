@@ -47,6 +47,7 @@
     "tsquery",
     "tsvector",
     "unitvariant",
+    "unstub",
     "UPSTASH",
     "vectorstores",
     "yazl"

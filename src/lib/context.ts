@@ -13,6 +13,7 @@ interface FetchCreateContextFnOptions {
 }
 
 interface ContextWithUser {
+  apiKey?: string | null;
   req: Request;
   resHeaders: {
     set: (key: string, value: string) => void;
@@ -43,7 +44,8 @@ const createContextWithUser = async ({
   resHeaders.set('access-control-allow-methods', 'GET, POST, OPTIONS');
   resHeaders.set('access-control-allow-headers', 'Content-Type, Authorization');
 
-  const user = await withUser(req);
+  const apiKey = getApiKeyFromRequest(req);
+  const user = await withUser(req, apiKey);
   // Log the request which is forwarded to datadog
   console.info(
     JSON.stringify({
@@ -54,6 +56,7 @@ const createContextWithUser = async ({
   );
 
   return {
+    apiKey,
     req,
     resHeaders,
     rateLimit: undefined as RateLimitInfo | undefined,
@@ -61,19 +64,32 @@ const createContextWithUser = async ({
   };
 };
 
-export const withUser = async (req: Request): Promise<User | null> => {
-  let user: User | null = null;
-
+export const getApiKeyFromRequest = (req: Request): string | null => {
   const authorization = req.headers.get('authorization');
 
-  if (authorization) {
-    const token = authorization?.split(' ')[1];
-    if (token) {
-      user = await findUserByKey(token);
-    }
+  if (!authorization) {
+    return null;
   }
 
-  return user;
+  const [scheme, token] = authorization.split(' ');
+  if (scheme.toLowerCase() !== 'bearer' || !token) {
+    return null;
+  }
+
+  return token;
+};
+
+export const withUser = async (
+  req: Request,
+  apiKey?: string | null,
+): Promise<User | null> => {
+  const token = apiKey ?? getApiKeyFromRequest(req);
+
+  if (!token) {
+    return null;
+  }
+
+  return findUserByKey(token);
 };
 
 export const createContext = createContextWithUser;
