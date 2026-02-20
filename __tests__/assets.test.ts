@@ -93,6 +93,16 @@ test('request power point', async () => {
   expect(res2.headers.get('content-disposition')).to.match(/.pdf"$/);
 });
 
+test('sequence asset year filter', async () => {
+  const caller = makeCaller({ user: 1 });
+  const res = await caller.getAssets.getSequenceAssets({
+    sequence: 'english-primary',
+    year: 10,
+  });
+
+  expect(res.length).toBe(0);
+});
+
 test('blocked videos return 400', async () => {
   const lessonSlug = placeholderVideos[6];
 
@@ -107,7 +117,7 @@ test('blocked videos return 400', async () => {
 
   const res3 = await caller.getAssets.getSequenceAssets({
     sequence: 'english-primary',
-    year: 2,
+    year: 4,
   });
 
   const lesson = res3.find((a) => a.lessonSlug === lessonSlug);
