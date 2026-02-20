@@ -60,6 +60,7 @@ const handler = async (req: NextRequest): Promise<Response> => {
       const apiKey = ctx?.apiKey ?? getApiKeyFromRequest(req);
 
       captureApiRequestEvent({
+        url: req.url,
         apiKey,
         endpointPath: opts.path || '/unknown',
         httpMethod: req.method || 'UNKNOWN',

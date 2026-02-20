@@ -130,6 +130,7 @@ const handler = async (
       );
 
       captureApiRequestEvent({
+        url: req.url,
         apiKey,
         args,
         durationMs: Date.now() - startedAt,
@@ -169,6 +170,7 @@ const handler = async (
 
         const redirectResponse = NextResponse.redirect(url.toString(), 302);
         captureApiRequestEvent({
+          url: req.url,
           apiKey,
           args,
           durationMs: Date.now() - startedAt,
@@ -212,6 +214,7 @@ const handler = async (
       }
 
       captureApiRequestEvent({
+        url: req.url,
         apiKey,
         args,
         durationMs: Date.now() - startedAt,
@@ -234,6 +237,7 @@ const handler = async (
     }
 
     captureApiRequestEvent({
+      url: req.url,
       apiKey,
       args,
       durationMs: Date.now() - startedAt,

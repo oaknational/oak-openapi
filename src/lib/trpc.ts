@@ -155,12 +155,14 @@ const analyticsMiddleware = t.middleware(async (opts) => {
     if (result.ok) {
       captureApiRequestEvent({
         ...basePayload,
+        url: opts.ctx.req.url,
         success: true,
         durationMs: Date.now() - startedAt,
       });
     } else {
       captureApiRequestEvent({
         ...basePayload,
+        url: opts.ctx.req.url,
         success: false,
         durationMs: Date.now() - startedAt,
         errorCode: result.error.code,
@@ -171,6 +173,7 @@ const analyticsMiddleware = t.middleware(async (opts) => {
   } catch (error) {
     captureApiRequestEvent({
       ...basePayload,
+      url: opts.ctx.req.url,
       success: false,
       durationMs: Date.now() - startedAt,
       errorCode: error instanceof Error ? error.name : 'UNKNOWN_ERROR',

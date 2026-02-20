@@ -96,6 +96,7 @@ const handler = async (req: NextRequest): Promise<Response> => {
     });
 
     captureApiRequestEvent({
+      url: req.url,
       apiKey,
       args,
       durationMs: Date.now() - startedAt,
@@ -117,6 +118,7 @@ const handler = async (req: NextRequest): Promise<Response> => {
     }
 
     captureApiRequestEvent({
+      url: req.url,
       apiKey,
       args,
       durationMs: Date.now() - startedAt,

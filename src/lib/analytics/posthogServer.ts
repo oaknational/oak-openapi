@@ -7,6 +7,7 @@ const FALLBACK_DISTINCT_ID = 'api-anonymous';
 type QueryParamValue = string | string[];
 
 export interface ApiRequestCapturePayload {
+  url?: string;
   apiKey?: string | null;
   args?: unknown;
   durationMs?: number;
@@ -173,7 +174,7 @@ const buildCaptureBody = (
     event: POSTHOG_CAPTURE_EVENT,
     distinctId,
     properties: {
-      $current_url: payload.endpointPath,
+      $current_url: payload.url,
       args: serialiseAnalyticsValue(payload.args),
       duration_ms: payload.durationMs,
       endpoint_path: payload.endpointPath,
@@ -200,6 +201,7 @@ export const captureApiRequestEvent = (
   try {
     const captureBody = buildCaptureBody(payload);
     console.info('posthog capture sent', {
+      url: payload.url,
       endpointPath: payload.endpointPath,
       errorCode: payload.errorCode || undefined,
       event: captureBody.event,
