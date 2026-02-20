@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { PostHog } from 'posthog-node';
 
-const POSTHOG_CAPTURE_EVENT = 'API Request';
+export const POSTHOG_CAPTURE_EVENT = 'API Request';
 const FALLBACK_DISTINCT_ID = 'api-anonymous';
 
 type QueryParamValue = string | string[];

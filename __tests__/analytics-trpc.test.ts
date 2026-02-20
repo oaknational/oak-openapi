@@ -4,6 +4,7 @@ import * as z from 'zod/v4';
 
 import type { User } from '@/lib/apikeys';
 import { createCallerFactory, publicProcedure, router } from '@/lib/trpc';
+import { POSTHOG_CAPTURE_EVENT } from '@/lib/analytics/posthogServer';
 
 const mocks = vi.hoisted(() => ({
   captureMock: vi.fn(),
@@ -71,6 +72,7 @@ describe('tRPC analytics middleware', () => {
   beforeEach(() => {
     mocks.captureMock.mockReset();
     mocks.postHogConstructorMock.mockReset();
+    vi.stubEnv('TEST', '');
     vi.stubEnv('NODE_ENV', 'production');
     vi.stubEnv('POSTHOG_API_KEY', 'test-posthog-api-key');
     vi.stubEnv('POSTHOG_API_HOST', 'https://eu.i.posthog.com');
@@ -101,7 +103,7 @@ describe('tRPC analytics middleware', () => {
       },
     ];
 
-    expect(message.event).toBe('api_request');
+    expect(message.event).toBe(POSTHOG_CAPTURE_EVENT);
     expect(message.distinctId).toBe('api-user:42');
     expect(message.properties.success).toBe(true);
     expect(message.properties.error_code).toBeUndefined();
