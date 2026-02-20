@@ -3,6 +3,7 @@ import { openApiDocument } from '@/lib/zod-openapi/schema/generateDocument';
 export const GET = () => {
   // we use additional tags for the `/docs` endpoint documentation,
   // but we don't want to expose them in the OpenAPI playground.
+  // so we'll intentionally mutate and it's safe to do so.
   if (openApiDocument.paths) {
     const remove = [
       'unit-and-curriculum-data',

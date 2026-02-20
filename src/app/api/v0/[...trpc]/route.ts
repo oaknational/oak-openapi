@@ -8,7 +8,6 @@ import {
   captureApiRequestEvent,
   parseQueryParams,
 } from '@/lib/analytics/posthogServer';
-import { HTTPStatusError } from '@/lib/trpc';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,18 +36,6 @@ const handler = async (req: NextRequest): Promise<Response> => {
       });
 
       return context;
-    },
-    responseMeta: ({ errors }) => {
-      // console.log(JSON.stringify(errors, null, 2));
-      const httpStatusError = errors?.find(
-        (err) => err?.cause instanceof HTTPStatusError,
-      );
-
-      if (httpStatusError?.cause instanceof HTTPStatusError) {
-        return { status: httpStatusError.cause.statusCode };
-      }
-
-      return {};
     },
     onError: (opts) => {
       if (opts.type !== 'unknown' && opts.path) {
