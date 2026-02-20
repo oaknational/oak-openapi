@@ -37,6 +37,7 @@ export function mockWithUser() {
   vi.mock('@/lib/context', () => {
     const user = { id: 1, name: 'Test User', key: 'test-user', rateLimit: 0 };
     return {
+      getApiKeyFromRequest: vi.fn().mockReturnValue('test-user'),
       withUser: vi.fn().mockResolvedValue(user),
       Context: vi.fn().mockImplementation(() => ({
         user,

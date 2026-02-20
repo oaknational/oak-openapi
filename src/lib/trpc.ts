@@ -4,6 +4,11 @@ import superjson from 'superjson';
 import type { OpenApiMeta } from 'trpc-to-openapi';
 import { ZodError } from 'zod';
 
+import {
+  captureApiRequestEvent,
+  parseQueryParams,
+} from '@/lib/analytics/posthogServer';
+import { getApiKeyFromRequest } from '@/lib/context';
 import type { Context } from '@/lib/context';
 
 const extraDebug = process.env.NODE_ENV === 'development';
@@ -101,7 +106,68 @@ export function errorFormatter({
   return reply;
 }
 
+const analyticsMiddleware = t.middleware(async (opts) => {
+  const startedAt = Date.now();
+
+  const openApiMeta = opts.meta?.openapi;
+  const endpointPath = openApiMeta?.path || opts.path;
+  const httpMethod = openApiMeta?.method || opts.ctx.req.method;
+  const apiKey = opts.ctx.apiKey ?? getApiKeyFromRequest(opts.ctx.req);
+  const queryParams = parseQueryParams(opts.ctx.req.url);
+  const args =
+    opts.input !== undefined
+      ? opts.input
+      : await opts
+          .getRawInput()
+          .then((value) => value)
+          .catch(() => undefined);
+
+  const basePayload = {
+    apiKey,
+    args,
+    endpointPath,
+    httpMethod,
+    queryParams,
+    source: 'trpc_middleware' as const,
+    trpcPath: opts.path,
+    userId: opts.ctx.user?.id,
+  };
+
+  try {
+    const result = await opts.next();
+
+    if (result.ok) {
+      captureApiRequestEvent({
+        ...basePayload,
+        url: opts.ctx.req.url,
+        success: true,
+        durationMs: Date.now() - startedAt,
+      });
+    } else {
+      captureApiRequestEvent({
+        ...basePayload,
+        url: opts.ctx.req.url,
+        success: false,
+        durationMs: Date.now() - startedAt,
+        errorCode: result.error.code,
+      });
+    }
+
+    return result;
+  } catch (error) {
+    captureApiRequestEvent({
+      ...basePayload,
+      url: opts.ctx.req.url,
+      success: false,
+      durationMs: Date.now() - startedAt,
+      errorCode: error instanceof Error ? error.name : 'UNKNOWN_ERROR',
+    });
+
+    throw error;
+  }
+});
+
 export const router = t.router;
-export const publicProcedure = t.procedure;
+export const publicProcedure = t.procedure.use(analyticsMiddleware);
 export const mergeRouters = t.mergeRouters;
 export const createCallerFactory = t.createCallerFactory;
