@@ -200,15 +200,7 @@ export const captureApiRequestEvent = (
 
   try {
     const captureBody = buildCaptureBody(payload);
-    console.info('posthog capture sent', {
-      url: payload.url,
-      endpointPath: payload.endpointPath,
-      errorCode: payload.errorCode || undefined,
-      event: captureBody.event,
-      source: payload.source,
-      success: payload.success,
-      trpcPath: payload.trpcPath || undefined,
-    });
+
     client.capture(captureBody);
   } catch (error: unknown) {
     // Analytics must never interfere with API responses.
