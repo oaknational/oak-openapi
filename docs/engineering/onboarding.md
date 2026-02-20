@@ -37,7 +37,8 @@ Environment setup
 3) Optional (feature-specific):
    - `PRISMA_ACCELERATE_DATABASE_URL` (transcript search)
    - `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `SANITY_AUTH_SECRET` (CMS docs)
-   - `NEXT_PUBLIC_POSTHOG_API_KEY`, `NEXT_PUBLIC_POSTHOG_API_HOST` (analytics)
+   - `NEXT_PUBLIC_POSTHOG_API_KEY`, `NEXT_PUBLIC_POSTHOG_API_HOST` (frontend analytics)
+   - `POSTHOG_API_KEY`, `POSTHOG_API_HOST` (server/API analytics; falls back to `NEXT_PUBLIC_` values if not set)
    - `AUTH_USERNAME`, `AUTH_PASSWORD` (admin basic auth)
 
 Run locally

@@ -1,5 +1,5 @@
 import { TRPCError } from '@trpc/server';
-import { t } from '@/lib/trpc';
+import { publicProcedure, t } from '@/lib/trpc';
 import type { RateLimiter, RateLimitInfo } from './rateLimit';
 import { rateLimiter, rateLimits, defaultRateLimit } from './rateLimit';
 import type { Context } from './context';
@@ -76,4 +76,4 @@ const protectMiddleware = t.middleware(async ({ ctx, next, meta }) => {
   return next({ ctx });
 });
 
-export const protectedProcedure = t.procedure.use(protectMiddleware);
+export const protectedProcedure = publicProcedure.use(protectMiddleware);
