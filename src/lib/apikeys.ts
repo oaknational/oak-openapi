@@ -10,6 +10,7 @@ export interface UserUpdate {
   key?: string;
   requests?: number;
   uuid?: string;
+  lastRequest?: string; // as JSON string
 }
 
 export type UserUpdateWithKey = UserUpdate & {
