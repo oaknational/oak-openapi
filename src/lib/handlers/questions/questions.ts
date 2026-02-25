@@ -9,7 +9,6 @@ import {
 } from 'lib/owaClient';
 import type { LessonView, SequenceView } from 'lib/owaClient';
 
-import { baseUrl } from '../../baseUrl';
 import {
   blockedSubjects,
   getSubjectAndUnitForLesson,
@@ -31,6 +30,7 @@ import {
   questionsForSequenceRequestOpenAPISchema,
   questionsForSequenceResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/questions';
+import { nextPageLink } from '@/lib/pagination';
 
 export const getQuestions = router({
   getQuestionsForLessons: protectedProcedure
@@ -199,12 +199,11 @@ export const getQuestions = router({
         return [];
       }
 
-      let next = null;
       if (data.length === limit) {
-        next = `${baseUrl}${ctx.req.url}?offset=${
-          offset + limit
-        }&limit=${limit}`;
-        ctx.resHeaders.set('link', `<${next}>; rel="next"`);
+        ctx.resHeaders.set(
+          'link',
+          `<${nextPageLink(ctx.req.url, offset, limit)}>; rel="next"`,
+        );
       }
 
       const lessons = [];
@@ -334,12 +333,11 @@ export const getQuestions = router({
         return [];
       }
 
-      let next = null;
       if (data.length === limit) {
-        next = `${baseUrl}${ctx.req.url}?offset=${
-          offset + limit
-        }&limit=${limit}`;
-        ctx.resHeaders.set('link', `<${next}>; rel="next"`);
+        ctx.resHeaders.set(
+          'link',
+          `<${nextPageLink(ctx.req.url, offset, limit)}>; rel="next"`,
+        );
       }
 
       const lessons = [];
