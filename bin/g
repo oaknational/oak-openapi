@@ -8,9 +8,7 @@ URL=$1
 if [[ $1 == "prod" ]]; then
   ROOT=https://open-api.thenational.academy/api/v0
   URL=$2
-fi
-
-if [[ $2 != "" ]]; then
+elif [[ $2 != "" ]]; then
   ROOT=$1
   URL=$2
 fi

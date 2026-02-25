@@ -22,12 +22,15 @@ export function makeResHeaders() {
   return {
     get: vitest.fn(),
     set: vitest.fn(),
-  } as unknown as Headers;
+  };
 }
 
-export function makeCaller(opts = {}, rateLimit = false) {
+export function makeCaller(
+  opts = {},
+  rateLimit = false,
+  headers = makeResHeaders() as unknown as Headers,
+) {
   const createCaller = createCallerFactory(router);
-  const headers = makeResHeaders();
 
   const callerOptions = {
     req: {
@@ -52,11 +55,17 @@ export function makeCaller(opts = {}, rateLimit = false) {
 
 export function authedCaller(user: User | number = 1) {
   const res = makeRes();
+  const headers = makeResHeaders();
   return {
-    caller: makeCaller({
-      user,
-      res,
-    }),
+    caller: makeCaller(
+      {
+        user,
+        res,
+      },
+      false,
+      headers as unknown as Headers,
+    ),
     request: res,
+    headers,
   };
 }
