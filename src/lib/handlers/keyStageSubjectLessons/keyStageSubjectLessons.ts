@@ -4,11 +4,11 @@ import { router } from '@/lib/trpc';
 import type { UnitVariantLessonsView } from 'lib/owaClient';
 import { getClient, gql, unitVariantLessonsView } from 'lib/owaClient';
 
-import { baseUrl } from '../../baseUrl';
 import {
   keyStageSubjectLessonsRequestOpenAPISchema,
   keyStageSubjectLessonsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/keyStageSubjectLessons';
+import { nextPageLink } from '@/lib/pagination';
 
 export const getKeyStageSubjectLessons = router({
   getKeyStageSubjectLessons: protectedProcedure
@@ -78,12 +78,13 @@ export const getKeyStageSubjectLessons = router({
 
       let next = null;
       if (lessons.length === limit) {
-        next = `${baseUrl}${ctx.req.url}?offset=${
-          offset + limit
-        }&limit=${limit}`;
-        if (unit) {
-          next += `&unit=${unit}`;
-        }
+        next = nextPageLink(
+          ctx.req.url,
+          offset,
+          limit,
+          unit ? { unit } : undefined,
+        );
+
         ctx.resHeaders.set('link', `<${next}>; rel="next"`);
       }
 

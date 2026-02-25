@@ -42,7 +42,11 @@ const normaliseApiHost = (apiHost: string): string => {
 let postHogClient: PostHog | undefined;
 
 const getPostHogClient = (): PostHog | undefined => {
-  if (process.env.NODE_ENV === 'development' || process.env.TEST) {
+  if (
+    process.env.NODE_ENV === 'development' ||
+    process.env.TEST ||
+    process.env.VITEST
+  ) {
     return undefined;
   }
 
@@ -58,12 +62,6 @@ const getPostHogClient = (): PostHog | undefined => {
   if (postHogClient) {
     return postHogClient;
   }
-
-  console.log(
-    'PostHog client initialized with host:',
-    normaliseApiHost(posthogApiHost),
-    posthogApiKey.slice(0, 8) + '****',
-  );
 
   postHogClient = new PostHog(posthogApiKey, {
     flushAt: 1,

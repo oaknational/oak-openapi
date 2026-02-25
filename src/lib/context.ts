@@ -2,13 +2,16 @@ import type { User } from '@/lib/apikeys';
 import { findUserByKey } from '@/lib/apikeys';
 import type { RateLimitInfo } from './rateLimit';
 import type { TRPCRequestInfo } from '@trpc/server/http';
-import type { NextApiResponse } from 'next';
 
 export type Context = Awaited<Promise<ReturnType<typeof createContext>>>;
 
+interface ResponseHeaderSetter {
+  setHeader: (key: string, value: string) => void;
+}
+
 interface FetchCreateContextFnOptions {
   req: Request;
-  res: NextApiResponse;
+  res: ResponseHeaderSetter;
   info: TRPCRequestInfo;
 }
 
@@ -46,14 +49,19 @@ const createContextWithUser = async ({
 
   const apiKey = getApiKeyFromRequest(req);
   const user = await withUser(req, apiKey);
-  // Log the request which is forwarded to datadog
-  console.info(
-    JSON.stringify({
-      userId: user?.id,
-      url: req.url,
-      query: info.url?.searchParams.toString(),
-    }),
-  );
+
+  // given that as of ~2026-02-15 we're sending events to posthog, I wonder if
+  // this is still useful? - RS 2026-02-25
+  if (process.env.NODE_ENV === 'production') {
+    // Log the request which is forwarded to datadog
+    console.info(
+      JSON.stringify({
+        userId: user?.id,
+        url: req.url,
+        query: info.url?.searchParams.toString(),
+      }),
+    );
+  }
 
   return {
     apiKey,
