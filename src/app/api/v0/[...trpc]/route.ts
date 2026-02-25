@@ -2,7 +2,6 @@ import router from 'lib/router';
 import { createContext, getApiKeyFromRequest } from 'lib/context';
 import type { NextRequest } from 'next/server';
 import { createOpenApiFetchHandler } from 'trpc-to-openapi';
-import type { NextApiResponse } from 'next';
 
 import {
   captureApiRequestEvent,
@@ -16,26 +15,11 @@ const handler = async (req: NextRequest): Promise<Response> => {
     endpoint: '/api/v0',
     router,
     createContext: async (opts) => {
-      // Mock NextApiResponse for fetch adapter
-      const resHeaders = new Map<string, string>();
-      const mockRes: NextApiResponse = {
-        setHeader: (key: string, value: string) => {
-          resHeaders.set(key, value);
-        },
-      } as NextApiResponse;
-
-      const context = await createContext({
-        ...opts,
-        res: mockRes,
-      });
-
-      // Apply headers to response
-      const response = new Response(null, { status: 200 });
-      resHeaders.forEach((value, key) => {
-        response.headers.set(key, value);
-      });
-
-      return context;
+      // trpc-to-openapi uses node-http adapter internally which provides res,
+      // but the TypeScript types incorrectly show the fetch adapter signature
+      return createContext(
+        opts as unknown as Parameters<typeof createContext>[0],
+      );
     },
     onError: (opts) => {
       if (opts.type !== 'unknown' && opts.path) {

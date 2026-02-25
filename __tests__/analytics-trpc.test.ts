@@ -73,6 +73,7 @@ describe('tRPC analytics middleware', () => {
     mocks.captureMock.mockReset();
     mocks.postHogConstructorMock.mockReset();
     vi.stubEnv('TEST', '');
+    vi.stubEnv('VITEST', '');
     vi.stubEnv('NODE_ENV', 'production');
     vi.stubEnv('POSTHOG_API_KEY', 'test-posthog-api-key');
     vi.stubEnv('POSTHOG_API_HOST', 'https://eu.i.posthog.com');
