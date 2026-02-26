@@ -146,20 +146,12 @@ export async function blockUnitForCopyrightText(
 export async function checkLessonAllowedAsset(
   client: GraphQLClient,
   lessonSlug: string,
-  lessonOnly = false,
 ): Promise<GateWithReason> {
   // if the lesson is blocked, return false
   if (isLessonBlocked(lessonSlug)) {
     return new GateWithReason(
       true,
       'Lesson asset is restricted and therefore blocked',
-    );
-  }
-
-  if (lessonOnly) {
-    return new GateWithReason(
-      false,
-      'Lesson is not blocked, skipping subject and unit checks',
     );
   }
 
