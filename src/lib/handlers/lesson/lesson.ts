@@ -140,7 +140,6 @@ export const getLessons = router({
           const isBlockedForDownloads = await checkLessonAllowedAsset(
             client,
             slug,
-            true,
           );
 
           if (isBlockedForDownloads.isBlocked()) {
