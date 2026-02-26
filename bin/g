@@ -1,6 +1,11 @@
+#!/bin/bash
+
 set -a
-. ./.env
+while IFS='=' read -r key value; do
+  [ -z "${!key}" ] && export "$key=$value"
+done < <(grep -v '^#' .env | grep -v '^\s*$')
 set +a
+
 ROOT=http://localhost:${PORT:-2727}/api/v0
 
 URL=$1
@@ -8,9 +13,13 @@ URL=$1
 if [[ $1 == "prod" ]]; then
   ROOT=https://open-api.thenational.academy/api/v0
   URL=$2
+  shift 2
 elif [[ $2 != "" ]]; then
   ROOT=$1
   URL=$2
+  shift 2
+else
+  shift 1
 fi
 
 if [[ $URL == "" ]]; then
@@ -19,7 +28,7 @@ if [[ $URL == "" ]]; then
 fi
 
 if [ -t 1 ]; then
-  curl -s -X 'GET' "$ROOT$URL" -H 'accept: application/json' -H "Authorization: Bearer $API_KEY" -D /dev/stderr
+  curl -s -L -X 'GET' "$ROOT$URL" -H 'accept: application/json' -H "Authorization: Bearer $API_KEY" -D /dev/stderr "$@"
 else
-  curl -s "$ROOT$URL" -H 'accept: application/json' -H "Authorization: Bearer $API_KEY"
+  curl -s "$ROOT$URL" -L -H 'accept: application/json' -H "Authorization: Bearer $API_KEY" "$@"
 fi
