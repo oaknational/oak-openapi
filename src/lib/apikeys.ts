@@ -136,7 +136,6 @@ export async function findUsers(partial: string): Promise<User[]> {
   const users: User[] = [];
 
   for (const key of keys) {
-    console.log(`Fetching user from key: ${key}`);
     const user = await findUserByEmail(key.replace(/^user:email:/, ''));
     if (user) {
       users.push(user);

@@ -35,6 +35,8 @@ const handler = async (req: NextRequest): Promise<Response> => {
   let args: { subjects?: string[] } | undefined;
   let userId: number | undefined;
 
+  const resHeaders = new Headers();
+
   try {
     // 1. get the user
 
@@ -43,7 +45,7 @@ const handler = async (req: NextRequest): Promise<Response> => {
 
     const ctx = {
       user,
-      resHeaders: req.headers,
+      resHeaders,
       req,
     } as unknown as Context;
 
@@ -89,10 +91,10 @@ const handler = async (req: NextRequest): Promise<Response> => {
     zipFile.end();
     const zipStream = zipFile.outputStream;
 
+    resHeaders.set('Content-Type', 'application/zip');
+
     const response = new Response(zipStream as unknown as BodyInit, {
-      headers: {
-        'Content-Type': 'application/zip',
-      },
+      headers: resHeaders,
     });
 
     captureApiRequestEvent({
