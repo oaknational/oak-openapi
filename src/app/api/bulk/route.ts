@@ -97,11 +97,6 @@ const handler = async (req: NextRequest): Promise<Response> => {
       headers: resHeaders,
     });
 
-    console.log(
-      'headers before capture',
-      Object.fromEntries(resHeaders.entries()),
-    );
-
     captureApiRequestEvent({
       url: req.url,
       apiKey,
