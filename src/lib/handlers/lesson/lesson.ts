@@ -13,7 +13,10 @@ import {
 import type { LessonView } from 'lib/owaClient';
 import type * as z from 'zod/v4';
 
-import { blockLessonForCopyrightText } from '../../queryGate';
+import {
+  blockLessonForCopyrightText,
+  checkLessonAllowedAsset,
+} from '../../queryGate';
 import Timing from '@/lib/serverTimings';
 
 import type { LessonSearchResultType } from './schemas/lessonSearchResponse.schema';
@@ -128,6 +131,23 @@ export const getLessons = router({
         >;
 
         lessonSummaryResponseOpenAPISchema.parse(lesson);
+
+        // we need to loop through the lessons and change the downloadsAvailable
+        // to check against the blockedLessons list. Ideally this would come from
+        // the database, but currently it's not available and some parts of the
+        // restricted flags are not fully implemented in the database
+        if (lesson.downloadsAvailable) {
+          const isBlockedForDownloads = await checkLessonAllowedAsset(
+            client,
+            slug,
+            true,
+          );
+
+          if (isBlockedForDownloads.isBlocked()) {
+            lesson.downloadsAvailable = false;
+          }
+        }
+
         return lesson;
       } catch {
         throw new TRPCError({
