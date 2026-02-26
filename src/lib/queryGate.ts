@@ -99,7 +99,7 @@ export function isBlockedUnitOrSubject({
   if (blockedSubjects.includes(subjectSlug)) {
     return new GateWithReason(
       true,
-      'Subject is blocked, without unit allow rule',
+      'Subject is copyright protected and therefore blocked',
     );
   }
 
@@ -128,7 +128,7 @@ export async function blockUnitForCopyrightText(
 
   if (!res) {
     // unknown subject - block
-    return new GateWithReason(true, 'Unknown subject');
+    return new GateWithReason(true, 'Unknown subject for given lesson');
   }
 
   const { subjectSlug } = res;
@@ -136,7 +136,7 @@ export async function blockUnitForCopyrightText(
   if (blockedSubjects.includes(subjectSlug)) {
     return new GateWithReason(
       true,
-      'Subject is blocked, without unit or lesson allow rule',
+      'Subject is copyright protected and therefore blocked',
     );
   }
 
@@ -146,10 +146,21 @@ export async function blockUnitForCopyrightText(
 export async function checkLessonAllowedAsset(
   client: GraphQLClient,
   lessonSlug: string,
+  lessonOnly = false,
 ): Promise<GateWithReason> {
   // if the lesson is blocked, return false
   if (isLessonBlocked(lessonSlug)) {
-    return new GateWithReason(true, 'Lesson is blocked');
+    return new GateWithReason(
+      true,
+      'Lesson asset is restricted and therefore blocked',
+    );
+  }
+
+  if (lessonOnly) {
+    return new GateWithReason(
+      false,
+      'Lesson is not blocked, skipping subject and unit checks',
+    );
   }
 
   // otherwise get the subject and unit to see if those are supported
@@ -163,7 +174,7 @@ export async function checkLessonAllowedAsset(
 
   if (isUnitBlocked(unitSlug)) {
     // blocked unit
-    return new GateWithReason(true, 'Unit is blocked');
+    return new GateWithReason(true, 'Unit is restricted and therefore blocked');
   }
 
   if (isSubjectSupported(subjectSlug).isAllowed()) {
@@ -180,7 +191,7 @@ export async function checkLessonAllowedAsset(
 
   return new GateWithReason(
     true,
-    `Lesson (${lessonSlug}) not available, and subject (${subjectSlug}) and unit (${unitSlug}) are blocked for assets`,
+    `Lesson (${lessonSlug}) is restricted and not available, and subject (${subjectSlug}) and unit (${unitSlug}) are blocked for assets`,
   );
 }
 
