@@ -66,13 +66,15 @@ const handler = async (
   let args: { lesson: string; type: string } | undefined;
   let userId: number | undefined;
 
+  const resHeaders = new Headers();
+
   try {
     // 1. get the user
     const user = await withUser(req, apiKey);
     userId = user?.id;
     const ctx = {
       user,
-      resHeaders: req.headers,
+      resHeaders,
       req,
     } as unknown as Context;
 
@@ -143,7 +145,9 @@ const handler = async (
       // we need to convert the stream to a BodyInit even though it's a ReadableStream
       // and ReadableStreams are allowed to be passed to new Response(s) - but there's
       // something weird in the types that requires it to be converted to a BodyInit
-      const res = new NextResponse(stream as unknown as BodyInit);
+      const res = new NextResponse(stream as unknown as BodyInit, {
+        headers: resHeaders,
+      });
       res.headers.set('Content-Type', 'application/octet-stream');
       res.headers.set(
         'Content-Disposition',
@@ -216,7 +220,7 @@ const handler = async (
         });
       }
 
-      const res = new NextResponse(response.body);
+      const res = new NextResponse(response.body, { headers: resHeaders });
 
       // Set headers for streaming the file to the client
       res.headers.set(
