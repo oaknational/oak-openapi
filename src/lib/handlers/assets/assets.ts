@@ -59,7 +59,10 @@ interface AssetsForLesson {
 export async function assetsForLesson(
   lessonSlug: string,
 ): Promise<AssetsForLesson> {
-  const supported = await checkLessonAllowedAsset(graphqlClient, lessonSlug);
+  const supported = await checkLessonAllowedAsset({
+    client: graphqlClient,
+    lessonSlug,
+  });
 
   if (supported.isBlocked()) {
     throw new TRPCError({
