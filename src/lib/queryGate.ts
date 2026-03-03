@@ -143,23 +143,46 @@ export async function blockUnitForCopyrightText(
   return new GateWithReason(false, 'Unit and subject are supported');
 }
 
+interface CheckLessonWithSubject {
+  lessonSlug: string;
+  subjectSlug: string;
+  unitSlug: string;
+}
+
+interface CheckLessonWithoutSubject {
+  lessonSlug: string;
+  client: GraphQLClient;
+}
+
 export async function checkLessonAllowedAsset(
-  client: GraphQLClient,
-  lessonSlug: string,
+  args: CheckLessonWithSubject | CheckLessonWithoutSubject,
 ): Promise<GateWithReason> {
+  const { lessonSlug } = args;
+
   // if the lesson is blocked, return false
   if (isLessonBlocked(lessonSlug)) {
     return new GateWithReason(true, 'Lesson is blocked');
   }
 
-  // otherwise get the subject and unit to see if those are supported
-  const res = await getSubjectAndUnitForLesson(client, lessonSlug);
+  let subjectSlug: string;
+  let unitSlug: string;
 
-  if (!res) {
-    return new GateWithReason(true, 'Subject and unit not found');
+  // Type narrowing: check which variant we have
+  if ('client' in args && !('subjectSlug' in args)) {
+    // CheckLessonWithoutSubject case
+    const res = await getSubjectAndUnitForLesson(args.client, lessonSlug);
+
+    if (!res) {
+      return new GateWithReason(true, 'Subject and unit not found');
+    }
+
+    subjectSlug = res.subjectSlug;
+    unitSlug = res.unitSlug;
+  } else {
+    // CheckLessonWithSubject case
+    subjectSlug = (args as CheckLessonWithSubject).subjectSlug;
+    unitSlug = (args as CheckLessonWithSubject).unitSlug;
   }
-
-  const { subjectSlug, unitSlug } = res;
 
   if (isUnitBlocked(unitSlug)) {
     // blocked unit
