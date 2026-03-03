@@ -4,11 +4,7 @@ import 'renvy';
 import { getClient } from '@/lib/owaClient';
 
 import { getVideoFromMux } from '@/lib/handlers/assets/helpers';
-import {
-  isLessonSupported,
-  isSubjectSupported,
-  isUnitSupported,
-} from '@/lib/queryGate';
+import { checkLessonAllowedAsset } from '@/lib/queryGate';
 // import assert from 'node:assert';
 import { log, logError } from '../src/lib/bulk-data/logger';
 import {
@@ -74,27 +70,6 @@ void main().finally(() => {
   clearInterval(memoryTracker);
 });
 
-/**
- * Check if the given lesson's assets should be processed based on subject and unit gating
- */
-function isLessonAssetsAllowed(lesson: {
-  subjectSlug: string;
-  unitSlug: string;
-  lessonSlug: string;
-}): boolean {
-  const { subjectSlug, unitSlug, lessonSlug } = lesson;
-
-  if (isLessonSupported(lessonSlug).isAllowed()) {
-    return true;
-  }
-
-  // Check if subject is supported or unit is in allowed list
-  return (
-    isSubjectSupported(subjectSlug).isAllowed() ||
-    isUnitSupported(unitSlug).isAllowed()
-  );
-}
-
 async function buildLessonData(
   slug: string,
   sequence: UnitWithExamBoards[],
@@ -143,7 +118,11 @@ async function buildLessonData(
 
     for (const lesson of lessonData) {
       // Check if this lesson's assets are allowed based on subject/unit gating
-      const assetsAllowed = isLessonAssetsAllowed(lesson);
+      const assetsAllowed = await checkLessonAllowedAsset({
+        lessonSlug: lesson.lessonSlug,
+        subjectSlug: lesson.subjectSlug,
+        unitSlug: lesson.unitSlug,
+      });
 
       // log(`${++currentLessonCtr}/${totalLessonCount}: ${lesson.lessonSlug}`);
 
@@ -155,7 +134,7 @@ async function buildLessonData(
       }
 
       if (processAssets) {
-        if (!assetsAllowed) {
+        if (assetsAllowed.isAllowed()) {
           log(
             `Skipping lesson ${lesson.lessonSlug} assets - not in allowed subjects/units list`,
           );

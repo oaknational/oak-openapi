@@ -30,7 +30,7 @@ export const getLessonTranscript = router({
 
       const client = getClient();
 
-      const gated = await checkLessonAllowedAsset(client, slug);
+      const gated = await checkLessonAllowedAsset({ client, lessonSlug: slug });
 
       if (gated.isBlocked()) {
         throw new TRPCError({
