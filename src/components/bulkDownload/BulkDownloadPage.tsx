@@ -13,6 +13,7 @@ import {
   OakHeading,
   OakImage,
   OakLI,
+  OakLink,
   OakP,
 } from '@oaknational/oak-components';
 import styled from 'styled-components';
@@ -252,6 +253,12 @@ export default function BulkDownloadPage({
           setHasError={setHasError}
           selectedSubjects={selectedSubjects}
         />
+        <OakFlex>
+          <OakP>
+            Download the bulk data JSON schema:{' '}
+            <OakLink href="/api/bulk/schema.json">bulk-schema.json</OakLink>
+          </OakP>
+        </OakFlex>
       </MaxWidth>
       <Footer />
     </>
