@@ -12,7 +12,7 @@ resource "terraform_data" "workspace_validation" {
 }
 
 module "vercel" {
-  source                           = "github.com/oaknational/oak-terraform-modules//modules/vercel_project?ref=v1.6.0"
+  source                           = "github.com/oaknational/oak-terraform-modules//modules/vercel_project?ref=v1.4.2"
   build_command                    = "pnpm build"
   build_type                       = "website"
   cloudflare_zone_domain           = var.cloudflare_zone_domain
