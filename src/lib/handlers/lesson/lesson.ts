@@ -137,10 +137,10 @@ export const getLessons = router({
         // the database, but currently it's not available and some parts of the
         // restricted flags are not fully implemented in the database
         if (lesson.downloadsAvailable) {
-          const isBlockedForDownloads = await checkLessonAllowedAsset(
+          const isBlockedForDownloads = await checkLessonAllowedAsset({
             client,
-            slug,
-          );
+            lessonSlug: slug,
+          });
 
           if (isBlockedForDownloads.isBlocked()) {
             lesson.downloadsAvailable = false;

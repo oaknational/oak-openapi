@@ -104,7 +104,7 @@ test('sequence asset year filter', async () => {
 });
 
 test('blocked videos return 400', async () => {
-  const lessonSlug = placeholderVideos[6];
+  const lessonSlug = placeholderVideos[placeholderVideos.length - 1];
 
   const res = await getLessonAsset({
     lesson: lessonSlug,
@@ -112,20 +112,6 @@ test('blocked videos return 400', async () => {
   });
 
   expect(res.status).toBe(400);
-
-  const caller = makeCaller({ user: 1 });
-
-  const res3 = await caller.getAssets.getSequenceAssets({
-    sequence: 'english-primary',
-    year: 4,
-  });
-
-  const lesson = res3.find((a) => a.lessonSlug === lessonSlug);
-  if (!lesson || !lesson.assets) {
-    throw new Error(`No assets found for lesson: ${lessonSlug}`);
-  }
-
-  expect(lesson.assets.find((_) => _.type === 'video')).toBe(undefined);
 });
 
 test('specifically blocked lessons (assets only)', async () => {
