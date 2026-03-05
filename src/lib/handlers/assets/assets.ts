@@ -59,7 +59,10 @@ interface AssetsForLesson {
 export async function assetsForLesson(
   lessonSlug: string,
 ): Promise<AssetsForLesson> {
-  const supported = await checkLessonAllowedAsset(graphqlClient, lessonSlug);
+  const supported = await checkLessonAllowedAsset({
+    client: graphqlClient,
+    lessonSlug,
+  });
 
   if (supported.isBlocked()) {
     throw new TRPCError({
@@ -303,20 +306,14 @@ This endpoint contains licence information for any third-party content contained
         {} as Record<string, string>,
       );
 
-      const isLessonAllowed = (slug: string): boolean => {
-        if (isSubjectSupported(subjectSlug).isAllowed()) {
-          return true;
-        }
+      const isLessonAllowed = async (slug: string): Promise<boolean> => {
+        const supported = await checkLessonAllowedAsset({
+          lessonSlug: slug,
+          subjectSlug,
+          unitSlug: lessonToUnitLookup[slug],
+        });
 
-        if (isUnitSupported(lessonToUnitLookup[slug]).isAllowed()) {
-          return true;
-        }
-
-        if (isLessonSupported(slug).isAllowed()) {
-          return true;
-        }
-
-        return false;
+        return supported.isAllowed();
       };
 
       const downloadsQuery = gql`
@@ -371,8 +368,17 @@ This endpoint contains licence information for any third-party content contained
 
       const tpc = tpcViewResult[lessonView];
 
-      const result = downloads
-        .filter(({ lessonSlug }) => isLessonAllowed(lessonSlug))
+      // filter the downloads based on whether assets are allowed
+      const downloadsAllowed = await Promise.all(
+        downloads.map(async (d) =>
+          isLessonAllowed(d.lessonSlug).then((allowed) =>
+            allowed ? d : false,
+          ),
+        ),
+      );
+
+      const result = downloadsAllowed
+        .filter((_) => _ !== false)
         .map((d) => {
           const lessonSlug = d.lessonSlug;
 
