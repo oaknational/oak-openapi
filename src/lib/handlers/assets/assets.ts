@@ -59,16 +59,16 @@ interface AssetsForLesson {
 export async function assetsForLesson(
   lessonSlug: string,
 ): Promise<AssetsForLesson> {
-  const supported = await checkLessonAllowedAsset({
+  const gateTest = await checkLessonAllowedAsset({
     client: graphqlClient,
     lessonSlug,
   });
 
-  if (supported.isBlocked()) {
+  if (gateTest.isBlocked()) {
     throw new TRPCError({
       message: `Lesson not available: "${lessonSlug}"`,
       code: 'BAD_REQUEST',
-      cause: supported.reason,
+      cause: gateTest.reason,
     });
   }
 
@@ -307,13 +307,13 @@ This endpoint contains licence information for any third-party content contained
       );
 
       const isLessonAllowed = async (slug: string): Promise<boolean> => {
-        const supported = await checkLessonAllowedAsset({
+        const gateTest = await checkLessonAllowedAsset({
           lessonSlug: slug,
           subjectSlug,
           unitSlug: lessonToUnitLookup[slug],
         });
 
-        return supported.isAllowed();
+        return gateTest.isAllowed();
       };
 
       const downloadsQuery = gql`
