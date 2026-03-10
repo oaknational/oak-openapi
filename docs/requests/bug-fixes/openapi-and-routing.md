@@ -3,33 +3,17 @@ type: bug-fix
 status: draft
 audience: Oak Curriculum API team
 severity: medium
-size: 3
+size: 2
 ---
 
 # OpenAPI and routing issues
 
 **Severity**: Medium
-**Size**: 3
+**Size**: 2
 
 Infrastructure issues affecting API contract accuracy and response headers.
 
-## 1. Swagger JSON route mutates shared document
-
-**Severity**: Medium
-**Endpoint**: `GET /api/v0/swagger.json`
-**Internal ref**: [v0-v1-improvements.md — V0-005](../../engineering/v0-v1-improvements.md#v0-005-swagger-json-route-mutates-the-shared-openapi-document)
-
-The route directly mutates the shared `openApiDocument` singleton to
-strip internal tags. This mutation persists across requests, causing
-inconsistent behaviour in serverless environments where the singleton
-may or may not be reused.
-
-**Code reference**: `swagger.json/route.ts:6-21`
-
-**Fix**: Deep-clone the document before modification, or use a filter
-function during JSON serialisation.
-
-## 2. Rate-limit headers missing on bulk route
+## 1. Rate-limit headers missing on bulk route
 
 **Severity**: Medium
 **Endpoint**: `POST /api/bulk`
@@ -51,7 +35,7 @@ The tRPC routes handle this correctly — they create a mutable
 **Fix**: Pass `resHeaders` to the response constructor, matching the
 asset route pattern.
 
-## 3. Asset endpoint exports all HTTP methods
+## 2. Asset endpoint exports all HTTP methods
 
 **Severity**: Low
 **Endpoint**: `GET /lessons/{lesson}/assets/{type}`
@@ -63,7 +47,7 @@ only POST.
 
 **Fix**: Restrict asset route to GET only (and OPTIONS for CORS).
 
-## ~~4. Binary asset endpoint documented as JSON~~
+## ~~3. Binary asset endpoint documented as JSON~~
 
 **Withdrawn.** Verified 2026-03-10: the OpenAPI schema correctly
 specifies `contentTypes: ['application/octet-stream']` at
