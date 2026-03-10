@@ -49,7 +49,7 @@ sort by that map.
 
 **Severity**: Medium
 **Endpoint**: `GET /lessons/{lesson}/transcript`
-**Internal ref**: [v0-v1-improvements.md — V0-017](../../engineering/v0-v1-improvements.md#v0-017-transcript-endpoint-returns-200-for-missing-transcripts)
+**Internal ref**: [v0-v1-improvements.md — V0-016](../../engineering/v0-v1-improvements.md#v0-016-transcript-endpoint-returns-200-for-missing-transcripts)
 
 Lessons without transcripts (e.g., practical lessons with no video)
 return HTTP 200 with an empty body instead of 404. Consumers cannot

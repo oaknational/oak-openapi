@@ -27,9 +27,9 @@ Relative sizes using Fibonacci numbers. Size 1 = smallest unit
 | ---- | -------- | ---- | ------- |
 | [sql-injection-in-lesson-search](bug-fixes/sql-injection-in-lesson-search.md) | Critical | 3 | User input interpolated into raw SQL |
 | [transcript-issues](bug-fixes/transcript-issues.md) | High | 3 | Null VTT crash, broken search ordering, empty 200s |
-| [pagination-url-construction](bug-fixes/pagination-url-construction.md) | Medium | 2 | Pagination URLs break when query params present |
-| [sequence-assets-year-filter](bug-fixes/sequence-assets-year-filter.md) | Medium | 2 | Year filter query parameter ignored |
-| [openapi-and-routing](bug-fixes/openapi-and-routing.md) | Medium | 3 | Swagger doc mutation, missing rate-limit headers, bulk accepts all methods, + 1 more |
+| [pagination-url-construction](bug-fixes/pagination-url-construction.md) | ~~Medium~~ | ~~2~~ | **Already fixed** — uses URL API with searchParams.set() |
+| [sequence-assets-year-filter](bug-fixes/sequence-assets-year-filter.md) | Medium | 2 | Year filter — needs verification (may be fixed) |
+| [openapi-and-routing](bug-fixes/openapi-and-routing.md) | Medium | 3 | Swagger doc mutation, bulk route missing rate-limit headers, asset route exports all methods |
 | [bulk-download-data-integrity](bug-fixes/bulk-download-data-integrity.md) | Medium | 3+3 audit | Separates known fixes (exam dedup, field casing, string nulls), intentional omissions (MFL transcripts), and audits (primary maths transcripts, secondary unit threads, missing lesson refs) |
 
 ## Feature requests

@@ -29,48 +29,42 @@ may or may not be reused.
 **Fix**: Deep-clone the document before modification, or use a filter
 function during JSON serialisation.
 
-## 2. Rate-limit headers missing on custom routes
+## 2. Rate-limit headers missing on bulk route
 
 **Severity**: Medium
-**Endpoints**: `GET /api/bulk`, `GET /lessons/{lesson}/assets/{type}`
+**Endpoint**: `POST /api/bulk`
 **Internal ref**: [v0-v1-improvements.md — V0-010](../../engineering/v0-v1-improvements.md#v0-010-rate-limit-headers-on-custom-routes)
 
-Custom (non-tRPC) routes pass the request headers object as response
-headers. The rate-limit middleware writes to the immutable request
-headers, silently failing. Clients never receive `X-RateLimit-*`
-headers on these routes.
+The bulk route creates a `resHeaders` object and passes it to
+`protect()`, which sets `X-RateLimit-*` headers on it. However,
+`resHeaders` is never attached to the final response — the rate-limit
+headers are lost.
 
 The tRPC routes handle this correctly — they create a mutable
-`resHeaders` Map and apply it to the response.
+`resHeaders` Map and apply it to the response. The asset route
+(`assets/[type]/route.ts`) also correctly passes `resHeaders` to the
+`NextResponse` constructor.
 
-**Code references**: `bulk/route.ts:24`,
-`assets/[type]/route.ts:31`
+**Code reference**: `bulk/route.ts:38` (resHeaders created),
+`bulk/route.ts:96-98` (response returned without resHeaders)
 
-**Fix**: Create a proper response headers object matching the tRPC
-route pattern.
+**Fix**: Pass `resHeaders` to the response constructor, matching the
+asset route pattern.
 
-## 3. Bulk download endpoint accepts all HTTP methods
+## 3. Asset endpoint exports all HTTP methods
 
 **Severity**: Low
-**Endpoint**: `POST /api/bulk`
+**Endpoint**: `GET /lessons/{lesson}/assets/{type}`
 **Internal ref**: [v0-v1-improvements.md — V0-011](../../engineering/v0-v1-improvements.md#v0-011-bulk-download-api-method-handling)
 
-The route exports handlers for all HTTP methods but unconditionally
-calls `req.json()`. GET/HEAD requests have no body, causing parse
-errors.
+The asset route exports handlers for GET, POST, PUT, PATCH, DELETE,
+OPTIONS, and HEAD (lines 333-341). The bulk route correctly exports
+only POST.
 
-**Fix**: Restrict to POST only, or check method before parsing body.
+**Fix**: Restrict asset route to GET only (and OPTIONS for CORS).
 
-## 4. Binary asset endpoint documented as JSON
+## ~~4. Binary asset endpoint documented as JSON~~
 
-**Severity**: Medium
-**Endpoint**: `GET /lessons/{lesson}/assets/{type}`
-**Internal ref**: V0-016 (see [v0-v1-improvements.md](../../engineering/v0-v1-improvements.md))
-
-The OpenAPI schema describes the asset download response as
-`application/json`, but the endpoint returns binary data
-(`application/octet-stream`). This causes generated validators
-and SDK type expectations to be incorrect.
-
-**Fix**: Update the OpenAPI response schema to use the correct
-content type.
+**Withdrawn.** Verified 2026-03-10: the OpenAPI schema correctly
+specifies `contentTypes: ['application/octet-stream']` at
+`assets.ts:640`. This claim was inaccurate.
