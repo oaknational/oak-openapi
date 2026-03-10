@@ -18,6 +18,19 @@ Separate immediate v0 fixes from deeper v1 improvements so sequencing stays clea
 
 ---
 
+## Consumer Requests
+
+For bug reports and feature requests from downstream API consumers
+(SDK, MCP server, semantic search), see:
+
+**[docs/requests/](../requests/README.md)** — prioritised, self-contained
+files aimed at developers and product managers.
+
+The V0/V1 items below are internal engineering tracking with code-level
+detail. Many correspond to consumer requests — cross-references are noted.
+
+---
+
 ## Two-Track View
 
 ```text
@@ -234,6 +247,24 @@ V1 Improvements
   - [`prepare-bulk.ts:242-245`](../../../bin/prepare-bulk.ts#L242-L245) — writes `lessons.jsonl`
 - **Fix**: Generate and include a JSON Schema file with each bulk export.
 
+### V0-016: Binary asset endpoint content-type mismatch
+
+- **Status**: Confirmed
+- **Severity**: Medium
+- **Endpoints**: `/lessons/{lesson}/assets/{type}`
+- **Description**: The OpenAPI schema describes the asset download response as `application/json`, but the endpoint returns binary data (`application/octet-stream`). Generated validators and SDK type expectations are incorrect.
+- **Fix**: Update the OpenAPI response schema to use the correct content type.
+- **Consumer request**: [openapi-and-routing.md item 4](../requests/bug-fixes/openapi-and-routing.md)
+
+### V0-017: Transcript endpoint returns 200 for missing transcripts
+
+- **Status**: Confirmed
+- **Severity**: Medium
+- **Endpoints**: `/lessons/{lesson}/transcript`
+- **Description**: Lessons without transcripts (e.g., practical lessons with no video) return HTTP 200 with an empty body instead of 404. Consumers cannot distinguish "has no transcript" from "request succeeded with empty content."
+- **Fix**: Return 404 with a clear reason (e.g., `{ "error": "not_found", "reason": "no_video" }`), or return 200 with a schema that includes a `hasTranscript: false` field.
+- **Consumer request**: [transcript-issues.md item 3](../requests/bug-fixes/transcript-issues.md)
+
 ---
 
 ## Priority Dependency Upgrade
@@ -279,112 +310,24 @@ V1 Improvements
 
 ### Additional documentation improvements
 
-- Operation summaries and "use this when" descriptions for all endpoints.
-- Parameter examples and response examples.
-- Canonical URL patterns and resource timestamps.
+See [openapi-metadata-enrichment](../requests/feature-requests/openapi-metadata-enrichment.md)
+for the full request including "use this when" descriptions, parameter
+examples, and error documentation.
 
 ## New Endpoints and Features
 
-### `/ontology` endpoint
+Full specifications for each item are in
+[docs/requests/feature-requests/](../requests/README.md). The table
+below links to the canonical request file for each feature.
 
-- **Source**: [`04-high-priority-requests.md` Item 3](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/04-high-priority-requests.md#3-create-ontology-or-schemacurriculum-endpoint)
-- **Examples**: [`17-ontology-and-threads-examples.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/17-ontology-and-threads-examples.md)
-- **Rationale**: Provides structural knowledge that AI models cannot infer from individual endpoint schemas. Enables intelligent tool composition and reduces trial-and-error API exploration.
-- **Example payload**:
-
-```json
-{
-  "entities": {
-    "lesson": { "primaryKey": "lessonSlug", "fields": ["lessonTitle", "keyStageSlug", "subjectSlug"] },
-    "unit": { "primaryKey": "unitSlug", "fields": ["unitTitle", "year", "keyStageSlug"] }
-  },
-  "relationships": [
-    { "from": "unit", "to": "lesson", "type": "contains" },
-    { "from": "sequence", "to": "unit", "type": "contains" }
-  ]
-}
-```
-
-- **Impact**: Reduces multi-turn discovery conversations by ~60%; enables AI to plan efficient tool call sequences.
-
----
-
-### `/schemas` bundle endpoint
-
-- **Source**: [`09-schemas-endpoint-rfc.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/09-schemas-endpoint-rfc.md) (full RFC)
-- **Rationale**: The API already defines Zod schemas internally. Consuming applications currently rehydrate Zod from OpenAPI, losing fidelity. A bundle endpoint allows the SDK build process to use the same validators the API uses.
-- **Proposed endpoint**: `GET /api/v0/schemas`
-- **Example payload**:
-
-```json
-{
-  "version": "v0",
-  "generatedAt": "2025-01-05T12:00:00Z",
-  "openapi": { "url": "https://open-api.thenational.academy/api/v0/swagger.json", "etag": "\"abc123\"" },
-  "schemas": {
-    "LessonSummaryResponse": {
-      "zodSource": "export const lessonSummaryResponseSchema = z.object({ ... })",
-      "jsonSchema": { "type": "object", "properties": {} },
-      "typeScript": "export interface LessonSummaryResponse { ... }"
-    }
-  }
-}
-```
-
-- **Impact**: SDK/MCP engineers can reuse exact API validators; API consumers get optional runtime checks without schema drift.
-
----
-
-### `semantic_summary` field
-
-- **Source**: [`02-semantic-summary.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/02-semantic-summary.md) (286 lines, comprehensive)
-- **Examples**: [`19-semantic-summary-examples.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/19-semantic-summary-examples.md)
-- **Rationale**: Full transcripts (5000+ tokens) are too long for effective embeddings; titles (~10 tokens) lack semantic signal. Pre-computed ~150-250 token summaries provide optimal density for vector search and reranking.
-- **Composition for lessons**: Title + keywords + learning objectives + key vocabulary + prior knowledge + common misconceptions + transcript excerpt
-- **Example payload**:
-
-```json
-{
-  "lessonSlug": "adding-fractions-same-denominator",
-  "lessonTitle": "Adding fractions with the same denominator",
-  "semantic_summary": "This KS2 maths lesson teaches Year 4 students to add fractions with common denominators. Students learn that when denominators match, only numerators are added. Key vocabulary includes numerator, denominator, and proper fraction. Prior knowledge: understanding fractions as parts of a whole."
-}
-```
-
-- **Impact**: Enables high-quality semantic search, reranking, and RAG without latency penalty from full transcript processing.
-
----
-
-### Thread metadata enhancements
-
-- **Source**: [`05-medium-priority-requests.md` Item 10](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/05-medium-priority-requests.md#10-enhance-thread-endpoints-for-progression-analysis) (lines 204-346)
-- **Examples**: [`17-ontology-and-threads-examples.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/17-ontology-and-threads-examples.md)
-- **Current state**: `/threads` returns only `slug` and `title`. No progression context, prerequisites, or key stage coverage.
-- **Desired state**:
-
-```json
-{
-  "threads": [{
-    "slug": "number",
-    "title": "Number",
-    "description": "Core number concepts from counting to surds",
-    "keyStagesCovered": ["ks1", "ks2", "ks3", "ks4"],
-    "unitCount": 118
-  }]
-}
-```
-
-- **Unit-level enhancements**: Add `prerequisiteUnits`, `nextUnits`, `conceptualLevel`, and `appearsInProgrammes` fields.
-- **Impact**: Critical for Layer 4 tools: `trace-concept-progression`, `find-prerequisites`, `compare-programme-paths`.
-
----
-
-### Programme variant endpoint
-
-- **Source**: [`04-high-priority-requests.md` Item 5](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/04-high-priority-requests.md#5-expose-programme-context-and-variant-metadata) (lines 480-686)
-- **Rationale**: The API uses "sequences" but OWA uses "programmes" in user-facing URLs. One sequence (e.g., `science-secondary-aqa`) maps to 8+ programmes (Foundation/Higher × 4 exam subjects).
-- **Proposed endpoint**: `GET /programmes` and `GET /programmes/{programmeSlug}/units`
-- **Impact**: Critical for accurate OWA URL generation and programme-based filtering.
+| Feature | Request file |
+| ------- | ------------ |
+| `/ontology` endpoint | [ontology-endpoint.md](../requests/feature-requests/ontology-endpoint.md) |
+| `/schemas` bundle endpoint | [schemas-bundle-endpoint.md](../requests/feature-requests/schemas-bundle-endpoint.md) |
+| `semantic_summary` field | [semantic-summary-field.md](../requests/feature-requests/semantic-summary-field.md) |
+| Thread metadata enhancements | [thread-metadata-enhancements.md](../requests/feature-requests/thread-metadata-enhancements.md) |
+| Programme variant endpoint | [programme-variants-and-identifiers.md](../requests/feature-requests/programme-variants-and-identifiers.md) |
+| Bulk download data enhancements | [bulk-download-data-enhancements.md](../requests/feature-requests/bulk-download-data-enhancements.md) |
 
 ---
 
@@ -424,18 +367,12 @@ V1 Improvements
 
 ## Maths-Specific Enhancements
 
-- **Source**: [`21-maths-education-enhancements.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/21-maths-education-enhancements.md) (8 items, 520 lines)
-
-| Item | Priority | Description |
-| ---- | -------- | ----------- |
-| Sequence bundle endpoint | High | One call delivers progression context including `priorKnowledgeRequirements`, `whyThisWhyNow`, and lesson metadata |
-| Lesson-level thread tags | Medium | Add `threadSlugs` array to lesson responses for domain filtering (number, algebra, geometry) |
-| Structured maths answers | High | Numeric tolerance, algebraic equivalence rules, and marking metadata for quiz questions |
-| Image-based quiz items | High | Return diagram/graph questions explicitly instead of silent omission |
-| Maths representation tags | Medium | Add `representations` array (place-value-chart, number-line, bar-model) to lessons |
-| Transcript segments | Medium | Add `segments` array with `startMs`, `endMs`, `text`, and optional `mathsNormalisedText` |
-| Transcript search filters | Medium | Add `subject`, `keyStage`, `year` filters to `/search/transcripts` |
-| Maths glossary endpoint | Medium | `GET /subjects/{subject}/keywords` with stable `keywordId` for cross-year tracking |
+See [maths-specific-enhancements.md](../requests/feature-requests/maths-specific-enhancements.md)
+for the 5 achievable items (image quiz items, thread tags, transcript
+segments, search filters, glossary). Three items from the original
+research (sequence bundle endpoint, structured maths answers, maths
+representation tags) were excluded because they require creating new
+curriculum data.
 
 ---
 
@@ -446,15 +383,24 @@ V1 Improvements
 | `financial-education` excluded from search | Intentional — to be documented |
 | English content limited to specific units | Intentional — handled via `supportedUnits.json` |
 | Video bulk downloads | Not currently implemented |
-| Binary asset content-type | Correctly documented as `application/octet-stream` |
+| Binary asset content-type | Documented as `application/json` but returns `application/octet-stream` — see [openapi-and-routing.md item 4](../requests/bug-fixes/openapi-and-routing.md) |
 | `unitLessons` truncation | Not present — returns all lessons |
 
 ---
 
-# Related Docs
+## Related Docs
 
+- **[docs/requests/](../requests/README.md)** — consumer-facing bug reports and feature requests
 - [`docs/engineering/gap-analysis.md`](./gap-analysis.md)
 - [`docs/engineering/enhancements.md`](./enhancements.md)
 - [`docs/engineering/dependency-upgrades.md`](./dependency-upgrades.md)
-- [`.agent/summary/analysis/internal-external-crosswalk.md`](../../.agent/summary/analysis/internal-external-crosswalk.md)
-- [`.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md)
+
+## Appendix: Research Archive
+
+Detailed research notes from downstream consumer analysis. These
+informed the items in [docs/requests/](../requests/README.md) and are
+preserved for reference but should not be needed for day-to-day work.
+
+- [`.agent/summary/analysis/internal-external-crosswalk.md`](../../.agent/summary/analysis/internal-external-crosswalk.md) — maps internal/external overlap
+- [`.agent/external-feedback-and-requests/from-mcp-semantic-search-work/index.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/index.md) — 22-file research archive index
+- [`.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md) — summary tables
