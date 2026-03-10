@@ -14,22 +14,30 @@ size: 2
 
 ## Problem
 
-The `year` query parameter is accepted in the endpoint schema but never applied to the
-underlying query. Code contains `FIXME` comments acknowledging the incomplete implementation.
+The `year` query parameter is accepted in the endpoint schema but was
+not applied to the underlying query.
 
-**Code references**: `assets.ts:257`, `assets.ts:372`
+**Code references**: `assets.ts:261` (year extracted from input),
+`assets.ts:275` (year passed to `sequenceWhere()`)
+
+**Note (2026-03-10 verification)**: The current code at line 275 does
+pass `year` to `sequenceWhere()`. The original FIXME comments at
+lines 257 and 372 are no longer present. The API team should verify
+whether the year filter is now fully functional or if the
+`sequenceWhere()` implementation still ignores it.
 
 ## Expected behaviour
 
-The endpoint should filter assets by year group when the `year` parameter is provided.
-Currently it returns all assets regardless of year.
+The endpoint should filter assets by year group when the `year`
+parameter is provided.
 
 ## Fix
 
-Apply the year filter to the query logic, or remove the parameter from the OpenAPI schema
-if year filtering is not intended.
+Verify that `sequenceWhere()` applies the year filter correctly.
+If it does, this can be marked as implemented. If not, apply the
+filter or remove the parameter from the OpenAPI schema.
 
-**Scope**: Update filter logic (1) + tests (1).
+**Scope**: Verify existing logic (1) + tests if needed (1).
 
 ## Related
 

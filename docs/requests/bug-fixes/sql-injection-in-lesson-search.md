@@ -19,7 +19,17 @@ The lesson search endpoint sanitises user input by replacing `'` with `''`
 then interpolates directly into a raw SQL string. This is not a robust
 defence against SQL injection in a public-facing API endpoint.
 
-**Code reference**: `lesson.ts:142-163`
+The main search term `q` is properly parameterised via `pgFormat`, but
+the `unit`, `subject`, and `keyStage` filter parameters are interpolated
+via template literals with only quote-doubling as protection.
+
+**Code reference**: `lesson.ts:182-198` (line numbers verified
+2026-03-10; originally reported as 142-163)
+
+**Mitigating factors**: The database connection is read-only
+(`read_only: true` in `owaClient.ts`), and the filter parameters are
+likely constrained by schema validation. These reduce exploitability
+but do not eliminate the vulnerability.
 
 ## Expected behaviour
 

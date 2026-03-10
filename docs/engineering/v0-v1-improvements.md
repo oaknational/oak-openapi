@@ -247,16 +247,13 @@ V1 Improvements
   - [`prepare-bulk.ts:242-245`](../../../bin/prepare-bulk.ts#L242-L245) — writes `lessons.jsonl`
 - **Fix**: Generate and include a JSON Schema file with each bulk export.
 
-### V0-016: Binary asset endpoint content-type mismatch
+### ~~V0-016: Binary asset endpoint content-type mismatch~~
 
-- **Status**: Confirmed
-- **Severity**: Medium
-- **Endpoints**: `/lessons/{lesson}/assets/{type}`
-- **Description**: The OpenAPI schema describes the asset download response as `application/json`, but the endpoint returns binary data (`application/octet-stream`). Generated validators and SDK type expectations are incorrect.
-- **Fix**: Update the OpenAPI response schema to use the correct content type.
-- **Consumer request**: [openapi-and-routing.md item 4](../requests/bug-fixes/openapi-and-routing.md)
+- **Status**: Withdrawn — verified 2026-03-10 that `assets.ts:640`
+  correctly specifies `contentTypes: ['application/octet-stream']`.
+  Original claim was inaccurate.
 
-### V0-017: Transcript endpoint returns 200 for missing transcripts
+### V0-016: Transcript endpoint returns 200 for missing transcripts
 
 - **Status**: Confirmed
 - **Severity**: Medium
