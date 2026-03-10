@@ -54,7 +54,7 @@ test('sequence array has full metadata', async () => {
   ]);
 });
 
-test('subject constants structures', async () => {
+test('subject constants structures', () => {
   const { keyStageSlugs, subjectsByKeyStage, subjectSlugs, subjects } =
     subjectConsts;
 

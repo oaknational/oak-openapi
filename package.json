@@ -154,7 +154,7 @@
     "useTabs": false
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
+    "*.{js,jsx,ts,tsx,mjs}": [
       "next lint ."
     ]
   },
