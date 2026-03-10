@@ -107,19 +107,12 @@ V1 Improvements
 
 ## OpenAPI and Documentation
 
-### V0-005: Swagger JSON route mutates the shared OpenAPI document
+### ~~V0-005: Swagger JSON route mutates the shared OpenAPI document~~
 
-- **Status**: Confirmed
-- **Severity**: Medium
-- **Endpoints**: `/api/v0/swagger.json`
-- **Description**: The route directly mutates `openApiDocument.paths[path].get.tags` to remove internal tags. Since `openApiDocument` is a shared singleton imported at module load time, this mutation persists across requests.
-- **Code reference**: [`swagger.json/route.ts:6-21`](../../../src/app/api/v0/swagger.json/route.ts#L6-L21)
-- **Why this is a problem**:
-  1. The first request mutates the document.
-  2. Subsequent requests (or concurrent requests) see the already-mutated document.
-  3. If other code (e.g., docs page) uses the same document, it sees the mutated version.
-  4. In serverless environments this may reset, causing inconsistent behaviour.
-- **Fix**: Deep-clone the document before modification, or use a filter function during JSON serialisation.
+**Withdrawn.** The route comments this as intentional (`"safe to do so"`).
+The mutation is idempotent, and the docs pages (`getEndpointDocs.ts`)
+are rendered at build time rather than sharing the serverless runtime.
+Practical risk is negligible.
 
 ---
 
