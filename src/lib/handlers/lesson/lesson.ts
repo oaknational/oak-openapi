@@ -3,6 +3,7 @@ import pgFormat from 'pg-format';
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import { TRPCError } from '@trpc/server';
+import type * as z from 'zod/v4';
 import {
   getClient,
   gql,
@@ -11,7 +12,7 @@ import {
   querySQL,
 } from 'lib/owaClient';
 import type { LessonView } from 'lib/owaClient';
-import type * as z from 'zod/v4';
+import { errorResponses } from '@/lib/errorResponses';
 
 import {
   blockLessonForCopyrightText,
@@ -42,7 +43,7 @@ export const getLessons = router({
         summary: 'Lesson summary',
         path: '/lessons/{lesson}/summary',
         description: 'This endpoint returns a summary for a given lesson',
-        errorResponses: [],
+        errorResponses,
       },
     })
     .input(lessonSummaryRequestOpenAPISchema)
@@ -164,7 +165,7 @@ export const getLessons = router({
         summary: 'Lesson search using lesson title',
         description:
           'Search for a term and find the 20 most similar lessons with titles that contain similar text.',
-        errorResponses: [],
+        errorResponses,
       },
     })
     .input(lessonSearchRequestOpenAPISchema)

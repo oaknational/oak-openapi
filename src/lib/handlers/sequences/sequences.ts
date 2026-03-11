@@ -18,6 +18,7 @@ import type {
   Tier,
   Unit,
 } from '@/lib/handlers/sequences/types';
+import { errorResponses } from '@/lib/errorResponses';
 
 import {
   sequenceUnitsRequestOpenAPISchema,
@@ -124,7 +125,7 @@ export const getSequences = router({
         path: '/sequences/{sequence}/units',
         description:
           'This endpoint returns high-level information for all of the units in a sequence. Units are returned in the intended sequence order and are grouped by year.',
-        errorResponses: [],
+        errorResponses,
       },
     })
     .input(sequenceUnitsRequestOpenAPISchema)
