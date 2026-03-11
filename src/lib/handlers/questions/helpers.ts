@@ -150,10 +150,7 @@ function formatImage(
   return content;
 }
 
-function formatQuestion(
-  question: DBQuestion,
-  imagesAllowed = false,
-): Question | undefined {
+function formatQuestion(question: DBQuestion): Question | undefined {
   const questionText = question.questionStem
     .filter((_) => _.type === 'text')
     .map((_) => _.text)
@@ -161,7 +158,7 @@ function formatQuestion(
 
   let questionImage: undefined | ImageDataSchemaType;
 
-  if (imagesAllowed && question.questionStem.length === 2) {
+  if (question.questionStem.length === 2) {
     // probably contains the image
     const image = question.questionStem.filter((_) => _.type === 'image').pop();
 
@@ -212,10 +209,7 @@ function formatQuestion(
   }
 }
 
-export function questionsForQuiz(
-  lesson: Lesson,
-  imagesAllowed = false,
-): Record<QuizKey, Question[]> {
+export function questionsForQuiz(lesson: Lesson): Record<QuizKey, Question[]> {
   const result = emptyQuizResults();
   for (const quiz of ['starterQuiz', 'exitQuiz'] as QuizKey[]) {
     let lessonContent;
@@ -237,19 +231,7 @@ export function questionsForQuiz(
         continue;
       }
 
-      // filter out questions where the answers contain an image
-      if (question.questionType === QuestionTypeEnum.MultipleChoice) {
-        // images only appear in multiple choice questions (validated by checking db)
-        const hasImageAnswer = question.answers[question.questionType].some(
-          (answer) => answer.answer.some((a) => a.type === 'image'),
-        );
-
-        if (hasImageAnswer && imagesAllowed === false) {
-          continue;
-        }
-      }
-
-      const res = formatQuestion(question, imagesAllowed);
+      const res = formatQuestion(question);
       if (res) {
         questions.push(res);
       }
