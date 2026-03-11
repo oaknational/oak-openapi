@@ -45,8 +45,11 @@ state whether they are:
 | File | Priority | Status | Size | Summary |
 | ---- | -------- | ------ | ---- | ------- |
 | [openapi-metadata-enrichment](feature-requests/openapi-metadata-enrichment.md) | High | draft | 5 | "Use this when" descriptions, operation summaries, error docs |
+| [curriculum-model-endpoint](feature-requests/curriculum-model-endpoint.md) | High | draft | 5 | Construct and expose the curriculum model from upstream API |
 | [bulk-download-data-enhancements](feature-requests/bulk-download-data-enhancements.md) | High | draft | 13 | Tier, examSubject, categories — eliminate API calls during ingestion |
 | [programme-variants-and-identifiers](feature-requests/programme-variants-and-identifiers.md) | High | draft | 5 | Programme context, tier/examBoard fields, identifier consistency |
+| [web-urls-in-api-responses](feature-requests/web-urls-in-api-responses.md) | High | draft | 5 | Add website URLs to all web-addressable API resources |
+| [web-urls-in-bulk-data](feature-requests/web-urls-in-bulk-data.md) | High | draft | 5 | Add website URLs to all web-addressable bulk resources |
 | [thread-metadata-enhancements](feature-requests/thread-metadata-enhancements.md) | Medium | draft | 3 | Derived aggregation fields (keyStagesCovered, unitCount) |
 | [content-filtering-transparency](feature-requests/content-filtering-transparency.md) | Medium | draft | 5 | Document filtering rules in bulk metadata, API descriptions, and OpenAPI schema |
 | [subject-keywords-endpoint](feature-requests/subject-keywords-endpoint.md) | Medium | draft | 3 | Aggregated subject keyword index from lesson keywords |
@@ -65,7 +68,10 @@ presence/absence, not transport-specific metadata):
 | `feature-requests/bulk-download-data-enhancements.md` | `get-sequences-units(sequence: "maths-secondary", year: "10")`, `get-sequences-units(sequence: "science-secondary-aqa", year: "10")`, `get-sequences-units(sequence: "english-secondary-aqa", year: "10")`, `get-sequences-assets(...)` |
 | `feature-requests/content-filtering-transparency.md` | `get-key-stages-subject-questions(keyStage: "ks2", subject: "english")`, `get-key-stages-subject-questions(keyStage: "ks2", subject: "maths")`, plus code verification (`queryGate.ts`) |
 | `feature-requests/openapi-metadata-enrichment.md` | `get-key-stages-subject-lessons(...)`, `get-lessons-summary(lesson: "joining-using-and")`, `get-key-stages-subject-questions(...)` |
+| `feature-requests/curriculum-model-endpoint.md` | `get-curriculum-model`, plus schema/artifact verification (`oak-mcp-curriculum-model.json`) |
 | `feature-requests/programme-variants-and-identifiers.md` | `get-subjects`, `get-sequences-units(sequence: "maths-secondary", year: "10")`, `get-sequences-units(sequence: "science-secondary-aqa", year: "10")` |
+| `feature-requests/web-urls-in-api-responses.md` | `get-lessons-summary(...)`, `get-subjects`, `get-threads-units(...)` |
+| `feature-requests/web-urls-in-bulk-data.md` | `get-sequences-assets(...)`, bulk generation/schema references |
 | `feature-requests/subject-keywords-endpoint.md` | `get-key-stages-subject-lessons(...)`, `get-lessons-summary(lesson: "joining-using-and")` |
 | `feature-requests/thread-metadata-enhancements.md` | `get-threads`, `get-threads-units(thread: "number")` |
 
@@ -98,8 +104,10 @@ Three items have unresolved feasibility questions (details in each file):
 
 1. **Programme variants**: Does the API team have access to the
    programme→sequence mapping in their data layer?
-2. **CanonicalUrl generation**: URL pattern rules must be extracted
-   from Oak-Web-Application code before bulk Phase 2c can proceed.
+2. **Web URL coverage**: see
+   `feature-requests/web-urls-in-api-responses.md` and
+   `feature-requests/web-urls-in-bulk-data.md` for URL pattern and ownership
+   constraints.
 3. **Bulk data integrity known fixes** (items 1-2 in
    `bulk-download-data-integrity.md`): should complete before bulk enhancements
    Phase 1, to avoid reworking `prepare-bulk.ts`.

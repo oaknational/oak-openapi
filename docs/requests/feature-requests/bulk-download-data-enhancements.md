@@ -36,8 +36,8 @@ size: 13
 - Phase 1 (tier + examSubject): size **5** (schema change, backfill,
   endpoint mods, bulk regen, validation)
 - Phase 2a+2b (categories + unitOptionGroup): size **5** (unblocked)
-- Phase 2c (canonicalUrl): deferred pending ownership decision for URL pattern
-  logic and long-term maintenance
+- Phase 2c (canonicalUrl): moved to
+  [web-urls-in-bulk-data.md](web-urls-in-bulk-data.md) as a standalone request
 - Phase 3: covered in [bulk-download-data-integrity](../bug-fixes/bulk-download-data-integrity.md)
 
 ## Evidence
@@ -233,22 +233,9 @@ field.
 
 ### 2c. Canonical URL
 
-**Problem**: Canonical URLs (the Oak website paths for lessons, units, and sequences)
-must be constructed from lesson/unit/sequence metadata and URL patterns from the
-website routing logic. They are not currently in bulk downloads, forcing consumers
-to either maintain their own URL pattern logic or derive them from the canonical-url-map.
-
-**What it enables**:
-
-- Direct links from search results to the Oak website
-- Consistent URL construction across all consumers
-
-**Suggested approach**: Define URL pattern rules from the Oak-Web-Application code
-and generate `canonicalUrl` fields during bulk export for lessons, units, and sequences.
-Include pattern documentation in bulk schema.
-
-**Status**: Deferred until API-team confirms this belongs in this repo and agrees
-ownership boundaries.
+Tracked separately in
+[web-urls-in-bulk-data.md](web-urls-in-bulk-data.md) to keep web URL coverage
+as a standalone deliverable for bulk data.
 
 ---
 
