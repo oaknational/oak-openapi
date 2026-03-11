@@ -53,7 +53,7 @@ V1 Improvements
 
 ### V0-001: Pagination `Link` header URL construction
 
-- **Status**: Confirmed
+- **Status**: Implemented
 - **Severity**: Medium
 - **Endpoints**: `/key-stages/{keyStage}/subject/{subject}/lessons`, `/sequences/{sequence}/questions`, `/key-stages/{keyStage}/subject/{subject}/questions`
 - **Description**: The pagination URL is constructed by concatenating `baseUrl + ctx.req.url + "?offset=..."`. If `ctx.req.url` already contains query parameters (e.g., `?limit=10`), this produces an invalid URL with duplicate `?` characters.
@@ -120,7 +120,7 @@ Practical risk is negligible.
 
 ### V0-006: Sequence assets ignore `year` filter
 
-- **Status**: Confirmed (acknowledged in code with FIXME)
+- **Status**: Implemented
 - **Severity**: Medium
 - **Endpoints**: `/sequences/{sequence}/assets`
 - **Description**: The `year` parameter is accepted but never applied to the query. Code contains explicit `FIXME` comments.
@@ -163,7 +163,7 @@ Practical risk is negligible.
 
 ### V0-009: Transcript endpoint crashes on null VTT
 
-- **Status**: Confirmed
+- **Status**: Implemented
 - **Severity**: High
 - **Endpoints**: `/lessons/{lesson}/transcript`
 - **Description**: Line 60 calls `vtt.replace()` without null-checking. If `transcript_vtt` is null/undefined, this will throw a runtime error.
@@ -246,14 +246,14 @@ Practical risk is negligible.
   correctly specifies `contentTypes: ['application/octet-stream']`.
   Original claim was inaccurate.
 
-### V0-016: Transcript endpoint returns 200 for missing transcripts
+### V0-017: Transcript endpoint returns 200 for missing transcripts
 
 - **Status**: Confirmed
 - **Severity**: Medium
 - **Endpoints**: `/lessons/{lesson}/transcript`
 - **Description**: Lessons without transcripts (e.g., practical lessons with no video) return HTTP 200 with an empty body instead of 404. Consumers cannot distinguish "has no transcript" from "request succeeded with empty content."
 - **Fix**: Return 404 with a clear reason (e.g., `{ "error": "not_found", "reason": "no_video" }`), or return 200 with a schema that includes a `hasTranscript: false` field.
-- **Consumer request**: [transcript-issues.md item 3](../requests/bug-fixes/transcript-issues.md)
+- **Consumer request**: moved from deleted `transcript-issues.md` (request file removed during docs consolidation).
 
 ---
 
@@ -312,12 +312,12 @@ below links to the canonical request file for each feature.
 
 | Feature | Request file |
 | ------- | ------------ |
-| `/ontology` endpoint | [ontology-endpoint.md](../requests/feature-requests/ontology-endpoint.md) |
-| `/schemas` bundle endpoint | [schemas-bundle-endpoint.md](../requests/feature-requests/schemas-bundle-endpoint.md) |
-| `semantic_summary` field | [semantic-summary-field.md](../requests/feature-requests/semantic-summary-field.md) |
 | Thread metadata enhancements | [thread-metadata-enhancements.md](../requests/feature-requests/thread-metadata-enhancements.md) |
 | Programme variant endpoint | [programme-variants-and-identifiers.md](../requests/feature-requests/programme-variants-and-identifiers.md) |
 | Bulk download data enhancements | [bulk-download-data-enhancements.md](../requests/feature-requests/bulk-download-data-enhancements.md) |
+| Subject keywords endpoint | [subject-keywords-endpoint.md](../requests/feature-requests/subject-keywords-endpoint.md) |
+| Content filtering transparency | [content-filtering-transparency.md](../requests/feature-requests/content-filtering-transparency.md) |
+| OpenAPI metadata enrichment | [openapi-metadata-enrichment.md](../requests/feature-requests/openapi-metadata-enrichment.md) |
 
 ---
 
@@ -355,17 +355,6 @@ below links to the canonical request file for each feature.
 - Evaluate Babel replacement for schema generation.
 - Reduce lodash usage with targeted utilities or native equivalents.
 
-## Maths-Specific Enhancements
-
-See [maths-specific-enhancements.md](../requests/feature-requests/maths-specific-enhancements.md)
-for the 5 achievable items (image quiz items, thread tags, transcript
-segments, search filters, glossary). Three items from the original
-research (sequence bundle endpoint, structured maths answers, maths
-representation tags) were excluded because they require creating new
-curriculum data.
-
----
-
 ## Notes and Intentional Behaviours
 
 | Item | Status |
@@ -373,7 +362,7 @@ curriculum data.
 | `financial-education` excluded from search | Intentional — to be documented |
 | English content limited to specific units | Intentional — handled via `supportedUnits.json` |
 | Video bulk downloads | Not currently implemented |
-| Binary asset content-type | Documented as `application/json` but returns `application/octet-stream` — see [openapi-and-routing.md item 4](../requests/bug-fixes/openapi-and-routing.md) |
+| Binary asset content-type | Correctly documented as `application/octet-stream` (previous mismatch claim withdrawn) |
 | `unitLessons` truncation | Not present — returns all lessons |
 
 ---
@@ -385,12 +374,8 @@ curriculum data.
 - [`docs/engineering/enhancements.md`](./enhancements.md)
 - [`docs/engineering/dependency-upgrades.md`](./dependency-upgrades.md)
 
-## Appendix: Research Archive
+## Appendix
 
-Detailed research notes from downstream consumer analysis. These
-informed the items in [docs/requests/](../requests/README.md) and are
-preserved for reference but should not be needed for day-to-day work.
-
-- [`.agent/summary/analysis/internal-external-crosswalk.md`](../../.agent/summary/analysis/internal-external-crosswalk.md) — maps internal/external overlap
-- [`.agent/external-feedback-and-requests/from-mcp-semantic-search-work/index.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/index.md) — 22-file research archive index
-- [`.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md`](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/08-summary-and-coordination.md) — summary tables
+Downstream research archive references were intentionally removed. Notion is the
+source of truth for ticket tracking, and `docs/requests/` is the technical
+context surface in this repository.

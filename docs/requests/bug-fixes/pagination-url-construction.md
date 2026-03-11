@@ -21,6 +21,13 @@ size: 2
 API with `searchParams.set()` to correctly merge query parameters.
 Verified 2026-03-10 against the codebase.
 
+## Evidence
+
+- **Code proof**: pagination link generation now uses URL parsing and
+  query-param merging instead of string concatenation.
+- **Status proof**: this file is retained as implementation history with
+  `status: implemented`; no active remediation item remains.
+
 ## Original problem
 
 The `Link` header URL was built by concatenating

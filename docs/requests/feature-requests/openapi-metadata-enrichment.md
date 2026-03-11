@@ -22,6 +22,18 @@ depends-on:
 **Goal**: Enrich endpoint descriptions so both human developers and AI
 agents can reliably choose the right endpoint for their task.
 
+## Evidence
+
+- **Live MCP proof (oak-prod)**:
+  - `get-key-stages-subject-lessons(...)` returns unit/lesson listings only.
+  - `get-lessons-summary(lesson: "joining-using-and")` returns rich lesson
+    metadata (`lessonKeywords`, `misconceptionsAndCommonMistakes`,
+    `teacherTips`, `canonicalUrl`).
+  - `get-key-stages-subject-questions(...)` returns assessment payloads.
+- **Interpretation**: endpoints are functionally distinct, but these usage
+  boundaries are not consistently explicit in descriptions. Better OpenAPI
+  metadata would make tool/endpoint selection deterministic.
+
 ## Problem
 
 Current endpoint descriptions are generic (e.g., "This endpoint returns
@@ -102,7 +114,7 @@ parameters:
 ## Impact
 
 - Human developers choose endpoints faster
-- AI agents select the correct tool ~70% more reliably
+- AI agents and developers select endpoints with less trial and error
 - Generated SDKs and MCP tools inherit better descriptions automatically
 - Error handling improves across all consumers
 
@@ -117,6 +129,4 @@ shapes, or behaviour.
 
 ## Related
 
-- Research archive:
-  [index.md](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/index.md)
-  (item 04: high-priority schema/error documentation; item 16: key stage coverage discovery)
+- [content-filtering-transparency.md](content-filtering-transparency.md)
