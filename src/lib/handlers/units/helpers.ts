@@ -143,6 +143,8 @@ export function formatUnitSummary(
     if (unitOption) {
       metadata.unitTitle = unitOption.title;
     }
+
+    metadata.unitOptionGroup = sequenceData.unitOptionGroup;
   }
 
   return {

@@ -130,6 +130,7 @@ export type Sequence = TitleSlug & {
       subject: string;
     };
   };
+  unitOptionGroup?: string;
 };
 
 export interface UnitVariantLesson {

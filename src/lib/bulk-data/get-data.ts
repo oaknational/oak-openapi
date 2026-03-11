@@ -12,6 +12,7 @@ import { gql } from 'graphql-request';
 import type { GraphQLClient } from 'graphql-request';
 import type {
   DownloadView,
+  Sequence,
   SequenceView,
   SubjectPhase,
   SubjectPhaseView,
@@ -145,6 +146,8 @@ export async function getAllSequenceData(
         order
         pathway
         pathway_slug
+        subjectcategories
+        subject_parent
         tier
         features
         actions
@@ -177,6 +180,20 @@ export async function getAllSequenceData(
 
       return _;
     })
+    .reduce((acc, _: Sequence) => {
+      if (_.unit_options && _.unit_options.length > 0) {
+        _.unit_options.forEach((option) => {
+          acc.push({
+            ..._,
+            ...option,
+            unitOptionGroup: _.slug,
+          });
+        });
+      } else {
+        acc.push(_);
+      }
+      return acc;
+    }, [] as Sequence[])
     .map((_) => formatUnitSummary(_.slug, _)) as UnitWithExamBoards[];
 
   // some units will appear more than once. equally, if the sequence string
