@@ -47,7 +47,20 @@ export const getUnits = router({
       const exists = await doesUnitExist(client, slug);
 
       if (!exists) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
+        // there's a nasty bit here where a top level unit can "look like" a unit variant because of the slug structure, so we need to do a quick check to see if the unit exists at all before we do any blocking checks, otherwise we might end up blocking a real 404 which is not ideal from an API consumer perspective
+
+        if (originalSlug === slug) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
+        }
+
+        const doubleCheck = await doesUnitExist(client, originalSlug);
+
+        if (!doubleCheck) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
+        } else {
+          // move the original slug back to the original for the rest of the function
+          slug = originalSlug;
+        }
       }
 
       const blocked = await blockUnitForCopyrightText(client, slug);
