@@ -86,9 +86,6 @@ importers:
       pg:
         specifier: ^8.14.0
         version: 8.16.3
-      pg-format:
-        specifier: ^1.0.4
-        version: 1.0.4
       posthog-js:
         specifier: ^1.172.0
         version: 1.319.0
@@ -7684,10 +7681,6 @@ packages:
 
   pg-connection-string@2.9.1:
     resolution: {integrity: sha512-nkc6NpDcvPVpZXxrreI/FOtX3XemeLl8E0qFr6F2Lrm/I8WOnaWNhIPK2Z7OHpw7gh5XJThi6j6ppgNoaT1w4w==}
-
-  pg-format@1.0.4:
-    resolution: {integrity: sha512-YyKEF78pEA6wwTAqOUaHIN/rWpfzzIuMh9KdAhc3rSLQ/7zkRFcCgYBAEGatDstLyZw4g0s9SNICmaTGnBVeyw==}
-    engines: {node: '>=4.0'}
 
   pg-int8@1.0.1:
     resolution: {integrity: sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==}
@@ -18685,8 +18678,6 @@ snapshots:
     optional: true
 
   pg-connection-string@2.9.1: {}
-
-  pg-format@1.0.4: {}
 
   pg-int8@1.0.1: {}
 
