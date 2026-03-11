@@ -100,7 +100,7 @@ Three items have unresolved feasibility questions (details in each file):
    programme→sequence mapping in their data layer?
 2. **CanonicalUrl generation**: URL pattern rules must be extracted
    from Oak-Web-Application code before bulk Phase 2c can proceed.
-3. **Bulk data integrity known fixes** (items 1-3 in
+3. **Bulk data integrity known fixes** (items 1-2 in
    `bulk-download-data-integrity.md`): should complete before bulk enhancements
    Phase 1, to avoid reworking `prepare-bulk.ts`.
 

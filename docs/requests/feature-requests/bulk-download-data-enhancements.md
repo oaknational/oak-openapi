@@ -256,8 +256,7 @@ ownership boundaries.
 
 Covered in
 [bulk-download-data-integrity.md](../bug-fixes/bulk-download-data-integrity.md)
-(items 1-3: exam board deduplication, field name casing, and referential
-integrity validation).
+(items 1-2: exam board deduplication and referential integrity validation).
 
 ---
 
