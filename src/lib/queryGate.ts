@@ -215,14 +215,20 @@ export function supportsImages(subject: string, unit: string): GateWithReason {
   const unitSupported = isUnitSupported(unit);
 
   if (subjectSupported.isBlocked()) {
-    return new GateWithReason(true, 'Subject supports images');
+    return new GateWithReason(
+      true,
+      'An image has copyright at the subject level, so this is blocked',
+    );
   }
 
   if (unitSupported.isBlocked()) {
-    return new GateWithReason(true, 'Unit supports images');
+    return new GateWithReason(
+      true,
+      'An image has copyright at the unit level, so this is blocked',
+    );
   }
 
-  return new GateWithReason(false, 'Neither subject nor unit support images');
+  return new GateWithReason(false, 'Images allowed for this subject and unit');
 }
 
 export function isSubjectSupported(subject: string): GateWithReason {
