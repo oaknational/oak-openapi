@@ -38,6 +38,8 @@ export interface Metadata {
   examboard?: string;
   examboardSlug?: string;
 
+  unitOptionGroup?: string;
+
   // cycle 2
   whyThisWhyNow?: string;
   description?: string;

@@ -82,13 +82,6 @@ async function buildLessonData(
   // walk sequence and at the lowest level, get the units array
   const unitSlugs: string[] = deepSearchAll(sequence, 'unitSlug') as string[];
 
-  // const totalLessonCount = sequence.reduce((acc, _) => {
-  //   const lessons = _.unitLessons.filter((l) => l.state === 'published').length;
-  //   return acc + lessons;
-  // }, 0);
-
-  // let currentLessonCtr = 0;
-
   const lessons = [];
 
   for (const unitSlug of unitSlugs) {
