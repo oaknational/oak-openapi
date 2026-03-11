@@ -16,16 +16,24 @@ size: 3
 - **Achievable**: Yes — both fields are derivable from existing
   thread→unit relationships, though the derivation path requires
   joining through unit detail data.
-- **Data source**: `ThreadUnitsResponseSchema` returns units with
-  `unitTitle`, `unitSlug`, and `unitOrder`. **Note**: `keyStageSlug`
-  is NOT present in the thread units response — deriving
-  `keyStagesCovered` requires joining thread units to unit detail
-  data (e.g., via `GET /units/{unit}/summary` or bulk download unit
-  records which include `keyStageSlug`). `unitCount` is directly
-  derivable from the thread units array length.
+- **Data source**:
+  - `GET /threads` returns `title` and `slug` only.
+  - `GET /threads/{threadSlug}/units` returns `unitTitle`, `unitSlug`,
+    `unitOrder` only.
+  - `keyStageSlug` is absent from thread responses and would require join logic.
 
 **Goal**: Enrich thread endpoints with derived aggregation fields that
 help consumers understand thread coverage without N+1 calls.
+
+## Evidence
+
+- **Live MCP proof (oak-prod)**:
+  - `get-threads` returns `title` and `slug` only.
+  - `get-threads-units(thread: "number")` returns unit rows with
+    `unitTitle`, `unitSlug`, `unitOrder`, and `canonicalUrl` (often null),
+    but no `keyStageSlug` or aggregate `unitCount`.
+- **Resulting gap**: consumers cannot determine key-stage coverage for a thread
+  from thread endpoints alone and must join additional data.
 
 ## Problem
 
@@ -61,6 +69,4 @@ existing thread response. Existing consumers are unaffected.
 
 ## Related
 
-- Research archive:
-  [index.md](../../.agent/external-feedback-and-requests/from-mcp-semantic-search-work/index.md)
-  (item 05: medium-priority metadata extensions; item 17: ontology and threads examples)
+- `src/lib/handlers/threads/threads.ts`

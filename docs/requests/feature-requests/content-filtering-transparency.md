@@ -24,6 +24,18 @@ depends-on:
 **Goal**: Make content filtering decisions visible to API consumers so they can predict
 what data will and will not be available.
 
+## Evidence
+
+- **Code proof**: `src/lib/queryGate.ts` applies filtering and fallback behaviour
+  before downstream handlers execute.
+- **Live MCP proof (oak-prod)**:
+  - `get-key-stages-subject-questions(keyStage: "ks2", subject: "english")`
+    returns quiz payloads.
+  - `get-key-stages-subject-questions(keyStage: "ks2", subject: "maths")`
+    returns quiz payloads.
+- **Interpretation**: filtering is endpoint-specific and allowlist-aware; the
+  docs need to describe these rules explicitly so consumers can predict output.
+
 ---
 
 ## Problem
@@ -31,7 +43,7 @@ what data will and will not be available.
 Content availability is governed by overlapping filtering mechanisms that are invisible
 to API consumers:
 
-- **Subject-level blocking**: `english`, `financial-education` are excluded entirely
+- **Subject-level blocking**: `english`, `financial-education` are blocked at subject level
 - **Subject-level support**: `maths` is specially supported with additional content
 - **Unit-level allowlist**: `supportedUnits.json` — only these units are exposed
 - **Lesson-level allowlist**: `supportedLessons.json` — only these lessons are exposed
@@ -75,7 +87,8 @@ upstream code.
 Add clear descriptions to affected endpoints documenting filtering rules:
 
 **`GET /lessons/{lesson}/quiz`**:
-```
+
+```text
 Returns quiz questions for the lesson.
 
 Note: Image-based questions are excluded for subjects outside the maths allowlist.
@@ -83,7 +96,8 @@ Use GET /search/questions for subject/year/filtering options.
 ```
 
 **`GET /search/lessons`**:
-```
+
+```text
 Search lessons across the curriculum.
 
 Excluded subjects: financial-education.

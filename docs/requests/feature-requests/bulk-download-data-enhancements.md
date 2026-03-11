@@ -31,15 +31,29 @@ size: 13
     beyond the map. Programme slugs include exam board, tier, and
     learning variant suffixes that cannot be derived from
     subject+keystage alone.
-- **Data source**: `SequenceUnitsResponseSchema` in the OpenAPI spec,
-  canonical URL map, plus constructible fields from patterns in
-  Oak-Web-Application.
+- **Data source**: `SequenceUnitsResponseSchema` in OpenAPI plus fields already
+  present in bulk outputs.
 - Phase 1 (tier + examSubject): size **5** (schema change, backfill,
   endpoint mods, bulk regen, validation)
 - Phase 2a+2b (categories + unitOptionGroup): size **5** (unblocked)
-- Phase 2c (canonicalUrl): size **5** (blocked — requires URL pattern
-  extraction and architectural decision on ownership)
+- Phase 2c (canonicalUrl): deferred pending ownership decision for URL pattern
+  logic and long-term maintenance
 - Phase 3: covered in [bulk-download-data-integrity](../bug-fixes/bulk-download-data-integrity.md)
+
+## Evidence
+
+Live oak-prod MCP calls confirm the key shape gaps:
+
+- `get-sequences-units(sequence: \"maths-secondary\", year: \"10\")` returns
+  `tiers[]` groups (tier data exists in API sequence responses).
+- `get-sequences-units(sequence: \"science-secondary-aqa\", year: \"10\")`
+  returns `examSubjects[]` with nested `tiers[]` (exam-subject context exists).
+- `get-sequences-units(sequence: \"english-secondary-aqa\", year: \"10\")`
+  returns `unitOptions[]` and `categories[]` on units (both already available in
+  sequence-unit responses).
+- `get-sequences-assets(sequence: \"maths-primary\", year: \"1\")` returns
+  lesson-level `canonicalUrl` values in the MCP response, showing URL
+  construction is already possible in the serving layer.
 
 **Backwards compatibility**: All new fields are optional additions.
 Existing bulk consumers are unaffected.
@@ -221,7 +235,7 @@ field.
 
 **Problem**: Canonical URLs (the Oak website paths for lessons, units, and sequences)
 must be constructed from lesson/unit/sequence metadata and URL patterns from the
-Oak-Web-Application code. They are not currently in bulk downloads, forcing consumers
+website routing logic. They are not currently in bulk downloads, forcing consumers
 to either maintain their own URL pattern logic or derive them from the canonical-url-map.
 
 **What it enables**:
@@ -233,14 +247,17 @@ to either maintain their own URL pattern logic or derive them from the canonical
 and generate `canonicalUrl` fields during bulk export for lessons, units, and sequences.
 Include pattern documentation in bulk schema.
 
+**Status**: Deferred until API-team confirms this belongs in this repo and agrees
+ownership boundaries.
+
 ---
 
 ## Phase 3 — Data quality fixes
 
 Covered in
 [bulk-download-data-integrity.md](../bug-fixes/bulk-download-data-integrity.md)
-(items 3-5: exam board deduplication, null value encoding, field name
-casing).
+(items 1-3: exam board deduplication, field name casing, and referential
+integrity validation).
 
 ---
 
@@ -257,23 +274,7 @@ For reference, the bulk downloads currently provide:
 - **Sequences**: full ordered unit lists per subject
 - **KS4 options**: listed at sequence level (exam boards, pathways)
 
-## Appendix: Verification
+## Evidence requirement
 
-All claims in this document were verified on 2026-03-10 against
-(all paths are in the [oak-mcp-ecosystem](https://github.com/oaknational/oak-open-curriculum-ecosystem)
-and [Oak-Web-Application](https://github.com/oaknational/Oak-Web-Application) repos):
-
-- OpenAPI schema: `packages/sdks/oak-sdk-codegen/schema-cache/api-schema-original.json`
-  (verified tier, examSubject, categories, unitOptions exist in SequenceUnitsResponseSchema)
-- Actual bulk download files in `apps/oak-search-cli/bulk-downloads/`
-- Bulk download schema at `apps/oak-search-cli/bulk-downloads/schema.json`
-- Ingestion code in `apps/oak-search-cli/src/adapters/`
-- Oak website URL patterns in Oak-Web-Application repo
-- Canonical URL map in `packages/sdks/oak-sdk-codegen/reference/canonical-url-map.json`
-  (reference for canonicalUrl construction)
-
-## Related
-
-- Source:
-  [bulk_data_for_semantic_search.feature_request.md](https://github.com/oaknational/oak-open-curriculum-ecosystem/blob/main/.agent/plans/semantic-search/active/bulk_data_for_semantic_search.feature_request.md)
-  (oak-mcp-ecosystem repo)
+Where this request references data gaps, include reproducible examples from
+current API and bulk payloads before implementation starts.

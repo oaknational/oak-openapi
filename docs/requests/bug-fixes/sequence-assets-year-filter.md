@@ -1,6 +1,6 @@
 ---
 type: bug-fix
-status: draft
+status: implemented
 audience: Oak Curriculum API team
 severity: medium
 size: 2
@@ -12,32 +12,29 @@ size: 2
 **Size**: 2
 **Endpoint**: `GET /sequences/{sequence}/assets`
 
-## Problem
+## Status
 
-The `year` query parameter is accepted in the endpoint schema but was
-not applied to the underlying query.
+**Already fixed.** Verified in current code:
 
-**Code references**: `assets.ts:261` (year extracted from input),
-`assets.ts:275` (year passed to `sequenceWhere()`)
+- `src/lib/handlers/assets/assets.ts` extracts `year` from input and passes it
+  into `sequenceWhere(sequence, year ? year.toString() : undefined)`.
+- `src/lib/handlers/sequences/sequences.ts` applies `year` in `sequenceWhere()`
+  via `baseWhere._and.push({ year: { _eq: year } })`.
 
-**Note (2026-03-10 verification)**: The current code at line 275 does
-pass `year` to `sequenceWhere()`. The original FIXME comments at
-lines 257 and 372 are no longer present. The API team should verify
-whether the year filter is now fully functional or if the
-`sequenceWhere()` implementation still ignores it.
+This document remains as implementation history only.
 
-## Expected behaviour
+## Evidence
 
-The endpoint should filter assets by year group when the `year`
-parameter is provided.
-
-## Fix
-
-Verify that `sequenceWhere()` applies the year filter correctly.
-If it does, this can be marked as implemented. If not, apply the
-filter or remove the parameter from the OpenAPI schema.
-
-**Scope**: Verify existing logic (1) + tests if needed (1).
+- **Code proof**:
+  - `src/lib/handlers/assets/assets.ts` passes `year` into `sequenceWhere(...)`.
+  - `src/lib/handlers/sequences/sequences.ts` applies `year` in the GraphQL where
+    clause.
+- **Live MCP proof (oak-prod)**:
+  - `get-sequences-assets(sequence: \"maths-primary\", year: \"1\")` returned 185
+    lesson asset rows.
+  - `get-sequences-assets(sequence: \"maths-primary\", year: \"2\")` returned 175
+    lesson asset rows.
+  - Different result sets for adjacent years confirm year filtering is active.
 
 ## Related
 
