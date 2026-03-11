@@ -37,9 +37,16 @@ explicit upstream API endpoint. This creates drift risk:
 ## Evidence
 
 - **Artifact proof**:
-  `docs/requests/feature-requests/oak-mcp-curriculum-model.json` already defines
+  [`oak-mcp-curriculum-model.json`](./oak-mcp-curriculum-model.json) already defines
   a rich model including `domainModel`, `toolGuidance`, `workflows`,
   `idFormats`, `canonicalUrls`, and `propertyGraph`.
+- **Generator code proof (GitHub)**:
+  - composition entrypoint:
+    [curriculum-model-data.ts](https://github.com/oaknational/oak-mcp-ecosystem/blob/main/packages/sdks/oak-curriculum-sdk/src/mcp/curriculum-model-data.ts)
+  - ontology payload source:
+    [ontology-data.ts](https://github.com/oaknational/oak-mcp-ecosystem/blob/main/packages/sdks/oak-curriculum-sdk/src/mcp/ontology-data.ts)
+  - supporting graph vocabulary under SDK codegen:
+    [property-graph-data.ts](https://github.com/oaknational/oak-mcp-ecosystem/blob/main/packages/sdks/oak-sdk-codegen/src/mcp/property-graph-data.ts)
 - **Live behaviour proof**:
   oak-prod currently exposes this concept via `get-curriculum-model`, proving the
   payload shape is useful and already operational for clients.

@@ -45,7 +45,7 @@ state whether they are:
 | File | Priority | Status | Size | Summary |
 | ---- | -------- | ------ | ---- | ------- |
 | [openapi-metadata-enrichment](feature-requests/openapi-metadata-enrichment.md) | High | draft | 5 | "Use this when" descriptions, operation summaries, error docs |
-| [curriculum-model-endpoint](feature-requests/curriculum-model-endpoint.md) | High | draft | 5 | Construct and expose the curriculum model from upstream API |
+| [curriculum-model-endpoint](feature-requests/curriculum-model-endpoint.md) | High | draft | 5 | Construct and expose the curriculum model from upstream API (with linked artifact and generator source) |
 | [bulk-download-data-enhancements](feature-requests/bulk-download-data-enhancements.md) | High | draft | 13 | Tier, examSubject, categories — eliminate API calls during ingestion |
 | [programme-variants-and-identifiers](feature-requests/programme-variants-and-identifiers.md) | High | draft | 5 | Programme context, tier/examBoard fields, identifier consistency |
 | [web-urls-in-api-responses](feature-requests/web-urls-in-api-responses.md) | High | draft | 5 | Add website URLs to all web-addressable API resources |
@@ -68,7 +68,7 @@ presence/absence, not transport-specific metadata):
 | `feature-requests/bulk-download-data-enhancements.md` | `get-sequences-units(sequence: "maths-secondary", year: "10")`, `get-sequences-units(sequence: "science-secondary-aqa", year: "10")`, `get-sequences-units(sequence: "english-secondary-aqa", year: "10")`, `get-sequences-assets(...)` |
 | `feature-requests/content-filtering-transparency.md` | `get-key-stages-subject-questions(keyStage: "ks2", subject: "english")`, `get-key-stages-subject-questions(keyStage: "ks2", subject: "maths")`, plus code verification (`queryGate.ts`) |
 | `feature-requests/openapi-metadata-enrichment.md` | `get-key-stages-subject-lessons(...)`, `get-lessons-summary(lesson: "joining-using-and")`, `get-key-stages-subject-questions(...)` |
-| `feature-requests/curriculum-model-endpoint.md` | `get-curriculum-model`, plus schema/artifact verification (`oak-mcp-curriculum-model.json`) |
+| `feature-requests/curriculum-model-endpoint.md` | `get-curriculum-model`, artifact [`oak-mcp-curriculum-model.json`](feature-requests/oak-mcp-curriculum-model.json), generator [curriculum-model-data.ts](https://github.com/oaknational/oak-mcp-ecosystem/blob/main/packages/sdks/oak-curriculum-sdk/src/mcp/curriculum-model-data.ts) |
 | `feature-requests/programme-variants-and-identifiers.md` | `get-subjects`, `get-sequences-units(sequence: "maths-secondary", year: "10")`, `get-sequences-units(sequence: "science-secondary-aqa", year: "10")` |
 | `feature-requests/web-urls-in-api-responses.md` | `get-lessons-summary(...)`, `get-subjects`, `get-threads-units(...)` |
 | `feature-requests/web-urls-in-bulk-data.md` | `get-sequences-assets(...)`, bulk generation/schema references |
