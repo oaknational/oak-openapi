@@ -18,10 +18,6 @@ attached.
 
 ## Evidence
 
-- **Code/schema proof (`downloadsavailable`)**:
-  `src/app/api/bulk/schema.json/schema.json` currently defines the lesson field
-  as `downloadsavailable` (lowercase) while API lesson responses use
-  `downloadsAvailable`.
 - **Code/schema proof (referential integrity check missing)**:
   the same bulk schema contains an explicit TODO to validate joins between
   `sequence[].unitLessons[]` and `lessons[]`, confirming this is not currently
@@ -62,17 +58,7 @@ Expected: 3 unique entries (one per board).
 
 **Fix**: Add deduplication by `slug` in the unit transformation step.
 
-### 2. Inconsistent field name casing
-
-**Severity**: Low
-**Size**: 1
-
-`downloadsavailable` (all lowercase) diverges from the `camelCase` convention used by
-every other field. (The API uses `downloadsAvailable`.)
-
-**Fix**: Rename to `downloadsAvailable` in bulk export schema and transformation.
-
-### 3. Referential integrity not validated in schema
+### 2. Referential integrity not validated in schema
 
 **Severity**: Medium
 **Size**: 1
@@ -92,6 +78,7 @@ This leaves consumers to detect broken joins at ingest time.
 ## Feature Requests (data exists; requesting inclusion in bulk or API)
 
 See separate feature request documents:
+
 - [bulk-download-data-enhancements.md](../feature-requests/bulk-download-data-enhancements.md)
   (tier, examSubject, categories, unitOptions, canonicalUrl)
 
@@ -99,10 +86,8 @@ See separate feature request documents:
 
 ## Summary by Type
 
-| Type | Count | Effort |
-|------|-------|--------|
-| Known fixes | 3 | ~3 points (parallel, all in one PR) |
-| Deferred investigations (need examples) | 3 | TBD after evidence |
+- Known fixes: 2 (~2 points, parallel in one PR)
+- Deferred investigations (need examples): 3 (TBD after evidence)
 
 **Total scope for API team**: implement known fixes first; only re-open deferred
 investigations when reproducible examples are attached.
