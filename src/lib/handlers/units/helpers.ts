@@ -24,19 +24,20 @@ export async function doesUnitExist(
   return res[sequenceView].length > 0;
 }
 
+export interface RootUnitData {
+  unitTitle: string;
+  notes: string;
+  threads: Thread[];
+  priorKnowledgeRequirements: string[];
+  nationalCurriculumContent: string[];
+  categories: Category[] | undefined;
+}
+
 export function formatUnitSummary(
   slug: string,
   sequenceData: Sequence,
 ): UnitSchema {
   const isUnitVariant = testIfUnitVariant(slug);
-  interface RootUnitData {
-    unitTitle: string;
-    notes: string;
-    threads: Thread[];
-    priorKnowledgeRequirements: string[];
-    nationalCurriculumContent: string[];
-    categories: Category[] | undefined;
-  }
 
   if (isUnitVariant) {
     // RADAR this is a hack that we hope to remove when
@@ -145,6 +146,23 @@ export function formatUnitSummary(
     }
 
     metadata.unitOptionGroup = sequenceData.unitOptionGroup;
+  }
+
+  // add the tier if it's there
+  if (sequenceData.tier_slug) {
+    metadata.tier = {
+      tierSlug: sequenceData.tier_slug,
+      tierTitle: sequenceData.tier,
+    };
+  }
+
+  if (sequenceData.subject_parent !== sequenceData.subject) {
+    metadata.examSubject = [
+      {
+        examSubjectSlug: sequenceData.subject_slug,
+        examSubjectTitle: sequenceData.subject,
+      },
+    ];
   }
 
   return {
