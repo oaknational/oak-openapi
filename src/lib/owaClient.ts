@@ -15,6 +15,8 @@ export const lessonContentViewTable =
 export const subjectPhaseView = 'published_mv_subject_phase_options_0_11';
 export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_21';
 export const sequenceViewTable = 'published.mv_curriculum_sequence_b_13_0_21';
+export const lessonSearchView =
+  'published_function__table__mv_lesson_openapi_search_1';
 
 export const views = [
   lessonView,
@@ -22,6 +24,7 @@ export const views = [
   unitVariantLessonsView,
   subjectPhaseView,
   sequenceView,
+  lessonSearchView,
 ];
 
 export const sequenceViewWhereInput =
@@ -61,6 +64,13 @@ export interface LessonDetail {
 
 export interface SubjectPhaseView {
   [subjectPhaseView]: SubjectPhase[];
+}
+
+export interface LessonSearchView {
+  [lessonSearchView]: {
+    lessonSlug: string;
+    similarity: number;
+  }[];
 }
 
 export interface SubjectPhase {
