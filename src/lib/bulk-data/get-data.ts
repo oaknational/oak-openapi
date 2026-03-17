@@ -147,7 +147,9 @@ export async function getAllSequenceData(
         pathway
         pathway_slug
         subjectcategories
+        subject
         subject_parent
+        subject_slug
         tier
         features
         actions
@@ -209,6 +211,38 @@ export async function getAllSequenceData(
 
       seen.add(unit.unitSlug);
 
+      interface ExamSubject {
+        examSubjectSlug: string;
+        examSubjectTitle: string;
+      }
+
+      const examSubjects = new Map<string, ExamSubject>();
+
+      const relatedUnits = allUnits.filter((_, j) => {
+        if (i === j) {
+          return false; // this is the current unit
+        }
+        if (_.unitSlug === unit.unitSlug) {
+          return true;
+        }
+      });
+
+      if (unit.examSubject) {
+        for (const examSubject of unit.examSubject) {
+          examSubjects.set(examSubject.examSubjectSlug, examSubject);
+        }
+
+        relatedUnits.forEach((_) => {
+          if (_.examSubject) {
+            for (const examSubject of _.examSubject) {
+              examSubjects.set(examSubject.examSubjectSlug, examSubject);
+            }
+          }
+        });
+        unit.examSubject =
+          examSubjects.size > 0 ? [...examSubjects.values()] : undefined;
+      }
+
       // first copy the exam boards onto units have no exam board (this actually
       // means they're in all exam boards).
       if (unit.examboard && unit.examboardSlug) {
@@ -217,39 +251,36 @@ export async function getAllSequenceData(
         delete unit.examboard;
         delete unit.examboardSlug;
 
-        const localExamBoards: ExamBoard[] = [
-          { title: examboard, slug: examboardSlug },
-        ];
+        const localExamBoards = new Map();
+
+        // ExamBoard[] =
+        const examBoard: ExamBoard = { title: examboard, slug: examboardSlug };
+        localExamBoards.set(examboardSlug, examboard);
 
         const subjectOverride =
           queryResult[sequenceView][i].actions?.programme_field_overrides
             ?.subject;
 
         if (subjectOverride) {
-          localExamBoards[0].examSubjectTitle = subjectOverride;
+          examBoard.examSubjectTitle = subjectOverride;
         }
 
         // now find if there's any other units with the same slug
-        allUnits.forEach((_, j) => {
-          if (i === j) {
-            return false; // this is the current unit
-          }
-          if (_.unitSlug === unit.unitSlug) {
-            if (_.examboard && _.examboardSlug) {
-              const res: ExamBoard = {
-                title: _.examboard,
-                slug: _.examboardSlug,
-              };
+        relatedUnits.forEach((_) => {
+          if (_.examboard && _.examboardSlug) {
+            const res: ExamBoard = {
+              title: _.examboard,
+              slug: _.examboardSlug,
+            };
 
-              if (subjectOverride) {
-                res.examSubjectTitle = subjectOverride;
-              }
-              localExamBoards.push(res);
+            if (subjectOverride) {
+              res.examSubjectTitle = subjectOverride;
             }
+            localExamBoards.set(res.slug, res);
           }
         });
 
-        unit.examBoards = localExamBoards;
+        unit.examBoards = [...localExamBoards.values()];
       } else if (!unit.examboardSlug) {
         unit.examBoards = examBoards;
       }
