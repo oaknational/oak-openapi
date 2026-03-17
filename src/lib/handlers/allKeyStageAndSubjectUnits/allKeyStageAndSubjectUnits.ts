@@ -5,7 +5,7 @@ import {
   allKeyStageAndSubjectUnitsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/allKeyStageAndSubjectUnits';
 import { gql } from 'graphql-request';
-
+import { errorResponses } from '@/lib/errorResponses';
 import type { UnitVariantLessonsView } from 'lib/owaClient';
 
 import { getClient, unitVariantLessonsView } from 'lib/owaClient';
@@ -18,7 +18,7 @@ export const getAllKeyStageAndSubjectUnits = router({
         tags: ['lists', 'units'],
         summary: 'Units',
         path: '/key-stages/{keyStage}/subject/{subject}/units',
-        errorResponses: [],
+        errorResponses,
         description:
           'This endpoint returns an array of units containing available published lessons for a given key stage and subject, grouped by year. Units without published lessons will not be returned by this endpoint.',
       },

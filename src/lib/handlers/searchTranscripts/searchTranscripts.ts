@@ -5,6 +5,7 @@ import {
   searchTranscriptRequestOpenAPISchema,
   searchTranscriptResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/searchTranscripts';
+import { errorResponses } from '@/lib/errorResponses';
 
 export const searchTranscripts = router({
   searchTranscripts: protectedProcedure
@@ -14,7 +15,7 @@ export const searchTranscripts = router({
         tags: ['search'],
         path: '/search/transcripts',
         summary: 'Lesson search using lesson video transcripts',
-        errorResponses: [],
+        errorResponses,
         description:
           'Search for a term and find the 5 most similar lessons whose video transcripts contain similar text.',
       },

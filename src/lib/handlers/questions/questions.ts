@@ -30,6 +30,7 @@ import {
   questionsForSequenceResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/questions';
 import { nextPageLink } from '@/lib/pagination';
+import { errorResponses } from '@/lib/errorResponses';
 
 export const getQuestions = router({
   getQuestionsForLessons: protectedProcedure
@@ -39,7 +40,7 @@ export const getQuestions = router({
         tags: ['lessons', 'questions', 'quiz-questions'],
         path: '/lessons/{lesson}/quiz',
         summary: 'Quiz questions by lesson',
-        errorResponses: [],
+        errorResponses,
         description:
           'The endpoint returns the quiz questions and answers for a given lesson. The answers data indicates which answers are correct, and which are distractors.',
       },
@@ -118,7 +119,7 @@ export const getQuestions = router({
         path: '/sequences/{sequence}/questions',
         summary: 'Questions within a sequence',
         description: `This endpoint returns all quiz questions for a given sequence. The assets are separated into starter quiz and entry quiz arrays, grouped by lesson.`,
-        errorResponses: [],
+        errorResponses,
       },
     })
     .input(questionsForSequenceRequestOpenAPISchema)
@@ -253,7 +254,7 @@ export const getQuestions = router({
         method: 'GET',
         path: '/key-stages/{keyStage}/subject/{subject}/questions',
         summary: 'Quiz questions by subject and key stage',
-        errorResponses: [],
+        errorResponses,
         description:
           'This endpoint returns quiz questions and answers for each lesson within a requested subject and key stage.',
       },
