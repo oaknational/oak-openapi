@@ -16,15 +16,41 @@ export default {
   },
   create(context) {
     const gateWithReasonTypes = new Set(['GateWithReason']);
+    const gateWithReasonVariables = new Set();
 
     function isGateWithReasonType(node) {
       if (!node) return false;
 
-      // Check for direct identifier (simple case)
-      if (node.type === 'Identifier' && gateWithReasonTypes.has(node.name)) {
-        return true;
+      if (node.type === 'AwaitExpression') {
+        return isGateWithReasonType(node.argument);
       }
 
+      if (node.type === 'TSAsExpression' || node.type === 'TSTypeAssertion') {
+        return isGateWithReasonType(node.expression);
+      }
+
+      if (node.type === 'TSNonNullExpression') {
+        return isGateWithReasonType(node.expression);
+      }
+
+      if (node.type === 'ChainExpression') {
+        return isGateWithReasonType(node.expression);
+      }
+
+      if (node.type === 'ParenthesizedExpression') {
+        return isGateWithReasonType(node.expression);
+      }
+
+      // Check for direct identifier (simple case)
+      if (node.type === 'Identifier') {
+        if (gateWithReasonTypes.has(node.name)) {
+          return true;
+        }
+
+        if (gateWithReasonVariables.has(node.name)) {
+          return true;
+        }
+      }
       // Check for call expression like isSubjectSupported(...)
       if (node.type === 'CallExpression') {
         const callee = node.callee;
@@ -48,29 +74,24 @@ export default {
       return false;
     }
 
-    // function checkNode(node) {
-    //   // Check if parent is a type guard call
-    //   const parent = node.parent;
-    //   if (
-    //     parent &&
-    //     parent.type === 'CallExpression' &&
-    //     parent.callee.type === 'MemberExpression' &&
-    //     (parent.callee.property.name === 'isAllowed' ||
-    //       parent.callee.property.name === 'isBlocked')
-    //   ) {
-    //     return; // This is fine
-    //   }
+    function trackAssignment(left, right) {
+      if (!left || left.type !== 'Identifier') return;
 
-    //   // Check if it's in a boolean context without a type guard
-    //   if (isGateWithReasonType(node)) {
-    //     context.report({
-    //       node,
-    //       messageId: 'useTypeGuard',
-    //     });
-    //   }
-    // }
+      if (isGateWithReasonType(right)) {
+        gateWithReasonVariables.add(left.name);
+      } else {
+        gateWithReasonVariables.delete(left.name);
+      }
+    }
 
     return {
+      VariableDeclarator(node) {
+        if (!node.init) return;
+        trackAssignment(node.id, node.init);
+      },
+      AssignmentExpression(node) {
+        trackAssignment(node.left, node.right);
+      },
       IfStatement(node) {
         if (isGateWithReasonType(node.test)) {
           context.report({

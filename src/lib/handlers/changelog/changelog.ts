@@ -3,6 +3,7 @@ import * as z from 'zod/v4';
 import { changelogResponseSchema } from './schemas/changelogResponse.schema';
 import { changelogLatestSchema } from './schemas/changelogLatestResponse.schema';
 import { versions } from './helpers';
+import { errorResponses } from '@/lib/errorResponses';
 
 export const changelog = router({
   changelog: publicProcedure
@@ -11,7 +12,7 @@ export const changelog = router({
         method: 'GET',
         path: '/changelog',
         tags: ['internal'],
-        errorResponses: [],
+        errorResponses,
         description:
           'History of significant changes to the API with associated dates and versions',
       },
@@ -30,7 +31,7 @@ export const changelog = router({
       openapi: {
         method: 'GET',
         path: '/changelog/latest',
-        errorResponses: [],
+        errorResponses,
         description:
           'Get the latest version and latest change note for the API',
         tags: ['internal'],

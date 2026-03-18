@@ -1,17 +1,11 @@
 import groupBy from 'object.groupby';
-import pgFormat from 'pg-format';
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import { TRPCError } from '@trpc/server';
-import {
-  getClient,
-  gql,
-  lessonView,
-  lessonViewTable,
-  querySQL,
-} from 'lib/owaClient';
-import type { LessonView } from 'lib/owaClient';
+import { getClient, gql, lessonSearchView, lessonView } from 'lib/owaClient';
+import type { LessonSearchView, LessonView } from 'lib/owaClient';
 import type * as z from 'zod/v4';
+import { errorResponses } from '@/lib/errorResponses';
 
 import {
   blockLessonForCopyrightText,
@@ -42,7 +36,7 @@ export const getLessons = router({
         summary: 'Lesson summary',
         path: '/lessons/{lesson}/summary',
         description: 'This endpoint returns a summary for a given lesson',
-        errorResponses: [],
+        errorResponses,
       },
     })
     .input(lessonSummaryRequestOpenAPISchema)
@@ -164,7 +158,7 @@ export const getLessons = router({
         summary: 'Lesson search using lesson title',
         description:
           'Search for a term and find the 20 most similar lessons with titles that contain similar text.',
-        errorResponses: [],
+        errorResponses,
       },
     })
     .input(lessonSearchRequestOpenAPISchema)
@@ -176,49 +170,62 @@ export const getLessons = router({
       const subject = input.subject || null;
       const keyStage = input.keyStage || null;
 
-      let sqlWhere = '"isLegacy" = false';
+      interface SearchArgs {
+        filter_keystage_slug?: string;
+        filter_subject_slug?: string;
+        filter_unit_slug?: string;
+        search_term: string;
+      }
+
+      const args: SearchArgs = {
+        search_term: q,
+      };
 
       if (unit) {
-        sqlWhere += ` AND "unitSlug" = '${unit.replace(/'/g, "''")}'`;
+        args.filter_unit_slug = unit;
       }
 
       if (subject) {
-        sqlWhere += ` AND "subjectSlug" = '${subject.replace(/'/g, "''")}'`;
+        args.filter_subject_slug = subject;
       }
 
       if (keyStage) {
-        sqlWhere += ` AND "keyStageSlug" = '${keyStage.replace(/'/g, "''")}'`;
+        args.filter_keystage_slug = keyStage;
       }
-
-      // Added clause to filter out finance lessons from search
-      const financeWhere = `"subjectSlug" <> 'financial-education'`;
-      const sql = String(
-        pgFormat(
-          `SELECT * from (SELECT "lessonSlug", SIMILARITY("lessonTitle", %L) FROM ${lessonViewTable} WHERE ${sqlWhere} AND ${financeWhere} group by "lessonSlug", "similarity") as a order by a.similarity desc limit 20`,
-          q,
-        ),
-      );
-
-      interface SQLResult {
-        result: [string, string][];
-      }
-
-      const result = (await querySQL(sql).then((res) =>
-        res.json(),
-      )) as SQLResult;
-
-      const slugs = result.result
-        .slice(1)
-        .map(([slug]: [string, string]) => slug);
-      const similarity = result.result.slice(1).reduce(
-        (acc: Record<string, number>, [slug, _]: [string, string]) => {
-          acc[slug] = parseFloat(_);
-          return acc;
-        },
-        {} as Record<string, number>,
-      );
 
       const client = getClient();
+
+      const searchQuery = gql`
+        query ($search_term: String!, $filter_unit_slug: String, $filter_subject_slug: String, $filter_keystage_slug: String) {
+          ${lessonSearchView}(args: {
+            search_term: $search_term,
+            filter_unit_slug: $filter_unit_slug,
+            filter_subject_slug: $filter_subject_slug,
+            filter_keystage_slug: $filter_keystage_slug,
+          }) {
+            lessonSlug
+            similarity
+          }
+        }
+      `;
+
+      const result: LessonSearchView = await client.request(searchQuery, {
+        ...args,
+      });
+
+      const slugs = result[lessonSearchView].map(({ lessonSlug }) => {
+        return lessonSlug;
+      });
+
+      type SimilarityMap = Record<string, number>;
+
+      const similarity: SimilarityMap = result[lessonSearchView].reduce(
+        (acc, { lessonSlug, similarity: sim }) => {
+          acc[lessonSlug] = sim;
+          return acc;
+        },
+        {} as SimilarityMap,
+      );
 
       // reality is that this is never going to be string[]
       const variables: Record<string, string | number | string[]> = { slugs };
