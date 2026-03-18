@@ -6,11 +6,10 @@ test('keywords for a valid key stage and subject', async () => {
   const keyStage = 'ks1';
   const subject = 'english';
 
-  const res =
-    await caller.getKeyStageSubjectKeywords.getKeyStageSubjectKeywords({
-      keyStage,
-      subject,
-    });
+  const res = await caller.getKeywords.getKeywords({
+    keyStage,
+    subject,
+  });
 
   expect(Array.isArray(res)).toBe(true);
   expect(res.length).toBeGreaterThan(0);
@@ -32,11 +31,10 @@ test('keywords are sorted alphabetically by keyword text', async () => {
   const keyStage = 'ks2';
   const subject = 'english';
 
-  const res =
-    await caller.getKeyStageSubjectKeywords.getKeyStageSubjectKeywords({
-      keyStage,
-      subject,
-    });
+  const res = await caller.getKeywords.getKeywords({
+    keyStage,
+    subject,
+  });
 
   if (res.length > 1) {
     for (let i = 1; i < res.length; i++) {
@@ -52,11 +50,10 @@ test('keywords for science subject with multiple lessons', async () => {
   const keyStage = 'ks2';
   const subject = 'science';
 
-  const res =
-    await caller.getKeyStageSubjectKeywords.getKeyStageSubjectKeywords({
-      keyStage,
-      subject,
-    });
+  const res = await caller.getKeywords.getKeywords({
+    keyStage,
+    subject,
+  });
 
   expect(Array.isArray(res)).toBe(true);
   expect(res.length).toBeGreaterThan(0);
@@ -77,11 +74,10 @@ test('keywords for maths at KS3', async () => {
   const keyStage = 'ks3';
   const subject = 'maths';
 
-  const res =
-    await caller.getKeyStageSubjectKeywords.getKeyStageSubjectKeywords({
-      keyStage,
-      subject,
-    });
+  const res = await caller.getKeywords.getKeywords({
+    keyStage,
+    subject,
+  });
 
   expect(Array.isArray(res)).toBe(true);
 });
@@ -91,11 +87,10 @@ test('keywords description field is populated', async () => {
   const keyStage = 'ks1';
   const subject = 'english';
 
-  const res =
-    await caller.getKeyStageSubjectKeywords.getKeyStageSubjectKeywords({
-      keyStage,
-      subject,
-    });
+  const res = await caller.getKeywords.getKeywords({
+    keyStage,
+    subject,
+  });
 
   expect(res.length).toBeGreaterThan(0);
 
@@ -104,4 +99,71 @@ test('keywords description field is populated', async () => {
     expect(typeof keyword.description).toBe('string');
     expect(keyword.description.length).toBeGreaterThan(0);
   });
+});
+
+test('keywords with subject alone is allowed', async () => {
+  const { caller } = authedCaller();
+  const subject = 'english';
+
+  const res = await caller.getKeywords.getKeywords({
+    subject,
+  });
+
+  expect(Array.isArray(res)).toBe(true);
+});
+
+test('keywords with unit alone is allowed', async () => {
+  const { caller } = authedCaller();
+  const unit = 'some-unit-slug';
+
+  const res = await caller.getKeywords.getKeywords({
+    unit,
+  });
+
+  expect(Array.isArray(res)).toBe(true);
+});
+
+test('keywords with key stage alone should throw an error', async () => {
+  const { caller } = authedCaller();
+  const keyStage = 'ks1';
+
+  try {
+    await caller.getKeywords.getKeywords({
+      keyStage,
+    });
+    expect.fail('Should have thrown an error');
+  } catch (error) {
+    expect(error).toBeDefined();
+  }
+});
+
+test('keywords with key stage and unit (no subject) should throw an error', async () => {
+  const { caller } = authedCaller();
+  const keyStage = 'ks1';
+  const unit = 'some-unit-slug';
+
+  try {
+    await caller.getKeywords.getKeywords({
+      keyStage,
+      unit,
+    });
+    expect.fail('Should have thrown an error');
+  } catch (error) {
+    expect(error).toBeDefined();
+  }
+});
+
+test('keywords with key stage, subject and unit is allowed', async () => {
+  const { caller } = authedCaller();
+  const keyStage = 'ks1';
+  const subject = 'english';
+  const unit = 'some-unit-slug';
+
+  const res = await caller.getKeywords.getKeywords({
+    keyStage,
+    subject,
+    unit,
+  });
+
+  expect(Array.isArray(res)).toBe(true);
 });

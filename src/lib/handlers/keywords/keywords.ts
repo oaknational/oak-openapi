@@ -5,45 +5,51 @@ import type { UnitVariantLessonsView } from 'lib/owaClient';
 import { getClient, gql, unitVariantLessonsView } from 'lib/owaClient';
 
 import {
-  keyStageSubjectKeywordsRequestOpenAPISchema,
-  keyStageSubjectKeywordsResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/keyStageSubjectKeywords';
+  keywordsRequestOpenAPISchema,
+  keywordsResponseOpenAPISchema,
+} from '@/lib/zod-openapi/generated/keywords';
 
-export const getKeyStageSubjectKeywords = router({
-  getKeyStageSubjectKeywords: protectedProcedure
+export const getKeywords = router({
+  getKeywords: protectedProcedure
     .meta({
       openapi: {
         method: 'GET',
         tags: ['lists'],
-        path: '/key-stages/{keyStage}/subject/{subject}/keywords',
+        path: '/keywords',
         summary: 'Keywords',
         description:
           'This endpoint returns a list of keywords for a given key stage and subject, based on the keywords associated with the lessons that are available for that key stage and subject. The keywords are returned in order of frequency, with the most common keywords appearing first.',
         errorResponses: [],
       },
     })
-    .input(keyStageSubjectKeywordsRequestOpenAPISchema)
-    .output(keyStageSubjectKeywordsResponseOpenAPISchema)
+    .input(keywordsRequestOpenAPISchema)
+    .output(keywordsResponseOpenAPISchema)
     .query(async ({ input }) => {
       // ctx
-      const keyStage = decodeURIComponent(input.keyStage);
-      const subject = decodeURIComponent(input.subject);
+      const keyStage = decodeURIComponent(input.keyStage || '') || undefined;
+      const subject = decodeURIComponent(input.subject || '') || undefined;
+      const unit = input.unit ? decodeURIComponent(input.unit) : undefined;
 
       const client = getClient();
 
+      const unitFilter = unit ? `unit_slug: { _eq: $unit }` : '';
+
       const query = gql`
-        query ($filter: jsonb!) {
+        query ($filter: jsonb!${unit ? ', $unit: String' : ''}) {
           ${unitVariantLessonsView}(
             where: {
               is_legacy: { _eq: false }
               programme_fields: {
                 _contains: $filter
               }
+              ${unitFilter}
             },
             order_by: {lesson_slug: asc}
           ) {
             lesson_slug: lesson_data(path: "slug")
             keywords: lesson_data(path: "keywords")
+            subject_slug:programme_fields(path:"subject_slug")
+            keystage_slug:programme_fields(path:"keystage_slug")
           }
         }
       `;
@@ -53,6 +59,7 @@ export const getKeyStageSubjectKeywords = router({
           subject_slug: subject,
           keystage_slug: keyStage,
         },
+        ...(unit && { unit }),
       };
 
       const res = await client.request(query, variables);
@@ -67,6 +74,8 @@ export const getKeyStageSubjectKeywords = router({
         string,
         {
           description: string;
+          subject: string;
+          keyStage: string;
           lessonSlugs: Set<string>;
         }
       > = {};
@@ -78,6 +87,8 @@ export const getKeyStageSubjectKeywords = router({
           if (!keywordMap[keyword]) {
             keywordMap[keyword] = {
               description,
+              subject: lesson.subject_slug,
+              keyStage: lesson.keystage_slug,
               lessonSlugs: new Set(),
             };
           }
@@ -90,10 +101,10 @@ export const getKeyStageSubjectKeywords = router({
           // sort by the keyword
           (a, b) => a[0].localeCompare(b[0]),
         )
-        .map(([keyword, data]) => ({
+        .map(([keyword, { lessonSlugs, ...data }]) => ({
           keyword,
-          description: data.description,
-          lessonSlugs: Array.from(data.lessonSlugs),
+          lessonSlugs: Array.from(lessonSlugs),
+          ...data,
         }));
 
       return keywords;
