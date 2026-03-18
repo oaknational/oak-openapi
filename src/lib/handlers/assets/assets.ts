@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { gql } from 'graphql-request';
-
+import { errorResponses } from '@/lib/errorResponses';
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import type {
@@ -59,16 +59,16 @@ interface AssetsForLesson {
 export async function assetsForLesson(
   lessonSlug: string,
 ): Promise<AssetsForLesson> {
-  const supported = await checkLessonAllowedAsset({
+  const gateTest = await checkLessonAllowedAsset({
     client: graphqlClient,
     lessonSlug,
   });
 
-  if (supported.isBlocked()) {
+  if (gateTest.isBlocked()) {
     throw new TRPCError({
       message: `Lesson not available: "${lessonSlug}"`,
       code: 'BAD_REQUEST',
-      cause: supported.reason,
+      cause: gateTest.reason,
     });
   }
 
@@ -249,7 +249,7 @@ export const getAssets = router({
         method: 'GET',
         tags: ['assets', 'sequences', 'unit-and-curriculum-data'],
         path: '/sequences/{sequence}/assets',
-        errorResponses: [],
+        errorResponses,
         summary: 'Assets within a sequence',
         description: `This endpoint returns all assets for a given sequence, and the download endpoints for each. The assets are grouped by lesson.
 This endpoint contains licence information for any third-party content contained in the lesson’s downloadable resources. Third-party content is exempt from the open-government license, and users will need to consider whether their use is covered by the stated licence, or if they need to procure their own agreement.`,
@@ -307,13 +307,13 @@ This endpoint contains licence information for any third-party content contained
       );
 
       const isLessonAllowed = async (slug: string): Promise<boolean> => {
-        const supported = await checkLessonAllowedAsset({
+        const gateTest = await checkLessonAllowedAsset({
           lessonSlug: slug,
           subjectSlug,
           unitSlug: lessonToUnitLookup[slug],
         });
 
-        return supported.isAllowed();
+        return gateTest.isAllowed();
       };
 
       const downloadsQuery = gql`
@@ -427,7 +427,7 @@ This endpoint contains licence information for any third-party content contained
       openapi: {
         method: 'GET',
         tags: ['assets'],
-        errorResponses: [],
+        errorResponses,
         summary: 'Assets',
         path: '/key-stages/{keyStage}/subject/{subject}/assets',
         description:
@@ -610,7 +610,7 @@ This endpoint contains licence information for any third-party content contained
         tags: ['assets', 'lessons', 'lesson-data'],
         summary: 'Downloadable lesson assets',
         path: '/lessons/{lesson}/assets',
-        errorResponses: [],
+        errorResponses,
         description: `This endpoint returns the types of available assets for a given lesson, and the download endpoints for each.
         This endpoint contains licence information for any third-party content contained in the lesson’s downloadable resources. Third-party content is exempt from the open-government license, and users will need to consider whether their use is covered by the stated licence, or if they need to procure their own agreement.
           `,
@@ -638,7 +638,7 @@ This endpoint contains licence information for any third-party content contained
         description:
           'This endpoint will stream the downloadable asset for the given lesson and type. \nThere is no response returned for this endpoint as it returns a content attachment.',
         contentTypes: ['application/octet-stream'],
-        errorResponses: [],
+        errorResponses,
       },
     })
     .input(lessonAssetRequestOpenAPISchema)

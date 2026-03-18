@@ -15,7 +15,7 @@ import {
   phaseToSequences,
   yearsFromKeyStages,
 } from './helpers';
-
+import { errorResponses } from '@/lib/errorResponses';
 import {
   allSubjectsResponseOpenAPISchema,
   subjectKeyStagesRequestOpenAPISchema,
@@ -38,15 +38,14 @@ export const getSubjects = router({
         summary: 'Subjects',
         description:
           'This endpoint returns an array of all available subjects and their associated sequences, key stages and years.',
-        errorResponses: [],
+        errorResponses,
       },
     })
     .input(z.void())
     .output(allSubjectsResponseOpenAPISchema)
     .query(async () => {
       const client = getClient();
-      // slug: { _nin: $blocked }
-      // filtering out financial education - this will be replaced once RHSE units are published
+      // filtering out financial education
       const query = gql`
       query ($currentCycle: String!) @cached(ttl: 300) {
         ${subjectPhaseView}(
@@ -100,7 +99,7 @@ export const getSubjects = router({
         method: 'GET',
         summary: 'Subject',
         path: '/subjects/{subject}',
-        errorResponses: [],
+        errorResponses,
         description:
           'This endpoint returns the sequences, key stages and years that are currently available for a given subject.',
       },
@@ -126,7 +125,7 @@ export const getSubjects = router({
         method: 'GET',
         summary: 'Sequencing information for a given subject',
         path: '/subjects/{subject}/sequences',
-        errorResponses: [],
+        errorResponses,
         description:
           'This endpoint returns an array of sequence objects that are currently available for a given subject. For secondary sequences, this includes information about key stage 4 variance such as exam board sequences and non-GCSE ‘core’ unit sequences.',
       },
@@ -143,7 +142,7 @@ export const getSubjects = router({
         method: 'GET',
         summary: 'Key stages within a subject',
         path: '/subjects/{subject}/key-stages',
-        errorResponses: [],
+        errorResponses,
         description:
           'This endpoint returns a list of key stages that are currently available for a given subject.',
       },
@@ -160,7 +159,7 @@ export const getSubjects = router({
         method: 'GET',
         summary: 'Year groups for a given subject',
         path: '/subjects/{subject}/years',
-        errorResponses: [],
+        errorResponses,
         description:
           'This endpoint returns an array of years that are currently available for a given subject.',
       },
