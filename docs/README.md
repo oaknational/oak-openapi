@@ -37,6 +37,10 @@ Operations
 - [`docs/operations/environments.md`](operations/environments.md): environment notes and config (placeholder).
 - [`docs/operations/runbook.md`](operations/runbook.md): runbook and incident basics (placeholder).
 
+Requests
+
+- [`docs/requests/README.md`](requests/README.md): bug reports and feature requests from downstream consumers (SDK, MCP server, semantic search).
+
 Engineering
 - [`docs/engineering/README.md`](engineering/README.md): planning notes and repo processes.
 - [`docs/engineering/onboarding.md`](engineering/onboarding.md): local setup and common tasks.
