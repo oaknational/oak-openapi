@@ -258,7 +258,7 @@ export async function getAllSequenceData(
         localExamBoards.set(examboardSlug, examboard);
 
         const subjectOverride =
-          queryResult[sequenceView][i].actions?.programme_field_overrides
+          queryResult[sequenceView][i]?.actions?.programme_field_overrides
             ?.subject;
 
         if (subjectOverride) {
