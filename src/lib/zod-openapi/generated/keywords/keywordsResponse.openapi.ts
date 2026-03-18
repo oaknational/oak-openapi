@@ -1,7 +1,7 @@
 import 'zod-openapi';
 import * as z from 'zod/v4';
 
-export const keyStageSubjectKeywordsResponseOpenAPISchema = z
+export const keywordsResponseOpenAPISchema = z
   .array(
     z.object({
       keyword: z
@@ -15,6 +15,14 @@ export const keyStageSubjectKeywordsResponseOpenAPISchema = z
             'a type of subordinate clause that can start with a verb in the progressive tense',
         })
         .describe('A description of the keyword'),
+      keyStage: z
+        .string()
+        .meta({ example: 'ks2' })
+        .describe('The key stage slug associated with this keyword'),
+      subject: z
+        .string()
+        .meta({ example: 'science' })
+        .describe('The subject slug associated with this keyword'),
       lessonSlugs: z
         .array(z.string())
         .meta({
