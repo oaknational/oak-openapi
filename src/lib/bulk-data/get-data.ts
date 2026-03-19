@@ -1,7 +1,6 @@
 import { parseSubjectPhaseSlug } from '@/lib/sequenceSlugParser';
 import { logError } from './logger';
 import type {
-  ExamBoard,
   LessonAssets,
   LessonAssetsMap,
   SlimSequenceResult,
@@ -205,11 +204,15 @@ export async function getAllSequenceData(
     const seen = new Set<string>();
     units = units.reduce((acc, unit, i, allUnits) => {
       // ignore duplicates, they've been dealt with
-      if (seen.has(unit.unitSlug)) {
+      const uniqueKey = [unit.unitSlug, unit.pathwaySlug, unit.examboardSlug]
+        .filter(Boolean)
+        .join('-');
+
+      if (seen.has(uniqueKey)) {
         return acc;
       }
 
-      seen.add(unit.unitSlug);
+      seen.add(uniqueKey);
 
       interface ExamSubject {
         examSubjectSlug: string;
@@ -227,62 +230,85 @@ export async function getAllSequenceData(
         }
       });
 
-      if (unit.examSubject) {
-        for (const examSubject of unit.examSubject) {
+      const flag = false; //unit.unitSlug === 'programming-subroutines';
+
+      if (flag) {
+        console.log('relatedUnits', relatedUnits);
+      }
+
+      if (unit.examSubjects) {
+        for (const examSubject of unit.examSubjects) {
           examSubjects.set(examSubject.examSubjectSlug, examSubject);
         }
 
         relatedUnits.forEach((_) => {
-          if (_.examSubject) {
-            for (const examSubject of _.examSubject) {
+          if (_.examSubjects) {
+            for (const examSubject of _.examSubjects) {
               examSubjects.set(examSubject.examSubjectSlug, examSubject);
             }
           }
         });
-        unit.examSubject =
+        unit.examSubjects =
           examSubjects.size > 0 ? [...examSubjects.values()] : undefined;
       }
 
       // first copy the exam boards onto units have no exam board (this actually
       // means they're in all exam boards).
       if (unit.examboard && unit.examboardSlug) {
-        // now we restructure the exam board property
-        const { examboard, examboardSlug } = unit;
+        unit.examBoard = {
+          title: unit.examboard,
+          slug: unit.examboardSlug,
+        };
         delete unit.examboard;
         delete unit.examboardSlug;
+      }
 
-        const localExamBoards = new Map();
+      // if (false) {
+      //   // now we restructure the exam board property
+      //   const { examboard, examboardSlug } = unit;
+      //   delete unit.examboard;
+      //   delete unit.examboardSlug;
 
-        // ExamBoard[] =
-        const examBoard: ExamBoard = { title: examboard, slug: examboardSlug };
-        localExamBoards.set(examboardSlug, examboard);
+      //   const localExamBoards = new Map();
 
-        const subjectOverride =
-          queryResult[sequenceView][i]?.actions?.programme_field_overrides
-            ?.subject;
+      //   // ExamBoard[] =
+      //   const examBoards: ExamBoard = { title: examboard, slug: examboardSlug };
+      //   localExamBoards.set(examboardSlug, examBoards);
 
-        if (subjectOverride) {
-          examBoard.examSubjectTitle = subjectOverride;
-        }
+      //   const subjectOverride =
+      //     queryResult[sequenceView][i]?.actions?.programme_field_overrides
+      //       ?.subject;
 
-        // now find if there's any other units with the same slug
-        relatedUnits.forEach((_) => {
-          if (_.examboard && _.examboardSlug) {
-            const res: ExamBoard = {
-              title: _.examboard,
-              slug: _.examboardSlug,
-            };
+      //   if (subjectOverride) {
+      //     examBoards.examSubjectTitle = subjectOverride;
+      //   }
 
-            if (subjectOverride) {
-              res.examSubjectTitle = subjectOverride;
-            }
-            localExamBoards.set(res.slug, res);
-          }
-        });
+      //   // now find if there's any other units with the same slug
+      //   relatedUnits.forEach((_) => {
+      //     if (_.examboard && _.examboardSlug) {
+      //       const res: ExamBoard = {
+      //         title: _.examboard,
+      //         slug: _.examboardSlug,
+      //       };
 
-        unit.examBoards = [...localExamBoards.values()];
-      } else if (!unit.examboardSlug) {
-        unit.examBoards = examBoards;
+      //       if (subjectOverride) {
+      //         res.examSubjectTitle = subjectOverride;
+      //       }
+      //       // localExamBoards.set(res.slug, res);
+      //     }
+      //   });
+
+      //   if (flag) console.log('>'.repeat(20));
+      //   unit.examBoards = [...localExamBoards.values()];
+      // }
+
+      // if (!unit.examboardSlug) {
+      //   if (flag) console.log('<'.repeat(20), examBoards);
+      //   unit.examBoards = examBoards;
+      // }
+
+      if (flag) {
+        process.exit(1);
       }
 
       acc.push(unit);

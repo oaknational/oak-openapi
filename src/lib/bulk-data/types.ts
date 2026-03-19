@@ -69,7 +69,7 @@ export type UnitWithExamBoards = Omit<
   BulkUnitSchema,
   'phaseSlug' | 'subjectSlug'
 > & {
-  examBoards?: ExamBoard[];
+  examBoard?: ExamBoard;
 };
 
 export interface SlimSequenceResult {

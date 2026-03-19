@@ -10,31 +10,7 @@
       "description": "Slug for the subject sequence collection (e.g., 'french-primary')."
     },
     "subjectTitle": {
-      "type": "string",
-      "enum": [
-        "Art and design",
-        "Citizenship",
-        "Computing",
-        "Cooking and nutrition",
-        "Design and technology",
-        "English",
-        "French",
-        "Geography",
-        "German",
-        "History",
-        "Maths",
-        "Music",
-        "Physical education",
-        "RSHE (PSHE)",
-        "Religious education",
-        "Science",
-        "Biology",
-        "Chemistry",
-        "Physics",
-        "Combined science",
-        "Spanish"
-      ],
-      "description": "Human-readable subject title (e.g., 'French')."
+      "$ref": "#/$defs/subjectTitle"
     },
     "sequence": {
       "type": "array",
@@ -47,7 +23,7 @@
       "type": "array",
       "description": "Available KS4 options for the subject (e.g., exam boards or pathways).",
       "items": {
-        "$ref": "#/$defs/ks4Option"
+        "$ref": "#/$defs/examBoard"
       }
     },
     "lessons": {
@@ -72,7 +48,7 @@
         "yearSlug",
         "year",
         "keyStageSlug",
-        "whyThisWhyNow",
+        "subjectSlug",
         "unitLessons"
       ],
       "properties": {
@@ -91,12 +67,8 @@
             "$ref": "#/$defs/thread"
           }
         },
-        "examBoards": {
-          "type": "array",
-          "description": "Exam boards applicable to the unit (typically secondary).",
-          "items": {
-            "$ref": "#/$defs/examBoard"
-          }
+        "examBoard": {
+          "$ref": "#/$defs/examBoard"
         },
         "priorKnowledgeRequirements": {
           "type": "array",
@@ -117,45 +89,89 @@
           "description": "Narrative description of the unit."
         },
         "yearSlug": {
-          "type": "string",
-          "enum": [
-            "reception",
-            "year-1",
-            "year-2",
-            "year-3",
-            "year-4",
-            "year-5",
-            "year-6",
-            "year-7",
-            "year-8",
-            "year-9",
-            "year-10",
-            "year-11",
-            "year-12",
-            "year-13",
-            "all-years"
-          ],
-          "description": "Slug for the academic year or band."
+          "$ref": "#/$defs/yearSlug"
         },
         "year": {
-          "type": "integer",
-          "description": "Numeric academic year."
+          "anyOf": [
+            { "type": "integer", "description": "Numeric academic year." },
+
+            {
+              "type": "string",
+              "enum": ["All years"],
+              "description": "This only applies to Physical Education (primary) where swimming is classed as all years."
+            }
+          ]
+        },
+        "pathway": {
+          "enum": ["GCSE", "Core"],
+          "description": "Pathway identifier for the unit (e.g., 'GCSE' or 'Core' for KS4 units)."
+        },
+        "pathwaySlug": {
+          "enum": ["gcse", "core"],
+          "description": "Pathway slug for the unit (e.g., 'gcse' or 'core' for KS4 units)."
+        },
+        "tier": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tierSlug", "tierTitle"],
+          "properties": {
+            "tierSlug": {
+              "enum": ["higher", "foundation"]
+            },
+            "tierTitle": {
+              "enum": ["Higher", "Foundation"]
+            }
+          }
         },
         "keyStageSlug": {
-          "type": "string",
-          "enum": [
-            "ks1",
-            "ks2",
-            "ks3",
-            "ks4",
-            "early-years-foundation-stage",
-            "all-ks"
-          ],
-          "description": "Key stage slug for the unit."
+          "$ref": "#/$defs/keyStageSlug"
+        },
+        "subjectSlug": {
+          "$ref": "#/$defs/subjectSlug"
         },
         "whyThisWhyNow": {
           "type": "string",
           "description": "Rationale for sequence timing and unit placement."
+        },
+        "unitOptionGroup": {
+          "type": "string",
+          "description": "If the unit is a unit variant, then this field indicates the option group it belongs to (e.g., 'life-in-a-capital-city-london-cardiff')."
+        },
+        "examSubjects": {
+          "type": "array",
+          "description": "Exam subjects relevant to the unit (typically secondary).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["examSubjectSlug", "examSubjectTitle"],
+            "properties": {
+              "examSubjectSlug": {
+                "$ref": "#/$defs/subjectSlug"
+              },
+              "examSubjectTitle": {
+                "$ref": "#/$defs/subjectTitle"
+              }
+            }
+          }
+        },
+        "categories": {
+          "type": "array",
+          "description": "Categorization tags for the unit.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["categoryTitle", "categorySlug"],
+            "properties": {
+              "categoryTitle": {
+                "type": "string",
+                "description": "Human-readable category title."
+              },
+              "categorySlug": {
+                "type": "string",
+                "description": "Slug identifier for the category."
+              }
+            }
+          }
         },
         "unitLessons": {
           "type": "array",
@@ -250,82 +266,16 @@
           "description": "Title of the unit this lesson belongs to."
         },
         "subjectSlug": {
-          "type": "string",
-          "enum": [
-            "art",
-            "citizenship",
-            "computing",
-            "cooking-nutrition",
-            "design-technology",
-            "english",
-            "french",
-            "geography",
-            "german",
-            "history",
-            "maths",
-            "music",
-            "physical-education",
-            "religious-education",
-            "rshe-pshe",
-            "science",
-            "biology",
-            "chemistry",
-            "physics",
-            "combined-science",
-            "spanish"
-          ],
-          "description": "Subject slug for the lesson."
+          "$ref": "#/$defs/subjectSlug"
         },
         "subjectTitle": {
-          "type": "string",
-          "enum": [
-            "Art and design",
-            "Citizenship",
-            "Computing",
-            "Cooking and nutrition",
-            "Design and technology",
-            "English",
-            "French",
-            "Geography",
-            "German",
-            "History",
-            "Maths",
-            "Music",
-            "Physical education",
-            "RSHE (PSHE)",
-            "Religious education",
-            "Science",
-            "Biology",
-            "Chemistry",
-            "Physics",
-            "Combined science",
-            "Spanish"
-          ],
-          "description": "Subject title for the lesson."
+          "$ref": "#/$defs/subjectTitle"
         },
         "keyStageSlug": {
-          "type": "string",
-          "enum": [
-            "ks1",
-            "ks2",
-            "ks3",
-            "ks4",
-            "early-years-foundation-stage",
-            "all-ks"
-          ],
-          "description": "Key stage slug for the lesson."
+          "$ref": "#/$defs/keyStageSlug"
         },
         "keyStageTitle": {
-          "type": "string",
-          "enum": [
-            "Key Stage 1",
-            "Key Stage 2",
-            "Key Stage 3",
-            "Key Stage 4",
-            "Early Years Foundation Stage",
-            "All Key Stages"
-          ],
-          "description": "Key stage title for the lesson."
+          "$ref": "#/$defs/keyStageTitle"
         },
         "lessonKeywords": {
           "type": "array",
@@ -470,14 +420,14 @@
       "required": ["slug", "title"],
       "properties": {
         "slug": {
-          "type": "string",
-          "enum": ["aqa", "edexcel", "eduqas", "ocr", "wjec", "edexcelb"],
-          "description": "Exam board slug."
+          "$ref": "#/$defs/examBoardSlug"
         },
         "title": {
+          "$ref": "#/$defs/examBoardTitle"
+        },
+        "examSubjectTitle": {
           "type": "string",
-          "enum": ["AQA", "Edexcel", "Eduqas", "OCR", "WJEC", "Edexcel B"],
-          "description": "Exam board title."
+          "description": "Exam subject title (e.g., 'Computer Science')."
         }
       }
     },
@@ -487,35 +437,125 @@
       "required": ["slug", "title"],
       "properties": {
         "slug": {
-          "type": "string",
-          "enum": [
-            "aqa",
-            "edexcel",
-            "eduqas",
-            "ocr",
-            "wjec",
-            "edexcelb",
-            "core",
-            "gcse"
-          ],
-          "description": "KS4 option slug (exam board or pathway)."
+          "$ref": "#/$defs/examBoardSlug"
         },
         "title": {
-          "type": "string",
-          "enum": [
-            "AQA",
-            "Edexcel",
-            "Eduqas",
-            "OCR",
-            "WJEC",
-            "Edexcel B",
-            "Core",
-            "GCSE"
-          ],
-          "description": "KS4 option title (exam board or pathway)."
+          "$ref": "#/$defs/examBoardTitle"
         }
       }
+    },
+    "examBoardSlug": {
+      "type": "string",
+      "enum": [
+        "aqa",
+        "edexcel",
+        "eduqas",
+        "ocr",
+        "wjec",
+        "edexcelb",
+        "core",
+        "gcse"
+      ],
+      "description": "KS4 option slug (exam board or pathway)."
+    },
+    "examBoardTitle": {
+      "type": "string",
+      "enum": [
+        "AQA",
+        "Edexcel",
+        "Eduqas",
+        "OCR",
+        "WJEC",
+        "Edexcel B",
+        "Core",
+        "GCSE"
+      ],
+      "description": "KS4 option title (exam board or pathway)."
+    },
+    "subjectSlug": {
+      "type": "string",
+      "enum": [
+        "art",
+        "citizenship",
+        "computing",
+        "cooking-nutrition",
+        "design-technology",
+        "english",
+        "french",
+        "geography",
+        "german",
+        "history",
+        "maths",
+        "music",
+        "physical-education",
+        "religious-education",
+        "rshe-pshe",
+        "science",
+        "biology",
+        "chemistry",
+        "physics",
+        "combined-science",
+        "spanish"
+      ],
+      "description": "Subject slug identifier."
+    },
+    "yearSlug": {
+      "type": "string",
+      "enum": [
+        "reception",
+        "year-1",
+        "year-2",
+        "year-3",
+        "year-4",
+        "year-5",
+        "year-6",
+        "year-7",
+        "year-8",
+        "year-9",
+        "year-10",
+        "year-11",
+        "year-12",
+        "year-13",
+        "all-years"
+      ],
+      "description": "Slug for the academic year or band."
+    },
+    "keyStageSlug": {
+      "type": "string",
+      "enum": ["ks1", "ks2", "ks3", "ks4"],
+      "description": "Key stage slug identifier."
+    },
+    "keyStageTitle": {
+      "type": "string",
+      "enum": ["Key Stage 1", "Key Stage 2", "Key Stage 3", "Key Stage 4"],
+      "description": "Key stage title identifier."
+    },
+    "subjectTitle": {
+      "type": "string",
+      "enum": [
+        "Art and design",
+        "Citizenship",
+        "Computing",
+        "Cooking and nutrition",
+        "Design and technology",
+        "English",
+        "French",
+        "Geography",
+        "German",
+        "History",
+        "Maths",
+        "Music",
+        "Physical education",
+        "RSHE (PSHE)",
+        "Religious education",
+        "Science",
+        "Biology",
+        "Chemistry",
+        "Physics",
+        "Combined science",
+        "Spanish"
+      ],
+      "description": "Subject title identifier."
     }
-  },
-  "$comment": "TODO: Add validation logic outside JSON Schema to enforce referential integrity between unitLessons[].lessonSlug and lessons[].lessonSlug when unitLessons[].state == 'published', and between lessons[].unitSlug and sequence[].unitSlug."
+  }
 }
