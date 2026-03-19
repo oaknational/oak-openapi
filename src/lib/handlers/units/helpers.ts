@@ -24,19 +24,20 @@ export async function doesUnitExist(
   return res[sequenceView].length > 0;
 }
 
+export interface RootUnitData {
+  unitTitle: string;
+  notes: string;
+  threads: Thread[];
+  priorKnowledgeRequirements: string[];
+  nationalCurriculumContent: string[];
+  categories: Category[] | undefined;
+}
+
 export function formatUnitSummary(
   slug: string,
   sequenceData: Sequence,
 ): UnitSchema {
   const isUnitVariant = testIfUnitVariant(slug);
-  interface RootUnitData {
-    unitTitle: string;
-    notes: string;
-    threads: Thread[];
-    priorKnowledgeRequirements: string[];
-    nationalCurriculumContent: string[];
-    categories: Category[] | undefined;
-  }
 
   if (isUnitVariant) {
     // RADAR this is a hack that we hope to remove when
@@ -114,10 +115,17 @@ export function formatUnitSummary(
   // note that it's intentional that the examboard is NOT included in the zod
   // output on the openapi meta, as it's specifically used by the bulk download
   // and not the API (because in fact this content should be an array)
+
   if (sequenceData.examboard_slug) {
     metadata.examboardSlug = sequenceData.examboard_slug;
     metadata.examboard = sequenceData.examboard;
   }
+
+  if (sequenceData.pathway) {
+    metadata.pathway = sequenceData.pathway;
+    metadata.pathwaySlug = sequenceData.pathway_slug;
+  }
+
   metadata.subjectSlug = sequenceData.subject_slug;
   metadata.keyStageSlug = sequenceData.keystage_slug;
   metadata.whyThisWhyNow = sequenceData.why_this_why_now;
@@ -143,6 +151,25 @@ export function formatUnitSummary(
     if (unitOption) {
       metadata.unitTitle = unitOption.title;
     }
+
+    metadata.unitOptionGroup = sequenceData.unitOptionGroup;
+  }
+
+  // add the tier if it's there
+  if (sequenceData.tier_slug) {
+    metadata.tier = {
+      tierSlug: sequenceData.tier_slug,
+      tierTitle: sequenceData.tier,
+    };
+  }
+
+  if (sequenceData.subject_parent !== sequenceData.subject) {
+    metadata.examSubjects = [
+      {
+        examSubjectSlug: sequenceData.subject_slug,
+        examSubjectTitle: sequenceData.subject,
+      },
+    ];
   }
 
   return {
