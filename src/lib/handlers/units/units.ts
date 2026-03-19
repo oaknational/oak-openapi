@@ -8,7 +8,7 @@ import {
   sequenceView,
   sequenceViewWhereInput,
 } from 'lib/owaClient';
-
+import { errorResponses } from '@/lib/errorResponses';
 import { blockUnitForCopyrightText } from '../../queryGate';
 
 import { doesUnitExist, formatUnitSummary, testIfUnitVariant } from './helpers';
@@ -27,7 +27,7 @@ export const getUnits = router({
         summary: 'Unit summary',
         description:
           'This endpoint returns unit information for a given unit, including slug, title, number of lessons, prior knowledge requirements, national curriculum statements, prior unit details, future unit descriptions, and lesson titles that form the unit',
-        errorResponses: [],
+        errorResponses,
       },
     })
     .input(unitSummaryRequestOpenAPISchema)

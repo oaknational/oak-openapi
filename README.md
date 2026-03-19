@@ -45,6 +45,7 @@ Short onboarding is below; a more detailed guide is in [docs/engineering/onboard
 - [docs/README.md](docs/README.md) (docs index and start-here links)
 - [docs/engineering/README.md](docs/engineering/README.md) (lightweight planning structure)
 - [docs/engineering/onboarding.md](docs/engineering/onboarding.md) (detailed onboarding)
+- [docs/requests/README.md](docs/requests/README.md) (consumer bug reports and feature requests)
 - [docs/api/quickstart.md](docs/api/quickstart.md) (API usage and auth examples)
 - [README_BULK_DOWNLOAD.md](README_BULK_DOWNLOAD.md) (bulk download process)
 - [src/cms/README.md](src/cms/README.md) (CMS integration)

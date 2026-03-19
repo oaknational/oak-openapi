@@ -9,6 +9,7 @@ import {
   transcriptResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/transcript';
 import { TRPCError } from '@trpc/server';
+import { errorResponses } from '@/lib/errorResponses';
 
 export const getLessonTranscript = router({
   getLessonTranscript: protectedProcedure
@@ -20,7 +21,7 @@ export const getLessonTranscript = router({
         path: '/lessons/{lesson}/transcript',
         description:
           'This endpoint returns the video transcript and video captions file for a given lesson.',
-        errorResponses: [],
+        errorResponses,
       },
     })
     .input(transcriptRequestOpenAPISchema)

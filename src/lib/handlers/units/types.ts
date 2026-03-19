@@ -54,6 +54,18 @@ export interface Metadata {
 
   unitOptionGroup?: string;
 
+  tier?: {
+    tierSlug: string;
+    tierTitle: string;
+  };
+
+  examSubject?: {
+    examSubjectSlug: string;
+    examSubjectTitle: string;
+  }[];
+
+  unitOptionGroup?: string;
+
   // cycle 2
   whyThisWhyNow?: string;
   description?: string;

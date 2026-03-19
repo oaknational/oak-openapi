@@ -3,6 +3,7 @@ import { router } from '@/lib/trpc';
 import { keyStages } from '@/lib/keyStageAndSubjects';
 import * as z from 'zod/v4';
 import { keyStageResponseOpenAPISchema } from '@/lib/zod-openapi/generated/keyStages';
+import { errorResponses } from '@/lib/errorResponses';
 
 export const getKeyStages = router({
   getKeyStages: protectedProcedure
@@ -12,7 +13,7 @@ export const getKeyStages = router({
         method: 'GET',
         path: '/key-stages',
         summary: 'Key stages',
-        errorResponses: [],
+        errorResponses,
         description:
           'This endpoint returns all the key stages (titles and slugs) that are currently available on Oak',
       },
