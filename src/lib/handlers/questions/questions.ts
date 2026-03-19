@@ -11,10 +11,9 @@ import type { LessonView, SequenceView } from 'lib/owaClient';
 
 import {
   blockedSubjects,
+  checkLessonAllowedAsset,
   getSubjectAndUnitForLesson,
-  isBlockedUnitOrSubject,
   isSequenceSubjectBlocked,
-  supportsImages,
 } from '../../queryGate';
 import allowedUnits from '../../queryGateData/copyright/supportedUnits.json' with { type: 'json' };
 import type { Question, QuizKey } from './types';
@@ -31,6 +30,7 @@ import {
   questionsForSequenceResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/questions';
 import { nextPageLink } from '@/lib/pagination';
+import { errorResponses } from '@/lib/errorResponses';
 
 export const getQuestions = router({
   getQuestionsForLessons: protectedProcedure
@@ -40,7 +40,7 @@ export const getQuestions = router({
         tags: ['lessons', 'questions', 'quiz-questions'],
         path: '/lessons/{lesson}/quiz',
         summary: 'Quiz questions by lesson',
-        errorResponses: [],
+        errorResponses,
         description:
           'The endpoint returns the quiz questions and answers for a given lesson. The answers data indicates which answers are correct, and which are distractors.',
       },
@@ -52,22 +52,25 @@ export const getQuestions = router({
 
       const client = getClient();
 
+      const gateTest = await checkLessonAllowedAsset({
+        client,
+        lessonSlug: slug,
+      });
+
+      if (gateTest.isBlocked()) {
+        throw new TRPCError({
+          message: `Lesson (${slug}) quiz is not available due to copyright restrictions`,
+          code: 'BAD_REQUEST',
+          cause: gateTest.reason,
+        });
+      }
+
       const subjectUnit = await getSubjectAndUnitForLesson(client, slug);
 
       if (!subjectUnit) {
         throw new TRPCError({
           message: 'Lesson not found',
           code: 'NOT_FOUND',
-        });
-      }
-
-      const blocked = isBlockedUnitOrSubject(subjectUnit);
-
-      if (blocked.isBlocked()) {
-        throw new TRPCError({
-          message: `Lesson not available: "${slug}"`,
-          code: 'BAD_REQUEST',
-          cause: blocked.reason,
         });
       }
 
@@ -106,12 +109,7 @@ export const getQuestions = router({
         return result;
       }
 
-      const imagesAllowed = supportsImages(
-        subjectUnit.subjectSlug,
-        subjectUnit.unitSlug,
-      );
-
-      return questionsForQuiz(lesson, imagesAllowed.isAllowed());
+      return questionsForQuiz(lesson);
     }),
   getQuestionsForSequence: protectedProcedure
     .meta({
@@ -121,7 +119,7 @@ export const getQuestions = router({
         path: '/sequences/{sequence}/questions',
         summary: 'Questions within a sequence',
         description: `This endpoint returns all quiz questions for a given sequence. The assets are separated into starter quiz and entry quiz arrays, grouped by lesson.`,
-        errorResponses: [],
+        errorResponses,
       },
     })
     .input(questionsForSequenceRequestOpenAPISchema)
@@ -214,7 +212,6 @@ export const getQuestions = router({
         lessonSlug,
         lessonTitle,
         unitSlug,
-        subjectSlug,
       } of data) {
         if (!lessonSlug || !lessonTitle) {
           continue;
@@ -224,17 +221,26 @@ export const getQuestions = router({
           continue;
         }
 
-        const imagesAllowed = supportsImages(subjectSlug || '', unitSlug || '');
+        if (!unitSlug) {
+          continue;
+        }
 
-        const results = questionsForQuiz(
-          { exitQuiz, starterQuiz },
-          imagesAllowed.isAllowed(),
-        );
+        // check if the lesson has blocked assets or not
+        const gateTest = await checkLessonAllowedAsset({
+          lessonSlug,
+          unitSlug,
+          subjectSlug,
+        });
+
+        if (gateTest.isBlocked()) {
+          continue;
+        }
+
+        const results = questionsForQuiz({ exitQuiz, starterQuiz });
 
         lessons.push({
           lessonTitle,
           lessonSlug,
-          // unitSlug,
           ...results,
         });
       }
@@ -248,7 +254,7 @@ export const getQuestions = router({
         method: 'GET',
         path: '/key-stages/{keyStage}/subject/{subject}/questions',
         summary: 'Quiz questions by subject and key stage',
-        errorResponses: [],
+        errorResponses,
         description:
           'This endpoint returns quiz questions and answers for each lesson within a requested subject and key stage.',
       },
@@ -348,7 +354,6 @@ export const getQuestions = router({
         lessonSlug,
         lessonTitle,
         unitSlug,
-        subjectSlug,
       } of data) {
         if (!lessonSlug || !lessonTitle) {
           continue;
@@ -358,12 +363,25 @@ export const getQuestions = router({
           continue;
         }
 
-        const imagesAllowed = supportsImages(subjectSlug || '', unitSlug || '');
+        if (!unitSlug) {
+          continue;
+        }
 
-        const results = questionsForQuiz(
-          { exitQuiz, starterQuiz },
-          imagesAllowed.isAllowed(),
-        );
+        // check if the lesson has blocked assets or not
+        const gateTest = await checkLessonAllowedAsset({
+          lessonSlug,
+          unitSlug,
+          subjectSlug: subject,
+        });
+
+        // I'm fairly sure this is going to mess with the pagination numbers
+        // but until we are able to use the database for restricted lessons,
+        // we have to do it _post-query_.
+        if (gateTest.isBlocked()) {
+          continue;
+        }
+
+        const results = questionsForQuiz({ exitQuiz, starterQuiz });
 
         lessons.push({
           lessonTitle,

@@ -60,7 +60,6 @@
     "openapi-types": "^12.1.3",
     "openapi3-ts": "^4.5.0",
     "pg": "^8.14.0",
-    "pg-format": "^1.0.4",
     "posthog-js": "^1.172.0",
     "posthog-node": "^5.24.17",
     "react-highlight": "^0.15.0",

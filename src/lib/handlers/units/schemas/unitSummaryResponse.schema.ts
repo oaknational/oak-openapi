@@ -48,6 +48,12 @@ export const unitSummaryResponseSchema = z.object({
       'The categories (if any) that are assigned to the unit. If the unit does not have any categories, this property is omitted.',
     )
     .optional(),
+  unitOptionsGroup: z
+    .string()
+    .optional()
+    .describe(
+      `If the unit is unit variant, then this is the unit's "parent" unit slug`,
+    ),
   unitLessons: z.array(
     z
       .object({
