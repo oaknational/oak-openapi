@@ -9,6 +9,12 @@ export const keywordsRequestOpenAPISchema = z
       .describe(
         "Unit slug to search by, e.g. 'forces-and-magnets' - note that casing is important here (always lowercase)",
       ),
+    lesson: z
+      .string()
+      .optional()
+      .describe(
+        "Lesson slug to search by, e.g. 'animating-text' - note that casing is important here (always lowercase)",
+      ),
     subject: z
       .enum(subjectSlugs as [string])
       .optional()
