@@ -1,7 +1,6 @@
 import { parseSubjectPhaseSlug } from '@/lib/sequenceSlugParser';
 import { logError } from './logger';
 import type {
-  ExamBoard,
   LessonAssets,
   LessonAssetsMap,
   SlimSequenceResult,
@@ -12,6 +11,7 @@ import { gql } from 'graphql-request';
 import type { GraphQLClient } from 'graphql-request';
 import type {
   DownloadView,
+  Sequence,
   SequenceView,
   SubjectPhase,
   SubjectPhaseView,
@@ -145,6 +145,10 @@ export async function getAllSequenceData(
         order
         pathway
         pathway_slug
+        subjectcategories
+        subject
+        subject_parent
+        subject_slug
         tier
         features
         actions
@@ -177,6 +181,20 @@ export async function getAllSequenceData(
 
       return _;
     })
+    .reduce((acc, _: Sequence) => {
+      if (_.unit_options && _.unit_options.length > 0) {
+        _.unit_options.forEach((option) => {
+          acc.push({
+            ..._,
+            ...option,
+            unitOptionGroup: _.slug,
+          });
+        });
+      } else {
+        acc.push(_);
+      }
+      return acc;
+    }, [] as Sequence[])
     .map((_) => formatUnitSummary(_.slug, _)) as UnitWithExamBoards[];
 
   // some units will appear more than once. equally, if the sequence string
@@ -186,55 +204,111 @@ export async function getAllSequenceData(
     const seen = new Set<string>();
     units = units.reduce((acc, unit, i, allUnits) => {
       // ignore duplicates, they've been dealt with
-      if (seen.has(unit.unitSlug)) {
+      const uniqueKey = [unit.unitSlug, unit.pathwaySlug, unit.examboardSlug]
+        .filter(Boolean)
+        .join('-');
+
+      if (seen.has(uniqueKey)) {
         return acc;
       }
 
-      seen.add(unit.unitSlug);
+      seen.add(uniqueKey);
+
+      interface ExamSubject {
+        examSubjectSlug: string;
+        examSubjectTitle: string;
+      }
+
+      const examSubjects = new Map<string, ExamSubject>();
+
+      const relatedUnits = allUnits.filter((_, j) => {
+        if (i === j) {
+          return false; // this is the current unit
+        }
+        if (_.unitSlug === unit.unitSlug) {
+          return true;
+        }
+      });
+
+      const flag = false; //unit.unitSlug === 'programming-subroutines';
+
+      if (flag) {
+        console.log('relatedUnits', relatedUnits);
+      }
+
+      if (unit.examSubjects) {
+        for (const examSubject of unit.examSubjects) {
+          examSubjects.set(examSubject.examSubjectSlug, examSubject);
+        }
+
+        relatedUnits.forEach((_) => {
+          if (_.examSubjects) {
+            for (const examSubject of _.examSubjects) {
+              examSubjects.set(examSubject.examSubjectSlug, examSubject);
+            }
+          }
+        });
+        unit.examSubjects =
+          examSubjects.size > 0 ? [...examSubjects.values()] : undefined;
+      }
 
       // first copy the exam boards onto units have no exam board (this actually
       // means they're in all exam boards).
       if (unit.examboard && unit.examboardSlug) {
-        // now we restructure the exam board property
-        const { examboard, examboardSlug } = unit;
+        unit.examBoard = {
+          title: unit.examboard,
+          slug: unit.examboardSlug,
+        };
         delete unit.examboard;
         delete unit.examboardSlug;
+      }
 
-        const localExamBoards: ExamBoard[] = [
-          { title: examboard, slug: examboardSlug },
-        ];
+      // if (false) {
+      //   // now we restructure the exam board property
+      //   const { examboard, examboardSlug } = unit;
+      //   delete unit.examboard;
+      //   delete unit.examboardSlug;
 
-        const subjectOverride =
-          queryResult[sequenceView][i].actions?.programme_field_overrides
-            ?.subject;
+      //   const localExamBoards = new Map();
 
-        if (subjectOverride) {
-          localExamBoards[0].examSubjectTitle = subjectOverride;
-        }
+      //   // ExamBoard[] =
+      //   const examBoards: ExamBoard = { title: examboard, slug: examboardSlug };
+      //   localExamBoards.set(examboardSlug, examBoards);
 
-        // now find if there's any other units with the same slug
-        allUnits.forEach((_, j) => {
-          if (i === j) {
-            return false; // this is the current unit
-          }
-          if (_.unitSlug === unit.unitSlug) {
-            if (_.examboard && _.examboardSlug) {
-              const res: ExamBoard = {
-                title: _.examboard,
-                slug: _.examboardSlug,
-              };
+      //   const subjectOverride =
+      //     queryResult[sequenceView][i]?.actions?.programme_field_overrides
+      //       ?.subject;
 
-              if (subjectOverride) {
-                res.examSubjectTitle = subjectOverride;
-              }
-              localExamBoards.push(res);
-            }
-          }
-        });
+      //   if (subjectOverride) {
+      //     examBoards.examSubjectTitle = subjectOverride;
+      //   }
 
-        unit.examBoards = localExamBoards;
-      } else if (!unit.examboardSlug) {
-        unit.examBoards = examBoards;
+      //   // now find if there's any other units with the same slug
+      //   relatedUnits.forEach((_) => {
+      //     if (_.examboard && _.examboardSlug) {
+      //       const res: ExamBoard = {
+      //         title: _.examboard,
+      //         slug: _.examboardSlug,
+      //       };
+
+      //       if (subjectOverride) {
+      //         res.examSubjectTitle = subjectOverride;
+      //       }
+      //       // localExamBoards.set(res.slug, res);
+      //     }
+      //   });
+
+      //   if (flag) console.log('>'.repeat(20));
+      //   unit.examBoards = [...localExamBoards.values()];
+      // }
+
+      // if (!unit.examboardSlug) {
+      //   if (flag) console.log('<'.repeat(20), examBoards);
+      //   unit.examBoards = examBoards;
+      // }
+
+      if (flag) {
+        process.exit(1);
       }
 
       acc.push(unit);
