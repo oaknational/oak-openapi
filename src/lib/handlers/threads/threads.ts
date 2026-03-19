@@ -9,6 +9,7 @@ import {
   threadUnitsRequestOpenAPISchema,
   threadUnitsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/threads';
+import { errorResponses } from '@/lib/errorResponses';
 
 export const getThreads = router({
   getAllThreads: protectedProcedure
@@ -18,7 +19,7 @@ export const getThreads = router({
         method: 'GET',
         summary: 'Threads',
         path: '/threads',
-        errorResponses: [],
+        errorResponses,
         description:
           'This endpoint returns an array of all threads, across all subjects. Threads signpost groups of units that link to one another, building a common body of knowledge over time. They are an important component of how Oak’s curricula are sequenced.',
       },
@@ -59,7 +60,7 @@ export const getThreads = router({
         summary: 'Units belonging to a given thread',
         description:
           'This endpoint returns all of the units that belong to a given thread.',
-        errorResponses: [],
+        errorResponses,
       },
     })
     .input(threadUnitsRequestOpenAPISchema)
