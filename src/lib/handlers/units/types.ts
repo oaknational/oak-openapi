@@ -39,13 +39,15 @@ export interface Metadata {
 
   examboard?: string;
   examboardSlug?: string;
+  pathway?: string;
+  pathwaySlug?: string;
 
   tier?: {
     tierSlug: string;
     tierTitle: string;
   };
 
-  examSubject?: {
+  examSubjects?: {
     examSubjectSlug: string;
     examSubjectTitle: string;
   }[];

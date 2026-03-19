@@ -115,10 +115,17 @@ export function formatUnitSummary(
   // note that it's intentional that the examboard is NOT included in the zod
   // output on the openapi meta, as it's specifically used by the bulk download
   // and not the API (because in fact this content should be an array)
+
   if (sequenceData.examboard_slug) {
     metadata.examboardSlug = sequenceData.examboard_slug;
     metadata.examboard = sequenceData.examboard;
   }
+
+  if (sequenceData.pathway) {
+    metadata.pathway = sequenceData.pathway;
+    metadata.pathwaySlug = sequenceData.pathway_slug;
+  }
+
   metadata.subjectSlug = sequenceData.subject_slug;
   metadata.keyStageSlug = sequenceData.keystage_slug;
   metadata.whyThisWhyNow = sequenceData.why_this_why_now;
@@ -157,7 +164,7 @@ export function formatUnitSummary(
   }
 
   if (sequenceData.subject_parent !== sequenceData.subject) {
-    metadata.examSubject = [
+    metadata.examSubjects = [
       {
         examSubjectSlug: sequenceData.subject_slug,
         examSubjectTitle: sequenceData.subject,
