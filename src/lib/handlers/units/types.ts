@@ -52,13 +52,6 @@ export interface Metadata {
     examSubjectTitle: string;
   }[];
 
-  unitOptionGroup?: string;
-
-  tier?: {
-    tierSlug: string;
-    tierTitle: string;
-  };
-
   examSubject?: {
     examSubjectSlug: string;
     examSubjectTitle: string;
