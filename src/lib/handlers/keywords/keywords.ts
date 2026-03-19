@@ -74,8 +74,8 @@ export const getKeywords = router({
         string,
         {
           description: string;
-          subject: string;
-          keyStage: string;
+          subjectSlug: string;
+          keyStageSlug: string;
           lessonSlugs: Set<string>;
         }
       > = {};
@@ -87,8 +87,8 @@ export const getKeywords = router({
           if (!keywordMap[keyword]) {
             keywordMap[keyword] = {
               description,
-              subject: lesson.subject_slug,
-              keyStage: lesson.keystage_slug,
+              subjectSlug: lesson.subject_slug,
+              keyStageSlug: lesson.keystage_slug,
               lessonSlugs: new Set(),
             };
           }
