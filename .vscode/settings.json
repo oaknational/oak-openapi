@@ -10,6 +10,8 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
   },
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+  "eslint.useFlatConfig": true,
   "eslint.nodePath": "node_modules",
   "cSpell.words": [
     "apikeys",

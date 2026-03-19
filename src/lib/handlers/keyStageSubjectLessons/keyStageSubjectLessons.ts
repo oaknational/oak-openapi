@@ -1,6 +1,6 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
-
+import { errorResponses } from '@/lib/errorResponses';
 import type { UnitVariantLessonsView } from 'lib/owaClient';
 import { getClient, gql, unitVariantLessonsView } from 'lib/owaClient';
 
@@ -20,7 +20,7 @@ export const getKeyStageSubjectLessons = router({
         summary: 'Lessons',
         description:
           'This endpoint returns an array of available published lessons for a given subject and key stage, grouped by unit.',
-        errorResponses: [],
+        errorResponses,
       },
     })
     .input(keyStageSubjectLessonsRequestOpenAPISchema)

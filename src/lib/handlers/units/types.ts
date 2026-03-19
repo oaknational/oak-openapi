@@ -21,6 +21,8 @@ export type UnitSchema = z.infer<typeof unitSummaryResponseSchema> & {
   examboard?: string;
 };
 
+export type BulkUnitSchema = UnitSchema & Metadata;
+
 export interface Metadata {
   unitTitle: string;
   year: number | 'All years';
@@ -37,6 +39,25 @@ export interface Metadata {
 
   examboard?: string;
   examboardSlug?: string;
+  pathway?: string;
+  pathwaySlug?: string;
+
+  tier?: {
+    tierSlug: string;
+    tierTitle: string;
+  };
+
+  examSubjects?: {
+    examSubjectSlug: string;
+    examSubjectTitle: string;
+  }[];
+
+  examSubject?: {
+    examSubjectSlug: string;
+    examSubjectTitle: string;
+  }[];
+
+  unitOptionGroup?: string;
 
   // cycle 2
   whyThisWhyNow?: string;

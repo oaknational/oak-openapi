@@ -3,6 +3,7 @@ import * as z from 'zod/v4';
 import { TRPCError } from '@trpc/server';
 import { protectedProcedure, getRateLimiter } from '../../protect';
 import { rateLimitResponseOpenAPISchema } from '@/lib/zod-openapi/generated/rate';
+import { errorResponses } from '@/lib/errorResponses';
 
 export const getRateLimit = router({
   getRateLimit: protectedProcedure
@@ -11,7 +12,7 @@ export const getRateLimit = router({
         method: 'GET',
         path: '/rate-limit',
         tags: ['internal'],
-        errorResponses: [],
+        errorResponses,
         description:
           'Check your current rate limit status (note that your rate limit is also included in the headers of every response).\n\nThis specific endpoint does not cost any requests.',
       },

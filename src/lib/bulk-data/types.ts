@@ -1,5 +1,5 @@
 import type { Pack } from 'tar-stream';
-import type { UnitSchema } from '@/lib/handlers/units/types';
+import type { BulkUnitSchema } from '@/lib/handlers/units/types';
 import type { TitleSlug } from '@/lib/owaClient';
 
 export interface Lesson {
@@ -66,10 +66,10 @@ export type LessonAssetsMap = Record<string, LessonAssets>;
 export type ExamBoard = TitleSlug & { examSubjectTitle?: string };
 
 export type UnitWithExamBoards = Omit<
-  UnitSchema,
+  BulkUnitSchema,
   'phaseSlug' | 'subjectSlug'
 > & {
-  examBoards?: ExamBoard[];
+  examBoard?: ExamBoard;
 };
 
 export interface SlimSequenceResult {
