@@ -29,13 +29,17 @@ export const getKeywords = router({
       const keyStage = decodeURIComponent(input.keyStage || '') || undefined;
       const subject = decodeURIComponent(input.subject || '') || undefined;
       const unit = input.unit ? decodeURIComponent(input.unit) : undefined;
+      const lesson = input.lesson
+        ? decodeURIComponent(input.lesson)
+        : undefined;
 
       const client = getClient();
 
       const unitFilter = unit ? `unit_slug: { _eq: $unit }` : '';
+      const lessonFilter = lesson ? `lesson_slug: { _eq: $lesson }` : '';
 
       const query = gql`
-        query ($filter: jsonb!${unit ? ', $unit: String' : ''}) {
+        query ($filter: jsonb!${unit ? ', $unit: String' : ''}${lesson ? ', $lesson: String' : ''}) {
           ${unitVariantLessonsView}(
             where: {
               is_legacy: { _eq: false }
@@ -43,6 +47,7 @@ export const getKeywords = router({
                 _contains: $filter
               }
               ${unitFilter}
+              ${lessonFilter}
             },
             order_by: {lesson_slug: asc}
           ) {
@@ -60,6 +65,7 @@ export const getKeywords = router({
           keystage_slug: keyStage,
         },
         ...(unit && { unit }),
+        ...(lesson && { lesson }),
       };
 
       const res = await client.request(query, variables);
