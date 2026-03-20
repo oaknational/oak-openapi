@@ -21,6 +21,7 @@ import {
   lessonSummaryRequestOpenAPISchema,
   lessonSummaryResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/lesson';
+import { getCanonicalUrlForLesson } from '@/lib/canonicalUrls';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 groupBy.shim();
@@ -100,6 +101,7 @@ export const getLessons = router({
             contentGuidance
             downloadsAvailable: hasDownloadableResources
             supervisionLevel
+            programmeSlug
           }
         }
       `;
@@ -120,11 +122,16 @@ export const getLessons = router({
       }
 
       try {
+        const programmeSlug = data[0].programmeSlug;
         const lesson = data[0] as z.infer<
           typeof lessonSummaryResponseOpenAPISchema
         >;
 
-        lessonSummaryResponseOpenAPISchema.parse(lesson);
+        lesson.canonicalUrl = getCanonicalUrlForLesson(
+          slug,
+          lesson.unitSlug,
+          programmeSlug,
+        );
 
         // we need to loop through the lessons and change the downloadsAvailable
         // to check against the blockedLessons list. Ideally this would come from
@@ -140,6 +147,8 @@ export const getLessons = router({
             lesson.downloadsAvailable = false;
           }
         }
+
+        lessonSummaryResponseOpenAPISchema.parse(lesson);
 
         return lesson;
       } catch {

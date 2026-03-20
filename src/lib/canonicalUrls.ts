@@ -1,3 +1,5 @@
+import { keyStageToPhaseMap } from './oakConsts';
+
 export function getCanonicalUrlForLesson(
   lessonSlug: string,
   unitSlug?: string,
@@ -33,4 +35,39 @@ export function getCanonicalUrlForSubject(programmeSlug: string): string {
 
 export function getCanonicalUrlForKeyStage(keyStageSlug: string): string {
   return `https://www.thenational.academy/teachers/key-stages/${keyStageSlug}/subjects`;
+}
+
+export function createProgrammeSlug(
+  subjectSlug: string,
+  keystageSlug: string,
+  examboardSlug?: string | null,
+  tierSlug?: string | null,
+  pathwaySlug?: string | null,
+) {
+  const phaseSlug = keyStageToPhaseMap[keystageSlug];
+
+  if (keystageSlug === 'ks4') {
+    const parts: string[] = [subjectSlug, phaseSlug, keystageSlug];
+
+    if (tierSlug) {
+      parts.push(tierSlug);
+    }
+
+    if (pathwaySlug) {
+      parts.push(pathwaySlug);
+    }
+
+    if (
+      examboardSlug &&
+      pathwaySlug !== 'core' &&
+      examboardSlug !== pathwaySlug
+    ) {
+      parts.push(examboardSlug);
+    }
+
+    return parts.join('-');
+  } else if (subjectSlug && phaseSlug && keystageSlug) {
+    return [subjectSlug, phaseSlug, keystageSlug].join('-');
+  }
+  return '';
 }

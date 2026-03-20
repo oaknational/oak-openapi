@@ -141,6 +141,7 @@ export type Sequence = TitleSlug & {
     };
   };
   unitOptionGroup?: string;
+  canonicalUrl?: string;
 };
 
 export interface UnitVariantLesson {
