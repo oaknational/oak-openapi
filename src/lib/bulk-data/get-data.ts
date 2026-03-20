@@ -30,6 +30,7 @@ import {
 import { formatUnitSummary } from '@/lib/handlers/units/helpers';
 import { sequenceWhere } from '@/lib/handlers/sequences/sequences';
 import { runSQL } from './data-stores';
+import { createProgrammeSlug, getCanonicalUrlForUnit } from '../canonicalUrls';
 
 export interface SubjectWithLessonCount {
   title: string;
@@ -178,6 +179,16 @@ export async function getAllSequenceData(
           year: 'all-years',
         };
       }
+
+      const programmeSlug = createProgrammeSlug(
+        _.subject_slug,
+        _.keystage_slug,
+        _.examboard_slug,
+        _.tier_slug,
+        _.pathway_slug,
+      );
+
+      _.canonicalUrl = getCanonicalUrlForUnit(_.slug, programmeSlug);
 
       return _;
     })
@@ -387,6 +398,7 @@ export async function getAllLessonData(unitSlug: string): Promise<Lesson[]> {
       lessons."lessonKeywords",
       lessons."keyLearningPoints",
       lessons."misconceptionsAndCommonMistakes",
+      lessons."programmeSlug",
       lessons."pupilLessonOutcome",
       lessons."teacherTips",
       lessons."contentGuidance",

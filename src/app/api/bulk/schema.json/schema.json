@@ -41,6 +41,7 @@
       "required": [
         "unitSlug",
         "unitTitle",
+        "canonicalUrl",
         "threads",
         "priorKnowledgeRequirements",
         "nationalCurriculumContent",
@@ -59,6 +60,11 @@
         "unitTitle": {
           "type": "string",
           "description": "Human-readable unit title."
+        },
+        "canonicalUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Canonical URL for the unit, pointing back to the main Oak National web resource."
         },
         "threads": {
           "type": "array",
@@ -231,6 +237,7 @@
       "required": [
         "lessonTitle",
         "lessonSlug",
+        "canonicalUrl",
         "unitSlug",
         "unitTitle",
         "subjectSlug",
@@ -244,9 +251,7 @@
         "teacherTips",
         "contentGuidance",
         "downloadsavailable",
-        "supervisionLevel",
-        "transcript_sentences",
-        "transcript_vtt"
+        "supervisionLevel"
       ],
       "properties": {
         "lessonTitle": {
@@ -256,6 +261,11 @@
         "lessonSlug": {
           "type": "string",
           "description": "Slug identifier for the lesson."
+        },
+        "canonicalUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Canonical URL for the lesson, pointing back to the main Oak National web resource."
         },
         "unitSlug": {
           "type": "string",
@@ -319,6 +329,10 @@
         "downloadsavailable": {
           "type": "boolean",
           "description": "Whether downloads are available for the lesson."
+        },
+        "restricted": {
+          "type": "boolean",
+          "description": "Whether the lesson is restricted or highly restricted, this means access to the assets (such as videos, transcripts, quizzes, etc) is prevented."
         },
         "supervisionLevel": {
           "type": ["string", "null"],
