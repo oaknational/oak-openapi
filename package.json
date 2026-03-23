@@ -53,7 +53,7 @@
     "http-codes": "^1.0.0",
     "http-status-codes": "^2.3.0",
     "lodash": "^4.17.21",
-    "next": "^15.3.8",
+    "next": "^15.5.14",
     "next-hubspot": "^2.0.0",
     "next-sanity": "9",
     "object.groupby": "^1.0.3",
