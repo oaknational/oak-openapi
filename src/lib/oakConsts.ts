@@ -17,9 +17,15 @@ export const examBoards: string[] = examboardSlugs.options;
 export const pathways: string[] = pathwaySlugs.options;
 export const ks4Options = [...examBoards, ...pathways];
 
+
 export const keyStageToPhaseMap: Record<string, string> = {
   ks1: 'primary',
   ks2: 'primary',
   ks3: 'secondary',
   ks4: 'secondary',
+};
+
+export const phaseToKeyStageMap: Record<string, string[]> = {
+  primary: ['ks1', 'ks2'],
+  secondary: ['ks3', 'ks4'],
 };
