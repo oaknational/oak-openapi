@@ -1,10 +1,11 @@
-import { canonicalUrlSchema } from '@/lib/handlers/commonTypes';
+import { canonicalUrlSchema, oakUrlSchema } from '@/lib/handlers/commonTypes';
 import * as z from 'zod/v4';
 
 export const lessonSummaryResponseOpenAPISchema = z
   .object({
     lessonTitle: z.string().meta({ description: 'The lesson title' }),
     canonicalUrl: canonicalUrlSchema,
+    oakUrl: oakUrlSchema,
     unitSlug: z.string().meta({ description: 'The unit slug identifier' }),
     unitTitle: z.string().meta({ description: 'The unit title' }),
     subjectSlug: z
@@ -100,6 +101,8 @@ export const lessonSummaryResponseOpenAPISchema = z
       lessonTitle: 'Using vector tools to draw and modify shapes',
       canonicalUrl:
         'https://www.thenational.academy/teachers/programmes/computing-secondary-ks3/units/developing-vector-graphics/lessons/using-vector-tools-to-draw-and-modify-shapes',
+      oakUrl:
+        'https://www.thenational.academy/teachers/lessons/using-vector-tools-to-draw-and-modify-shapes',
       unitSlug: 'developing-vector-graphics',
       unitTitle: 'Developing vector graphics',
       subjectSlug: 'computing',
