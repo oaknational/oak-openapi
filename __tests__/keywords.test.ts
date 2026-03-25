@@ -167,3 +167,63 @@ test('keywords with key stage, subject and unit is allowed', async () => {
 
   expect(Array.isArray(res)).toBe(true);
 });
+
+test('keywords with phase primary and subject returns results from ks1 and ks2', async () => {
+  const { caller } = authedCaller();
+
+  const res = await caller.getKeywords.getKeywords({
+    phase: 'primary',
+    subject: 'art',
+  });
+
+  expect(Array.isArray(res)).toBe(true);
+  expect(res.length).toBeGreaterThan(0);
+
+  res.forEach((keyword) => {
+    expect(['ks1', 'ks2']).toContain(keyword.keyStageSlug);
+  });
+});
+
+test('keywords with phase secondary and subject returns results from ks3 and ks4', async () => {
+  const { caller } = authedCaller();
+
+  const res = await caller.getKeywords.getKeywords({
+    phase: 'secondary',
+    subject: 'english',
+  });
+
+  expect(Array.isArray(res)).toBe(true);
+  expect(res.length).toBeGreaterThan(0);
+
+  res.forEach((keyword) => {
+    expect(['ks3', 'ks4']).toContain(keyword.keyStageSlug);
+  });
+});
+
+test('keywords with both phase and keyStage should throw an error', async () => {
+  const { caller } = authedCaller();
+
+  try {
+    await caller.getKeywords.getKeywords({
+      phase: 'primary',
+      keyStage: 'ks1',
+      subject: 'english',
+    });
+    expect.fail('Should have thrown an error');
+  } catch (error) {
+    expect(error).toBeDefined();
+  }
+});
+
+test('keywords with phase alone (no subject) should throw an error', async () => {
+  const { caller } = authedCaller();
+
+  try {
+    await caller.getKeywords.getKeywords({
+      phase: 'primary',
+    });
+    expect.fail('Should have thrown an error');
+  } catch (error) {
+    expect(error).toBeDefined();
+  }
+});
