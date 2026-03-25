@@ -21,7 +21,10 @@ import {
   lessonSummaryRequestOpenAPISchema,
   lessonSummaryResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/lesson';
-import { getCanonicalUrlForLesson } from '@/lib/canonicalUrls';
+import {
+  getCanonicalUrlForLesson,
+  getOakUrlForLesson,
+} from '@/lib/canonicalUrls';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 groupBy.shim();
@@ -132,6 +135,7 @@ export const getLessons = router({
           lesson.unitSlug,
           programmeSlug,
         );
+        lesson.oakUrl = getOakUrlForLesson(slug);
 
         // we need to loop through the lessons and change the downloadsAvailable
         // to check against the blockedLessons list. Ideally this would come from
@@ -325,6 +329,7 @@ export const getLessons = router({
           acc.push({
             lessonSlug,
             lessonTitle,
+            oakUrl: getOakUrlForLesson(lessonSlug),
             similarity: similarity[lessonSlug],
             units,
           });

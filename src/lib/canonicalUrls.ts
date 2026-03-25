@@ -1,5 +1,9 @@
 import { keyStageToPhaseMap } from './oakConsts';
 
+export function getOakUrlForLesson(lessonSlug: string): string {
+  return `https://www.thenational.academy/teachers/lessons/${lessonSlug}`;
+}
+
 export function getCanonicalUrlForLesson(
   lessonSlug: string,
   unitSlug?: string,

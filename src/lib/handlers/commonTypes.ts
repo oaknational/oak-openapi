@@ -4,6 +4,10 @@ export const canonicalUrlSchema = z
   .url()
   .meta({ description: 'The canonical Oak National URL for the lesson' });
 
+export const oakUrlSchema = z
+  .url()
+  .meta({ description: 'The Oak National URL for the lesson' });
+
 export const offsetSchema = z
   .number()
   .describe(
