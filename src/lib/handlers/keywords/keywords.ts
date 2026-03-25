@@ -8,6 +8,7 @@ import {
   keywordsRequestOpenAPISchema,
   keywordsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/keywords';
+import { phaseToKeyStageMap } from '@/lib/oakConsts';
 
 export const getKeywords = router({
   getKeywords: protectedProcedure
@@ -32,6 +33,9 @@ export const getKeywords = router({
       const lesson = input.lesson
         ? decodeURIComponent(input.lesson)
         : undefined;
+      const phase = input.phase ? decodeURIComponent(input.phase) : undefined;
+
+      const phaseKeyStages = phase ? phaseToKeyStageMap[phase] : undefined;
 
       const client = getClient();
 
@@ -70,7 +74,13 @@ export const getKeywords = router({
 
       const res = await client.request(query, variables);
 
-      const lessons = (res as UnitVariantLessonsView)[unitVariantLessonsView];
+      let lessons = (res as UnitVariantLessonsView)[unitVariantLessonsView];
+
+      if (phaseKeyStages) {
+        lessons = lessons.filter((l) =>
+          phaseKeyStages.includes(l.keystage_slug),
+        );
+      }
 
       if (lessons.length === 0) {
         return [];
