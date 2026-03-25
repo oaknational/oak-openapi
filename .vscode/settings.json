@@ -2,6 +2,14 @@
   "vitest.nodeEnv": {
     "DOTENV_CONFIG_PATH": ".env"
   },
+  "prettier.documentSelectors": ["**/*.{mjs,mjsx,js,jsx,ts,tsx,json,md}"],
+  "files.associations": {
+    "*.mjs": "javascript"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
   "eslint.workingDirectories": [{ "mode": "auto" }],
   "eslint.useFlatConfig": true,
   "eslint.nodePath": "node_modules",
@@ -17,6 +25,7 @@
     "hincrby",
     "hset",
     "Hubspot",
+    "Idents",
     "keystage",
     "keystages",
     "ksres",
