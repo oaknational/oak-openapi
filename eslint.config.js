@@ -59,7 +59,7 @@ export default [
       // 'eslint.config.js',
     ],
     // Untyped checks everywhere
-    files: ['**/*.{js,jsx,ts,tsx}', '**/*.stories.tsx'],
+    files: ['**/*.{js,jsx,ts,tsx}', '**/*.stories.tsx', '**/*.test.{ts,tsx}'],
     languageOptions: {
       // ...baseLanguageOptions,
       parser: typescriptParser,

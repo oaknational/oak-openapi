@@ -3,6 +3,7 @@ import { router } from '@/lib/trpc';
 import { getAllKeyStageAndSubjectUnits } from './handlers/allKeyStageAndSubjectUnits/allKeyStageAndSubjectUnits';
 import { changelog } from './handlers/changelog/changelog';
 import { getKeyStageSubjectLessons } from './handlers/keyStageSubjectLessons/keyStageSubjectLessons';
+import { getKeywords } from './handlers/keywords/keywords';
 import { getKeyStages } from './handlers/keyStages/keyStages';
 import { getLessons } from './handlers/lesson/lesson';
 import { getQuestions } from './handlers/questions/questions';
@@ -24,6 +25,7 @@ export default router({
   getKeyStages,
   getKeyStageSubjectLessons,
   getAllKeyStageAndSubjectUnits,
+  getKeywords,
   getQuestions,
   getLessons,
   getUnits,
