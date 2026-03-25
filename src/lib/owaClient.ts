@@ -154,6 +154,7 @@ export interface UnitVariantLesson {
   keystage_slug: string;
   subject_slug: string;
   optionality?: string;
+  keywords?: { keyword: string; description: string }[];
   supplementary_data: {
     unit_order: number;
     order_in_unit: number;
