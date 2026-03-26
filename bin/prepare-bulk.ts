@@ -33,7 +33,10 @@ import {
   getAllSubjects,
   getUnit,
 } from '../src/lib/bulk-data/get-data';
-import { getCanonicalUrlForLesson } from '@/lib/canonicalUrls';
+import {
+  getCanonicalUrlForLesson,
+  getOakUrlForLesson,
+} from '@/lib/canonicalUrls';
 
 const processAssets = process.env.INCLUDE_ASSETS ? true : false;
 const reportMemoryUsage = process.env.REPORT_MEMORY_USAGE ? true : false;
@@ -103,6 +106,7 @@ async function buildLessonData(
         const programmeSlug = lesson.programmeSlug;
         delete lesson.programmeSlug; // this isn't useful in the bulk data
 
+        lesson.oakUrl = getOakUrlForLesson(lesson.lessonSlug);
         lesson.canonicalUrl = getCanonicalUrlForLesson(
           lesson.lessonSlug,
           lesson.unitSlug,

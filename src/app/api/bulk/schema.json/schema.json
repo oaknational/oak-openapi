@@ -237,6 +237,7 @@
       "required": [
         "lessonTitle",
         "lessonSlug",
+        "oakUrl",
         "canonicalUrl",
         "unitSlug",
         "unitTitle",
@@ -261,6 +262,11 @@
         "lessonSlug": {
           "type": "string",
           "description": "Slug identifier for the lesson."
+        },
+        "oakUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Direct URL for the lesson on the Oak National Academy website."
         },
         "canonicalUrl": {
           "type": "string",
