@@ -5,6 +5,7 @@ import type { TitleSlug } from '@/lib/owaClient';
 export interface Lesson {
   lessonTitle: string;
   lessonSlug: string;
+  oakUrl?: string;
   canonicalUrl?: string;
   unitSlug: string;
   unitTitle: string;
