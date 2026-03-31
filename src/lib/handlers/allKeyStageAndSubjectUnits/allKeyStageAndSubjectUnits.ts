@@ -30,11 +30,11 @@ export const getAllKeyStageAndSubjectUnits = router({
       const subject = decodeURIComponent(input.subject);
 
       const query = gql`
-        query ($blob: jsonb!) {
+        query ($filter: jsonb!) {
           ${unitVariantLessonsView}(
             where: {
               programme_fields:{
-                _contains:$blob
+                _contains:$filter
               }
               is_legacy: { _eq: false }
             }
@@ -48,12 +48,23 @@ export const getAllKeyStageAndSubjectUnits = router({
         }
       `;
 
-      const variables = {
-        blob: {
+      const variables: {
+        filter: {
+          keystage_slug: string;
+          subject_slug?: string;
+          subject_parent?: string;
+        };
+      } = {
+        filter: {
           subject_slug: subject,
           keystage_slug: keyStage,
         },
       };
+
+      if (keyStage === 'ks4' && subject === 'science') {
+        delete variables.filter.subject_slug;
+        variables.filter.subject_parent = 'Science';
+      }
 
       const graphqlClient = getClient();
       const res: UnitVariantLessonsView = await graphqlClient.request(
