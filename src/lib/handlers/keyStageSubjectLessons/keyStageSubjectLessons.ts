@@ -59,7 +59,15 @@ export const getKeyStageSubjectLessons = router({
         }
       `;
 
-      const variables = {
+      const variables: {
+        filter: {
+          keystage_slug: string;
+          subject_slug?: string;
+          subject_parent?: string;
+        };
+        offset: number;
+        limit: number;
+      } = {
         filter: {
           subject_slug: subject,
           keystage_slug: keyStage,
@@ -67,6 +75,11 @@ export const getKeyStageSubjectLessons = router({
         offset,
         limit,
       };
+
+      if (keyStage === 'ks4' && subject === 'science') {
+        delete variables.filter.subject_slug;
+        variables.filter.subject_parent = 'Science';
+      }
 
       const res = await client.request(query, variables);
 
