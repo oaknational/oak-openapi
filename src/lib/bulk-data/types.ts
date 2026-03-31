@@ -5,6 +5,8 @@ import type { TitleSlug } from '@/lib/owaClient';
 export interface Lesson {
   lessonTitle: string;
   lessonSlug: string;
+  oakUrl?: string;
+  canonicalUrl?: string;
   unitSlug: string;
   unitTitle: string;
   subjectSlug: string;
@@ -30,6 +32,8 @@ export interface Lesson {
   worksheet?: string;
   worksheetAnswers?: string;
   video?: string;
+  programmeSlug?: string;
+  restricted?: boolean;
 }
 
 export interface AssetPacks {

@@ -33,6 +33,10 @@ import {
   getAllSubjects,
   getUnit,
 } from '../src/lib/bulk-data/get-data';
+import {
+  getCanonicalUrlForLesson,
+  getOakUrlForLesson,
+} from '@/lib/canonicalUrls';
 
 const processAssets = process.env.INCLUDE_ASSETS ? true : false;
 const reportMemoryUsage = process.env.REPORT_MEMORY_USAGE ? true : false;
@@ -95,8 +99,44 @@ async function buildLessonData(
     const lessonData = await getAllLessonData(unitSlug);
     // log(`Processing unit: ${unitSlug} with ${lessonData.length} lessons`);
 
+    const blockedLessons = new Set();
+
     if (!processAssets) {
-      lessons.push(...lessonData);
+      for (const lesson of lessonData) {
+        const programmeSlug = lesson.programmeSlug;
+        delete lesson.programmeSlug; // this isn't useful in the bulk data
+
+        lesson.oakUrl = getOakUrlForLesson(lesson.lessonSlug);
+        lesson.canonicalUrl = getCanonicalUrlForLesson(
+          lesson.lessonSlug,
+          lesson.unitSlug,
+          programmeSlug,
+        );
+
+        const assetsAllowed = await checkLessonAllowedAsset({
+          lessonSlug: lesson.lessonSlug,
+          subjectSlug: lesson.subjectSlug,
+          unitSlug: lesson.unitSlug,
+        });
+
+        if (assetsAllowed.isBlocked()) {
+          blockedLessons.add(lesson.lessonSlug);
+
+          // now remove the transcripts and mark as restricted
+          delete lesson.transcript_sentences;
+          delete lesson.transcript_vtt;
+          lesson.restricted = true;
+        } else {
+          if (lesson.transcript_sentences) {
+            lesson.transcript_sentences = lesson.transcript_sentences.replace(
+              /<[^>]*>/g,
+              '',
+            );
+          }
+        }
+
+        lessons.push(lesson);
+      }
       /**
        * The default usage, this is the point where the loop ends
        * because we're not collecting assets by default.
@@ -111,108 +151,91 @@ async function buildLessonData(
 
     for (const lesson of lessonData) {
       // Check if this lesson's assets are allowed based on subject/unit gating
-      const assetsAllowed = await checkLessonAllowedAsset({
-        lessonSlug: lesson.lessonSlug,
-        subjectSlug: lesson.subjectSlug,
-        unitSlug: lesson.unitSlug,
-      });
-
-      // log(`${++currentLessonCtr}/${totalLessonCount}: ${lesson.lessonSlug}`);
-
-      if (lesson.transcript_sentences) {
-        lesson.transcript_sentences = lesson.transcript_sentences.replace(
-          /<[^>]*>/g,
-          '',
+      if (blockedLessons.has(lesson.lessonSlug)) {
+        log(
+          `Skipping lesson ${lesson.lessonSlug} assets - not in allowed subjects/units list`,
         );
-      }
-
-      if (processAssets) {
-        if (assetsAllowed.isAllowed()) {
-          log(
-            `Skipping lesson ${lesson.lessonSlug} assets - not in allowed subjects/units list`,
+      } else {
+        // Process video
+        try {
+          const url = await getVideoFromMux(
+            assetLinks[lesson.lessonSlug].videoStream as unknown as string,
           );
-        } else {
-          // Process video
+
+          await addURLToQueue(url, `${lesson.lessonSlug}.mp4`, slug);
+          lesson.video = `${slug}-videos.tar:${lesson.lessonSlug}.mp4`;
+        } catch (e) {
+          logError(
+            `Failed to process video for ${lesson.lessonSlug}: ${e instanceof Error ? e.message : String(e)}`,
+          );
+        }
+
+        // Process slide deck if available and has bucket_name - replace extension with PPTX
+        if (
+          assetLinks[lesson.lessonSlug].slideDeck &&
+          assetLinks[lesson.lessonSlug].slideDeck.bucket_name &&
+          packs.slideDecks
+        ) {
           try {
-            const url = await getVideoFromMux(
-              assetLinks[lesson.lessonSlug].videoStream as unknown as string,
+            const slideDeck = assetLinks[lesson.lessonSlug].slideDeck;
+
+            // Make a copy of the slideDeck object with modified bucket_path
+            const modifiedSlideDeck = { ...slideDeck };
+
+            // Replace the extension in the bucket_path with PPTX
+            const parts = modifiedSlideDeck.bucket_path.split('/');
+            parts.pop(); // drop the filename
+            modifiedSlideDeck.bucket_path =
+              parts.join('/') + '/PowerPoint.pptx';
+
+            await addStorageAssetToTar(
+              packs.slideDecks,
+              modifiedSlideDeck,
+              `${lesson.lessonSlug}_slide_deck.pptx`,
+              storage,
             );
 
-            await addURLToQueue(url, `${lesson.lessonSlug}.mp4`, slug);
-            lesson.video = `${slug}-videos.tar:${lesson.lessonSlug}.mp4`;
+            lesson.slideDeck = `${slug}-slide-decks.tar:${lesson.lessonSlug}_slide_deck.pptx`;
           } catch (e) {
             logError(
-              `Failed to process video for ${lesson.lessonSlug}: ${e instanceof Error ? e.message : String(e)}`,
+              `Failed to process slide deck for ${lesson.lessonSlug}: ${e instanceof Error ? e.message : String(e)}`,
+            );
+            logError(
+              `Slide deck data: ${JSON.stringify(assetLinks[lesson.lessonSlug].slideDeck)}`,
             );
           }
+        }
 
-          // Process slide deck if available and has bucket_name - replace extension with PPTX
-          if (
-            assetLinks[lesson.lessonSlug].slideDeck &&
-            assetLinks[lesson.lessonSlug].slideDeck.bucket_name &&
-            packs.slideDecks
-          ) {
-            try {
-              const slideDeck = assetLinks[lesson.lessonSlug].slideDeck;
+        // Process supplementary resource if available and has bucket_name
+        if (
+          assetLinks[lesson.lessonSlug].supplementaryResource &&
+          assetLinks[lesson.lessonSlug].supplementaryResource.bucket_name &&
+          packs.supplementaryResources
+        ) {
+          try {
+            await addStorageAssetToTar(
+              packs.supplementaryResources,
+              assetLinks[lesson.lessonSlug].supplementaryResource,
+              `${lesson.lessonSlug}_supplementary.pdf`,
+              storage,
+            );
 
-              // Make a copy of the slideDeck object with modified bucket_path
-              const modifiedSlideDeck = { ...slideDeck };
+            lesson.supplementaryResource = `${slug}-resources.tar:${lesson.lessonSlug}_supplementary.pdf`;
 
-              // Replace the extension in the bucket_path with PPTX
-              const parts = modifiedSlideDeck.bucket_path.split('/');
-              parts.pop(); // drop the filename
-              modifiedSlideDeck.bucket_path =
-                parts.join('/') + '/PowerPoint.pptx';
-
-              await addStorageAssetToTar(
-                packs.slideDecks,
-                modifiedSlideDeck,
-                `${lesson.lessonSlug}_slide_deck.pptx`,
-                storage,
-              );
-
-              lesson.slideDeck = `${slug}-slide-decks.tar:${lesson.lessonSlug}_slide_deck.pptx`;
-            } catch (e) {
-              logError(
-                `Failed to process slide deck for ${lesson.lessonSlug}: ${e instanceof Error ? e.message : String(e)}`,
-              );
-              logError(
-                `Slide deck data: ${JSON.stringify(assetLinks[lesson.lessonSlug].slideDeck)}`,
-              );
-            }
+            // log(`Supplementary resource processed: ${lesson.lessonSlug}`);
+          } catch (e) {
+            logError(
+              `Failed to process supplementary resource for ${lesson.lessonSlug}: ${e instanceof Error ? e.message : String(e)}`,
+            );
+            logError(
+              `Supplementary resource data: ${JSON.stringify(assetLinks[lesson.lessonSlug].supplementaryResource)}`,
+            );
           }
+        }
 
-          // Process supplementary resource if available and has bucket_name
-          if (
-            assetLinks[lesson.lessonSlug].supplementaryResource &&
-            assetLinks[lesson.lessonSlug].supplementaryResource.bucket_name &&
-            packs.supplementaryResources
-          ) {
-            try {
-              await addStorageAssetToTar(
-                packs.supplementaryResources,
-                assetLinks[lesson.lessonSlug].supplementaryResource,
-                `${lesson.lessonSlug}_supplementary.pdf`,
-                storage,
-              );
-
-              lesson.supplementaryResource = `${slug}-resources.tar:${lesson.lessonSlug}_supplementary.pdf`;
-
-              // log(`Supplementary resource processed: ${lesson.lessonSlug}`);
-            } catch (e) {
-              logError(
-                `Failed to process supplementary resource for ${lesson.lessonSlug}: ${e instanceof Error ? e.message : String(e)}`,
-              );
-              logError(
-                `Supplementary resource data: ${JSON.stringify(assetLinks[lesson.lessonSlug].supplementaryResource)}`,
-              );
-            }
-          }
-
-          // now do quizzes (and worksheet) and their respective answer sheets
-          for (const key of ['starterQuiz', 'exitQuiz', 'worksheet'] as const) {
-            await downloadQuiz(key, assetLinks, lesson, packs, slug, storage);
-          }
+        // now do quizzes (and worksheet) and their respective answer sheets
+        for (const key of ['starterQuiz', 'exitQuiz', 'worksheet'] as const) {
+          await downloadQuiz(key, assetLinks, lesson, packs, slug, storage);
         }
       }
 

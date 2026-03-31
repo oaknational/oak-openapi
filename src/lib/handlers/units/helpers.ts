@@ -26,6 +26,7 @@ export async function doesUnitExist(
 
 export interface RootUnitData {
   unitTitle: string;
+  canonicalUrl: string;
   notes: string;
   threads: Thread[];
   priorKnowledgeRequirements: string[];
@@ -82,6 +83,7 @@ export function formatUnitSummary(
   // we populate from the sequence view
   const root: RootUnitData = {
     unitTitle: sequenceData.title,
+    canonicalUrl: sequenceData.canonicalUrl || '',
     notes: sequenceData.notes,
     threads: sequenceData.threads,
     priorKnowledgeRequirements: Array.from(
