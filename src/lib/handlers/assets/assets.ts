@@ -471,7 +471,8 @@ This endpoint contains licence information for any third-party content contained
       interface LessonQueryVariables {
         _contains: {
           keystage_slug: string;
-          subject_slug: string;
+          subject_slug?: string;
+          subject_parent?: string;
         };
         unit?: string;
         [key: string]: unknown;
@@ -483,6 +484,11 @@ This endpoint contains licence information for any third-party content contained
           subject_slug: subject,
         },
       };
+
+      if (keyStage === 'ks4' && subject === 'science') {
+        delete lessonQueryVariables._contains.subject_slug;
+        lessonQueryVariables._contains.subject_parent = 'Science';
+      }
 
       if (unit) {
         lessonQueryVariables.unit = unit;
