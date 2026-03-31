@@ -13,4 +13,7 @@ test('get lesson from hasura', async () => {
   expect(Array.isArray(res)).toBe(false); // we're expecting 1
   expect(res.keyStageSlug).toBe('ks1');
   expect(res.subjectSlug).toBe('english');
+  expect(res.oakUrl).toBe(
+    'https://www.thenational.academy/teachers/lessons/joining-using-and',
+  );
 });

@@ -1,7 +1,10 @@
 import * as z from 'zod/v4';
+import { canonicalUrlSchema, oakUrlSchema } from '../../commonTypes';
 
 export const lessonSummaryResponseSchema = z.object({
   lessonTitle: z.string().meta({ description: 'The lesson title' }),
+  canonicalUrl: canonicalUrlSchema,
+  oakUrl: oakUrlSchema,
   unitSlug: z.string().meta({ description: 'The unit slug identifier' }),
   unitTitle: z.string().meta({ description: 'The unit title' }),
   subjectSlug: z.string().meta({ description: 'The subject slug identifier' }),

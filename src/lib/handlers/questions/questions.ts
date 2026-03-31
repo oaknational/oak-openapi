@@ -12,6 +12,7 @@ import type { LessonView, SequenceView } from 'lib/owaClient';
 import {
   blockedSubjects,
   checkLessonAllowedAsset,
+  checkLessonAllowedQuiz,
   getSubjectAndUnitForLesson,
   isSequenceSubjectBlocked,
 } from '../../queryGate';
@@ -51,6 +52,16 @@ export const getQuestions = router({
       const slug = decodeURIComponent(input.lesson);
 
       const client = getClient();
+
+      const quizGateTest = checkLessonAllowedQuiz(slug);
+
+      if (quizGateTest.isBlocked()) {
+        throw new TRPCError({
+          message: `Lesson (${slug}) quiz is not available`,
+          code: 'BAD_REQUEST',
+          cause: quizGateTest.reason,
+        });
+      }
 
       const gateTest = await checkLessonAllowedAsset({
         client,
@@ -225,6 +236,10 @@ export const getQuestions = router({
           continue;
         }
 
+        if (checkLessonAllowedQuiz(lessonSlug).isBlocked()) {
+          continue;
+        }
+
         // check if the lesson has blocked assets or not
         const gateTest = await checkLessonAllowedAsset({
           lessonSlug,
@@ -364,6 +379,10 @@ export const getQuestions = router({
         }
 
         if (!unitSlug) {
+          continue;
+        }
+
+        if (checkLessonAllowedQuiz(lessonSlug).isBlocked()) {
           continue;
         }
 

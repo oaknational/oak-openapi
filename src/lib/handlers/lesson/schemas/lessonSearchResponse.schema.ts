@@ -1,8 +1,10 @@
 import * as z from 'zod/v4';
+import { oakUrlSchema } from '../../commonTypes';
 
 export const lessonSearchResultSchema = z.object({
   lessonSlug: z.string().meta({ description: 'The lesson slug identifier' }),
   lessonTitle: z.string().meta({ description: 'The lesson title' }),
+  oakUrl: oakUrlSchema,
   similarity: z.number().meta({
     description: 'The snippet of the transcript that matched the search term',
   }),
