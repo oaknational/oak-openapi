@@ -1,4 +1,6 @@
 import 'renvy';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 import { getClient, gql, lessonView } from '@/lib/owaClient';
 import type { LessonView } from '@/lib/owaClient';
 import {
@@ -14,12 +16,23 @@ const SUBJECT = 'maths';
 const KEY_STAGES: string[] = []; // e.g. ['ks1', 'ks2'] — empty = all
 const BATCH_SIZE = 500;
 
+// Get optional file name from command line arguments
+const inputFile = process.argv[2];
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface LessonRow {
   lessonSlug: string;
   unitSlug: string;
   subjectSlug: string;
+}
+
+function loadLessonSlugsFromFile(filePath: string): string[] {
+  const content = readFileSync(resolve(filePath), 'utf-8');
+  return content
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
 }
 
 async function fetchLessonSlugs(): Promise<LessonRow[]> {
@@ -73,6 +86,40 @@ async function fetchLessonSlugs(): Promise<LessonRow[]> {
   return lessons;
 }
 
+async function fetchLessonDetailsFromSlugs(
+  slugs: string[],
+): Promise<LessonRow[]> {
+  const client = getClient();
+  const lessons: LessonRow[] = [];
+
+  const query = gql`
+    query ($lessonSlugs: [String!]!) {
+      ${lessonView}(
+        where: {
+          lessonSlug: { _in: $lessonSlugs }
+        }
+        distinct_on: lessonSlug
+      ) {
+        lessonSlug
+        unitSlug
+        subjectSlug
+      }
+    }
+  `;
+
+  // Process in batches to avoid query size limits
+  for (let i = 0; i < slugs.length; i += BATCH_SIZE) {
+    const batch = slugs.slice(i, i + BATCH_SIZE);
+    const res: LessonView = await client.request(query, {
+      lessonSlugs: batch,
+    });
+    const results = res[lessonView] as unknown as LessonRow[];
+    lessons.push(...results);
+  }
+
+  return lessons;
+}
+
 interface GateResult {
   lessonSlug: string;
   copyrightBlocked: boolean;
@@ -111,17 +158,33 @@ async function runGateChecks(lessons: LessonRow[]): Promise<GateResult[]> {
 }
 
 async function main() {
-  const filterDesc = KEY_STAGES.length
-    ? `subject=${SUBJECT}, keyStages=${KEY_STAGES.join(',')}`
-    : `subject=${SUBJECT} (all key stages)`;
+  let lessons: LessonRow[];
 
-  console.log(`Fetching lessons for: ${filterDesc}`);
-  const lessons = await fetchLessonSlugs();
-  console.log(`Found ${lessons.length} unique lessons\n`);
+  if (inputFile) {
+    console.log(`Reading lesson slugs from: ${inputFile}`);
+    const slugs = loadLessonSlugsFromFile(inputFile);
+    console.log(`Loaded ${slugs.length} lesson slugs\n`);
 
-  if (lessons.length === 0) {
-    console.log('No lessons found. Check the configuration.');
-    return;
+    if (slugs.length === 0) {
+      console.log('No lesson slugs found in file.');
+      return;
+    }
+
+    console.log('Fetching unit and subject slugs from GraphQL...\n');
+    lessons = await fetchLessonDetailsFromSlugs(slugs);
+  } else {
+    const filterDesc = KEY_STAGES.length
+      ? `subject=${SUBJECT}, keyStages=${KEY_STAGES.join(',')}`
+      : `subject=${SUBJECT} (all key stages)`;
+
+    console.log(`Fetching lessons for: ${filterDesc}`);
+    lessons = await fetchLessonSlugs();
+    console.log(`Found ${lessons.length} unique lessons\n`);
+
+    if (lessons.length === 0) {
+      console.log('No lessons found. Check the configuration.');
+      return;
+    }
   }
 
   console.log('Running gate checks...\n');
