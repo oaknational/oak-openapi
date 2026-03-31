@@ -56,6 +56,10 @@ test('get asset urls for maths lesson', async () => {
     lesson: 'checking-understanding-of-perimeter',
   });
 
+  expect(res).toHaveProperty('oakUrl');
+  expect(res.oakUrl).toBe(
+    'https://www.thenational.academy/teachers/lessons/checking-understanding-of-perimeter',
+  );
   expect(res).toHaveProperty('attribution');
   expect(res).toHaveProperty('assets');
   if (!('assets' in res) || res.assets === undefined) {

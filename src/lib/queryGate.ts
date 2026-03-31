@@ -21,6 +21,7 @@ import assetBlockedLessons from './queryGateData/assets/blockedLessons.json' wit
 import assetBlockedUnits from './queryGateData/assets/blockedUnits.json' with { type: 'json' };
 import supportedUnits from './queryGateData/copyright/supportedUnits.json' with { type: 'json' };
 import supportedLessons from './queryGateData/copyright/supportedLessons.json' with { type: 'json' };
+import quizBlockedLessons from './queryGateData/quiz/blockedLessons.json' with { type: 'json' };
 import { blockedSequenceSubjects } from './blockedContent';
 
 // Custom result class that requires explicit narrowing via type guards
@@ -46,11 +47,15 @@ class GateWithReason {
   }
 }
 
-const supportedSubjects = ['maths'];
+const supportedSubjects: string[] = [];
 export const blockedSubjects = ['english', 'financial-education'];
 
 function isLessonBlocked(lessonSlug: string): boolean {
   return assetBlockedLessons.includes(lessonSlug);
+}
+
+function isLessonQuizBlocked(lessonSlug: string): boolean {
+  return quizBlockedLessons.includes(lessonSlug);
 }
 
 function isUnitBlocked(unitSlug: string): boolean {
@@ -208,6 +213,17 @@ export async function checkLessonAllowedAsset(
     true,
     `Lesson (${lessonSlug}) is restricted and not available, and subject (${subjectSlug}) and unit (${unitSlug}) are blocked for assets`,
   );
+}
+
+export function checkLessonAllowedQuiz(lessonSlug: string): GateWithReason {
+  if (isLessonQuizBlocked(lessonSlug)) {
+    return new GateWithReason(
+      true,
+      'Lesson quiz contains restricted content, and therefore blocked',
+    );
+  }
+
+  return new GateWithReason(false, 'Lesson quiz is not blocked');
 }
 
 export function supportsImages(subject: string, unit: string): GateWithReason {

@@ -20,6 +20,7 @@ import {
 } from '@/lib/owaClient';
 
 import { baseUrl } from '../../baseUrl';
+import { getOakUrlForLesson } from '@/lib/canonicalUrls';
 
 import {
   checkLessonAllowedAsset,
@@ -630,6 +631,7 @@ This endpoint contains licence information for any third-party content contained
       const { assets, attribution } = await assetsForLesson(lessonSlug);
 
       return {
+        oakUrl: getOakUrlForLesson(lessonSlug),
         attribution,
         assets: assetDownloads(lessonSlug, assets, type),
       } as LessonAssetsType;

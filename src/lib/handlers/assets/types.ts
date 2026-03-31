@@ -1,4 +1,5 @@
 import * as z from 'zod/v4';
+import { oakUrlSchema } from '@/lib/handlers/commonTypes';
 
 export const typeToMime = new Map([
   ['pdf', 'application/pdf'],
@@ -34,6 +35,7 @@ export const assetType = z.object({
 });
 
 export const lessonAssetsType = z.object({
+  oakUrl: oakUrlSchema,
   attribution: z.array(z.string()).optional().meta({
     description:
       "Licence information for any third-party content contained in the lessons' downloadable resources",
