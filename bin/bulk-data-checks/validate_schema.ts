@@ -56,7 +56,11 @@ export function validateSchema(schemaPath: string, files: string[]): number {
   }
 
   const schema = readJson(schemaPath);
-  const ajv = new Ajv2020({ allErrors: true, strict: true });
+  const ajv = new Ajv2020({
+    allErrors: true,
+    strict: true,
+    formats: { uri: true },
+  });
   const validate = ajv.compile(schema);
 
   let hasErrors = false;
