@@ -30,15 +30,17 @@ export const views = [
 export const sequenceViewWhereInput =
   'published_mv_curriculum_sequence_b_13_0_21_bool_exp';
 
+function hasuraHeaders() {
+  return {
+    'content-type': 'application/json',
+    authorization: `Bearer ${process.env.OAK_GRAPHQL_SECRET}`,
+  };
+}
+
 export function querySQL(sql: string): Promise<Response> {
   return fetch(`${process.env.OAK_GRAPHQL_HOST}/v1/query`, {
     method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-oak-auth-key': process.env.OAK_GRAPHQL_SECRET as string,
-      'x-oak-auth-type': 'oak-admin',
-      'x-hasura-role': 'admin',
-    },
+    headers: hasuraHeaders(),
     body: JSON.stringify({
       type: 'run_sql',
       args: { source: 'Oak DB', sql, read_only: true },
@@ -48,10 +50,7 @@ export function querySQL(sql: string): Promise<Response> {
 
 export function getClient(): GraphQLClient {
   return new GraphQLClient(`${process.env.OAK_GRAPHQL_HOST}/v1/graphql`, {
-    headers: {
-      'x-oak-auth-key': process.env.OAK_GRAPHQL_SECRET as string,
-      'x-oak-auth-type': 'oak-admin',
-    },
+    headers: hasuraHeaders(),
   });
 }
 
