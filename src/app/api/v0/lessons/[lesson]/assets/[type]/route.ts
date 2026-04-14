@@ -46,6 +46,22 @@ export const dynamic = 'force-dynamic';
 
 const storage = getGoogleCloudStorage();
 const endpointPath = '/api/v0/lessons/{lesson}/assets/{type}';
+const passthroughVideoStatuses = new Set([200, 206, 304, 416]);
+const forwardedVideoRequestHeaders = [
+  'range',
+  'if-range',
+  'if-none-match',
+  'if-modified-since',
+] as const;
+const forwardedVideoResponseHeaders = [
+  'accept-ranges',
+  'cache-control',
+  'content-length',
+  'content-range',
+  'content-type',
+  'etag',
+  'last-modified',
+] as const;
 
 const hasErrorCode = (error: unknown): error is { code: string } => {
   return (
@@ -55,6 +71,32 @@ const hasErrorCode = (error: unknown): error is { code: string } => {
     typeof (error as { code: unknown }).code === 'string'
   );
 };
+
+function getUpstreamVideoRequestHeaders(
+  req: NextRequest,
+): Record<string, string> {
+  const headers: Record<string, string> = {};
+
+  for (const headerName of forwardedVideoRequestHeaders) {
+    const value = req.headers.get(headerName);
+
+    if (value) {
+      headers[headerName] = value;
+    }
+  }
+
+  return headers;
+}
+
+function copyUpstreamVideoHeaders(source: Headers, target: Headers): void {
+  for (const headerName of forwardedVideoResponseHeaders) {
+    const value = source.get(headerName);
+
+    if (value) {
+      target.set(headerName, value);
+    }
+  }
+}
 
 const handler = async (
   req: NextRequest,
@@ -185,8 +227,6 @@ const handler = async (
         download = await getVideoFromMux(stream);
       }
 
-      const response = await fetch(download || stream);
-
       const url = new URL(download || stream);
       const ext = url.pathname.split('.').pop();
 
@@ -211,33 +251,44 @@ const handler = async (
         return redirectResponse;
       }
 
+      const response = await fetch(download || stream, {
+        method: req.method,
+        headers: getUpstreamVideoRequestHeaders(req),
+      });
+
       const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext}`;
 
-      if (!response.ok) {
+      if (!response.ok && !passthroughVideoStatuses.has(response.status)) {
         throw new TRPCError({
           message: `Failed to fetch: ${response.status} ${response.statusText}`,
           code: 'INTERNAL_SERVER_ERROR',
         });
       }
 
-      const res = new NextResponse(response.body, { headers: resHeaders });
+      const headers = new Headers(resHeaders);
+      copyUpstreamVideoHeaders(response.headers, headers);
+      headers.set('Content-Disposition', `attachment; filename="${filename}"`);
 
-      // Set headers for streaming the file to the client
-      res.headers.set(
-        'Content-Type',
-        response.headers.get('content-type') || 'application/octet-stream',
-      );
-      res.headers.set(
-        'Content-Disposition',
-        `attachment; filename="${filename}"`,
-      );
+      const responseBody =
+        req.method === 'HEAD' || response.status === 304 ? null : response.body;
 
-      if (response.body === null) {
+      if (
+        responseBody === null &&
+        req.method !== 'HEAD' &&
+        response.status !== 304 &&
+        response.status !== 416
+      ) {
         throw new TRPCError({
           message: 'Video could not be streamed',
           code: 'INTERNAL_SERVER_ERROR',
         });
       }
+
+      const res = new NextResponse(responseBody, {
+        headers,
+        status: response.status,
+        statusText: response.statusText,
+      });
 
       captureApiRequestEvent({
         url: req.url,
