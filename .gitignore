@@ -48,3 +48,5 @@ terraform.rc
 doctor-storybook.log
 
 tsconfig.tsbuildinfo
+.claude/
+bin/claude-runner.sh

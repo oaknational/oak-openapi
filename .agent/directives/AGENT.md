@@ -35,15 +35,6 @@ follow-up item in the plans.
 - [`./schema-first-execution.md`](./schema-first-execution.md) for OpenAPI-first guidance.
 - [`./testing-strategy.md`](./testing-strategy.md) for testing conventions.
 
-## Essential links
-
-- [`README.md`](../../README.md) (repo overview and quickstart)
-- [`docs/README.md`](../../docs/README.md) (docs index and start-here links)
-- [`docs/engineering/onboarding.md`](../../docs/engineering/onboarding.md) (local setup)
-- [`docs/engineering/v0-v1-improvements.md`](../../docs/engineering/v0-v1-improvements.md) (priority framing)
-- [`docs/architecture/README.md`](../../docs/architecture/README.md) (architecture overview)
-- [`.agent/summary/index.md`](../summary/index.md) (analysis index and deep dives)
-
 ## Development commands
 
 From the repo root (pnpm only):

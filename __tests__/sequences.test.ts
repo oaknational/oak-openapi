@@ -39,6 +39,128 @@ test('sequence with subjects', async () => {
   );
 });
 
+test('sequence without exam board does not duplicate units within (subject, tier)', async () => {
+  const { caller } = authedCaller();
+  // `science-secondary` (no exam board) pulls rows across all exam boards.
+  // Each exam board has its own copy of a given unit, so naive concatenation
+  // leaves the same unit appearing 3× inside the same (subject, tier) combo.
+  const res = await caller.getSequences.getSequenceUnits({
+    sequence: 'science-secondary',
+    year: '11',
+  });
+
+  const year11 = res.find(
+    (_) => _.year === 11,
+  ) as yearSequenceKS4WithExamSubjects;
+
+  if (!year11 || !('examSubjects' in year11)) {
+    throw new Error('Expected examSubjects on year 11');
+  }
+
+  const dupesWithinSubjectTier: string[] = [];
+  for (const examSubject of year11.examSubjects) {
+    if (!('tiers' in examSubject)) continue;
+    for (const tier of examSubject.tiers) {
+      const slugs = tier.units.map((u) =>
+        'unitSlug' in u ? u.unitSlug : u.unitTitle,
+      );
+      const seen = new Set<string>();
+      for (const slug of slugs) {
+        if (seen.has(slug)) {
+          dupesWithinSubjectTier.push(
+            `${examSubject.examSubjectSlug}/${tier.tierSlug}/${slug}`,
+          );
+        }
+        seen.add(slug);
+      }
+    }
+  }
+
+  expect(dupesWithinSubjectTier).toStrictEqual([]);
+
+  // And the unit the bug was first reported against should be present exactly
+  // once per (subject, tier) combination it lives in.
+  const biomassOccurrences: string[] = [];
+  for (const examSubject of year11.examSubjects) {
+    if (!('tiers' in examSubject)) continue;
+    for (const tier of examSubject.tiers) {
+      for (const unit of tier.units) {
+        if (
+          'unitSlug' in unit &&
+          unit.unitSlug === 'biomass-transfer-food-security-and-biodiversity'
+        ) {
+          biomassOccurrences.push(
+            `${examSubject.examSubjectSlug}/${tier.tierSlug}`,
+          );
+        }
+      }
+    }
+  }
+
+  expect(new Set(biomassOccurrences).size).toBe(biomassOccurrences.length);
+});
+
+test('sequence without exam board exposes examBoards on each unit', async () => {
+  const { caller } = authedCaller();
+  const res = await caller.getSequences.getSequenceUnits({
+    sequence: 'science-secondary',
+    year: '11',
+  });
+
+  const year11 = res.find(
+    (_) => _.year === 11,
+  ) as yearSequenceKS4WithExamSubjects;
+
+  if (!year11 || !('examSubjects' in year11)) {
+    throw new Error('Expected examSubjects on year 11');
+  }
+
+  // `biomass-transfer-food-security-and-biodiversity` is published across all
+  // three KS4 science exam boards, so when we don't pin to one it should list
+  // them all on the unit.
+  const biomassUnit = year11.examSubjects
+    .flatMap((es) => ('tiers' in es ? es.tiers : []))
+    .flatMap((tier) => tier.units)
+    .find(
+      (u) =>
+        'unitSlug' in u &&
+        u.unitSlug === 'biomass-transfer-food-security-and-biodiversity',
+    );
+
+  if (!biomassUnit) {
+    throw new Error('Expected to find the biomass unit');
+  }
+
+  expect(biomassUnit.examBoards).toBeDefined();
+  const boardSlugs = (biomassUnit.examBoards ?? []).map((b) => b.slug).sort();
+  expect(boardSlugs).toStrictEqual(['aqa', 'edexcel', 'ocr']);
+});
+
+test('sequence pinned to an exam board omits examBoards from units', async () => {
+  const { caller } = authedCaller();
+  const res = await caller.getSequences.getSequenceUnits({
+    sequence: 'science-secondary-aqa',
+    year: '11',
+  });
+
+  const year11 = res.find(
+    (_) => _.year === 11,
+  ) as yearSequenceKS4WithExamSubjects;
+
+  if (!year11 || !('examSubjects' in year11)) {
+    throw new Error('Expected examSubjects on year 11');
+  }
+
+  const allUnits = year11.examSubjects
+    .flatMap((es) => ('tiers' in es ? es.tiers : []))
+    .flatMap((tier) => tier.units);
+
+  expect(allUnits.length).toBeGreaterThan(0);
+  for (const unit of allUnits) {
+    expect(unit.examBoards).toBeUndefined();
+  }
+});
+
 test('sequence with exam subjects & tiers', async () => {
   const { caller } = authedCaller();
   const slug = 'science-secondary-aqa';
