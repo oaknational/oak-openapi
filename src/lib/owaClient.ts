@@ -153,6 +153,8 @@ export interface UnitVariantLesson {
   keystage_slug: string;
   subject_slug: string;
   optionality?: string;
+  examboard_slug?: string | null; // via programme_fields(path:"examboard_slug")
+  examboard_title?: string | null; // via programme_fields(path:"examboard")
   keywords?: { keyword: string; description: string }[];
   supplementary_data: {
     unit_order: number;

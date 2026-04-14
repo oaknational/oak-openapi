@@ -27,6 +27,12 @@ import {
 import { isSequenceSubjectBlocked } from '@/lib/queryGate';
 import { TRPCError } from '@trpc/server';
 
+interface ExamBoardRef {
+  title: string;
+  slug: string;
+}
+type SequenceWithExamBoards = Sequence & { _examBoards?: ExamBoardRef[] };
+
 interface WhereCondition {
   _and: {
     _or?: {
@@ -141,7 +147,9 @@ export const getSequences = router({
         yearFilter = parseInt(input.year, 10);
       }
 
-      const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
+      const { subjectSlug, ks4OptionSlug } = parseSubjectPhaseSlug(
+        input.sequence,
+      );
       const gateTest = isSequenceSubjectBlocked(subjectSlug);
 
       if (gateTest.isBlocked()) {
@@ -163,6 +171,7 @@ export const getSequences = router({
           title
           threads
           slug
+          examboard
           examboard_slug
           keystage_slug
           order
@@ -184,7 +193,47 @@ export const getSequences = router({
 
       const res: SequenceView = await client.request(query, { where });
 
-      const rawData = res[sequenceView];
+      // When a sequence isn't pinned to a specific exam board (e.g.
+      // `science-secondary` rather than `science-secondary-aqa`), the query
+      // doesn't filter `examboard_slug`, so KS4 units come back once per exam
+      // board (AQA, Edexcel, OCR). The response shape doesn't carry exam
+      // board at the row level, so collapse to a single row per
+      // (subject, tier, pathway, year, slug) and, when the caller didn't pin
+      // an exam board, collect the exam boards each unit appears in so we can
+      // expose them on the output.
+      const exposeExamBoards = !ks4OptionSlug;
+      const dedupedMap = new Map<string, SequenceWithExamBoards>();
+      for (const row of res[sequenceView]) {
+        const key = [
+          row.subject_slug,
+          row.tier_slug ?? '',
+          row.pathway_slug ?? '',
+          row.year,
+          row.slug,
+        ].join('|');
+        const existing = dedupedMap.get(key);
+        if (existing) {
+          if (exposeExamBoards && row.examboard_slug) {
+            const boards = existing._examBoards ?? [];
+            if (!boards.some((b) => b.slug === row.examboard_slug)) {
+              boards.push({
+                title: row.examboard,
+                slug: row.examboard_slug,
+              });
+            }
+            existing._examBoards = boards;
+          }
+          continue;
+        }
+        const cloned: SequenceWithExamBoards = { ...row };
+        if (exposeExamBoards && row.examboard_slug) {
+          cloned._examBoards = [
+            { title: row.examboard, slug: row.examboard_slug },
+          ];
+        }
+        dedupedMap.set(key, cloned);
+      }
+      const rawData = Array.from(dedupedMap.values());
 
       const years = Array.from(
         rawData.reduce<Set<number>>(
@@ -335,7 +384,7 @@ export const getSequences = router({
     }),
 });
 
-export function formatUnit(unit: Sequence): Unit {
+export function formatUnit(unit: SequenceWithExamBoards): Unit {
   let categories: Category[] | undefined;
 
   const threads =
@@ -354,6 +403,8 @@ export function formatUnit(unit: Sequence): Unit {
     }));
   }
 
+  const examBoards = unit._examBoards?.length ? unit._examBoards : undefined;
+
   if (unit.unit_options && unit.unit_options.length > 0) {
     return {
       unitTitle: unit.title,
@@ -364,6 +415,7 @@ export function formatUnit(unit: Sequence): Unit {
       })),
       threads,
       categories,
+      examBoards,
     };
   } else {
     return {
@@ -372,20 +424,24 @@ export function formatUnit(unit: Sequence): Unit {
       unitOrder: unit.order,
       threads,
       categories,
+      examBoards,
     };
   }
 }
 
-type UnitFilter = (unit: Sequence) => boolean;
+type UnitFilter = (unit: SequenceWithExamBoards) => boolean;
 
 function formatUnits(
-  units: Sequence[],
+  units: SequenceWithExamBoards[],
   filter: UnitFilter = () => true,
 ): Unit[] {
   return units.filter(filter).map(formatUnit);
 }
 
-function formatUnitsForTiers(units: Sequence[], subject?: string): Tier[] {
+function formatUnitsForTiers(
+  units: SequenceWithExamBoards[],
+  subject?: string,
+): Tier[] {
   const tiers = units.reduce<Tier[]>((acc, curr) => {
     const { tier_slug: tierSlug, tier: tierTitle } = curr;
 
@@ -397,7 +453,7 @@ function formatUnitsForTiers(units: Sequence[], subject?: string): Tier[] {
         tierTitle,
         units: formatUnits(
           units,
-          (_: Sequence) =>
+          (_) =>
             _.tier_slug === tierSlug &&
             (subject ? _.subject === subject : true),
         ),
