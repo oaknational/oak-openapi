@@ -87,6 +87,68 @@ describe('KS4 Science endpoints', () => {
     }
   });
 
+  test('ks4/science units without examBoard filter expose examBoards per unit', async () => {
+    const caller = makeCaller({ user: 1 });
+
+    const res =
+      await caller.getAllKeyStageAndSubjectUnits.getAllKeyStageAndSubjectUnits({
+        keyStage: 'ks4',
+        subject: 'science',
+      });
+
+    const allUnits = res.flatMap((year) => year.units);
+    expect(allUnits.length).toBeGreaterThan(0);
+
+    // Each unit should be deduped — no repeat slugs within a year.
+    for (const year of res) {
+      const slugs = year.units.map((u) => u.unitSlug);
+      expect(new Set(slugs).size).toBe(slugs.length);
+    }
+
+    // `biomass-transfer-food-security-and-biodiversity` is published across
+    // every KS4 science exam board, so it should list all three.
+    const biomassUnit = allUnits.find(
+      (u) => u.unitSlug === 'biomass-transfer-food-security-and-biodiversity',
+    );
+    expect(biomassUnit).toBeDefined();
+    expect(biomassUnit?.examBoards).toBeDefined();
+    const boardSlugs = (biomassUnit?.examBoards ?? [])
+      .map((b) => b.slug)
+      .sort();
+    expect(boardSlugs).toStrictEqual(['aqa', 'edexcel', 'ocr']);
+  });
+
+  test('ks4/science units with examBoard filter only returns that board and omits examBoards', async () => {
+    const caller = makeCaller({ user: 1 });
+
+    const resAll =
+      await caller.getAllKeyStageAndSubjectUnits.getAllKeyStageAndSubjectUnits({
+        keyStage: 'ks4',
+        subject: 'science',
+      });
+
+    const resAqa =
+      await caller.getAllKeyStageAndSubjectUnits.getAllKeyStageAndSubjectUnits({
+        keyStage: 'ks4',
+        subject: 'science',
+        examBoard: 'aqa',
+      });
+
+    const allUnits = resAqa.flatMap((year) => year.units);
+    expect(allUnits.length).toBeGreaterThan(0);
+
+    // The filtered response should be a subset of the unfiltered set.
+    const allSlugs = new Set(
+      resAll.flatMap((year) => year.units.map((u) => u.unitSlug)),
+    );
+    for (const unit of allUnits) {
+      expect(allSlugs.has(unit.unitSlug)).toBe(true);
+      // A pinned request should not carry an examBoards list — it would be a
+      // redundant single entry.
+      expect(unit.examBoards).toBeUndefined();
+    }
+  });
+
   test('should handle ks4/science with unit filter', async () => {
     const caller = makeCaller({
       user: 1,
