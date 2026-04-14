@@ -157,14 +157,10 @@ function formatQuestion(question: DBQuestion): Question | undefined {
     .join(' ');
 
   let questionImage: undefined | ImageDataSchemaType;
+  const image = question.questionStem.find((_) => _.type === 'image');
 
-  if (question.questionStem.length === 2) {
-    // probably contains the image
-    const image = question.questionStem.filter((_) => _.type === 'image').pop();
-
-    if (image) {
-      questionImage = formatImage(image);
-    }
+  if (image) {
+    questionImage = formatImage(image);
   }
 
   // TypeScript really doesn't like DRY. This code could…should be able to reuse
@@ -195,6 +191,7 @@ function formatQuestion(question: DBQuestion): Question | undefined {
     return {
       question: questionText,
       questionType: QuestionTypeEnum.Match,
+      questionImage,
       answers: question.answers[QuestionTypeEnum.Match].map(formatMatchAnswer),
     };
   }
