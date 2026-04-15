@@ -38,6 +38,11 @@ const unitOptionSchema = z.object({
   unitSlug: z.string(),
 });
 
+const examBoardSchema = z.object({
+  title: z.string().meta({ description: 'The title of the exam board' }),
+  slug: z.string().meta({ description: 'The slug of the exam board' }),
+});
+
 const unitWithOptionsSchema = z.object({
   unitTitle: z.string().meta({ description: 'The title of the unit' }),
   unitOrder: z
@@ -54,6 +59,10 @@ const unitWithOptionsSchema = z.object({
     description:
       'A list of threads (if any) that are assigned to the unit. If the unit does not have any categories, this property is omitted.',
   }),
+  examBoards: z.array(examBoardSchema).optional().meta({
+    description:
+      'The exam boards the unit appears in. Only populated when the sequence is requested without an exam board (e.g. `science-secondary` rather than `science-secondary-aqa`).',
+  }),
 });
 
 const unitNoOptionsSchema = z.object({
@@ -64,6 +73,10 @@ const unitNoOptionsSchema = z.object({
     .meta({ description: 'The unique slug identifier for the unit' }),
   categories: z.array(categorySchema).optional(),
   threads: z.array(threadSchema).optional(),
+  examBoards: z.array(examBoardSchema).optional().meta({
+    description:
+      'The exam boards the unit appears in. Only populated when the sequence is requested without an exam board (e.g. `science-secondary` rather than `science-secondary-aqa`).',
+  }),
 });
 
 const unitSchema = z.union([unitWithOptionsSchema, unitNoOptionsSchema]);
