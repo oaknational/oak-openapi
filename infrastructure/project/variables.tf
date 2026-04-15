@@ -48,12 +48,19 @@ variable "OAK_API_AUTH_TOKEN" {
   nullable    = false
 }
 
-variable "OAK_GRAPHQL_SECRET" {
-  description = "Oak Graphql Secret"
+variable "OAK_GRAPHQL_SECRET_PREVIEW" {
+  description = "Oak Graphql Secret for preview"
   type        = string
   sensitive   = true
   nullable    = false
 }
+variable "OAK_GRAPHQL_SECRET_PROD" {
+  description = "Oak Graphql Secret for prod"
+  type        = string
+  sensitive   = true
+  nullable    = false
+}
+
 variable "PRISMA_ACCELERATE_DATABASE_URL_PREVIEW" {
   description = "Prisma accelerate database url for preview environment"
   type        = string

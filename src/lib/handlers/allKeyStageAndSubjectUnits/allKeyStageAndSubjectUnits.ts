@@ -28,7 +28,12 @@ export const getAllKeyStageAndSubjectUnits = router({
     .query(async ({ input }) => {
       const keyStage = decodeURIComponent(input.keyStage);
       const subject = decodeURIComponent(input.subject);
+      const examBoard = input.examBoard;
 
+      // We drop `distinct_on: unit_slug` so that we can see every exam board a
+      // unit appears in — otherwise KS4 units would get collapsed to a single
+      // row and we'd lose the exam board information we want to expose on the
+      // output.
       const query = gql`
         query ($filter: jsonb!) {
           ${unitVariantLessonsView}(
@@ -38,12 +43,13 @@ export const getAllKeyStageAndSubjectUnits = router({
               }
               is_legacy: { _eq: false }
             }
-            distinct_on: unit_slug
           ) {
             unit_slug
             unit_title:unit_data(path:"title")
             year_slug: programme_fields(path: "year_slug")
             optionality: programme_fields(path: "optionality")
+            examboard_slug: programme_fields(path: "examboard_slug")
+            examboard_title: programme_fields(path: "examboard")
           }
         }
       `;
@@ -53,6 +59,7 @@ export const getAllKeyStageAndSubjectUnits = router({
           keystage_slug: string;
           subject_slug?: string;
           subject_parent?: string;
+          examboard_slug?: string;
         };
       } = {
         filter: {
@@ -66,6 +73,10 @@ export const getAllKeyStageAndSubjectUnits = router({
         variables.filter.subject_parent = 'Science';
       }
 
+      if (examBoard) {
+        variables.filter.examboard_slug = examBoard;
+      }
+
       const graphqlClient = getClient();
       const res: UnitVariantLessonsView = await graphqlClient.request(
         query,
@@ -76,44 +87,70 @@ export const getAllKeyStageAndSubjectUnits = router({
         return []; // unlikely, but sure.
       }
 
-      const units = res[unitVariantLessonsView];
+      const rows = res[unitVariantLessonsView];
 
-      const result = units.reduce(
-        (acc, unit) => {
-          const yearSlug = unit.year_slug;
-          const yearTitle = `Year ${unit.year_slug.split('-')[1]}`;
-          if (!acc[yearSlug]) {
-            acc[yearSlug] = {
-              yearSlug,
-              yearTitle,
-              units: [],
-            };
+      interface GroupedUnit {
+        unitSlug: string;
+        unitTitle: string;
+        examBoards?: { title: string; slug: string }[];
+      }
+
+      // Group rows by (yearSlug, unitSlug). When no exam board filter was
+      // supplied, collect the distinct exam boards each unit appears in so we
+      // can expose them on the output. When a filter was supplied we skip the
+      // array — it would be a redundant single-entry list.
+      const exposeExamBoards = !examBoard;
+      const result: Record<
+        string,
+        {
+          yearSlug: string;
+          yearTitle: string;
+          units: GroupedUnit[];
+          _unitIndex: Map<string, GroupedUnit>;
+        }
+      > = {};
+
+      for (const row of rows) {
+        const yearSlug = row.year_slug;
+        const yearTitle = `Year ${row.year_slug.split('-')[1]}`;
+        if (!result[yearSlug]) {
+          result[yearSlug] = {
+            yearSlug,
+            yearTitle,
+            units: [],
+            _unitIndex: new Map(),
+          };
+        }
+
+        const bucket = result[yearSlug];
+        const unitTitle = row.optionality || row.unit_title;
+        const existing = bucket._unitIndex.get(row.unit_slug);
+        const boardSlug = row.examboard_slug ?? null;
+        const boardTitle = row.examboard_title ?? '';
+
+        if (existing) {
+          if (exposeExamBoards && boardSlug) {
+            const boards = existing.examBoards ?? [];
+            if (!boards.some((b) => b.slug === boardSlug)) {
+              boards.push({ title: boardTitle, slug: boardSlug });
+            }
+            existing.examBoards = boards;
           }
+          continue;
+        }
 
-          const { unit_slug: unitSlug } = unit;
-
-          const unitTitle = unit.optionality || unit.unit_title;
-
-          acc[yearSlug].units.push({
-            unitSlug,
-            unitTitle,
-          });
-
-          return acc;
-        },
-        {} as Record<
-          string,
-          {
-            yearSlug: string;
-            yearTitle: string;
-            units: { unitSlug: string; unitTitle: string }[];
-          }
-        >,
-      );
+        const unit: GroupedUnit = {
+          unitSlug: row.unit_slug,
+          unitTitle,
+        };
+        if (exposeExamBoards && boardSlug) {
+          unit.examBoards = [{ title: boardTitle, slug: boardSlug }];
+        }
+        bucket.units.push(unit);
+        bucket._unitIndex.set(row.unit_slug, unit);
+      }
 
       // sort first by the year slug, then by the unit order
-      const sorted = [];
-
       // sort by year which appear as "year-3", "year-10"
       // though year-10 never appears with any years lower due to the fact
       // ks4 has year 10 + 11
@@ -122,10 +159,10 @@ export const getAllKeyStageAndSubjectUnits = router({
         const bYear = parseInt(b.split('-')[1], 10);
         return aYear - bYear;
       });
-      for (const key of keys) {
-        sorted.push(result[key]);
-      }
 
-      return sorted;
+      return keys.map((key) => {
+        const { yearSlug, yearTitle, units } = result[key];
+        return { yearSlug, yearTitle, units };
+      });
     }),
 });

@@ -27,6 +27,11 @@ if [[ $URL == "" ]]; then
   exit 1
 fi
 
+# Prepend "/" to URL if it doesn't start with one
+if [[ $URL != /* ]]; then
+  URL="/$URL"
+fi
+
 if [ -t 1 ]; then
   curl -s -L -X 'GET' "$ROOT$URL" -H 'accept: application/json' -H "Authorization: Bearer $API_KEY" -D /dev/stderr "$@"
 else

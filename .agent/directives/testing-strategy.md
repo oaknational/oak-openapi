@@ -25,7 +25,3 @@
 - If a test needs external services, document the setup in the test or a README.
 - Keep load tests separate from unit/integration tests.
 
-## Future tightening (planned)
-
-Stricter testing rules and TDD adoption are tracked in
-[`docs/engineering/enhancements.md`](../../docs/engineering/enhancements.md).
