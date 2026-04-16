@@ -1,8 +1,8 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import * as z from 'zod/v4';
-import type { ThreadWithUnits } from '@/lib/owaClient';
-import { getClient, gql } from '@/lib/owaClient';
+import type { ThreadView, ThreadWithUnits } from '@/lib/owaClient';
+import { getClient, gql, threadView } from '@/lib/owaClient';
 import { TRPCError } from '@trpc/server';
 import {
   allThreadsResponseOpenAPISchema,
@@ -31,25 +31,24 @@ export const getThreads = router({
 
       const query = gql`
         query {
-          threads(
-            where: {
-              _state: { _eq: "published" }
-              thread_units_aggregate: {
-                count: { arguments: [order], predicate: { _gt: 0 } }
-              }
-            }
-          ) {
+          ${threadView}(where: { units_count: { _gt: 0 } }) {
             title
             slug
+            units_count
           }
         }
       `;
 
-      const { threads } = await client.request<{ threads: ThreadWithUnits[] }>(
-        query,
-      );
+      const res = await client.request(query);
+      const threads = (res as ThreadView)[threadView];
 
-      return threads.sort((a, b) => a.title.localeCompare(b.title));
+      return threads
+        .sort((a, b) => a.title.localeCompare(b.title))
+        .map(({ title, slug, units_count }) => ({
+          title,
+          slug,
+          unitCount: units_count,
+        }));
     }),
   getThreadUnits: protectedProcedure
     .meta({
