@@ -10,4 +10,4 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Run Terraform Action from oak-terraform-actions
-        uses: oaknational/oak-terraform-actions/actions/terraform-checks@main
+        uses: oaknational/oak-terraform-actions/actions/terraform-checks@d61b1d03471eeae76166188994f41f3261c57f40 # v1.10.0
