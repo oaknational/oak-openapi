@@ -6,6 +6,7 @@ export const allThreadsResponseOpenAPISchema = z.array(threadSchema).meta({
     {
       title: 'Number: Multiplication and division',
       slug: 'number-multiplication-and-division',
+      unitCount: 78,
     },
   ],
 
