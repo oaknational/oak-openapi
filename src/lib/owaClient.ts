@@ -161,6 +161,10 @@ export interface UnitVariantLesson {
   optionality?: string;
   examboard_slug?: string | null; // via programme_fields(path:"examboard_slug")
   examboard_title?: string | null; // via programme_fields(path:"examboard")
+  pathway_slug?: string | null; // via programme_fields(path:"pathway_slug")
+  pathway_title?: string | null; // via programme_fields(path:"pathway")
+  tier_slug?: string | null; // via programme_fields(path:"tier_slug")
+  tier_title?: string | null; // via programme_fields(path:"tier")
   keywords?: { keyword: string; description: string }[];
   supplementary_data: {
     unit_order: number;
@@ -231,6 +235,7 @@ export interface Lesson {
   additionalMaterialUrl?: string;
   contentGuidance?: any;
   copyrightContent?: any;
+  downloadsAvailable?: boolean;
   examBoardSlug?: string;
   examBoardTitle?: string;
   exitQuiz?: Question[];

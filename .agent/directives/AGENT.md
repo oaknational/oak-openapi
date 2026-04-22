@@ -28,6 +28,9 @@ follow-up item in the plans.
   a Swagger playground, plus scripts and infrastructure for bulk exports.
 - **Package manager**: pnpm only (no npm/yarn).
 - **Repo does not use Turborepo**.
+- **GraphQL navigation**: Prefer resolvers whose names start with `published_`
+  when querying the curriculum GraphQL schema, unless there is a clear reason
+  to use a different resolver.
 
 ## Directives to read
 

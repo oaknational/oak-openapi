@@ -5,6 +5,7 @@ import type {
   UnitWithOptions,
   YearSequence,
 } from '@/lib/handlers/sequences/types';
+import { unitSummaryRequestSchema } from '@/lib/handlers/units/schemas/unitSummaryRequest.schema';
 
 test('get cycle 2 (2024-2025) unit', async () => {
   const caller = makeCaller({
@@ -97,6 +98,78 @@ test('threads are present', async () => {
   });
 
   expect(res.threads?.length).toBeGreaterThan(0);
+});
+
+test('unit summary request validates programme-factor filters', () => {
+  expect(() =>
+    unitSummaryRequestSchema.parse({
+      unit: 'programming-subroutines',
+      examBoard: 'aqa',
+      pathway: 'gcse',
+      tier: 'foundation',
+    }),
+  ).not.toThrow();
+
+  expect(() =>
+    unitSummaryRequestSchema.parse({
+      unit: 'programming-subroutines',
+      examBoard: 'not-a-board',
+    }),
+  ).toThrow();
+});
+
+test('ambiguous unit exposes additional programme factors', async () => {
+  const caller = makeCaller({
+    user: 1,
+  });
+
+  const res = await caller.getUnits.getUnit({
+    unit: 'programming-subroutines',
+  });
+
+  expect(res.unitSlug).toBe('programming-subroutines');
+  expect(
+    res.additionalProgrammeFactors?.examBoards?.map((_) => _.slug).sort(),
+  ).toStrictEqual(['aqa', 'ocr']);
+});
+
+test('programme-factor filters disambiguate unit summary variants', async () => {
+  const caller = makeCaller({
+    user: 1,
+  });
+
+  const aqa = await caller.getUnits.getUnit({
+    unit: 'programming-subroutines',
+    examBoard: 'aqa',
+    pathway: 'gcse',
+  });
+  const ocr = await caller.getUnits.getUnit({
+    unit: 'programming-subroutines',
+    examBoard: 'ocr',
+    pathway: 'gcse',
+  });
+  const foundation = await caller.getUnits.getUnit({
+    unit: 'biomass-transfer-food-security-and-biodiversity',
+    examBoard: 'aqa',
+    tier: 'foundation',
+  });
+  const higher = await caller.getUnits.getUnit({
+    unit: 'biomass-transfer-food-security-and-biodiversity',
+    examBoard: 'aqa',
+    tier: 'higher',
+  });
+
+  expect(aqa.unitSlug).toBe('programming-subroutines');
+  expect(ocr.unitSlug).toBe('programming-subroutines');
+  expect(aqa.unitLessons.map((l) => l.lessonSlug)).not.toStrictEqual(
+    ocr.unitLessons.map((l) => l.lessonSlug),
+  );
+  expect(foundation.unitSlug).toBe(
+    'biomass-transfer-food-security-and-biodiversity',
+  );
+  expect(higher.unitSlug).toBe(
+    'biomass-transfer-food-security-and-biodiversity',
+  );
 });
 
 /** notes

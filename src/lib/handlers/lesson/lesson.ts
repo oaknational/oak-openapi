@@ -2,8 +2,18 @@ import groupBy from 'object.groupby';
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import { TRPCError } from '@trpc/server';
-import { getClient, gql, lessonSearchView, lessonView } from 'lib/owaClient';
-import type { LessonSearchView, LessonView } from 'lib/owaClient';
+import {
+  getClient,
+  gql,
+  lessonSearchView,
+  lessonView,
+  unitVariantLessonsView,
+} from 'lib/owaClient';
+import type {
+  LessonSearchView,
+  LessonView,
+  UnitVariantLessonsView,
+} from 'lib/owaClient';
 import type * as z from 'zod/v4';
 import { errorResponses } from '@/lib/errorResponses';
 
@@ -22,9 +32,11 @@ import {
   lessonSummaryResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/lesson';
 import {
+  createProgrammeSlug,
   getCanonicalUrlForLesson,
   getOakUrlForLesson,
 } from '@/lib/canonicalUrls';
+import type { ProgrammeFactors } from '@/lib/handlers/programmeFactors';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 groupBy.shim();
@@ -105,6 +117,10 @@ export const getLessons = router({
             downloadsAvailable: hasDownloadableResources
             supervisionLevel
             programmeSlug
+            examBoardSlug
+            examBoardTitle
+            tierSlug
+            tierTitle
           }
         }
       `;
@@ -125,17 +141,282 @@ export const getLessons = router({
       }
 
       try {
-        const programmeSlug = data[0].programmeSlug;
-        const lesson = data[0] as z.infer<
-          typeof lessonSummaryResponseOpenAPISchema
-        >;
+        const variantQuery = gql`
+          query ($slug: String!) @cached(ttl: 300) {
+            ${unitVariantLessonsView}(
+              where: { lesson_slug: { _eq: $slug }, is_legacy: { _eq: false } }
+            ) {
+              lesson_slug
+              unit_slug
+              unit_title: unit_data(path: "title")
+              examboard_slug: programme_fields(path: "examboard_slug")
+              examboard_title: programme_fields(path: "examboard")
+              pathway_slug: programme_fields(path: "pathway_slug")
+              pathway_title: programme_fields(path: "pathway")
+              tier_slug: programme_fields(path: "tier_slug")
+              tier_title: programme_fields(path: "tier")
+            }
+          }
+        `;
 
-        lesson.canonicalUrl = getCanonicalUrlForLesson(
-          slug,
-          lesson.unitSlug,
-          programmeSlug,
+        const variantRes: UnitVariantLessonsView = await client.request(
+          variantQuery,
+          {
+            slug,
+          },
         );
-        lesson.oakUrl = getOakUrlForLesson(slug);
+
+        const lessonRecord = data
+          .toSorted((a, b) => {
+            const aKey = [
+              a.unitSlug || '',
+              a.programmeSlug || '',
+              a.examBoardSlug || '',
+              a.tierSlug || '',
+            ].join('|');
+            const bKey = [
+              b.unitSlug || '',
+              b.programmeSlug || '',
+              b.examBoardSlug || '',
+              b.tierSlug || '',
+            ].join('|');
+
+            return aKey.localeCompare(bKey);
+          })
+          .at(0);
+
+        if (!lessonRecord) {
+          throw new Error('Lesson not found');
+        }
+
+        if (
+          !lessonRecord.lessonTitle ||
+          !lessonRecord.subjectSlug ||
+          !lessonRecord.subjectTitle ||
+          !lessonRecord.keyStageSlug ||
+          !lessonRecord.keyStageTitle
+        ) {
+          throw new Error('Lesson is missing required summary metadata');
+        }
+
+        const lessonTitle = lessonRecord.lessonTitle;
+        const subjectSlug = lessonRecord.subjectSlug;
+        const subjectTitle = lessonRecord.subjectTitle;
+        const keyStageSlug = lessonRecord.keyStageSlug;
+        const keyStageTitle = lessonRecord.keyStageTitle;
+
+        // A unit variant slug looks like "foo-630" and belongs to a "unit
+        // options group" parent "foo".  The parent slug is an umbrella that
+        // doesn't have its own programme page, so if a variant exists for a
+        // given lesson we drop the parent row to avoid emitting a canonical
+        // URL that 404s.
+        const allVariants = variantRes[unitVariantLessonsView];
+        const parentSlugsWithVariant = new Set(
+          allVariants
+            .map((v) => v.unit_slug.match(/^(.*)-\d+$/)?.[1])
+            .filter((parent): parent is string => Boolean(parent)),
+        );
+        const variants = allVariants.filter(
+          (v) => !parentSlugsWithVariant.has(v.unit_slug),
+        );
+
+        const dedupedUnits = new Map<
+          string,
+          z.infer<typeof lessonSummaryResponseOpenAPISchema>['units'][number]
+        >();
+
+        for (const variant of variants) {
+          const key = [
+            variant.unit_slug,
+            variant.unit_title,
+            variant.examboard_slug ?? '',
+            variant.pathway_slug ?? '',
+            variant.tier_slug ?? '',
+          ].join('|');
+
+          if (dedupedUnits.has(key)) {
+            continue;
+          }
+
+          const programmeFactors = {
+            examBoard:
+              variant.examboard_slug && variant.examboard_title
+                ? {
+                    slug: variant.examboard_slug,
+                    title: variant.examboard_title,
+                  }
+                : undefined,
+            pathway:
+              variant.pathway_slug && variant.pathway_title
+                ? {
+                    slug: variant.pathway_slug,
+                    title: variant.pathway_title,
+                  }
+                : undefined,
+            tier:
+              variant.tier_slug && variant.tier_title
+                ? {
+                    slug: variant.tier_slug,
+                    title: variant.tier_title,
+                  }
+                : undefined,
+          } satisfies ProgrammeFactors;
+
+          const hasProgrammeFactors =
+            Object.values(programmeFactors).some(Boolean);
+          const programmeSlug = createProgrammeSlug(
+            lessonRecord.subjectSlug || '',
+            lessonRecord.keyStageSlug || '',
+            variant.examboard_slug,
+            variant.tier_slug,
+            variant.pathway_slug,
+          );
+
+          dedupedUnits.set(key, {
+            unitSlug: variant.unit_slug,
+            unitTitle: variant.unit_title,
+            canonicalUrl: getCanonicalUrlForLesson(
+              slug,
+              variant.unit_slug,
+              programmeSlug,
+            ),
+            programmeFactors: hasProgrammeFactors
+              ? programmeFactors
+              : undefined,
+          });
+        }
+
+        // The variant query is the authoritative source for unit–lesson
+        // relationships with full programme-factor data.  The lessonView rows
+        // lack pathway fields, so we only fall back to them for units that
+        // the variant query didn't already cover for the same
+        // unitSlug + examBoard + tier combination.
+        const coveredVariantKeys = new Set(
+          Array.from(dedupedUnits.values()).map(
+            (u) =>
+              `${u.unitSlug}|${u.programmeFactors?.examBoard?.slug ?? ''}|${u.programmeFactors?.tier?.slug ?? ''}`,
+          ),
+        );
+
+        for (const row of data) {
+          if (!row.unitSlug || !row.unitTitle) {
+            continue;
+          }
+
+          if (parentSlugsWithVariant.has(row.unitSlug)) {
+            continue;
+          }
+
+          const variantKey = `${row.unitSlug}|${row.examBoardSlug ?? ''}|${row.tierSlug ?? ''}`;
+          if (coveredVariantKeys.has(variantKey)) {
+            continue;
+          }
+
+          const programmeSlug =
+            row.programmeSlug ||
+            createProgrammeSlug(
+              row.subjectSlug || '',
+              row.keyStageSlug || '',
+              row.examBoardSlug,
+              row.tierSlug,
+            );
+          const key = [
+            row.unitSlug,
+            row.unitTitle,
+            row.examBoardSlug ?? '',
+            row.tierSlug ?? '',
+          ].join('|');
+
+          if (dedupedUnits.has(key)) {
+            continue;
+          }
+
+          const programmeFactors = {
+            examBoard:
+              row.examBoardSlug && row.examBoardTitle
+                ? {
+                    slug: row.examBoardSlug,
+                    title: row.examBoardTitle,
+                  }
+                : undefined,
+            tier:
+              row.tierSlug && row.tierTitle
+                ? {
+                    slug: row.tierSlug,
+                    title: row.tierTitle,
+                  }
+                : undefined,
+          } satisfies ProgrammeFactors;
+          const hasProgrammeFactors =
+            Object.values(programmeFactors).some(Boolean);
+
+          dedupedUnits.set(key, {
+            unitSlug: row.unitSlug,
+            unitTitle: row.unitTitle,
+            canonicalUrl: getCanonicalUrlForLesson(
+              slug,
+              row.unitSlug,
+              programmeSlug,
+            ),
+            programmeFactors: hasProgrammeFactors
+              ? programmeFactors
+              : undefined,
+          });
+
+          coveredVariantKeys.add(variantKey);
+        }
+
+        const lessonKeywords =
+          lessonSummaryResponseOpenAPISchema.shape.lessonKeywords.parse(
+            lessonRecord.lessonKeywords ?? [],
+          );
+        const keyLearningPoints =
+          lessonSummaryResponseOpenAPISchema.shape.keyLearningPoints.parse(
+            lessonRecord.keyLearningPoints ?? [],
+          );
+        const misconceptionsAndCommonMistakes =
+          lessonSummaryResponseOpenAPISchema.shape.misconceptionsAndCommonMistakes.parse(
+            lessonRecord.misconceptionsAndCommonMistakes ?? [],
+          );
+        const teacherTips =
+          lessonSummaryResponseOpenAPISchema.shape.teacherTips.parse(
+            lessonRecord.teacherTips ?? [],
+          );
+        const contentGuidance =
+          lessonSummaryResponseOpenAPISchema.shape.contentGuidance.parse(
+            lessonRecord.contentGuidance ?? null,
+          );
+
+        const lesson: z.infer<typeof lessonSummaryResponseOpenAPISchema> = {
+          lessonTitle,
+          oakUrl: getOakUrlForLesson(slug),
+          units: Array.from(dedupedUnits.values()).toSorted((a, b) => {
+            return (
+              a.unitSlug.localeCompare(b.unitSlug) ||
+              (a.programmeFactors?.examBoard?.slug || '').localeCompare(
+                b.programmeFactors?.examBoard?.slug || '',
+              ) ||
+              (a.programmeFactors?.pathway?.slug || '').localeCompare(
+                b.programmeFactors?.pathway?.slug || '',
+              ) ||
+              (a.programmeFactors?.tier?.slug || '').localeCompare(
+                b.programmeFactors?.tier?.slug || '',
+              )
+            );
+          }),
+          subjectSlug,
+          subjectTitle,
+          keyStageSlug,
+          keyStageTitle,
+          lessonKeywords,
+          keyLearningPoints,
+          misconceptionsAndCommonMistakes,
+          pupilLessonOutcome: lessonRecord.pupilLessonOutcome,
+          teacherTips,
+          contentGuidance,
+          downloadsAvailable: lessonRecord.downloadsAvailable ?? false,
+          supervisionLevel: lessonRecord.supervisionLevel ?? null,
+        };
 
         // we need to loop through the lessons and change the downloadsAvailable
         // to check against the blockedLessons list. Ideally this would come from
@@ -155,10 +436,11 @@ export const getLessons = router({
         lessonSummaryResponseOpenAPISchema.parse(lesson);
 
         return lesson;
-      } catch {
+      } catch (error) {
         throw new TRPCError({
           message: 'Internal server error',
           code: 'INTERNAL_SERVER_ERROR',
+          cause: error,
         });
       }
     }),

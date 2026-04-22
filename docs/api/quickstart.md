@@ -19,9 +19,20 @@ curl -H "Authorization: Bearer $API_KEY" \
 
 Lesson summary (lesson slug)
 - Replace `{lesson}` with a lesson slug.
+- Lesson summary now returns `units[]`, where each unit entry has its own
+  `canonicalUrl` and optional programme-factor metadata.
 ```sh
 curl -H "Authorization: Bearer $API_KEY" \
   http://localhost:2727/api/v0/lessons/{lesson}/summary
+```
+
+Unit summary (unit slug)
+- Replace `{unit}` with a unit slug.
+- Use optional `examBoard`, `pathway`, and `tier` query params when a unit slug
+  exists in more than one programme variant.
+```sh
+curl -H "Authorization: Bearer $API_KEY" \
+  "http://localhost:2727/api/v0/units/{unit}/summary?examBoard=aqa&pathway=gcse"
 ```
 
 Bulk download request (POST)

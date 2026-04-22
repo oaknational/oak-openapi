@@ -11,7 +11,14 @@ import {
 import { errorResponses } from '@/lib/errorResponses';
 import { blockUnitForCopyrightText } from '../../queryGate';
 
-import { doesUnitExist, formatUnitSummary, testIfUnitVariant } from './helpers';
+import {
+  doesUnitExist,
+  filterSequencesByProgrammeFactors,
+  formatUnitSummary,
+  getAdditionalProgrammeFactors,
+  sortSequencesByProgrammeSpecificity,
+  testIfUnitVariant,
+} from './helpers';
 import {
   unitSummaryRequestOpenAPISchema,
   unitSummaryResponseOpenAPISchema,
@@ -35,6 +42,7 @@ export const getUnits = router({
     .query(async ({ input }) => {
       let { unit: slug } = input;
       const client = getClient();
+      const { examBoard, pathway, tier } = input;
 
       const isUnitVariant = testIfUnitVariant(slug);
       const originalSlug = slug;
@@ -74,7 +82,11 @@ export const getUnits = router({
       }
 
       // Ensure that non-curriculum units don't come through
-      const where = { slug: { _eq: slug }, non_curriculum: { _eq: false } };
+      const where = {
+        slug: { _eq: slug },
+        non_curriculum: { _eq: false },
+        state: { _eq: 'published' },
+      };
 
       const query = gql`
         query getUnit($where: ${sequenceViewWhereInput}) @cached(ttl: 300) {
@@ -84,8 +96,15 @@ export const getUnits = router({
             description
             keystage_slug
             lessons
+            notes
             phase_slug
+            pathway
+            pathway_slug
             subject_slug
+            subject
+            subject_parent
+            tier
+            tier_slug
             unit_options
             why_this_why_now
             threads
@@ -105,7 +124,23 @@ export const getUnits = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
       }
 
-      const sequenceData = res[sequenceView][0];
+      const additionalProgrammeFactors = getAdditionalProgrammeFactors(
+        res[sequenceView],
+      );
+      const matchingSequences = filterSequencesByProgrammeFactors(
+        res[sequenceView],
+        {
+          examBoard,
+          pathway,
+          tier,
+        },
+      ).sort(sortSequencesByProgrammeSpecificity);
+
+      if (matchingSequences.length === 0) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
+      }
+
+      const sequenceData = structuredClone(matchingSequences[0]);
 
       if (isUnitVariant) {
         // move the unit variant data into the root
@@ -125,6 +160,10 @@ export const getUnits = router({
         }
       }
 
-      return formatUnitSummary(originalSlug, sequenceData);
+      return formatUnitSummary(
+        originalSlug,
+        sequenceData,
+        additionalProgrammeFactors,
+      );
     }),
 });

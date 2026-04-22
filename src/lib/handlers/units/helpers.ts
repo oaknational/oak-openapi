@@ -2,6 +2,11 @@ import { gql } from 'graphql-request';
 import type { GraphQLClient } from 'graphql-request';
 import { SequenceView, sequenceView, type Sequence } from '@/lib/owaClient';
 import type { Category, Metadata, Thread, UnitSchema } from './types';
+import type {
+  AdditionalProgrammeFactors,
+  ProgrammeFactorOption,
+  ProgrammeFactors,
+} from '@/lib/handlers/programmeFactors';
 
 export function testIfUnitVariant(slug: string): boolean {
   return /-\d+$/.test(slug);
@@ -32,11 +37,37 @@ export interface RootUnitData {
   priorKnowledgeRequirements: string[];
   nationalCurriculumContent: string[];
   categories: Category[] | undefined;
+  programmeFactors?: ProgrammeFactors;
+  additionalProgrammeFactors?: AdditionalProgrammeFactors;
+}
+
+// Extracts the programme-factor values (examBoard/pathway/tier) that identify
+// which variant of the sequence this is. Returns undefined when none apply.
+function getProgrammeFactorsFromSequence(
+  sequence: Sequence,
+): ProgrammeFactors | undefined {
+  const factors: ProgrammeFactors = {
+    examBoard:
+      sequence.examboard_slug && sequence.examboard
+        ? { slug: sequence.examboard_slug, title: sequence.examboard }
+        : undefined,
+    pathway:
+      sequence.pathway_slug && sequence.pathway
+        ? { slug: sequence.pathway_slug, title: sequence.pathway }
+        : undefined,
+    tier:
+      sequence.tier_slug && sequence.tier
+        ? { slug: sequence.tier_slug, title: sequence.tier }
+        : undefined,
+  };
+
+  return Object.values(factors).some(Boolean) ? factors : undefined;
 }
 
 export function formatUnitSummary(
   slug: string,
   sequenceData: Sequence,
+  additionalProgrammeFactors?: AdditionalProgrammeFactors,
 ): UnitSchema {
   const isUnitVariant = testIfUnitVariant(slug);
 
@@ -97,6 +128,8 @@ export function formatUnitSummary(
         ),
       ),
     ),
+    programmeFactors: getProgrammeFactorsFromSequence(sequenceData),
+    additionalProgrammeFactors,
   };
 
   // TS: allow me to declare it empty first
@@ -178,5 +211,131 @@ export function formatUnitSummary(
     unitSlug: slug,
     ...root,
     ...metadata,
+  };
+}
+
+// localeCompare helper that treats null/undefined as "less than" any string,
+// so sequences missing a programme factor sort before those that have one.
+function compareNullableStrings(
+  a: string | null | undefined,
+  b: string | null | undefined,
+): number {
+  if (!a && !b) {
+    return 0;
+  }
+
+  if (!a) {
+    return -1;
+  }
+
+  if (!b) {
+    return 1;
+  }
+
+  return a.localeCompare(b);
+}
+
+// Deterministic sort for sequences sharing a unit slug: orders by examBoard,
+// then pathway, then tier, then slug — giving the caller a stable pick order
+// when multiple programme variants match.
+export function sortSequencesByProgrammeSpecificity(
+  a: Sequence,
+  b: Sequence,
+): number {
+  return (
+    compareNullableStrings(a.examboard_slug, b.examboard_slug) ||
+    compareNullableStrings(a.pathway_slug, b.pathway_slug) ||
+    compareNullableStrings(a.tier_slug, b.tier_slug) ||
+    a.slug.localeCompare(b.slug)
+  );
+}
+
+// Narrows a list of sequences to those matching the supplied programme-factor
+// filters. Used to disambiguate when a single unit slug has multiple variants.
+export function filterSequencesByProgrammeFactors(
+  sequences: Sequence[],
+  filters: {
+    examBoard?: string;
+    pathway?: string;
+    tier?: string;
+  },
+): Sequence[] {
+  return sequences.filter((sequence) => {
+    if (filters.examBoard && sequence.examboard_slug !== filters.examBoard) {
+      return false;
+    }
+
+    if (filters.pathway && sequence.pathway_slug !== filters.pathway) {
+      return false;
+    }
+
+    if (filters.tier && sequence.tier_slug !== filters.tier) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+// Collects the distinct slug/title pairs for a single programme factor across
+// the given sequences. Returns undefined unless there are 2+ options — a
+// single option isn't a meaningful choice, so we don't advertise it.
+function collectProgrammeFactorOptions(
+  sequences: Sequence[],
+  factor: {
+    slug: keyof Pick<Sequence, 'examboard_slug' | 'pathway_slug' | 'tier_slug'>;
+    title: keyof Pick<Sequence, 'examboard' | 'pathway' | 'tier'>;
+  },
+): ProgrammeFactorOption[] | undefined {
+  const distinct = new Map<string, ProgrammeFactorOption>();
+
+  for (const sequence of sequences) {
+    const slug = sequence[factor.slug];
+    const title = sequence[factor.title];
+
+    if (!slug || !title || distinct.has(slug)) {
+      continue;
+    }
+
+    distinct.set(slug, {
+      slug,
+      title,
+    });
+  }
+
+  const values = Array.from(distinct.values()).sort((a, b) =>
+    a.slug.localeCompare(b.slug),
+  );
+
+  return values.length > 1 ? values : undefined;
+}
+
+// Surfaces the programme-factor choices a caller could switch between for a
+// unit slug (e.g. other exam boards, tiers). Returned alongside the picked
+// variant so clients can offer navigation to siblings.
+export function getAdditionalProgrammeFactors(
+  sequences: Sequence[],
+): AdditionalProgrammeFactors | undefined {
+  const examBoards = collectProgrammeFactorOptions(sequences, {
+    slug: 'examboard_slug',
+    title: 'examboard',
+  });
+  const pathways = collectProgrammeFactorOptions(sequences, {
+    slug: 'pathway_slug',
+    title: 'pathway',
+  });
+  const tiers = collectProgrammeFactorOptions(sequences, {
+    slug: 'tier_slug',
+    title: 'tier',
+  });
+
+  if (!examBoards && !pathways && !tiers) {
+    return undefined;
+  }
+
+  return {
+    examBoards,
+    pathways,
+    tiers,
   };
 }
