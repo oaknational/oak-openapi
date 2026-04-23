@@ -130,7 +130,12 @@ test('ambiguous unit exposes additional programme factors', async () => {
   expect(res.unitSlug).toBe('programming-subroutines');
   expect(
     res.additionalProgrammeFactors?.examBoards?.map((_) => _.slug).sort(),
-  ).toStrictEqual(['aqa', 'ocr']);
+  ).toStrictEqual(['ocr']);
+  expect(
+    res.additionalProgrammeFactors?.examBoards?.some(
+      (_) => _.slug === res.programmeFactors?.examBoard?.slug,
+    ),
+  ).toBe(false);
 });
 
 test('programme-factor filters disambiguate unit summary variants', async () => {

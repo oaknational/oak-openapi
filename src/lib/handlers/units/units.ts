@@ -124,9 +124,6 @@ export const getUnits = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
       }
 
-      const additionalProgrammeFactors = getAdditionalProgrammeFactors(
-        res[sequenceView],
-      );
       const matchingSequences = filterSequencesByProgrammeFactors(
         res[sequenceView],
         {
@@ -141,6 +138,10 @@ export const getUnits = router({
       }
 
       const sequenceData = structuredClone(matchingSequences[0]);
+      const additionalProgrammeFactors = getAdditionalProgrammeFactors(
+        res[sequenceView],
+        matchingSequences[0],
+      );
 
       if (isUnitVariant) {
         // move the unit variant data into the root

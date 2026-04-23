@@ -4,6 +4,7 @@ import {
   additionalProgrammeFactorsSchema,
   programmeFactorsSchema,
 } from '@/lib/handlers/programmeFactors';
+import { canonicalUrlSchema } from '@/lib/handlers/commonTypes';
 
 export const unitSummaryResponseOpenAPISchema = z
   .object({
@@ -14,6 +15,12 @@ export const unitSummaryResponseOpenAPISchema = z
     unitTitle: z.string().meta({
       description: 'The unit title',
       example: 'Simple, compound and adverbial complex sentences',
+    }),
+    canonicalUrl: canonicalUrlSchema.meta({
+      description:
+        'The canonical Oak National URL for the unit under the selected programme variant.',
+      example:
+        'https://www.thenational.academy/teachers/programmes/computing-secondary-ks4-gcse-aqa/units/programming-subroutines/lessons',
     }),
     yearSlug: z.string().meta({
       description: 'The slug identifier for the year to which the unit belongs',
@@ -160,6 +167,8 @@ export const unitSummaryResponseOpenAPISchema = z
     example: {
       unitSlug: 'programming-subroutines',
       unitTitle: 'Programming subroutines',
+      canonicalUrl:
+        'https://www.thenational.academy/teachers/programmes/computing-secondary-ks4-gcse-aqa/units/programming-subroutines/lessons',
       yearSlug: 'year-10',
       year: 10,
       phaseSlug: 'secondary',

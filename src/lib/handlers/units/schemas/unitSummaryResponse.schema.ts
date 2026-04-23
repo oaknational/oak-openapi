@@ -4,10 +4,14 @@ import {
   additionalProgrammeFactorsSchema,
   programmeFactorsSchema,
 } from '@/lib/handlers/programmeFactors';
+import { canonicalUrlSchema } from '@/lib/handlers/commonTypes';
 
 export const unitSummaryResponseSchema = z.object({
   unitSlug: z.string().describe('The unit slug identifier'),
   unitTitle: z.string().describe('The unit title'),
+  canonicalUrl: canonicalUrlSchema.describe(
+    'The canonical Oak National URL for the unit under the selected programme variant.',
+  ),
   yearSlug: z
     .string()
     .describe('The slug identifier for the year to which the unit belongs'),

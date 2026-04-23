@@ -7,6 +7,10 @@ import type {
   ProgrammeFactorOption,
   ProgrammeFactors,
 } from '@/lib/handlers/programmeFactors';
+import {
+  createProgrammeSlug,
+  getCanonicalUrlForUnit,
+} from '@/lib/canonicalUrls';
 
 export function testIfUnitVariant(slug: string): boolean {
   return /-\d+$/.test(slug);
@@ -111,10 +115,20 @@ export function formatUnitSummary(
     }));
   }
 
+  const programmeSlug = createProgrammeSlug(
+    sequenceData.subject_slug,
+    sequenceData.keystage_slug,
+    sequenceData.examboard_slug,
+    sequenceData.tier_slug,
+    sequenceData.pathway_slug,
+  );
+
   // we populate from the sequence view
   const root: RootUnitData = {
     unitTitle: sequenceData.title,
-    canonicalUrl: sequenceData.canonicalUrl || '',
+    canonicalUrl: programmeSlug
+      ? getCanonicalUrlForUnit(slug, programmeSlug)
+      : sequenceData.canonicalUrl || '',
     notes: sequenceData.notes,
     threads: sequenceData.threads,
     priorKnowledgeRequirements: Array.from(
@@ -278,14 +292,16 @@ export function filterSequencesByProgrammeFactors(
 }
 
 // Collects the distinct slug/title pairs for a single programme factor across
-// the given sequences. Returns undefined unless there are 2+ options — a
-// single option isn't a meaningful choice, so we don't advertise it.
+// the given sequences, excluding the slug of the currently-picked variant so
+// we only list alternatives the caller could switch to. Returns undefined
+// when no alternatives remain.
 function collectProgrammeFactorOptions(
   sequences: Sequence[],
   factor: {
     slug: keyof Pick<Sequence, 'examboard_slug' | 'pathway_slug' | 'tier_slug'>;
     title: keyof Pick<Sequence, 'examboard' | 'pathway' | 'tier'>;
   },
+  currentSlug?: string | null,
 ): ProgrammeFactorOption[] | undefined {
   const distinct = new Map<string, ProgrammeFactorOption>();
 
@@ -293,7 +309,7 @@ function collectProgrammeFactorOptions(
     const slug = sequence[factor.slug];
     const title = sequence[factor.title];
 
-    if (!slug || !title || distinct.has(slug)) {
+    if (!slug || !title || slug === currentSlug || distinct.has(slug)) {
       continue;
     }
 
@@ -307,27 +323,31 @@ function collectProgrammeFactorOptions(
     a.slug.localeCompare(b.slug),
   );
 
-  return values.length > 1 ? values : undefined;
+  return values.length > 0 ? values : undefined;
 }
 
-// Surfaces the programme-factor choices a caller could switch between for a
-// unit slug (e.g. other exam boards, tiers). Returned alongside the picked
-// variant so clients can offer navigation to siblings.
+// Surfaces the programme-factor choices a caller could switch to for a unit
+// slug (e.g. other exam boards, tiers). The current variant's own factors are
+// excluded so the list only contains alternatives.
 export function getAdditionalProgrammeFactors(
   sequences: Sequence[],
+  current?: Sequence,
 ): AdditionalProgrammeFactors | undefined {
-  const examBoards = collectProgrammeFactorOptions(sequences, {
-    slug: 'examboard_slug',
-    title: 'examboard',
-  });
-  const pathways = collectProgrammeFactorOptions(sequences, {
-    slug: 'pathway_slug',
-    title: 'pathway',
-  });
-  const tiers = collectProgrammeFactorOptions(sequences, {
-    slug: 'tier_slug',
-    title: 'tier',
-  });
+  const examBoards = collectProgrammeFactorOptions(
+    sequences,
+    { slug: 'examboard_slug', title: 'examboard' },
+    current?.examboard_slug,
+  );
+  const pathways = collectProgrammeFactorOptions(
+    sequences,
+    { slug: 'pathway_slug', title: 'pathway' },
+    current?.pathway_slug,
+  );
+  const tiers = collectProgrammeFactorOptions(
+    sequences,
+    { slug: 'tier_slug', title: 'tier' },
+    current?.tier_slug,
+  );
 
   if (!examBoards && !pathways && !tiers) {
     return undefined;
