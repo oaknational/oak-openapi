@@ -35,9 +35,15 @@ export const getSubjects = router({
         tags: ['lists'],
         method: 'GET',
         path: '/subjects',
-        summary: 'Subjects',
-        description:
-          'This endpoint returns an array of all available subjects and their associated sequences, key stages and years.',
+        summary: 'All subjects',
+        description: `Use this when you need a catalogue of every subject Oak currently offers, each with its sequences, key stages, and years in one call.
+
+Returns every subject ordered by Oak's display order, with 'subjectTitle', 'subjectSlug', 'sequenceSlugs', 'keyStages', and 'years'. This is the entry point for building a subject picker or crawling the whole curriculum.
+
+Do not use this for:
+- A single subject (use GET /subjects/{subject})
+- Just the sequence slugs, key stages, or years in isolation (use GET /subjects/{subject}/sequences, GET /subjects/{subject}/key-stages, or GET /subjects/{subject}/years)
+- Lessons or units inside a subject (use GET /key-stages/{keyStage}/subject/{subject}/lessons or GET /key-stages/{keyStage}/subject/{subject}/units)`,
         errorResponses,
       },
     })
@@ -97,11 +103,19 @@ export const getSubjects = router({
       openapi: {
         tags: ['lists'],
         method: 'GET',
-        summary: 'Subject',
+        summary: 'Single subject with sequences, key stages, and years',
         path: '/subjects/{subject}',
         errorResponses,
-        description:
-          'This endpoint returns the sequences, key stages and years that are currently available for a given subject.',
+        description: `Use this when you have a subject slug and want the same bundle that GET /subjects returns, but for one subject only.
+
+Returns 'subjectTitle', 'subjectSlug', 'sequenceSlugs', 'keyStages', and 'years' for the subject. Prefer this over GET /subjects when you already know which subject you are working with.
+
+Do not use this for:
+- Every subject in one call (use GET /subjects)
+- Just one of the fields in isolation (use GET /subjects/{subject}/sequences, GET /subjects/{subject}/key-stages, or GET /subjects/{subject}/years)
+- Subject-scoped lessons or units (use GET /key-stages/{keyStage}/subject/{subject}/lessons or GET /key-stages/{keyStage}/subject/{subject}/units)
+
+Example slug: 'subject=maths'`,
       },
     })
     .input(subjectRequestOpenAPISchema)
@@ -123,11 +137,18 @@ export const getSubjects = router({
       openapi: {
         tags: ['lists', 'sequences'],
         method: 'GET',
-        summary: 'Sequencing information for a given subject',
+        summary: 'Sequence slugs for a subject',
         path: '/subjects/{subject}/sequences',
         errorResponses,
-        description:
-          'This endpoint returns an array of sequence objects that are currently available for a given subject. For secondary sequences, this includes information about key stage 4 variance such as exam board sequences and non-GCSE ‘core’ unit sequences.',
+        description: `Use this when you only need the sequence slugs for a subject — for example, to drive a sequence picker or pass the slug into GET /sequences/{sequence}/units.
+
+Returns sequence slugs for the subject. For secondary subjects this includes KS4 variants such as exam board sequences (AQA, Edexcel, OCR) and non-GCSE 'core' unit sequences.
+
+Do not use this for:
+- The full subject bundle (use GET /subjects/{subject})
+- Units inside a sequence (use GET /sequences/{sequence}/units)
+
+Example slug: 'subject=science'`,
       },
     })
     .input(subjectSequenceRequestOpenAPISchema)
@@ -140,11 +161,18 @@ export const getSubjects = router({
       openapi: {
         tags: ['lists'],
         method: 'GET',
-        summary: 'Key stages within a subject',
+        summary: 'Key stages for a subject',
         path: '/subjects/{subject}/key-stages',
         errorResponses,
-        description:
-          'This endpoint returns a list of key stages that are currently available for a given subject.',
+        description: `Use this when you only need the key stages in which a subject is currently taught.
+
+Returns key stages (titles and slugs) available for the subject. Smaller payload than GET /subjects/{subject}.
+
+Do not use this for:
+- Every key stage across Oak (use GET /key-stages)
+- The full subject bundle including sequences and years (use GET /subjects/{subject})
+
+Example slug: 'subject=history'`,
       },
     })
     .input(subjectKeyStagesRequestOpenAPISchema)
@@ -157,11 +185,18 @@ export const getSubjects = router({
       openapi: {
         tags: ['lists'],
         method: 'GET',
-        summary: 'Year groups for a given subject',
+        summary: 'Year groups for a subject',
         path: '/subjects/{subject}/years',
         errorResponses,
-        description:
-          'This endpoint returns an array of years that are currently available for a given subject.',
+        description: `Use this when you only need the year groups in which a subject is currently taught.
+
+Returns an array of year numbers derived from the key stages available for the subject.
+
+Do not use this for:
+- The full subject bundle (use GET /subjects/{subject})
+- Key stages rather than years (use GET /subjects/{subject}/key-stages)
+
+Example slug: 'subject=english'`,
       },
     })
     // TODO: put these examples in their own file

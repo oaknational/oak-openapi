@@ -13,8 +13,13 @@ export const changelog = router({
         path: '/changelog',
         tags: ['internal'],
         errorResponses,
-        description:
-          'History of significant changes to the API with associated dates and versions',
+        summary: 'API changelog',
+        description: `Use this when you need the full history of significant changes to the API — for example, to surface release notes in a client or to verify which version introduced a field.
+
+Returns every entry in the changelog with its version and date.
+
+Do not use this for:
+- Just the latest version (use GET /changelog/latest)`,
       },
     })
     .output(
@@ -32,8 +37,13 @@ export const changelog = router({
         method: 'GET',
         path: '/changelog/latest',
         errorResponses,
-        description:
-          'Get the latest version and latest change note for the API',
+        summary: 'Latest API version',
+        description: `Use this when you only need the current API version and its release note — for example, to show a "You're on vX.Y.Z" banner or to check whether a deployment has rolled out.
+
+Returns the most recent changelog entry.
+
+Do not use this for:
+- The full version history (use GET /changelog)`,
         tags: ['internal'],
       },
     })

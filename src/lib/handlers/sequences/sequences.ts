@@ -127,10 +127,18 @@ export const getSequences = router({
       openapi: {
         tags: ['units', 'sequences', 'unit-and-curriculum-data'],
         method: 'GET',
-        summary: 'Units within a sequence',
+        summary: 'Units in a curriculum sequence',
         path: '/sequences/{sequence}/units',
-        description:
-          'This endpoint returns high-level information for all of the units in a sequence. Units are returned in the intended sequence order and are grouped by year.',
+        description: `Use this when you want units in the order and shape Oak teaches them — including tiers, exam boards, pathways, and exam subjects at KS4.
+
+Returns units grouped by year in sequence order. Secondary sequences expose tiers and exam subjects where applicable; sequences not pinned to an exam board list the boards each unit appears in. Pass 'year' to restrict to a single year (or 'all-years').
+
+Do not use this for:
+- A flat subject and key-stage list of units without curriculum shape (use GET /key-stages/{keyStage}/subject/{subject}/units)
+- A single unit's detail (use GET /units/{unit}/summary)
+- Units in a thematic thread (use GET /threads/{threadSlug}/units)
+
+Example slugs: 'sequence=science-secondary-aqa', 'sequence=maths-primary'`,
         errorResponses,
       },
     })

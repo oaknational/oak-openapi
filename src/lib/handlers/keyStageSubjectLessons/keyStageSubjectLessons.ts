@@ -17,9 +17,17 @@ export const getKeyStageSubjectLessons = router({
         method: 'GET',
         tags: ['lists', 'lessons'],
         path: '/key-stages/{keyStage}/subject/{subject}/lessons',
-        summary: 'Lessons',
-        description:
-          'This endpoint returns an array of available published lessons for a given subject and key stage, grouped by unit.',
+        summary: 'List lessons in a key stage and subject',
+        description: `Use this when you need to browse or enumerate every published lesson available for a key stage and subject, grouped by the unit it belongs to.
+
+Returns lessons as an array of units, each with its slug, title, and the lessons inside it. Pass 'unit' to restrict to a single unit. Pagination is supported via 'offset' and 'limit'; a 'Link: <...>; rel="next"' header is returned when more pages are available.
+
+Do not use this for:
+- Ranked free-text search (use GET /search/lessons)
+- Full metadata for a single known lesson (use GET /lessons/{lesson}/summary)
+- The canonical unit-by-unit curriculum shape with tiers and exam boards (use GET /sequences/{sequence}/units)
+
+Example slugs: 'keyStage=ks3', 'subject=maths', optional 'unit=perimeter-and-area'`,
         errorResponses,
       },
     })

@@ -17,11 +17,15 @@ export const getThreads = router({
       openapi: {
         tags: ['lists'],
         method: 'GET',
-        summary: 'Threads',
+        summary: 'All threads',
         path: '/threads',
         errorResponses,
-        description:
-          'This endpoint returns an array of all threads, across all subjects. Threads signpost groups of units that link to one another, building a common body of knowledge over time. They are an important component of how Oak’s curricula are sequenced.',
+        description: `Use this when you want the catalogue of every thematic thread across Oak's curricula. Threads signpost groups of units that build a common body of knowledge over time and are a key part of how sequences are constructed.
+
+Returns all threads with published units, sorted alphabetically by title, each with 'title', 'slug', and 'unitCount'.
+
+Do not use this for:
+- The units inside a specific thread (use GET /threads/{threadSlug}/units)`,
       },
     })
     .output(allThreadsResponseOpenAPISchema)
@@ -56,9 +60,17 @@ export const getThreads = router({
         tags: ['lists'],
         method: 'GET',
         path: '/threads/{threadSlug}/units',
-        summary: 'Units belonging to a given thread',
-        description:
-          'This endpoint returns all of the units that belong to a given thread.',
+        summary: 'Units in a thread',
+        description: `Use this when you want every unit that belongs to a thematic thread — a cross-subject or longitudinal strand such as "number and place value" or "scientific method".
+
+Returns units in thread order, each with 'unitTitle', 'unitSlug', and 'unitOrder'. Threads link units that build a common body of knowledge over time.
+
+Do not use this for:
+- The catalogue of threads themselves (use GET /threads)
+- Units in a curriculum sequence rather than a thread (use GET /sequences/{sequence}/units)
+- A single unit's detail (use GET /units/{unit}/summary)
+
+Example slug: 'threadSlug=number-and-place-value'`,
         errorResponses,
       },
     })

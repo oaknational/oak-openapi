@@ -24,9 +24,16 @@ export const getUnits = router({
         method: 'GET',
         tags: ['units', 'unit-and-curriculum-data'],
         path: '/units/{unit}/summary',
-        summary: 'Unit summary',
-        description:
-          'This endpoint returns unit information for a given unit, including slug, title, number of lessons, prior knowledge requirements, national curriculum statements, prior unit details, future unit descriptions, and lesson titles that form the unit',
+        summary: 'Unit summary by slug',
+        description: `Use this when you have a unit slug and need the curriculum-level detail for that unit: title, description, key stage, subject, year, threads, prior knowledge requirements, national curriculum statements, and the list of lessons inside.
+
+Returns the full unit record. Unit-variant slugs (ending in '-1', '-2', etc.) resolve to the specific variant's content.
+
+Do not use this for:
+- Listing every unit in a key stage and subject (use GET /key-stages/{keyStage}/subject/{subject}/units)
+- Units as they appear in a curriculum sequence, with tiers and exam boards (use GET /sequences/{sequence}/units)
+- Units inside a thread (use GET /threads/{threadSlug}/units)
+- Lessons inside the unit (use GET /key-stages/{keyStage}/subject/{subject}/lessons with 'unit=<slug>')`,
         errorResponses,
       },
     })
