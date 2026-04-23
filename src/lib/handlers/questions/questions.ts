@@ -40,10 +40,16 @@ export const getQuestions = router({
         method: 'GET',
         tags: ['lessons', 'questions', 'quiz-questions'],
         path: '/lessons/{lesson}/quiz',
-        summary: 'Quiz questions by lesson',
+        summary: 'Quiz questions for a lesson',
         errorResponses,
-        description:
-          'The endpoint returns the quiz questions and answers for a given lesson. The answers data indicates which answers are correct, and which are distractors.',
+        description: `Use this when you have a lesson slug and need its starter quiz and exit quiz questions with correct answers marked.
+
+Returns two arrays, 'starterQuiz' and 'exitQuiz'. Each question includes its stem, the answer options, and flags indicating which options are correct and which are distractors.
+
+Do not use this for:
+- Quiz questions across a whole sequence (use GET /sequences/{sequence}/questions)
+- Quiz questions across a key stage and subject (use GET /key-stages/{keyStage}/subject/{subject}/questions)
+- The lesson's metadata or downloadable assets (use GET /lessons/{lesson}/summary or GET /lessons/{lesson}/assets)`,
       },
     })
     .input(questionForLessonsRequestOpenAPISchema)
@@ -128,8 +134,14 @@ export const getQuestions = router({
         method: 'GET',
         tags: ['questions', 'sequences', 'unit-and-curriculum-data'],
         path: '/sequences/{sequence}/questions',
-        summary: 'Questions within a sequence',
-        description: `This endpoint returns all quiz questions for a given sequence. The assets are separated into starter quiz and entry quiz arrays, grouped by lesson.`,
+        summary: 'Quiz questions across a sequence',
+        description: `Use this when you want every quiz question for a whole curriculum sequence — for example, to build a bank of revision questions spanning a subject and year.
+
+Returns lessons in sequence order, each with its starter quiz and exit quiz questions and answers. Supports 'year', 'offset', and 'limit'; a 'Link: <...>; rel="next"' header is returned when more pages are available.
+
+Do not use this for:
+- A single lesson's quiz (use GET /lessons/{lesson}/quiz)
+- A key-stage and subject grouping rather than a sequence (use GET /key-stages/{keyStage}/subject/{subject}/questions)`,
         errorResponses,
       },
     })
@@ -268,10 +280,15 @@ export const getQuestions = router({
         tags: ['questions', 'quiz-questions'],
         method: 'GET',
         path: '/key-stages/{keyStage}/subject/{subject}/questions',
-        summary: 'Quiz questions by subject and key stage',
+        summary: 'Quiz questions by key stage and subject',
         errorResponses,
-        description:
-          'This endpoint returns quiz questions and answers for each lesson within a requested subject and key stage.',
+        description: `Use this when you want every quiz question for a key stage and subject, without regard to sequence or year ordering.
+
+Returns lessons each with their starter quiz and exit quiz questions and answers. Supports 'offset' and 'limit'; a 'Link: <...>; rel="next"' header is returned when more pages are available.
+
+Do not use this for:
+- A single lesson's quiz (use GET /lessons/{lesson}/quiz)
+- A specific curriculum sequence with year ordering (use GET /sequences/{sequence}/questions)`,
       },
     })
     .input(questionsForKeyStageAndSubjectRequestOpenAPISchema)

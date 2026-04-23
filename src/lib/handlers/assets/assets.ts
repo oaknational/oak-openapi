@@ -251,9 +251,15 @@ export const getAssets = router({
         tags: ['assets', 'sequences', 'unit-and-curriculum-data'],
         path: '/sequences/{sequence}/assets',
         errorResponses,
-        summary: 'Assets within a sequence',
-        description: `This endpoint returns all assets for a given sequence, and the download endpoints for each. The assets are grouped by lesson.
-This endpoint contains licence information for any third-party content contained in the lesson’s downloadable resources. Third-party content is exempt from the open-government license, and users will need to consider whether their use is covered by the stated licence, or if they need to procure their own agreement.`,
+        summary: 'Downloadable assets in a sequence',
+        description: `Use this when you need every downloadable asset across a whole subject sequence — for example, to mirror or pre-cache all slide decks and worksheets for Year 7 maths.
+
+Returns assets grouped by lesson, each with signed download URLs, asset type, lesson title and slug, plus any third-party content attribution. Narrow results with the 'year' query parameter and the 'type' query parameter (e.g. 'slideDeck', 'worksheet'). Third-party (TPC) content is listed in 'attribution' — these items fall outside the Open Government Licence, so you must confirm your use is covered or secure your own agreement.
+
+Do not use this for:
+- A single lesson's downloads (use GET /lessons/{lesson}/assets)
+- Streaming one asset file (use GET /lessons/{lesson}/assets/{type})
+- A subject/key-stage grouping rather than a sequence (use GET /key-stages/{keyStage}/subject/{subject}/assets)`,
       },
     })
     .input(sequenceAssetsRequestOpenAPISchema)
@@ -429,10 +435,16 @@ This endpoint contains licence information for any third-party content contained
         method: 'GET',
         tags: ['assets'],
         errorResponses,
-        summary: 'Assets',
+        summary: 'Downloadable assets by key stage and subject',
         path: '/key-stages/{keyStage}/subject/{subject}/assets',
-        description:
-          'This endpoint returns signed download URLs and types for available assets for a given key stage and subject, grouped by lesson. You can also optionally filter by type and unit.',
+        description: `Use this when you want every downloadable asset for a key stage and subject, optionally scoped to a single unit or asset type.
+
+Returns assets grouped by lesson, each with signed download URLs, asset type, lesson title and slug, and any third-party content attribution. Pass 'unit' to restrict to one unit and 'type' to restrict to a single asset type (e.g. 'slideDeck', 'worksheet', 'starterQuiz').
+
+Do not use this for:
+- All assets across a whole curriculum sequence with year ordering (use GET /sequences/{sequence}/assets)
+- A single lesson's downloads (use GET /lessons/{lesson}/assets)
+- Streaming one asset file (use GET /lessons/{lesson}/assets/{type})`,
       },
     })
     .input(subjectAssetsRequestOpenAPISchema)
@@ -615,12 +627,17 @@ This endpoint contains licence information for any third-party content contained
       openapi: {
         method: 'GET',
         tags: ['assets', 'lessons', 'lesson-data'],
-        summary: 'Downloadable lesson assets',
+        summary: 'Downloadable assets for a lesson',
         path: '/lessons/{lesson}/assets',
         errorResponses,
-        description: `This endpoint returns the types of available assets for a given lesson, and the download endpoints for each.
-        This endpoint contains licence information for any third-party content contained in the lesson’s downloadable resources. Third-party content is exempt from the open-government license, and users will need to consider whether their use is covered by the stated licence, or if they need to procure their own agreement.
-          `,
+        description: `Use this when you have a lesson slug and need the list of what can be downloaded for it.
+
+Returns every downloadable asset type available for the lesson (slide deck, worksheet, worksheet answers, starter quiz, exit quiz, supplementary resource, video) with a signed download URL per asset, along with any third-party content attribution. Pass 'type' to return only one asset type. Third-party (TPC) content is listed in 'attribution' — these items fall outside the Open Government Licence, so you must confirm your use is covered or secure your own agreement.
+
+Do not use this for:
+- Streaming or downloading the file itself (use GET /lessons/{lesson}/assets/{type})
+- Bulk asset retrieval across a subject or sequence (use GET /key-stages/{keyStage}/subject/{subject}/assets or GET /sequences/{sequence}/assets)
+- Metadata about the lesson that isn't about downloads (use GET /lessons/{lesson}/summary)`,
       },
     })
     .input(lessonAssetsRequestOpenAPISchema)
@@ -642,9 +659,14 @@ This endpoint contains licence information for any third-party content contained
         method: 'GET',
         tags: ['assets', 'lessons', 'lesson-data'],
         path: '/lessons/{lesson}/assets/{type}',
-        summary: 'Lesson asset by type',
-        description:
-          'This endpoint will stream the downloadable asset for the given lesson and type. \nThere is no response returned for this endpoint as it returns a content attachment.',
+        summary: 'Stream a lesson asset file',
+        description: `Use this when you need the actual bytes of a downloadable asset — slide deck, worksheet, quiz, video, or supplementary resource — for a given lesson.
+
+Streams the file directly as 'application/octet-stream'; there is no JSON body. Call GET /lessons/{lesson}/assets first to see which 'type' values are available for the lesson.
+
+Do not use this for:
+- Listing which asset types a lesson has (use GET /lessons/{lesson}/assets)
+- Fetching the transcript (use GET /lessons/{lesson}/transcript)`,
         contentTypes: ['application/octet-stream'],
         errorResponses,
       },

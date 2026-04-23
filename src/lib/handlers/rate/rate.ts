@@ -13,8 +13,10 @@ export const getRateLimit = router({
         path: '/rate-limit',
         tags: ['internal'],
         errorResponses,
-        description:
-          'Check your current rate limit status (note that your rate limit is also included in the headers of every response).\n\nThis specific endpoint does not cost any requests.',
+        summary: 'Current rate-limit status',
+        description: `Use this when you need your current rate-limit status as a JSON body — for example, to display a quota indicator in a client.
+
+Returns 'limit', 'remaining', and 'reset'. The same information is present on the 'X-RateLimit-*' headers of every other response, so you rarely need to call this directly. This endpoint does not itself count against your quota.`,
       },
       noCost: true,
     })

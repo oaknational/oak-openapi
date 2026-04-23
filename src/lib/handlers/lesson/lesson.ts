@@ -37,9 +37,17 @@ export const getLessons = router({
       openapi: {
         method: 'GET',
         tags: ['lessons', 'lesson-data'],
-        summary: 'Lesson summary',
+        summary: 'Lesson summary by slug',
         path: '/lessons/{lesson}/summary',
-        description: 'This endpoint returns a summary for a given lesson',
+        description: `Use this when you already have a lesson slug and need its full metadata: title, key stage, subject, unit, keywords, key learning points, misconceptions, pupil outcomes, teacher tips, and whether downloadable resources are available.
+
+Returns the canonical lesson record for the given slug. The slug is the same identifier used across every lesson-scoped endpoint (e.g. 'imagining-you-are-the-characters-the-three-billy-goats-gruff').
+
+Do not use this for:
+- Finding a lesson from a free-text search term (use GET /search/lessons)
+- Searching the spoken content of lesson videos (use GET /search/transcripts)
+- Listing every lesson in a unit or subject (use GET /key-stages/{keyStage}/subject/{subject}/lessons)
+- Fetching the transcript or downloadable assets (use GET /lessons/{lesson}/transcript or GET /lessons/{lesson}/assets)`,
         errorResponses,
       },
     })
@@ -168,9 +176,17 @@ export const getLessons = router({
         method: 'GET',
         tags: ['lessons', 'search'],
         path: '/search/lessons',
-        summary: 'Lesson search using lesson title',
-        description:
-          'Search for a term and find the 20 most similar lessons with titles that contain similar text.',
+        summary: 'Lesson search by title',
+        description: `Use this when you want to find lessons from a free-text term that matches the lesson title.
+
+Returns up to 20 lessons ranked by title similarity. Each result includes the lesson slug, title, Oak URL, similarity score, and the unit(s) the lesson appears in. Optional 'keyStage', 'subject', and 'unit' query parameters narrow the search.
+
+Do not use this for:
+- Searching the spoken content of lesson videos (use GET /search/transcripts)
+- Fetching the full metadata for a lesson you already know (use GET /lessons/{lesson}/summary)
+- Listing every lesson in a key stage and subject without ranking (use GET /key-stages/{keyStage}/subject/{subject}/lessons)
+
+Example queries: "KS3 science photosynthesis", "fractions year 5", "Macbeth soliloquy"`,
         errorResponses,
       },
     })
