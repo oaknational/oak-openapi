@@ -1,8 +1,14 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import * as z from 'zod/v4';
-import type { ThreadView, ThreadWithUnits } from '@/lib/owaClient';
-import { getClient, gql, threadView } from '@/lib/owaClient';
+import type { SequenceView, ThreadView } from '@/lib/owaClient';
+import {
+  getClient,
+  gql,
+  sequenceView,
+  sequenceViewWhereInput,
+  threadView,
+} from '@/lib/owaClient';
 import { TRPCError } from '@trpc/server';
 import {
   allThreadsResponseOpenAPISchema,
@@ -68,26 +74,21 @@ export const getThreads = router({
       const client = getClient();
       const { threadSlug } = input;
 
-      const query = gql`
+      const threadQuery = gql`
         query ($threadSlug: String!) {
-          threads(
-            where: { _state: { _eq: "published" }, slug: { _eq: $threadSlug } }
-          ) {
-            thread_units(where: { _state: { _eq: "published" } }) {
-              order
-              unit {
-                slug
-                title
-              }
+          ${threadView}(
+            where: {
+              slug: { _eq: $threadSlug }
+              units_count: { _gt: 0 }
             }
+          ) {
+            slug
           }
         }
       `;
 
-      const { threads } = await client.request<{ threads: ThreadWithUnits[] }>(
-        query,
-        { threadSlug },
-      );
+      const threadRes = await client.request(threadQuery, { threadSlug });
+      const threads = (threadRes as ThreadView)[threadView];
 
       if (!threads.length) {
         throw new TRPCError({
@@ -96,14 +97,31 @@ export const getThreads = router({
         });
       }
 
-      const { thread_units: units } = threads[0];
+      const query = gql`
+        query getThreadUnits($where: ${sequenceViewWhereInput}) {
+          ${sequenceView}(
+            where: $where
+          ) {
+            slug
+            title
+          }
+        }
+      `;
 
-      return units
-        .sort((a, b) => a.order - b.order)
-        .map(({ unit, order }) => ({
-          unitTitle: unit.title,
-          unitSlug: unit.slug,
-          unitOrder: order,
-        }));
+      const where = {
+        non_curriculum: { _eq: false },
+        state: { _eq: 'published' },
+        threads: {
+          _contains: [{ slug: threadSlug }],
+        },
+      };
+
+      const res: SequenceView = await client.request(query, { where });
+      const units = res[sequenceView];
+
+      return units.map((unit) => ({
+        unitTitle: unit.title,
+        unitSlug: unit.slug,
+      }));
     }),
 });
