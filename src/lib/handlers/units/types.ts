@@ -16,26 +16,6 @@ export const categorySchema = z.object({
 
 export type Category = z.infer<typeof categorySchema>;
 
-export const programmeFactorOptionSchema = z.object({
-  slug: z.string().describe('The slug identifier for the programme factor'),
-  title: z.string().describe('The title of the programme factor'),
-});
-
-export const programmeFactorsSchema = z.object({
-  examBoard: programmeFactorOptionSchema
-    .optional()
-    .describe('The exam board that identifies this programme variant'),
-  pathway: programmeFactorOptionSchema
-    .optional()
-    .describe('The pathway that identifies this programme variant'),
-  tier: programmeFactorOptionSchema
-    .optional()
-    .describe('The tier that identifies this programme variant'),
-});
-
-export type ProgrammeFactorOption = z.infer<typeof programmeFactorOptionSchema>;
-export type ProgrammeFactors = z.infer<typeof programmeFactorsSchema>;
-
 export type UnitSchema = z.infer<typeof unitSummaryResponseSchema> & {
   examboardSlug?: string;
   examboard?: string;
