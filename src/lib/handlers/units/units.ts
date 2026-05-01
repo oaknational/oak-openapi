@@ -11,11 +11,28 @@ import {
 import { errorResponses } from '@/lib/errorResponses';
 import { blockUnitForCopyrightText } from '../../queryGate';
 
-import { doesUnitExist, formatUnitSummary, testIfUnitVariant } from './helpers';
+import {
+  doesUnitExist,
+  formatUnitSummary,
+  sortSequencesByProgrammeSpecificity,
+  testIfUnitVariant,
+} from './helpers';
 import {
   unitSummaryRequestOpenAPISchema,
   unitSummaryResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/units';
+
+interface StringEq {
+  _eq: string;
+}
+
+interface UnitWhere {
+  slug: StringEq;
+  non_curriculum: { _eq: boolean };
+  examboard_slug?: StringEq;
+  pathway_slug?: StringEq;
+  tier_slug?: StringEq;
+}
 
 export const getUnits = router({
   getUnit: protectedProcedure
@@ -34,6 +51,7 @@ export const getUnits = router({
     .output(unitSummaryResponseOpenAPISchema)
     .query(async ({ input }) => {
       let { unit: slug } = input;
+      const { examBoard, pathway, tier } = input;
       const client = getClient();
 
       const isUnitVariant = testIfUnitVariant(slug);
@@ -73,8 +91,27 @@ export const getUnits = router({
         });
       }
 
-      // Ensure that non-curriculum units don't come through
-      const where = { slug: { _eq: slug }, non_curriculum: { _eq: false } };
+      // Ensure that non-curriculum units don't come through. Programme-factor
+      // filters are applied at the database layer so the response is already
+      // narrowed; the client-side sort below is only a deterministic
+      // tiebreaker when multiple rows still match (e.g. shared slug across
+      // subject_parent variants).
+      const where: UnitWhere = {
+        slug: { _eq: slug },
+        non_curriculum: { _eq: false },
+      };
+
+      if (examBoard) {
+        where.examboard_slug = { _eq: examBoard };
+      }
+
+      if (pathway) {
+        where.pathway_slug = { _eq: pathway };
+      }
+
+      if (tier) {
+        where.tier_slug = { _eq: tier };
+      }
 
       const query = gql`
         query getUnit($where: ${sequenceViewWhereInput}) @cached(ttl: 300) {
@@ -84,8 +121,15 @@ export const getUnits = router({
             description
             keystage_slug
             lessons
+            notes
             phase_slug
+            pathway
+            pathway_slug
+            subject
+            subject_parent
             subject_slug
+            tier
+            tier_slug
             unit_options
             why_this_why_now
             threads
@@ -105,7 +149,9 @@ export const getUnits = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
       }
 
-      const sequenceData = res[sequenceView][0];
+      const sequenceData = [...res[sequenceView]].sort(
+        sortSequencesByProgrammeSpecificity,
+      )[0];
 
       if (isUnitVariant) {
         // move the unit variant data into the root
