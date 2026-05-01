@@ -1,5 +1,9 @@
 import * as z from 'zod/v4';
-import { categorySchema, threadSchema } from '@/lib/handlers/units/types';
+import {
+  categorySchema,
+  programmeFactorsSchema,
+  threadSchema,
+} from '@/lib/handlers/units/types';
 
 export const unitSummaryResponseSchema = z.object({
   unitSlug: z.string().describe('The unit slug identifier'),
@@ -46,6 +50,11 @@ export const unitSummaryResponseSchema = z.object({
     .array(categorySchema)
     .describe(
       'The categories (if any) that are assigned to the unit. If the unit does not have any categories, this property is omitted.',
+    )
+    .optional(),
+  programmeFactors: programmeFactorsSchema
+    .describe(
+      'The programme-factor values that identify which variant of this unit is returned. Omitted when the unit has no programme factors.',
     )
     .optional(),
   unitOptionsGroup: z

@@ -1,7 +1,13 @@
 import { gql } from 'graphql-request';
 import type { GraphQLClient } from 'graphql-request';
 import { SequenceView, sequenceView, type Sequence } from '@/lib/owaClient';
-import type { Category, Metadata, Thread, UnitSchema } from './types';
+import type {
+  Category,
+  Metadata,
+  ProgrammeFactors,
+  Thread,
+  UnitSchema,
+} from './types';
 
 export function testIfUnitVariant(slug: string): boolean {
   return /-\d+$/.test(slug);
@@ -32,6 +38,58 @@ export interface RootUnitData {
   priorKnowledgeRequirements: string[];
   nationalCurriculumContent: string[];
   categories: Category[] | undefined;
+  programmeFactors?: ProgrammeFactors;
+}
+
+function getProgrammeFactors(sequence: Sequence): ProgrammeFactors | undefined {
+  const factors: ProgrammeFactors = {};
+
+  if (sequence.examboard_slug && sequence.examboard) {
+    factors.examBoard = {
+      slug: sequence.examboard_slug,
+      title: sequence.examboard,
+    };
+  }
+
+  if (sequence.pathway_slug && sequence.pathway) {
+    factors.pathway = {
+      slug: sequence.pathway_slug,
+      title: sequence.pathway,
+    };
+  }
+
+  if (sequence.tier_slug && sequence.tier) {
+    factors.tier = { slug: sequence.tier_slug, title: sequence.tier };
+  }
+
+  return Object.keys(factors).length > 0 ? factors : undefined;
+}
+
+// localeCompare helper that treats null/undefined as "less than" any string,
+// so sequences missing a programme factor sort before those that have one.
+function compareNullableStrings(
+  a: string | null | undefined,
+  b: string | null | undefined,
+): number {
+  if (!a && !b) return 0;
+  if (!a) return -1;
+  if (!b) return 1;
+  return a.localeCompare(b);
+}
+
+// Deterministic ordering when several sequences share a unit slug. Without
+// this the GraphQL row order is effectively arbitrary, so two clients hitting
+// the same endpoint could see different variants picked.
+export function sortSequencesByProgrammeSpecificity(
+  a: Sequence,
+  b: Sequence,
+): number {
+  return (
+    compareNullableStrings(a.examboard_slug, b.examboard_slug) ||
+    compareNullableStrings(a.pathway_slug, b.pathway_slug) ||
+    compareNullableStrings(a.tier_slug, b.tier_slug) ||
+    a.slug.localeCompare(b.slug)
+  );
 }
 
 export function formatUnitSummary(
@@ -97,6 +155,7 @@ export function formatUnitSummary(
         ),
       ),
     ),
+    programmeFactors: getProgrammeFactors(sequenceData),
   };
 
   // TS: allow me to declare it empty first
