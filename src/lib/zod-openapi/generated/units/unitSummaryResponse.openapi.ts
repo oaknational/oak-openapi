@@ -1,9 +1,6 @@
 import * as z from 'zod/v4';
-import {
-  categorySchema,
-  programmeFactorsSchema,
-  threadSchema,
-} from '@/lib/handlers/units/types';
+import { categorySchema, threadSchema } from '@/lib/handlers/units/types';
+import { unitProgrammeFactorsSchema } from '@/lib/handlers/unitProgrammeFactors';
 
 export const unitSummaryResponseOpenAPISchema = z
   .object({
@@ -94,7 +91,7 @@ export const unitSummaryResponseOpenAPISchema = z
         example: undefined,
       })
       .optional(),
-    programmeFactors: programmeFactorsSchema
+    programmeFactors: unitProgrammeFactorsSchema
       .meta({
         description:
           'The programme-factor values that identify which variant of this unit is returned. Omitted when the unit has no programme factors.',

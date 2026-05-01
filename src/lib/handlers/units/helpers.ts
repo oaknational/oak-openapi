@@ -1,13 +1,11 @@
 import { gql } from 'graphql-request';
 import type { GraphQLClient } from 'graphql-request';
 import { SequenceView, sequenceView, type Sequence } from '@/lib/owaClient';
-import type {
-  Category,
-  Metadata,
-  ProgrammeFactors,
-  Thread,
-  UnitSchema,
-} from './types';
+import type { Category, Metadata, Thread, UnitSchema } from './types';
+import {
+  getUnitProgrammeFactorsFromSequence,
+  type UnitProgrammeFactors,
+} from '@/lib/handlers/unitProgrammeFactors';
 
 export function testIfUnitVariant(slug: string): boolean {
   return /-\d+$/.test(slug);
@@ -38,31 +36,7 @@ export interface RootUnitData {
   priorKnowledgeRequirements: string[];
   nationalCurriculumContent: string[];
   categories: Category[] | undefined;
-  programmeFactors?: ProgrammeFactors;
-}
-
-function getProgrammeFactors(sequence: Sequence): ProgrammeFactors | undefined {
-  const factors: ProgrammeFactors = {};
-
-  if (sequence.examboard_slug && sequence.examboard) {
-    factors.examBoard = {
-      slug: sequence.examboard_slug,
-      title: sequence.examboard,
-    };
-  }
-
-  if (sequence.pathway_slug && sequence.pathway) {
-    factors.pathway = {
-      slug: sequence.pathway_slug,
-      title: sequence.pathway,
-    };
-  }
-
-  if (sequence.tier_slug && sequence.tier) {
-    factors.tier = { slug: sequence.tier_slug, title: sequence.tier };
-  }
-
-  return Object.keys(factors).length > 0 ? factors : undefined;
+  programmeFactors?: UnitProgrammeFactors;
 }
 
 // localeCompare helper that treats null/undefined as "less than" any string,
@@ -155,7 +129,7 @@ export function formatUnitSummary(
         ),
       ),
     ),
-    programmeFactors: getProgrammeFactors(sequenceData),
+    programmeFactors: getUnitProgrammeFactorsFromSequence(sequenceData),
   };
 
   // TS: allow me to declare it empty first
