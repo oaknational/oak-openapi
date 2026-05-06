@@ -12,8 +12,5 @@ export const unitListSchema = z.array(
   z.object({
     unitTitle: z.string().meta({ description: 'The unit title' }),
     unitSlug: z.string().meta({ description: 'The unit slug identifier' }),
-    unitOrder: z
-      .number()
-      .meta({ description: 'The position of the unit within the thread' }),
   }),
 );
