@@ -153,12 +153,10 @@ export const questionsSchema = z.array(
   }),
 );
 
-export const questionFilterSchema = z
-  .enum(['images'])
-  .meta({
-    description:
-      'Optional filter for question results. Use `images` to return only questions with a question image or image answer.',
-  });
+export const questionFilterSchema = z.enum(['images']).meta({
+  description:
+    'Optional filter for question results. Use `images` to return only questions with a question image or image answer.',
+});
 
 export type Question = z.infer<typeof questionZod>;
 export type QuestionFilter = z.infer<typeof questionFilterSchema>;
