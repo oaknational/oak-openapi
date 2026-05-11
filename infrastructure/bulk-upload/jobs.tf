@@ -9,7 +9,9 @@ module "job" {
   env          = local.env
   docker_image = "europe-west2-docker.pkg.dev/oak-national-academy-ci-cd/oak-open-api/bulk-data:${var.tag_id}"
 
-  service_account_email = data.terraform_remote_state.google_project.outputs.project_config.service_accounts["openapi-bulk-uploader-${local.project_env}"]
+  job_service_account_email = data.terraform_remote_state.google_project.outputs.project_config.service_accounts["default-functions-account"]
+
+  scheduler_service_account_email = data.terraform_remote_state.google_project.outputs.project_config.service_accounts["openapi-bulk-uploader-${local.project_env}"]
 
   environment_variables = [
     {
