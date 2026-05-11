@@ -1,5 +1,5 @@
 module "job" {
-  source = "github.com/oaknational/oak-terraform-modules//modules/gcp_job?ref=v1.3.2"
+  source = "github.com/oaknational/oak-terraform-modules//modules/gcp_job?ref=v2.0.4"
 
   name_parts = {
     domain = "ow"
