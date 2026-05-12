@@ -183,6 +183,38 @@ test('combined examBoard + tier filter selects matching variant', async () => {
   expect(higher.programmeFactors?.tier?.slug).toBe('higher');
 });
 
+test('childSubject filter selects matching science variant', async () => {
+  const caller = makeCaller({
+    user: 1,
+  });
+
+  const biology = await caller.getUnits.getUnit({
+    unit: 'biomass-transfer-food-security-and-biodiversity',
+    childSubject: 'biology',
+    examBoard: 'aqa',
+    tier: 'foundation',
+  });
+  expect(biology.subjectSlug).toBe('biology');
+  expect(biology.programmeFactors?.childSubject?.slug).toBe('biology');
+  expect(biology.programmeFactors?.childSubject?.title).toBe('Biology');
+  expect(biology.programmeFactors?.examBoard?.slug).toBe('aqa');
+  expect(biology.programmeFactors?.tier?.slug).toBe('foundation');
+
+  const combinedScience = await caller.getUnits.getUnit({
+    unit: 'biomass-transfer-food-security-and-biodiversity',
+    childSubject: 'combined-science',
+    examBoard: 'aqa',
+    tier: 'foundation',
+  });
+  expect(combinedScience.subjectSlug).toBe('combined-science');
+  expect(combinedScience.programmeFactors?.childSubject?.slug).toBe(
+    'combined-science',
+  );
+  expect(combinedScience.programmeFactors?.childSubject?.title).toBe(
+    'Combined science',
+  );
+});
+
 test('unmatched programme factor returns 404', async () => {
   const caller = makeCaller({
     user: 1,
@@ -197,6 +229,24 @@ test('unmatched programme factor returns 404', async () => {
     }),
   ).rejects.toMatchObject({
     code: 'NOT_FOUND',
+  });
+});
+
+test('childSubject filter on non-science unit returns useful 404', async () => {
+  const caller = makeCaller({
+    user: 1,
+  });
+
+  await expect(
+    caller.getUnits.getUnit({
+      unit: 'ceramics-cake-culture',
+      childSubject: 'biology',
+    }),
+  ).rejects.toMatchObject({
+    code: 'NOT_FOUND',
+    message: expect.stringContaining(
+      'childSubject filter is only available for science units',
+    ),
   });
 });
 

@@ -32,6 +32,8 @@ interface UnitWhere {
   examboard_slug?: StringEq;
   pathway_slug?: StringEq;
   tier_slug?: StringEq;
+  subject_slug?: StringEq;
+  subject_parent?: StringEq;
 }
 
 export const getUnits = router({
@@ -43,7 +45,7 @@ export const getUnits = router({
         path: '/units/{unit}/summary',
         summary: 'Unit summary',
         description:
-          'This endpoint returns unit information for a given unit, including slug, title, number of lessons, prior knowledge requirements, national curriculum statements, prior unit details, future unit descriptions, and lesson titles that form the unit',
+          'This endpoint returns unit information for a given unit, including slug, title, number of lessons, prior knowledge requirements, national curriculum statements, prior unit details, future unit descriptions, and lesson titles that form the unit. Optional programme-factor filters can narrow the returned variant. The childSubject filter is only available for science units and accepts biology, chemistry, combined-science, or physics.',
         errorResponses,
       },
     })
@@ -51,7 +53,7 @@ export const getUnits = router({
     .output(unitSummaryResponseOpenAPISchema)
     .query(async ({ input }) => {
       let { unit: slug } = input;
-      const { examBoard, pathway, tier } = input;
+      const { childSubject, examBoard, pathway, tier } = input;
       const client = getClient();
 
       const isUnitVariant = testIfUnitVariant(slug);
@@ -113,6 +115,11 @@ export const getUnits = router({
         where.tier_slug = { _eq: tier };
       }
 
+      if (childSubject) {
+        where.subject_slug = { _eq: childSubject };
+        where.subject_parent = { _eq: 'Science' };
+      }
+
       const query = gql`
         query getUnit($where: ${sequenceViewWhereInput}) @cached(ttl: 300) {
           ${sequenceView}(where: $where) {
@@ -146,7 +153,12 @@ export const getUnits = router({
 
       const res: SequenceView = await client.request(query, { where });
       if (res[sequenceView].length === 0) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Unit not found' });
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: childSubject
+            ? `Unit not found for childSubject "${childSubject}". The childSubject filter is only available for science units and must match an available science child subject for the requested programme factors.`
+            : 'Unit not found',
+        });
       }
 
       const sequenceData = [...res[sequenceView]].sort(

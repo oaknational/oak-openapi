@@ -62,6 +62,7 @@ export function sortSequencesByProgrammeSpecificity(
     compareNullableStrings(a.examboard_slug, b.examboard_slug) ||
     compareNullableStrings(a.pathway_slug, b.pathway_slug) ||
     compareNullableStrings(a.tier_slug, b.tier_slug) ||
+    compareNullableStrings(a.subject_slug, b.subject_slug) ||
     a.slug.localeCompare(b.slug)
   );
 }
