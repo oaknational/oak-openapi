@@ -1,5 +1,5 @@
 import * as z from 'zod/v4';
-import { examBoards, pathways } from '@/lib/oakConsts';
+import { childSubjects, examBoards, pathways } from '@/lib/oakConsts';
 import { tierSlugs } from '@oaknational/oak-curriculum-schema';
 
 export const unitSummaryRequestOpenAPISchema = z.object({
@@ -27,5 +27,10 @@ export const unitSummaryRequestOpenAPISchema = z.object({
     description:
       "Optional tier slug to narrow the unit to a specific programme variant, e.g. 'foundation'.",
     example: 'foundation',
+  }),
+  childSubject: z.enum(childSubjects).optional().meta({
+    description:
+      "Optional science child subject slug to narrow the unit to a specific programme variant. Only available for science units, e.g. 'biology'.",
+    example: undefined,
   }),
 });
