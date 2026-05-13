@@ -33,6 +33,10 @@ import {
 import { nextPageLink } from '@/lib/pagination';
 import { errorResponses } from '@/lib/errorResponses';
 
+function hasQuestions(results: Record<QuizKey, Question[]>): boolean {
+  return results.starterQuiz.length > 0 || results.exitQuiz.length > 0;
+}
+
 export const getQuestions = router({
   getQuestionsForLessons: protectedProcedure
     .meta({
@@ -120,7 +124,7 @@ export const getQuestions = router({
         return result;
       }
 
-      return questionsForQuiz(lesson);
+      return questionsForQuiz(lesson, input.filter);
     }),
   getQuestionsForSequence: protectedProcedure
     .meta({
@@ -251,7 +255,14 @@ export const getQuestions = router({
           continue;
         }
 
-        const results = questionsForQuiz({ exitQuiz, starterQuiz });
+        const results = questionsForQuiz(
+          { exitQuiz, starterQuiz },
+          input.filter,
+        );
+
+        if (!hasQuestions(results)) {
+          continue;
+        }
 
         lessons.push({
           lessonTitle,
@@ -400,7 +411,14 @@ export const getQuestions = router({
           continue;
         }
 
-        const results = questionsForQuiz({ exitQuiz, starterQuiz });
+        const results = questionsForQuiz(
+          { exitQuiz, starterQuiz },
+          input.filter,
+        );
+
+        if (!hasQuestions(results)) {
+          continue;
+        }
 
         lessons.push({
           lessonTitle,
