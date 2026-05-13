@@ -2,7 +2,9 @@ import { getLatestMajorVersion } from '@/lib/handlers/changelog/helpers';
 
 let origin = `http://localhost:${process.env.PORT || 2727}`;
 
-if (process.env.VERCEL_URL) {
+if (process.env.NODE_ENV === 'production' && process.env.VERCEL_BRANCH_URL) {
+  origin = `https://${process.env.VERCEL_BRANCH_URL}`;
+} else if (process.env.VERCEL_URL) {
   origin = `https://${process.env.VERCEL_URL}`;
 }
 
