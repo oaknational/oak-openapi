@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "target": "es2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -38,5 +39,6 @@
     ".storybook/**/*.ts",
     ".storybook/**/*.tsx",
     "src/loaders/gql.js"
-  ]
+  ],
+  "allowSyntheticDefaultImports": true
 }
