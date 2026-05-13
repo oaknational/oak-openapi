@@ -1,7 +1,6 @@
 'use client';
 
 import { ApiReferenceReact } from '@scalar/api-reference-react';
-// @ts-expect-error CSS import
 import '@scalar/api-reference-react/style.css';
 
 export default function Playground(): React.ReactElement {
