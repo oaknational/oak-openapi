@@ -1,12 +1,19 @@
-import type { SubjectPhase, SubjectPhaseView } from '@/lib/owaClient';
-import type { SequenceResult } from './types';
+import type {
+  SequenceView,
+  SubjectPhase,
+  SubjectPhaseView,
+} from '@/lib/owaClient';
+import type { Ks4ProgrammeFactors, SequenceResult } from './types';
 import {
   getClient,
   gql,
+  sequenceView,
+  sequenceViewWhereInput,
   subjectPhaseView,
   currentCycle,
 } from '@/lib/owaClient';
 import { TRPCError } from '@trpc/server';
+import { examBoards, pathways, tiers } from '@/lib/oakConsts';
 
 export function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
   const keyStageLookup: Record<string, string[]> = {
@@ -58,6 +65,82 @@ export function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
 interface KeyStageResponse {
   keyStageSlug: string;
   keyStageTitle: string;
+}
+
+export async function getKs4ProgrammeFactors(
+  subject: SubjectPhase,
+): Promise<Ks4ProgrammeFactors> {
+  const examBoardOptions = (subject.ks4_options ?? []).filter((option) =>
+    examBoards.includes(option.slug),
+  );
+  const pathwayOptions = (subject.ks4_options ?? []).filter((option) =>
+    pathways.includes(option.slug),
+  );
+  const tierOptions = await getKs4TierOptions(subject);
+
+  const factors: Ks4ProgrammeFactors = {};
+
+  if (examBoardOptions.length > 0) {
+    factors.examBoard = examBoardOptions;
+  }
+  if (pathwayOptions.length > 0) {
+    factors.pathway = pathwayOptions;
+  }
+  if (tierOptions.length > 0) {
+    factors.tier = tierOptions;
+  }
+
+  return factors;
+}
+
+async function getKs4TierOptions(subject: SubjectPhase) {
+  const hasKeyStage4 = subject.keystages.some(({ slug }) => slug === 'ks4');
+
+  if (!hasKeyStage4) {
+    return [];
+  }
+
+  const client = getClient();
+  const query = gql`
+    query ($where: ${sequenceViewWhereInput}!) @cached(ttl: 300) {
+      ${sequenceView}(
+        where: $where
+        order_by: { tier_slug: asc }
+      ) {
+        tier
+        tier_slug
+      }
+    }`;
+
+  const res: SequenceView = await client.request(query, {
+    where: {
+      _and: [
+        {
+          _or: [
+            { subject_slug: { _eq: subject.slug } },
+            { subject_parent_slug: { _eq: subject.slug } },
+          ],
+        },
+        { phase_slug: { _eq: 'secondary' } },
+        { keystage_slug: { _eq: 'ks4' } },
+        { state: { _eq: 'published' } },
+        { non_curriculum: { _eq: false } },
+      ],
+    },
+  });
+
+  const tierLookup = new Map<string, { title: string; slug: string }>();
+
+  for (const row of res[sequenceView]) {
+    if (row.tier_slug && row.tier && tiers.includes(row.tier_slug)) {
+      tierLookup.set(row.tier_slug, {
+        title: row.tier,
+        slug: row.tier_slug,
+      });
+    }
+  }
+
+  return Array.from(tierLookup.values());
 }
 
 export function phaseToKeyStages(subject: SubjectPhase): KeyStageResponse[] {

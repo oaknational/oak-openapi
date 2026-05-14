@@ -1,5 +1,34 @@
 import * as z from 'zod/v4';
 
+const programmeFactorOptionResult = z.object({
+  title: z.string().meta({
+    description: 'The display title for a valid programme factor value',
+  }),
+  slug: z.string().meta({
+    description: 'The slug identifier for a valid programme factor value',
+  }),
+});
+
+export const ks4ProgrammeFactorsResult = z
+  .object({
+    examBoard: z.array(programmeFactorOptionResult).optional().meta({
+      description:
+        'The valid exam board values offered by Oak for this subject at key stage 4.',
+    }),
+    pathway: z.array(programmeFactorOptionResult).optional().meta({
+      description:
+        'The valid pathway values offered by Oak for this subject at key stage 4.',
+    }),
+    tier: z.array(programmeFactorOptionResult).optional().meta({
+      description:
+        'The valid tier values offered by Oak for this subject at key stage 4.',
+    }),
+  })
+  .meta({
+    description:
+      'The programme factors that apply to this subject at key stage 4, with the valid values for each factor.',
+  });
+
 export const numberArrayResult = z.array(z.number()).meta({
   description: 'The years for which this subject has content available for',
 });
@@ -47,7 +76,7 @@ export const sequenceResult = z.object({
 
 export type SequenceResult = z.infer<typeof sequenceResult>;
 
-export const subjectResult = z.object({
+export const subjectSummaryResult = z.object({
   subjectTitle: z.string().meta({ description: 'The subject title' }),
   subjectSlug: z.string().meta({ description: 'The subject slug identifier' }),
   sequenceSlugs: z.array(sequenceResult).meta({
@@ -57,3 +86,9 @@ export const subjectResult = z.object({
   years: numberArrayResult,
   keyStages: keyStagesResult,
 });
+
+export const subjectResult = subjectSummaryResult.extend({
+  ks4ProgrammeFactors: ks4ProgrammeFactorsResult,
+});
+
+export type Ks4ProgrammeFactors = z.infer<typeof ks4ProgrammeFactorsResult>;
