@@ -1,4 +1,5 @@
 import { canonicalUrlSchema, oakUrlSchema } from '@/lib/handlers/commonTypes';
+import { unitProgrammeFactorsSchema } from '@/lib/handlers/unitProgrammeFactors';
 import * as z from 'zod/v4';
 
 export const lessonSummaryResponseOpenAPISchema = z
@@ -6,8 +7,31 @@ export const lessonSummaryResponseOpenAPISchema = z
     lessonTitle: z.string().meta({ description: 'The lesson title' }),
     canonicalUrl: canonicalUrlSchema,
     oakUrl: oakUrlSchema,
-    unitSlug: z.string().meta({ description: 'The unit slug identifier' }),
-    unitTitle: z.string().meta({ description: 'The unit title' }),
+    units: z
+      .array(
+        z.object({
+          unitSlug: z
+            .string()
+            .meta({ description: 'The unit slug identifier' }),
+          unitTitle: z.string().meta({ description: 'The unit title' }),
+          programmeFactors: unitProgrammeFactorsSchema
+            .meta({
+              description:
+                'The programme-factor values that identify which variant of the unit this lesson sits in. Omitted when the unit has no programme factors.',
+            })
+            .optional(),
+        }),
+      )
+      .meta({
+        description:
+          'All the units (including programme variants) this lesson is part of. Each entry is a unique combination of unit slug and programme factors.',
+        example: [
+          {
+            unitSlug: 'developing-vector-graphics',
+            unitTitle: 'Developing vector graphics',
+          },
+        ],
+      }),
     subjectSlug: z
       .string()
       .meta({ description: 'The subject slug identifier' }),
@@ -100,11 +124,15 @@ export const lessonSummaryResponseOpenAPISchema = z
     example: {
       lessonTitle: 'Using vector tools to draw and modify shapes',
       canonicalUrl:
-        'https://www.thenational.academy/teachers/programmes/computing-secondary-ks3/units/developing-vector-graphics/lessons/using-vector-tools-to-draw-and-modify-shapes',
+        'https://www.thenational.academy/teachers/lessons/using-vector-tools-to-draw-and-modify-shapes',
       oakUrl:
         'https://www.thenational.academy/teachers/lessons/using-vector-tools-to-draw-and-modify-shapes',
-      unitSlug: 'developing-vector-graphics',
-      unitTitle: 'Developing vector graphics',
+      units: [
+        {
+          unitSlug: 'developing-vector-graphics',
+          unitTitle: 'Developing vector graphics',
+        },
+      ],
       subjectSlug: 'computing',
       subjectTitle: 'Computing',
       keyStageSlug: 'ks3',
