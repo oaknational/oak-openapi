@@ -1,9 +1,21 @@
 import * as z from 'zod/v4';
 import type { Lesson, Sequence, UnitVariantLesson } from '@/lib/owaClient';
+import {
+  childSubjects,
+  childSubjectTitles,
+  isChildSubject,
+} from '@/lib/oakConsts';
 
 export const unitProgrammeFactorOptionSchema = z.object({
   slug: z.string().describe('The slug identifier for the programme factor'),
   title: z.string().describe('The title of the programme factor'),
+});
+
+export const childSubjectProgrammeFactorOptionSchema = z.object({
+  slug: z
+    .enum(childSubjects)
+    .describe('The slug identifier for the science child subject'),
+  title: z.string().describe('The title of the science child subject'),
 });
 
 export const unitProgrammeFactorsSchema = z.object({
@@ -16,6 +28,9 @@ export const unitProgrammeFactorsSchema = z.object({
   tier: unitProgrammeFactorOptionSchema
     .optional()
     .describe('The tier that identifies this unit variant'),
+  childSubject: childSubjectProgrammeFactorOptionSchema
+    .optional()
+    .describe('The science child subject that identifies this unit variant'),
 });
 
 export type UnitProgrammeFactors = z.infer<typeof unitProgrammeFactorsSchema>;
@@ -45,6 +60,8 @@ function buildUnitProgrammeFactors(args: {
   pathwayTitle?: string | null;
   tierSlug?: string | null;
   tierTitle?: string | null;
+  childSubjectSlug?: string | null;
+  childSubjectTitle?: string | null;
 }): UnitProgrammeFactors | undefined {
   const factors = {
     examBoard:
@@ -68,6 +85,15 @@ function buildUnitProgrammeFactors(args: {
             title: args.tierTitle,
           }
         : undefined,
+    childSubject:
+      args.childSubjectSlug && isChildSubject(args.childSubjectSlug)
+        ? {
+            slug: args.childSubjectSlug,
+            title:
+              args.childSubjectTitle ??
+              childSubjectTitles[args.childSubjectSlug],
+          }
+        : undefined,
   } satisfies UnitProgrammeFactors;
 
   return Object.values(factors).some(Boolean) ? factors : undefined;
@@ -82,8 +108,15 @@ export function getUnitProgrammeFactorsFromSequence(
     | 'pathway'
     | 'tier_slug'
     | 'tier'
+    | 'subject_slug'
+    | 'subject'
+    | 'subject_parent'
   >,
 ): UnitProgrammeFactors | undefined {
+  const hasScienceChildSubject =
+    sequence.subject_parent === 'Science' &&
+    isChildSubject(sequence.subject_slug);
+
   return buildUnitProgrammeFactors({
     examBoardSlug: sequence.examboard_slug,
     examBoardTitle: sequence.examboard,
@@ -91,6 +124,10 @@ export function getUnitProgrammeFactorsFromSequence(
     pathwayTitle: sequence.pathway,
     tierSlug: sequence.tier_slug,
     tierTitle: sequence.tier,
+    childSubjectSlug: hasScienceChildSubject
+      ? sequence.subject_slug
+      : undefined,
+    childSubjectTitle: hasScienceChildSubject ? sequence.subject : undefined,
   });
 }
 
@@ -121,6 +158,7 @@ export function getUnitProgrammeFactorsFromKnownSlugs(args: {
   examBoardSlug?: string | null;
   pathwaySlug?: string | null;
   tierSlug?: string | null;
+  childSubjectSlug?: string | null;
 }): UnitProgrammeFactors | undefined {
   return buildUnitProgrammeFactors({
     examBoardSlug: args.examBoardSlug,
@@ -133,6 +171,11 @@ export function getUnitProgrammeFactorsFromKnownSlugs(args: {
       : undefined,
     tierSlug: args.tierSlug,
     tierTitle: args.tierSlug ? tierTitleBySlug[args.tierSlug] : undefined,
+    childSubjectSlug: args.childSubjectSlug,
+    childSubjectTitle:
+      args.childSubjectSlug && isChildSubject(args.childSubjectSlug)
+        ? childSubjectTitles[args.childSubjectSlug]
+        : undefined,
   });
 }
 
@@ -147,5 +190,6 @@ export function getUnitProgrammeFactorsSignature(
     examBoard: factors.examBoard?.slug ?? null,
     pathway: factors.pathway?.slug ?? null,
     tier: factors.tier?.slug ?? null,
+    childSubject: factors.childSubject?.slug ?? null,
   });
 }
