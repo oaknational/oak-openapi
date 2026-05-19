@@ -22,6 +22,13 @@ generated OpenAPI output in this repo. Avoid duplicating shapes across handlers,
 docs, and bulk outputs; if duplication is unavoidable, document it and add a
 follow-up item in the plans.
 
+## Resolver and view names
+
+- Do not hard-code Hasura resolver or materialised view names in tests or runtime
+  code when a constant exists in `src/lib/owaClient.ts`.
+- Always import and use the relevant `owaClient` constant for mocked response
+  keys and query-string assertions.
+
 ## Project context
 
 - **What**: Oak OpenAPI is a Next.js app serving UI pages, API routes, docs, and
