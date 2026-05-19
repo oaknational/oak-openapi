@@ -18,6 +18,10 @@ export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_21';
 export const sequenceViewTable = 'published.mv_curriculum_sequence_b_13_0_21';
 export const lessonSearchView =
   'published_function__table__mv_lesson_openapi_search_1';
+export const programmesByYearView =
+  'published_mv_synthetic_programmes_by_year_18_2_0';
+export const programmesByYearViewTable =
+  'published.mv_synthetic_programmes_by_year_18_2_0';
 
 export const views = [
   lessonView,
