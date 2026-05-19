@@ -41,10 +41,10 @@ export const getThreads = router({
 
       const query = gql`
         query {
-          ${threadView}(where: { units_count: { _gt: 0 } }) {
+          ${threadView} {
             title
             slug
-            units_count
+            unit_count
           }
         }
       `;
@@ -54,10 +54,10 @@ export const getThreads = router({
 
       return threads
         .sort((a, b) => a.title.localeCompare(b.title))
-        .map(({ title, slug, units_count }) => ({
+        .map(({ title, slug, unit_count }) => ({
           title,
           slug,
-          unitCount: units_count,
+          unitCount: unit_count,
         }));
     }),
   getThreadUnits: protectedProcedure
@@ -83,7 +83,6 @@ export const getThreads = router({
           ${threadView}(
             where: {
               slug: { _eq: $threadSlug }
-              units_count: { _gt: 0 }
             }
           ) {
             slug

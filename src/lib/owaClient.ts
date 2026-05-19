@@ -169,7 +169,7 @@ export interface UnitVariantLesson {
 }
 
 export type ThreadSummary = TitleSlug & {
-  units_count: number;
+  unit_count: number;
 };
 
 export type ThreadWithUnits = TitleSlug & {
