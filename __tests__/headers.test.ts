@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { NextRequest } from 'next/server';
+import { unitVariantLessonsView } from '@/lib/owaClient';
 
 /**
  * HTTP Headers Integration Tests
@@ -57,14 +58,12 @@ describe('HTTP Headers - Link header pagination', () => {
   it('should return link header in HTTP response when results fill the page', async () => {
     // Mock OWA to return exactly 10 results (full page)
     mocks.owaClientRequestMock.mockResolvedValue({
-      published_mv_synthetic_unitvariant_lessons_by_year_12_0_0: Array(10).fill(
-        {
-          lesson_slug: 'test-lesson',
-          lesson_title: 'Test Lesson',
-          unit_slug: 'test-unit',
-          unit_title: 'Test Unit',
-        },
-      ),
+      [unitVariantLessonsView]: Array(10).fill({
+        lesson_slug: 'test-lesson',
+        lesson_title: 'Test Lesson',
+        unit_slug: 'test-unit',
+        unit_title: 'Test Unit',
+      }),
     });
 
     // Import the route handler AFTER mocks are set up
@@ -93,7 +92,7 @@ describe('HTTP Headers - Link header pagination', () => {
   it('should NOT return link header when results are less than the page size', async () => {
     // Mock OWA to return only 5 results (partial page when limit=10)
     mocks.owaClientRequestMock.mockResolvedValue({
-      published_mv_synthetic_unitvariant_lessons_by_year_12_0_0: Array(5).fill({
+      [unitVariantLessonsView]: Array(5).fill({
         lesson_slug: 'test-lesson',
         lesson_title: 'Test Lesson',
         unit_slug: 'test-unit',
