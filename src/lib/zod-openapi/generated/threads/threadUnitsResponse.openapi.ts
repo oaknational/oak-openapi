@@ -8,9 +8,12 @@ export const threadUnitsResponseOpenAPISchema = unitListSchema.meta({
       unitSlug: 'unitising-and-coin-recognitions-counting-in-2s-5s-and-10s',
     },
     {
-      unitTitle: 'Solving problems in a range of contexts',
-      unitSlug:
-        'unitising-and-coin-recognition-solving-problems-involving-money',
+      unitTitle: 'Programming subroutines',
+      unitSlug: 'programming-subroutines',
+    },
+    {
+      unitTitle: 'Programming subroutines',
+      unitSlug: 'programming-subroutines',
     },
   ],
 });
