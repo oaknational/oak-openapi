@@ -87,11 +87,8 @@ test('read a single asset (pdf)', async () => {
   );
 });
 
-test('lesson asset preflight returns CORS headers without auth', async () => {
-  const res = await optionsLessonAsset({
-    lesson: 'checking-understanding-of-perimeter',
-    type: 'video',
-  });
+test('lesson asset preflight returns CORS headers without auth', () => {
+  const res = optionsLessonAsset();
 
   expect(res.status).toBe(204);
   expect(res.headers.get('access-control-allow-origin')).toBe('*');

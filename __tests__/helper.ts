@@ -74,23 +74,6 @@ export async function getLessonAsset({
   return _getLessonAsset(request, { params });
 }
 
-export async function optionsLessonAsset({
-  lesson,
-  type,
-}: {
-  lesson: string;
-  type: string;
-}): Promise<Response> {
-  const url = `http://localhost/lessons/${lesson}/assets/${type}`;
-  const request = {
-    nextUrl: new URL(url),
-    url,
-    headers: new Headers(),
-  } as unknown as NextRequest;
-
-  const params = Promise.resolve({
-    lesson,
-    type,
-  });
-  return _optionsLessonAsset(request, { params });
+export function optionsLessonAsset(): Response {
+  return _optionsLessonAsset();
 }
