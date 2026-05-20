@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { sequenceView, threadView } from '@/lib/owaClient';
 
 const mocks = vi.hoisted(() => ({
   owaClientRequestMock: vi.fn(),
@@ -21,21 +22,21 @@ describe('/threads/{threadSlug}/units', () => {
 
   it('queries the threads resolver and maps published thread units', async () => {
     mocks.owaClientRequestMock.mockResolvedValue({
-      published_mv_threads_1: [
+      [threadView]: [
         {
           slug: 'number-multiplication-and-division',
         },
       ],
     });
     mocks.owaClientRequestMock.mockResolvedValueOnce({
-      published_mv_threads_1: [
+      [threadView]: [
         {
           slug: 'number-multiplication-and-division',
         },
       ],
     });
     mocks.owaClientRequestMock.mockResolvedValueOnce({
-      published_mv_curriculum_sequence_b_13_0_21: [
+      [sequenceView]: [
         {
           slug: 'first-unit',
           title: 'First unit',
@@ -60,10 +61,10 @@ describe('/threads/{threadSlug}/units', () => {
 
     expect(mocks.owaClientRequestMock).toHaveBeenCalledTimes(2);
     expect(mocks.owaClientRequestMock.mock.calls[0]?.[0]).toContain(
-      'published_mv_threads_1(',
+      `${threadView}(`,
     );
     expect(mocks.owaClientRequestMock.mock.calls[1]?.[0]).toContain(
-      'published_mv_curriculum_sequence_b_13_0_21(',
+      `${sequenceView}(`,
     );
     expect(mocks.owaClientRequestMock.mock.calls[1]?.[1]).toEqual({
       where: {
