@@ -31,6 +31,7 @@ Architecture
 API
 - [`docs/api/README.md`](api/README.md): API docs index.
 - [`docs/api/quickstart.md`](api/quickstart.md): authentication and sample requests.
+- [`docs/ENDPOINTS.md`](ENDPOINTS.md): endpoint-to-source-file index.
 
 Operations
 - [`docs/operations/README.md`](operations/README.md): operations docs index.

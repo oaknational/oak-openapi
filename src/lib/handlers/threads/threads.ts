@@ -16,6 +16,10 @@ import {
   threadUnitsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/threads';
 import { errorResponses } from '@/lib/errorResponses';
+// import {
+//   getUnitProgrammeFactorsFromSequence,
+//   type UnitProgrammeFactors,
+// } from '@/lib/handlers/unitProgrammeFactors';
 
 export const getThreads = router({
   getAllThreads: protectedProcedure
@@ -37,10 +41,10 @@ export const getThreads = router({
 
       const query = gql`
         query {
-          ${threadView}(where: { units_count: { _gt: 0 } }) {
+          ${threadView} {
             title
             slug
-            units_count
+            unit_count
           }
         }
       `;
@@ -50,10 +54,10 @@ export const getThreads = router({
 
       return threads
         .sort((a, b) => a.title.localeCompare(b.title))
-        .map(({ title, slug, units_count }) => ({
+        .map(({ title, slug, unit_count }) => ({
           title,
           slug,
-          unitCount: units_count,
+          unitCount: unit_count,
         }));
     }),
   getThreadUnits: protectedProcedure
@@ -79,7 +83,6 @@ export const getThreads = router({
           ${threadView}(
             where: {
               slug: { _eq: $threadSlug }
-              units_count: { _gt: 0 }
             }
           ) {
             slug
@@ -104,6 +107,12 @@ export const getThreads = router({
           ) {
             slug
             title
+            # examboard
+            # examboard_slug
+            # pathway
+            # pathway_slug
+            # tier
+            # tier_slug
           }
         }
       `;
@@ -117,11 +126,42 @@ export const getThreads = router({
       };
 
       const res: SequenceView = await client.request(query, { where });
+
       const units = res[sequenceView];
 
-      return units.map((unit) => ({
-        unitTitle: unit.title,
-        unitSlug: unit.slug,
-      }));
+      // The sequence view is row-per-(unit, programme variant), so the same
+      // unit slug can appear multiple times across exam boards / tiers /
+      // pathways. We currently surface one entry per unit slug and leave the
+      // programme-factor fields disabled until the API is ready to expose them.
+      const seen = new Set<string>();
+      const result: {
+        unitSlug: string;
+        unitTitle: string;
+        // programmeFactors?: UnitProgrammeFactors;
+      }[] = [];
+
+      for (const unit of units) {
+        // const programmeFactors = getUnitProgrammeFactorsFromSequence(unit);
+
+        if (seen.has(unit.slug)) {
+          // const existing = result.find((r) => r.unitSlug === unit.slug);
+          // if (existing) {
+          //   existing.programmeFactors = {
+          //     ...existing.programmeFactors,
+          //     ...programmeFactors,
+          //   };
+          // }
+          continue;
+        }
+        seen.add(unit.slug);
+
+        result.push({
+          unitSlug: unit.slug,
+          unitTitle: unit.title,
+          // ...(programmeFactors ? { programmeFactors } : {}),
+        });
+      }
+
+      return result;
     }),
 });

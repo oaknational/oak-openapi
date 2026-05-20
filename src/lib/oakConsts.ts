@@ -16,6 +16,19 @@ export const subjectTitles: string[] = subjectSchema.options;
 export const examBoards: string[] = examboardSlugs.options;
 export const pathways: string[] = pathwaySlugs.options;
 export const ks4Options = [...examBoards, ...pathways];
+export const childSubjects = [
+  'biology',
+  'chemistry',
+  'combined-science',
+  'physics',
+] as const;
+export type ChildSubject = (typeof childSubjects)[number];
+export const childSubjectTitles: Record<ChildSubject, string> = {
+  biology: 'Biology',
+  chemistry: 'Chemistry',
+  'combined-science': 'Combined science',
+  physics: 'Physics',
+};
 
 export const keyStageToPhaseMap: Record<string, string> = {
   ks1: 'primary',
@@ -28,3 +41,7 @@ export const phaseToKeyStageMap: Record<string, string[]> = {
   primary: ['ks1', 'ks2'],
   secondary: ['ks3', 'ks4'],
 };
+
+export function isChildSubject(value?: string | null): value is ChildSubject {
+  return childSubjects.includes(value as ChildSubject);
+}
