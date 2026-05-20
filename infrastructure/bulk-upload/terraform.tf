@@ -8,12 +8,5 @@ terraform {
       version = "6.19.0"
     }
   }
-
-  cloud {
-    organization = "oak-national-academy"
-    workspaces {
-      tags = ["repo:oak-openapi", "config:bulk-upload"]
-    }
-  }
 }
 
