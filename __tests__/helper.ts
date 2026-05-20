@@ -1,4 +1,7 @@
-import { GET as _getLessonAsset } from '@/app/api/v0/lessons/[lesson]/assets/[type]/route';
+import {
+  GET as _getLessonAsset,
+  OPTIONS as _optionsLessonAsset,
+} from '@/app/api/v0/lessons/[lesson]/assets/[type]/route';
 import { TRPCError } from '@trpc/server';
 
 import type { NextRequest } from 'next/server';
@@ -69,4 +72,25 @@ export async function getLessonAsset({
     type,
   });
   return _getLessonAsset(request, { params });
+}
+
+export async function optionsLessonAsset({
+  lesson,
+  type,
+}: {
+  lesson: string;
+  type: string;
+}): Promise<Response> {
+  const url = `http://localhost/lessons/${lesson}/assets/${type}`;
+  const request = {
+    nextUrl: new URL(url),
+    url,
+    headers: new Headers(),
+  } as unknown as NextRequest;
+
+  const params = Promise.resolve({
+    lesson,
+    type,
+  });
+  return _optionsLessonAsset(request, { params });
 }
