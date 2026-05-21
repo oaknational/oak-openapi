@@ -1,4 +1,7 @@
-import { GET as _getLessonAsset } from '@/app/api/v0/lessons/[lesson]/assets/[type]/route';
+import {
+  GET as _getLessonAsset,
+  OPTIONS as _optionsLessonAsset,
+} from '@/app/api/v0/lessons/[lesson]/assets/[type]/route';
 import { TRPCError } from '@trpc/server';
 
 import type { NextRequest } from 'next/server';
@@ -69,4 +72,8 @@ export async function getLessonAsset({
     type,
   });
   return _getLessonAsset(request, { params });
+}
+
+export function optionsLessonAsset(): Response {
+  return _optionsLessonAsset();
 }
