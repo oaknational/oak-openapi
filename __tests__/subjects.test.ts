@@ -2,6 +2,18 @@ import { expect, test } from 'vitest';
 import { authedCaller } from './helper';
 import * as subjectConsts from '@/lib/keyStageAndSubjects';
 
+test('/subjects returns subject slug list only', async () => {
+  const { caller } = authedCaller();
+
+  const res = await caller.getSubjects.getAllSubjects();
+
+  expect(Array.isArray(res)).toBeTruthy();
+  expect(res.length).toBeGreaterThan(0);
+  expect(res).toContain('maths');
+  expect(res).not.toContain('financial-education');
+  expect(typeof res[0]).toBe('string');
+});
+
 test('subject with sequences and additional data', async () => {
   const { caller } = authedCaller();
 

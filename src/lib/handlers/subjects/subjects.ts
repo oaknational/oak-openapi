@@ -1,14 +1,7 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import * as z from 'zod/v4';
-import type { SubjectPhaseView } from '@/lib/owaClient';
-import {
-  currentCycle,
-  getClient,
-  gql,
-  subjectPhaseView,
-} from '@/lib/owaClient';
-import { TRPCError } from '@trpc/server';
+import { subjectSlugs } from '@/lib/keyStageAndSubjects';
 import {
   getSubjectFromProgrammes,
   getSubjectPhase,
@@ -38,60 +31,14 @@ export const getSubjects = router({
         path: '/subjects',
         summary: 'Subjects',
         description:
-          'This endpoint returns an array of all available subjects and their associated sequences, key stages and years.',
+          'This endpoint returns an array of available subject slugs.',
         errorResponses,
       },
     })
     .input(z.void())
     .output(allSubjectsResponseOpenAPISchema)
-    .query(async () => {
-      const client = getClient();
-      // filtering out financial education
-      const query = gql`
-      query ($currentCycle: String!) @cached(ttl: 300) {
-        ${subjectPhaseView}(
-          where: {
-            cycle: { _eq: $currentCycle }
-            _not: {slug: {_eq: "financial-education"}}
-          }
-          order_by: { display_order: asc }
-        ) {
-          title
-          slug
-          keystages
-          phases
-          ks4_options
-          display_order
-        }
-      }`;
-
-      const res: SubjectPhaseView = await client.request(query, {
-        currentCycle,
-      });
-
-      if (
-        !res ||
-        !Array.isArray(res[subjectPhaseView]) ||
-        res[subjectPhaseView].length === 0
-      ) {
-        throw new TRPCError({
-          message: `There was a problem requesting the subjects and associated data`,
-          code: 'INTERNAL_SERVER_ERROR',
-        });
-      }
-
-      const reply = res[subjectPhaseView].map((subject) => {
-        const keyStages = phaseToKeyStages(subject);
-        return {
-          subjectTitle: subject.title,
-          subjectSlug: subject.slug,
-          sequenceSlugs: phaseToSequences(subject),
-          keyStages,
-          years: yearsFromKeyStages(keyStages),
-        };
-      });
-
-      return reply;
+    .query(() => {
+      return subjectSlugs.filter((slug) => slug !== 'financial-education');
     }),
   getSubject: protectedProcedure
     .meta({
@@ -107,7 +54,7 @@ export const getSubjects = router({
     })
     .input(subjectRequestOpenAPISchema)
     .output(subjectResponseOpenAPISchema)
-    .query(async ({ input }) => {
+    .query(({ input }) => {
       return getSubjectFromProgrammes(input.subject);
     }),
   getSubjectSequence: protectedProcedure
