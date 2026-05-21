@@ -17,6 +17,24 @@ test('subject with sequences and additional data', async () => {
     keyStageSlug: 'ks1',
     keyStageTitle: 'Key Stage 1',
   });
+  expect(res.ks4ProgrammeFactors.tier?.map((_) => _.slug).sort()).toEqual([
+    'foundation',
+    'higher',
+  ]);
+});
+
+test('subject includes valid KS4 programme factor values', async () => {
+  const { caller } = authedCaller();
+
+  const res = await caller.getSubjects.getSubject({ subject: 'science' });
+
+  expect(res.ks4ProgrammeFactors.examBoard?.map((_) => _.slug).sort()).toEqual(
+    expect.arrayContaining(['aqa', 'edexcel', 'ocr']),
+  );
+  expect(res.ks4ProgrammeFactors.tier?.map((_) => _.slug).sort()).toEqual([
+    'foundation',
+    'higher',
+  ]);
 });
 
 test('years endpoint', async () => {
