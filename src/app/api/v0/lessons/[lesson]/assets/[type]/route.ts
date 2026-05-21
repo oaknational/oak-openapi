@@ -62,6 +62,23 @@ const forwardedVideoResponseHeaders = [
   'etag',
   'last-modified',
 ] as const;
+const corsHeaders = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-methods': 'GET, HEAD, OPTIONS',
+  'access-control-allow-headers': 'Content-Type, Authorization',
+  'access-control-expose-headers':
+    'Accept-Ranges, Content-Disposition, Content-Length, Content-Range',
+} as const;
+
+function createCorsHeaders(): Headers {
+  return new Headers(corsHeaders);
+}
+
+function applyCorsHeaders(headers: Headers): void {
+  for (const [key, value] of Object.entries(corsHeaders)) {
+    headers.set(key, value);
+  }
+}
 
 const hasErrorCode = (error: unknown): error is { code: string } => {
   return (
@@ -108,7 +125,7 @@ const handler = async (
   let args: { lesson: string; type: string } | undefined;
   let userId: number | undefined;
 
-  const resHeaders = new Headers();
+  const resHeaders = createCorsHeaders();
 
   try {
     // 1. get the user
@@ -235,6 +252,7 @@ const handler = async (
         url.hostname = new URL(assetBaseVideoUrl).hostname;
 
         const redirectResponse = NextResponse.redirect(url.toString(), 302);
+        applyCorsHeaders(redirectResponse.headers);
         captureApiRequestEvent({
           url: req.url,
           apiKey,
@@ -364,7 +382,10 @@ async function handlerWrapper(
         JSON.stringify({ ...errorPayload, code: e.code }),
         {
           status,
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
         },
       );
     }
@@ -376,9 +397,19 @@ async function handlerWrapper(
 
     return new NextResponse(JSON.stringify({ message, code }), {
       status: statusCode,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json',
+      },
     });
   }
+}
+
+function OPTIONS(): Response {
+  return new NextResponse(null, {
+    status: 204,
+    headers: createCorsHeaders(),
+  });
 }
 
 export {
@@ -387,6 +418,6 @@ export {
   handlerWrapper as PUT,
   handlerWrapper as PATCH,
   handlerWrapper as DELETE,
-  handlerWrapper as OPTIONS,
+  OPTIONS,
   handlerWrapper as HEAD,
 };
