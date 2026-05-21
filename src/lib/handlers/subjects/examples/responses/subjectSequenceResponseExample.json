@@ -13,8 +13,7 @@
       }
     ],
     "phaseSlug": "primary",
-    "phaseTitle": "Primary",
-    "ks4Options": null
+    "phaseTitle": "Primary"
   },
   {
     "sequenceSlug": "art-secondary",
@@ -30,7 +29,6 @@
       }
     ],
     "phaseSlug": "secondary",
-    "phaseTitle": "Secondary",
-    "ks4Options": null
+    "phaseTitle": "Secondary"
   }
 ]

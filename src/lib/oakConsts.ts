@@ -6,6 +6,7 @@ import {
   subjects as subjectSchema,
   examboardSlugs,
   pathwaySlugs,
+  tierSlugs,
 } from '@oaknational/oak-curriculum-schema';
 
 export const phases: string[] = phaseSlugs.options;
@@ -15,6 +16,7 @@ export const subjects: string[] = subjectSlugs.options;
 export const subjectTitles: string[] = subjectSchema.options;
 export const examBoards: string[] = examboardSlugs.options;
 export const pathways: string[] = pathwaySlugs.options;
+export const tiers: string[] = tierSlugs.options;
 export const ks4Options = [...examBoards, ...pathways];
 export const childSubjects = [
   'biology',

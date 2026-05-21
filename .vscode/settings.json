@@ -18,6 +18,7 @@
     "APIV",
     "commitlint",
     "Consts",
+    "edexcel",
     "examboard",
     "groupby",
     "hasura",
