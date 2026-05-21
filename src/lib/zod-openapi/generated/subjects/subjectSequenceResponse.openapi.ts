@@ -16,7 +16,6 @@ export const subjectSequenceResponseOpenAPISchema = z
 
         phaseSlug: 'primary',
         phaseTitle: 'Primary',
-        ks4Options: null,
       },
       {
         sequenceSlug: 'art-secondary',
@@ -28,7 +27,6 @@ export const subjectSequenceResponseOpenAPISchema = z
 
         phaseSlug: 'secondary',
         phaseTitle: 'Secondary',
-        ks4Options: null,
       },
     ],
   });

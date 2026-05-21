@@ -10,7 +10,7 @@ import {
 } from '@/lib/owaClient';
 import { TRPCError } from '@trpc/server';
 import {
-  getKs4ProgrammeFactors,
+  getSubjectFromProgrammes,
   getSubjectPhase,
   phaseToKeyStages,
   phaseToSequences,
@@ -108,19 +108,7 @@ export const getSubjects = router({
     .input(subjectRequestOpenAPISchema)
     .output(subjectResponseOpenAPISchema)
     .query(async ({ input }) => {
-      const subject = await getSubjectPhase(input.subject);
-
-      const keyStages = phaseToKeyStages(subject);
-      const ks4ProgrammeFactors = await getKs4ProgrammeFactors(subject);
-
-      return {
-        subjectTitle: subject.title,
-        subjectSlug: subject.slug,
-        sequenceSlugs: phaseToSequences(subject),
-        keyStages,
-        years: yearsFromKeyStages(keyStages),
-        ks4ProgrammeFactors,
-      };
+      return getSubjectFromProgrammes(input.subject);
     }),
   getSubjectSequence: protectedProcedure
     .meta({
