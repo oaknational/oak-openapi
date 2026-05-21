@@ -59,6 +59,17 @@ export const subjectsWithKeyStages = (): SubjectWithKeyStages[] => {
   }));
 };
 
+export const subjectTitleForSlug = (slug: string): string | null => {
+  for (const { subjects } of getSource()) {
+    for (const subject of subjects) {
+      if (subject.slug === slug) {
+        return subject.title;
+      }
+    }
+  }
+  return null;
+};
+
 export const subjects = Array.from(
   new Set(
     getSource()

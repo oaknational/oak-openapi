@@ -15,7 +15,6 @@ export const subjectResponseOpenAPISchema = subjectResult.meta({
         ],
         phaseSlug: 'primary',
         phaseTitle: 'Primary',
-        ks4Options: null,
       },
       {
         sequenceSlug: 'science-secondary-aqa',
@@ -26,10 +25,6 @@ export const subjectResponseOpenAPISchema = subjectResult.meta({
         ],
         phaseSlug: 'secondary',
         phaseTitle: 'Secondary',
-        ks4Options: {
-          title: 'AQA',
-          slug: 'aqa',
-        },
       },
       {
         sequenceSlug: 'science-secondary-edexcel',
@@ -40,10 +35,6 @@ export const subjectResponseOpenAPISchema = subjectResult.meta({
         ],
         phaseSlug: 'secondary',
         phaseTitle: 'Secondary',
-        ks4Options: {
-          title: 'Edexcel',
-          slug: 'edexcel',
-        },
       },
       {
         sequenceSlug: 'science-secondary-ocr',
@@ -54,10 +45,6 @@ export const subjectResponseOpenAPISchema = subjectResult.meta({
         ],
         phaseSlug: 'secondary',
         phaseTitle: 'Secondary',
-        ks4Options: {
-          title: 'OCR',
-          slug: 'ocr',
-        },
       },
     ],
     years: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
@@ -90,6 +77,24 @@ export const subjectResponseOpenAPISchema = subjectResult.meta({
         {
           title: 'Higher',
           slug: 'higher',
+        },
+      ],
+      childSubject: [
+        {
+          title: 'Biology',
+          slug: 'biology',
+        },
+        {
+          title: 'Chemistry',
+          slug: 'chemistry',
+        },
+        {
+          title: 'Combined science',
+          slug: 'combined-science',
+        },
+        {
+          title: 'Physics',
+          slug: 'physics',
         },
       ],
     },

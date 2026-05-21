@@ -31,6 +31,7 @@ export const views = [
   subjectPhaseView,
   sequenceView,
   lessonSearchView,
+  programmesByYearView,
 ];
 
 export const sequenceViewWhereInput =
@@ -69,6 +70,44 @@ export interface LessonDetail {
 
 export interface SubjectPhaseView {
   [subjectPhaseView]: SubjectPhase[];
+}
+
+export interface SyntheticProgrammesByYearView {
+  [programmesByYearView]: SyntheticProgrammeByYear[];
+}
+
+export interface SyntheticProgrammeByYear {
+  programme_slug: string;
+  programme_fields: SyntheticProgrammeFields;
+}
+
+export interface SyntheticProgrammeFields {
+  subject: string;
+  subject_slug: string;
+  subject_display_order: number | null;
+  subject_parent?: string | null;
+  subject_parent_slug?: string | null;
+  phase: string;
+  phase_slug: string;
+  phase_display_order: number | null;
+  keystage: string;
+  keystage_slug: string;
+  keystage_description: string;
+  keystage_display_order: number | null;
+  year: string;
+  year_id: number | null;
+  year_slug: string;
+  year_description: string;
+  year_display_order: number | null;
+  examboard: string | null;
+  examboard_slug: string | null;
+  examboard_display_order: number | null;
+  pathway: string | null;
+  pathway_slug: string | null;
+  pathway_display_order: number | null;
+  tier: string | null;
+  tier_slug: string | null;
+  tier_display_order: number | null;
 }
 
 export interface LessonSearchView {

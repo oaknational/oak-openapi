@@ -23,6 +23,10 @@ export const ks4ProgrammeFactorsResult = z
       description:
         'The valid tier values offered by Oak for this subject at key stage 4.',
     }),
+    childSubject: z.array(programmeFactorOptionResult).optional().meta({
+      description:
+        'The child subjects offered by Oak for this subject at key stage 4 (e.g. biology, chemistry, physics and combined-science under science). Only present for Science, which is split into child subjects at KS4.',
+    }),
   })
   .meta({
     description:
@@ -62,16 +66,6 @@ export const sequenceResult = z.object({
   phaseTitle: z.string().meta({
     description: 'The title for the phase to which this sequence belongs',
   }),
-  ks4Options: z
-    .object({
-      title: z.string(),
-      slug: z.string(),
-    })
-    .meta({
-      description:
-        'The key stage 4 study pathway that this sequence represents. May be null.',
-    })
-    .nullable(),
 });
 
 export type SequenceResult = z.infer<typeof sequenceResult>;
@@ -91,4 +85,5 @@ export const subjectResult = subjectSummaryResult.extend({
   ks4ProgrammeFactors: ks4ProgrammeFactorsResult,
 });
 
+export type SubjectResult = z.infer<typeof subjectResult>;
 export type Ks4ProgrammeFactors = z.infer<typeof ks4ProgrammeFactorsResult>;
