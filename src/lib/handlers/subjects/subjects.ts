@@ -6,7 +6,6 @@ import {
   getSubjectFromProgrammes,
   getSubjectPhase,
   phaseToKeyStages,
-  phaseToSequences,
   yearsFromKeyStages,
 } from './helpers';
 import { errorResponses } from '@/lib/errorResponses';
@@ -16,8 +15,6 @@ import {
   subjectKeyStagesResponseOpenAPISchema,
   subjectRequestOpenAPISchema,
   subjectResponseOpenAPISchema,
-  subjectSequenceRequestOpenAPISchema,
-  subjectSequenceResponseOpenAPISchema,
   subjectYearsRequestOpenAPISchema,
   subjectYearsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/subjects';
@@ -56,23 +53,6 @@ export const getSubjects = router({
     .output(subjectResponseOpenAPISchema)
     .query(({ input }) => {
       return getSubjectFromProgrammes(input.subject);
-    }),
-  getSubjectSequence: protectedProcedure
-    .meta({
-      openapi: {
-        tags: ['lists', 'sequences'],
-        method: 'GET',
-        summary: 'Sequencing information for a given subject',
-        path: '/subjects/{subject}/sequences',
-        errorResponses,
-        description:
-          'This endpoint returns an array of sequence objects that are currently available for a given subject. For secondary sequences, this includes information about key stage 4 variance such as exam board sequences and non-GCSE ‘core’ unit sequences.',
-      },
-    })
-    .input(subjectSequenceRequestOpenAPISchema)
-    .output(subjectSequenceResponseOpenAPISchema)
-    .query(async ({ input }) => {
-      return phaseToSequences(await getSubjectPhase(input.subject));
     }),
   getSubjectKeyStages: protectedProcedure
     .meta({

@@ -81,9 +81,16 @@ export const subjectSummaryResult = z.object({
   keyStages: keyStagesResult,
 });
 
+export const sequenceWithProgrammeFactorsResult = sequenceResult.extend({
+  ks4ProgrammeFactors: ks4ProgrammeFactorsResult,
+});
+
 export const subjectResult = subjectSummaryResult.extend({
   ks4ProgrammeFactors: ks4ProgrammeFactorsResult,
 });
 
+export type SequenceWithProgrammeFactorsResult = z.infer<
+  typeof sequenceWithProgrammeFactorsResult
+>;
 export type SubjectResult = z.infer<typeof subjectResult>;
 export type Ks4ProgrammeFactors = z.infer<typeof ks4ProgrammeFactorsResult>;
