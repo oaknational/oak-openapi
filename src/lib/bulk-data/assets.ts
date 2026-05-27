@@ -11,11 +11,12 @@ import type {
 } from './types';
 import { logError } from './logger';
 import { createWriteStream } from 'node:fs';
+import { LessonWithTranscripts } from '../owaClient';
 
 export async function downloadQuiz(
   key: ValidDownloadTypes,
   assetLinks: LessonAssetsMap,
-  lesson: Lesson,
+  lesson: Lesson | LessonWithTranscripts,
   packs: AssetPacks,
   slug: string,
   storage: Storage,
