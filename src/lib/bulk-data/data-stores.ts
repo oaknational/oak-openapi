@@ -1,7 +1,6 @@
 import { Storage } from '@google-cloud/storage';
 import { log, logError } from './logger';
 import { createReadStream } from 'node:fs';
-import { tuplesToObjects } from './utils';
 
 const bucketName = process.env.BUCKET_NAME;
 
@@ -18,45 +17,6 @@ export function getGoogleCloudStorage(): Storage {
   }
 
   return storage;
-}
-
-export async function runSQL(sql: string): Promise<unknown> {
-  const body = {
-    type: 'run_sql',
-    args: {
-      source: 'Oak DB',
-      sql,
-      read_only: true,
-    },
-  };
-
-  const res = await fetch(`${process.env.OAK_GRAPHQL_HOST}/v2/query`, {
-    headers: {
-      'x-oak-auth-key': process.env.OAK_GRAPHQL_SECRET as string,
-      'x-oak-auth-type': 'oak-admin',
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-    body: JSON.stringify(body),
-  });
-
-  interface SQLResponse {
-    error?: string;
-    result: [string[], ...string[][]];
-  }
-
-  const json = (await res.json()) as SQLResponse;
-
-  if (json.error) {
-    console.error('Error running SQL:', json);
-    throw new Error(json.error);
-  }
-
-  // note that this also maps "null" to null, and "t" and "f" to true and false
-  // and parses JSON strings
-  const result = tuplesToObjects(json.result);
-
-  return result as unknown;
 }
 
 export function uploadToStorage(
