@@ -313,9 +313,22 @@ export interface Lesson {
 
 // extend Lesson by adding `transcript_sentences` and `transcript_vtt`
 export interface LessonWithTranscripts extends Lesson {
-  transcript_sentences: string;
-  transcript_vtt: string;
+  transcript_sentences?: string;
+  transcript_vtt?: string;
   downloadsAvailable: boolean;
+  lessonSlug: string;
+  oakUrl?: string;
+  canonicalUrl?: string;
+  subjectSlug: string;
+  unitSlug: string;
+  restricted?: boolean;
+  video?: string;
+  slideDeck?: string;
+  supplementaryResource?: string;
+  worksheet?: string;
+  worksheetAnswers?: string;
+  starterQuizAnswers?: string;
+  exitQuizAnswers?: string;
 }
 
 export interface HasAttribution {
