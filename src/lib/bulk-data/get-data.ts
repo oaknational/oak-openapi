@@ -5,12 +5,13 @@ import type {
   LessonAssetsMap,
   SlimSequenceResult,
   UnitWithExamBoards,
-  Lesson,
 } from './types';
 import { gql } from 'graphql-request';
 import type { GraphQLClient } from 'graphql-request';
 import type {
   DownloadView,
+  LessonWithTranscripts,
+  LessonWithTranscriptsView,
   Sequence,
   SequenceView,
   SubjectPhase,
@@ -20,16 +21,14 @@ import type {
 import {
   currentCycle,
   downloadView,
-  lessonContentViewTable,
-  lessonViewTable,
+  getClient,
+  lessonOpenApiWithTranscriptsView,
   sequenceView,
-  sequenceViewTable,
   sequenceViewWhereInput,
   subjectPhaseView,
 } from '@/lib/owaClient';
 import { formatUnitSummary } from '@/lib/handlers/units/helpers';
 import { sequenceWhere } from '@/lib/handlers/sequences/sequences';
-import { runSQL } from './data-stores';
 import { createProgrammeSlug, getCanonicalUrlForUnit } from '../canonicalUrls';
 
 export interface SubjectWithLessonCount {
@@ -37,16 +36,6 @@ export interface SubjectWithLessonCount {
   slug: string;
   phase: string;
   lessonCount: number;
-}
-
-export async function getSubjectsWithLessonCounts(): Promise<
-  SubjectWithLessonCount[]
-> {
-  const sql = `select SUM(jsonb_array_length(lessons)) AS "lessonCount", subject_slug as slug, phase_slug as phase, subject as title from ${sequenceViewTable} group by subject_slug, subject, phase_slug order by subject, subject_slug, phase_slug`;
-
-  const res = (await runSQL(sql)) as SubjectWithLessonCount[];
-
-  return res.filter((_) => _.slug !== 'financial-education');
 }
 
 export async function getAllSubjects(
@@ -384,46 +373,48 @@ export async function getAllLessonAssets(
   return map;
 }
 
-export async function getAllLessonData(unitSlug: string): Promise<Lesson[]> {
-  const sql = `
-    SELECT
-      lessons."lessonTitle",
-      lessons."lessonSlug",
-      lessons."unitSlug",
-      lessons."unitTitle",
-      lessons."subjectSlug",
-      lessons."subjectTitle",
-      lessons."keyStageSlug",
-      lessons."keyStageTitle",
-      lessons."lessonKeywords",
-      lessons."keyLearningPoints",
-      lessons."misconceptionsAndCommonMistakes",
-      lessons."programmeSlug",
-      lessons."pupilLessonOutcome",
-      lessons."teacherTips",
-      lessons."contentGuidance",
-      lessons."hasDownloadableResources" AS downloadsAvailable,
-      lessons."supervisionLevel",
-      transcripts."transcript_sentences",
-      transcripts."transcript_vtt"
-    FROM
-      ${lessonViewTable} AS lessons,
-      ${lessonContentViewTable} AS transcripts
-    WHERE
-      lessons."lessonId" = transcripts."lesson_id"
-      AND lessons."unitSlug" = '${unitSlug}'
-      AND transcripts."_state" = 'published'`;
+export async function getAllLessonData(
+  unitSlug: string,
+): Promise<LessonWithTranscripts[]> {
+  const query = gql`
+     query ($unitSlug: String!) {
+      ${lessonOpenApiWithTranscriptsView}(
+        limit: 1
+        where: { unitSlug: { _eq: $unitSlug } }
+      ) {
+        lessonTitle
+        lessonSlug
+        unitSlug
+        unitTitle
+        subjectSlug
+        subjectTitle
+        keyStageSlug
+        keyStageTitle
+        lessonKeywords
+        keyLearningPoints
+        misconceptionsAndCommonMistakes
+        programmeSlug
+        pupilLessonOutcome
+        teacherTips
+        contentGuidance
+        downloadsAvailable: downloadsavailable
+        supervisionLevel
+        transcript_sentences
+        transcript_vtt
+      }
+    }
+  `;
 
-  const res = (await runSQL(sql)) as Lesson[];
-  // const res = (
-  //   await db.query({
-  //     text: sql,
-  //   })
-  // ).rows;
+  const res: LessonWithTranscriptsView = await getClient().request(query, {
+    unitSlug,
+  });
+
+  const lessonRes: LessonWithTranscripts[] =
+    res[lessonOpenApiWithTranscriptsView];
 
   const seen = new Set();
 
-  return res.reduce((acc, row) => {
+  return lessonRes.reduce((acc, row) => {
     if (seen.has(row.lessonSlug)) {
       return acc;
     }
@@ -431,5 +422,5 @@ export async function getAllLessonData(unitSlug: string): Promise<Lesson[]> {
     seen.add(row.lessonSlug);
     acc.push(row);
     return acc;
-  }, [] as Lesson[]);
+  }, [] as LessonWithTranscripts[]);
 }
