@@ -1,12 +1,27 @@
 import * as z from 'zod/v4';
 import { canonicalUrlSchema, oakUrlSchema } from '../../commonTypes';
+import { unitProgrammeFactorsSchema } from '@/lib/handlers/unitProgrammeFactors';
 
 export const lessonSummaryResponseSchema = z.object({
   lessonTitle: z.string().meta({ description: 'The lesson title' }),
   canonicalUrl: canonicalUrlSchema,
   oakUrl: oakUrlSchema,
-  unitSlug: z.string().meta({ description: 'The unit slug identifier' }),
-  unitTitle: z.string().meta({ description: 'The unit title' }),
+  units: z
+    .array(
+      z.object({
+        unitSlug: z.string().meta({ description: 'The unit slug identifier' }),
+        unitTitle: z.string().meta({ description: 'The unit title' }),
+        programmeFactors: unitProgrammeFactorsSchema
+          .describe(
+            'The programme-factor values that identify which variant of the unit this lesson sits in. Omitted when the unit has no programme factors.',
+          )
+          .optional(),
+      }),
+    )
+    .meta({
+      description:
+        'All the units (including programme variants) this lesson is part of. Each entry is a unique combination of unit slug and programme factors.',
+    }),
   subjectSlug: z.string().meta({ description: 'The subject slug identifier' }),
   subjectTitle: z.string().meta({ description: 'The subject slug identifier' }),
   keyStageSlug: z

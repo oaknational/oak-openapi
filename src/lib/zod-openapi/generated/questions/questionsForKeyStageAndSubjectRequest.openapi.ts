@@ -1,6 +1,7 @@
 import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
 import { limitSchema, offsetSchema } from '@/lib/handlers/commonTypes';
 import * as z from 'zod/v4';
+import { questionFilterSchema } from '@/lib/handlers/questions/types';
 
 export const questionsForKeyStageAndSubjectRequestOpenAPISchema = z.object({
   keyStage: z.enum(keyStageSlugs as [string]).meta({
@@ -15,4 +16,5 @@ export const questionsForKeyStageAndSubjectRequestOpenAPISchema = z.object({
   }),
   offset: offsetSchema,
   limit: limitSchema,
+  filter: questionFilterSchema.optional(),
 });

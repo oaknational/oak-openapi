@@ -1,8 +1,14 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import * as z from 'zod/v4';
-import type { ThreadView, ThreadWithUnits } from '@/lib/owaClient';
-import { getClient, gql, threadView } from '@/lib/owaClient';
+import type { SequenceView, ThreadView } from '@/lib/owaClient';
+import {
+  getClient,
+  gql,
+  sequenceView,
+  sequenceViewWhereInput,
+  threadView,
+} from '@/lib/owaClient';
 import { TRPCError } from '@trpc/server';
 import {
   allThreadsResponseOpenAPISchema,
@@ -10,6 +16,10 @@ import {
   threadUnitsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/threads';
 import { errorResponses } from '@/lib/errorResponses';
+// import {
+//   getUnitProgrammeFactorsFromSequence,
+//   type UnitProgrammeFactors,
+// } from '@/lib/handlers/unitProgrammeFactors';
 
 export const getThreads = router({
   getAllThreads: protectedProcedure
@@ -35,10 +45,10 @@ Do not use this for:
 
       const query = gql`
         query {
-          ${threadView}(where: { units_count: { _gt: 0 } }) {
+          ${threadView} {
             title
             slug
-            units_count
+            unit_count
           }
         }
       `;
@@ -48,10 +58,10 @@ Do not use this for:
 
       return threads
         .sort((a, b) => a.title.localeCompare(b.title))
-        .map(({ title, slug, units_count }) => ({
+        .map(({ title, slug, unit_count }) => ({
           title,
           slug,
-          unitCount: units_count,
+          unitCount: unit_count,
         }));
     }),
   getThreadUnits: protectedProcedure
@@ -80,26 +90,20 @@ Example slug: 'threadSlug=number-and-place-value'`,
       const client = getClient();
       const { threadSlug } = input;
 
-      const query = gql`
+      const threadQuery = gql`
         query ($threadSlug: String!) {
-          threads(
-            where: { _state: { _eq: "published" }, slug: { _eq: $threadSlug } }
-          ) {
-            thread_units(where: { _state: { _eq: "published" } }) {
-              order
-              unit {
-                slug
-                title
-              }
+          ${threadView}(
+            where: {
+              slug: { _eq: $threadSlug }
             }
+          ) {
+            slug
           }
         }
       `;
 
-      const { threads } = await client.request<{ threads: ThreadWithUnits[] }>(
-        query,
-        { threadSlug },
-      );
+      const threadRes = await client.request(threadQuery, { threadSlug });
+      const threads = (threadRes as ThreadView)[threadView];
 
       if (!threads.length) {
         throw new TRPCError({
@@ -108,14 +112,68 @@ Example slug: 'threadSlug=number-and-place-value'`,
         });
       }
 
-      const { thread_units: units } = threads[0];
+      const query = gql`
+        query getThreadUnits($where: ${sequenceViewWhereInput}) {
+          ${sequenceView}(
+            where: $where
+          ) {
+            slug
+            title
+            # examboard
+            # examboard_slug
+            # pathway
+            # pathway_slug
+            # tier
+            # tier_slug
+          }
+        }
+      `;
 
-      return units
-        .sort((a, b) => a.order - b.order)
-        .map(({ unit, order }) => ({
-          unitTitle: unit.title,
+      const where = {
+        non_curriculum: { _eq: false },
+        state: { _eq: 'published' },
+        threads: {
+          _contains: [{ slug: threadSlug }],
+        },
+      };
+
+      const res: SequenceView = await client.request(query, { where });
+
+      const units = res[sequenceView];
+
+      // The sequence view is row-per-(unit, programme variant), so the same
+      // unit slug can appear multiple times across exam boards / tiers /
+      // pathways. We currently surface one entry per unit slug and leave the
+      // programme-factor fields disabled until the API is ready to expose them.
+      const seen = new Set<string>();
+      const result: {
+        unitSlug: string;
+        unitTitle: string;
+        // programmeFactors?: UnitProgrammeFactors;
+      }[] = [];
+
+      for (const unit of units) {
+        // const programmeFactors = getUnitProgrammeFactorsFromSequence(unit);
+
+        if (seen.has(unit.slug)) {
+          // const existing = result.find((r) => r.unitSlug === unit.slug);
+          // if (existing) {
+          //   existing.programmeFactors = {
+          //     ...existing.programmeFactors,
+          //     ...programmeFactors,
+          //   };
+          // }
+          continue;
+        }
+        seen.add(unit.slug);
+
+        result.push({
           unitSlug: unit.slug,
-          unitOrder: order,
-        }));
+          unitTitle: unit.title,
+          // ...(programmeFactors ? { programmeFactors } : {}),
+        });
+      }
+
+      return result;
     }),
 });

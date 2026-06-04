@@ -24,8 +24,13 @@ import {
   sequenceUnitsRequestOpenAPISchema,
   sequenceUnitsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/sequences';
+import {
+  subjectSequenceRequestOpenAPISchema,
+  subjectSequenceResponseOpenAPISchema,
+} from '@/lib/zod-openapi/generated/subjects';
 import { isSequenceSubjectBlocked } from '@/lib/queryGate';
 import { TRPCError } from '@trpc/server';
+import { getSubjectFromProgrammes } from '../subjects/helpers';
 
 interface ExamBoardRef {
   title: string;
@@ -121,7 +126,137 @@ export function sequenceWhere(
   return res;
 }
 
+async function hasPublishedRowsForSequenceSlug(args: {
+  subjectSlug: string;
+  phaseSlug: string;
+  ks4OptionSlug: string | null;
+}): Promise<boolean> {
+  const client = getClient();
+  const baseAnd = [
+    {
+      _or: [
+        { subject_slug: { _eq: args.subjectSlug } },
+        { subject_parent_slug: { _eq: args.subjectSlug } },
+      ],
+    },
+    { phase_slug: { _eq: args.phaseSlug } },
+    { state: { _eq: 'published' } },
+    { non_curriculum: { _eq: false } },
+  ];
+
+  let variantCondition: Record<string, unknown>;
+  if (args.phaseSlug === 'primary') {
+    if (args.ks4OptionSlug !== null) {
+      return false;
+    }
+    variantCondition = {};
+  } else if (args.phaseSlug === 'secondary') {
+    const ks4Condition = { keystage_slug: { _eq: 'ks4' } };
+    if (args.ks4OptionSlug === null) {
+      variantCondition = {
+        _and: [
+          ks4Condition,
+          { examboard_slug: { _is_null: true } },
+          { pathway_slug: { _is_null: true } },
+        ],
+      };
+    } else if (examBoards.includes(args.ks4OptionSlug)) {
+      variantCondition = {
+        _and: [ks4Condition, { examboard_slug: { _eq: args.ks4OptionSlug } }],
+      };
+    } else {
+      variantCondition = {
+        _and: [ks4Condition, { pathway_slug: { _eq: args.ks4OptionSlug } }],
+      };
+    }
+  } else {
+    return false;
+  }
+
+  const query = gql`
+    query ($where: ${sequenceViewWhereInput}!) {
+      ${sequenceView}(where: $where, limit: 1) {
+        slug
+      }
+    }
+  `;
+
+  const where = {
+    _and: variantCondition._and ? [...baseAnd, variantCondition] : baseAnd,
+  };
+
+  const res: SequenceView = await client.request(query, { where });
+  return (res[sequenceView] ?? []).length > 0;
+}
+
 export const getSequences = router({
+  getSubjectSequence: protectedProcedure
+    .meta({
+      openapi: {
+        tags: ['lists', 'sequences'],
+        method: 'GET',
+        summary: 'Sequencing information for a given sequence slug',
+        path: '/sequences/{slug}',
+        errorResponses,
+        description:
+          'This endpoint returns the sequence object for the provided sequence slug. For secondary sequences, this includes information about key stage 4 variance such as exam board sequences and non-GCSE ‘core’ unit sequences.',
+      },
+    })
+    .input(subjectSequenceRequestOpenAPISchema)
+    .output(subjectSequenceResponseOpenAPISchema)
+    .query(async ({ input }) => {
+      const rawSlug = (input as Record<string, unknown>).slug;
+      if (typeof rawSlug !== 'string') {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Sequence not found',
+        });
+      }
+
+      let subjectSlug: string;
+      let phaseSlug: string;
+      let ks4OptionSlug: string | null;
+
+      try {
+        ({ subjectSlug, phaseSlug, ks4OptionSlug } =
+          parseSubjectPhaseSlug(rawSlug));
+      } catch {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Sequence not found',
+        });
+      }
+
+      const hasRows = await hasPublishedRowsForSequenceSlug({
+        subjectSlug,
+        phaseSlug,
+        ks4OptionSlug,
+      });
+
+      if (!hasRows) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Sequence not found',
+        });
+      }
+
+      const subject = await getSubjectFromProgrammes(subjectSlug);
+      const sequence = subject.sequenceSlugs.find(
+        (item) => item.sequenceSlug === rawSlug,
+      );
+
+      if (!sequence) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Sequence not found',
+        });
+      }
+
+      return {
+        ...sequence,
+        ks4ProgrammeFactors: subject.ks4ProgrammeFactors,
+      };
+    }),
   getSequenceUnits: protectedProcedure
     .meta({
       openapi: {

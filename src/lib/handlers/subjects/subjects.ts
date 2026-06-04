@@ -1,18 +1,11 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import * as z from 'zod/v4';
-import type { SubjectPhaseView } from '@/lib/owaClient';
+import { subjectSlugs } from '@/lib/keyStageAndSubjects';
 import {
-  currentCycle,
-  getClient,
-  gql,
-  subjectPhaseView,
-} from '@/lib/owaClient';
-import { TRPCError } from '@trpc/server';
-import {
+  getSubjectFromProgrammes,
   getSubjectPhase,
   phaseToKeyStages,
-  phaseToSequences,
   yearsFromKeyStages,
 } from './helpers';
 import { errorResponses } from '@/lib/errorResponses';
@@ -22,8 +15,6 @@ import {
   subjectKeyStagesResponseOpenAPISchema,
   subjectRequestOpenAPISchema,
   subjectResponseOpenAPISchema,
-  subjectSequenceRequestOpenAPISchema,
-  subjectSequenceResponseOpenAPISchema,
   subjectYearsRequestOpenAPISchema,
   subjectYearsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/subjects';
@@ -36,9 +27,9 @@ export const getSubjects = router({
         method: 'GET',
         path: '/subjects',
         summary: 'All subjects',
-        description: `Use this when you need a catalogue of every subject Oak currently offers, each with its sequences, key stages, and years in one call.
+        description: `Use this when you need a catalogue of every subject Oak currently offers.
 
-Returns every subject ordered by Oak's display order, with 'subjectTitle', 'subjectSlug', 'sequenceSlugs', 'keyStages', and 'years'. This is the entry point for building a subject picker or crawling the whole curriculum.
+This is the entry point for building a subject picker or crawling the whole curriculum.
 
 Do not use this for:
 - A single subject (use GET /subjects/{subject})
@@ -49,54 +40,8 @@ Do not use this for:
     })
     .input(z.void())
     .output(allSubjectsResponseOpenAPISchema)
-    .query(async () => {
-      const client = getClient();
-      // filtering out financial education
-      const query = gql`
-      query ($currentCycle: String!) @cached(ttl: 300) {
-        ${subjectPhaseView}(
-          where: {
-            cycle: { _eq: $currentCycle }
-            _not: {slug: {_eq: "financial-education"}}
-          }
-          order_by: { display_order: asc }
-        ) {
-          title
-          slug
-          keystages
-          phases
-          ks4_options
-          display_order
-        }
-      }`;
-
-      const res: SubjectPhaseView = await client.request(query, {
-        currentCycle,
-      });
-
-      if (
-        !res ||
-        !Array.isArray(res[subjectPhaseView]) ||
-        res[subjectPhaseView].length === 0
-      ) {
-        throw new TRPCError({
-          message: `There was a problem requesting the subjects and associated data`,
-          code: 'INTERNAL_SERVER_ERROR',
-        });
-      }
-
-      const reply = res[subjectPhaseView].map((subject) => {
-        const keyStages = phaseToKeyStages(subject);
-        return {
-          subjectTitle: subject.title,
-          subjectSlug: subject.slug,
-          sequenceSlugs: phaseToSequences(subject),
-          keyStages,
-          years: yearsFromKeyStages(keyStages),
-        };
-      });
-
-      return reply;
+    .query(() => {
+      return subjectSlugs.filter((slug) => slug !== 'financial-education');
     }),
   getSubject: protectedProcedure
     .meta({
@@ -120,41 +65,8 @@ Example slug: 'subject=maths'`,
     })
     .input(subjectRequestOpenAPISchema)
     .output(subjectResponseOpenAPISchema)
-    .query(async ({ input }) => {
-      const subject = await getSubjectPhase(input.subject);
-
-      const keyStages = phaseToKeyStages(subject);
-      return {
-        subjectTitle: subject.title,
-        subjectSlug: subject.slug,
-        sequenceSlugs: phaseToSequences(subject),
-        keyStages,
-        years: yearsFromKeyStages(keyStages),
-      };
-    }),
-  getSubjectSequence: protectedProcedure
-    .meta({
-      openapi: {
-        tags: ['lists', 'sequences'],
-        method: 'GET',
-        summary: 'Sequence slugs for a subject',
-        path: '/subjects/{subject}/sequences',
-        errorResponses,
-        description: `Use this when you only need the sequence slugs for a subject — for example, to drive a sequence picker or pass the slug into GET /sequences/{sequence}/units.
-
-Returns sequence slugs for the subject. For secondary subjects this includes KS4 variants such as exam board sequences (AQA, Edexcel, OCR) and non-GCSE 'core' unit sequences.
-
-Do not use this for:
-- The full subject bundle (use GET /subjects/{subject})
-- Units inside a sequence (use GET /sequences/{sequence}/units)
-
-Example slug: 'subject=science'`,
-      },
-    })
-    .input(subjectSequenceRequestOpenAPISchema)
-    .output(subjectSequenceResponseOpenAPISchema)
-    .query(async ({ input }) => {
-      return phaseToSequences(await getSubjectPhase(input.subject));
+    .query(({ input }) => {
+      return getSubjectFromProgrammes(input.subject);
     }),
   getSubjectKeyStages: protectedProcedure
     .meta({
