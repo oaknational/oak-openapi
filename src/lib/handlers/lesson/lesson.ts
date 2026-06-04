@@ -12,6 +12,11 @@ import {
   checkLessonAllowedAsset,
 } from '../../queryGate';
 import Timing from '@/lib/serverTimings';
+import {
+  getUnitProgrammeFactorsFromLesson,
+  getUnitProgrammeFactorsSignature,
+  type UnitProgrammeFactors,
+} from '@/lib/handlers/unitProgrammeFactors';
 
 import type { LessonSearchResultType } from './schemas/lessonSearchResponse.schema';
 
@@ -100,6 +105,10 @@ Do not use this for:
             lessonTitle
             unitSlug
             unitTitle
+            examBoardSlug
+            examBoardTitle
+            tierSlug
+            tierTitle
             subjectSlug
             subjectTitle
             keyStageSlug
@@ -133,17 +142,52 @@ Do not use this for:
       }
 
       try {
-        const programmeSlug = data[0].programmeSlug;
-        const lesson = data[0] as z.infer<
-          typeof lessonSummaryResponseOpenAPISchema
-        >;
+        // The same lesson can appear in multiple unit variants (e.g. AQA
+        // foundation vs OCR higher), so collapse rows to a unique
+        // (unitSlug, programmeFactors) set and surface them all in `units`.
+        // The non-unit-scoped fields (lessonTitle, subject, key stage, etc.)
+        // are consistent across variants so we read them from any row.
+        const seen = new Set<string>();
+        const units: {
+          unitSlug: string;
+          unitTitle: string;
+          programmeFactors?: UnitProgrammeFactors;
+        }[] = [];
 
-        lesson.canonicalUrl = getCanonicalUrlForLesson(
-          slug,
-          lesson.unitSlug,
-          programmeSlug,
-        );
-        lesson.oakUrl = getOakUrlForLesson(slug);
+        for (const row of data) {
+          if (!row.unitSlug || !row.unitTitle) {
+            continue;
+          }
+
+          const programmeFactors = getUnitProgrammeFactorsFromLesson(row);
+          const dedupeKey = `${row.unitSlug}|${getUnitProgrammeFactorsSignature(programmeFactors)}`;
+
+          if (seen.has(dedupeKey)) {
+            continue;
+          }
+          seen.add(dedupeKey);
+
+          units.push({
+            unitSlug: row.unitSlug,
+            unitTitle: row.unitTitle,
+            ...(programmeFactors ? { programmeFactors } : {}),
+          });
+        }
+
+        units.sort((a, b) => {
+          const slugCmp = a.unitSlug.localeCompare(b.unitSlug);
+          if (slugCmp !== 0) return slugCmp;
+          return getUnitProgrammeFactorsSignature(
+            a.programmeFactors,
+          ).localeCompare(getUnitProgrammeFactorsSignature(b.programmeFactors));
+        });
+
+        const lesson = {
+          ...data[0],
+          units,
+          canonicalUrl: getCanonicalUrlForLesson(slug),
+          oakUrl: getOakUrlForLesson(slug),
+        } as z.infer<typeof lessonSummaryResponseOpenAPISchema>;
 
         // we need to loop through the lessons and change the downloadsAvailable
         // to check against the blockedLessons list. Ideally this would come from

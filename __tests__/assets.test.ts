@@ -1,5 +1,10 @@
 import { vi, expect, test } from 'vitest';
-import { getLessonAsset, makeCaller, mockWithUser } from './helper';
+import {
+  getLessonAsset,
+  makeCaller,
+  mockWithUser,
+  optionsLessonAsset,
+} from './helper';
 import { getVideoFromMux } from '@/lib/handlers/assets/helpers';
 import placeholderVideos from '@/lib/queryGateData/placeholderVideoLessons.json' with { type: 'json' };
 
@@ -75,9 +80,21 @@ test('read a single asset (pdf)', async () => {
   });
 
   expect(res.status).toBe(200);
+  expect(res.headers.get('access-control-allow-origin')).toBe('*');
   expect(res.headers.get('content-type')).toBe('application/octet-stream');
   expect(res.headers.get('content-disposition')).toBe(
     'attachment; filename="checking-understanding-of-perimeter_slidedeck.pptx"',
+  );
+});
+
+test('lesson asset preflight returns CORS headers without auth', () => {
+  const res = optionsLessonAsset();
+
+  expect(res.status).toBe(204);
+  expect(res.headers.get('access-control-allow-origin')).toBe('*');
+  expect(res.headers.get('access-control-allow-methods')).toContain('OPTIONS');
+  expect(res.headers.get('access-control-allow-headers')).toContain(
+    'Authorization',
   );
 });
 

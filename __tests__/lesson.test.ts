@@ -17,3 +17,55 @@ test('get lesson from hasura', async () => {
     'https://www.thenational.academy/teachers/lessons/joining-using-and',
   );
 });
+
+test('lesson without programme variants returns a single-entry units array', async () => {
+  const caller = makeCaller({
+    user: 1,
+  });
+
+  const res = await caller.getLessons.getLesson({
+    lesson: 'joining-using-and',
+  });
+
+  expect(res.units).toHaveLength(1);
+  expect(typeof res.units[0].unitSlug).toBe('string');
+  expect(typeof res.units[0].unitTitle).toBe('string');
+  // Primary KS1 lesson has no programme factors.
+  expect(res.units[0].programmeFactors).toBeUndefined();
+});
+
+test('structured-programs lesson exposes its KS4 unit and exam board', async () => {
+  const caller = makeCaller({
+    user: 1,
+  });
+
+  const res = await caller.getLessons.getLesson({
+    lesson: 'structured-programs',
+  });
+
+  expect(res.keyStageSlug).toBe('ks4');
+  expect(res.subjectSlug).toBe('computing');
+
+  // The lesson sits in the programming-subroutines unit on the OCR exam board.
+  // Each (unitSlug, programmeFactors) pair must be unique after deduplication.
+  expect(res.units.length).toBeGreaterThanOrEqual(1);
+  const matchingUnit = res.units.find(
+    (u) =>
+      u.unitSlug === 'programming-subroutines' &&
+      u.programmeFactors?.examBoard?.slug === 'ocr' &&
+      u.programmeFactors?.examBoard?.title === 'OCR',
+  );
+  expect(matchingUnit).toBeDefined();
+
+  const seen = new Set<string>();
+  for (const unit of res.units) {
+    const key = [
+      unit.unitSlug,
+      unit.programmeFactors?.examBoard?.slug ?? '',
+      unit.programmeFactors?.pathway?.slug ?? '',
+      unit.programmeFactors?.tier?.slug ?? '',
+    ].join('|');
+    expect(seen.has(key)).toBe(false);
+    seen.add(key);
+  }
+});

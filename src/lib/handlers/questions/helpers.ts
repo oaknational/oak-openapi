@@ -18,6 +18,7 @@ import type {
   MultipleChoiceAnswer,
   OrderAnswer,
   Question,
+  QuestionFilter,
   QuizKey,
   TextAnswer,
 } from './types';
@@ -206,7 +207,31 @@ function formatQuestion(question: DBQuestion): Question | undefined {
   }
 }
 
-export function questionsForQuiz(lesson: Lesson): Record<QuizKey, Question[]> {
+function questionHasImage(question: Question): boolean {
+  if (question.questionImage) {
+    return true;
+  }
+
+  return question.answers.some((answer) => {
+    return 'type' in answer && answer.type === 'image';
+  });
+}
+
+function filterQuestions(
+  questions: Question[],
+  filter?: QuestionFilter,
+): Question[] {
+  if (filter !== 'images') {
+    return questions;
+  }
+
+  return questions.filter(questionHasImage);
+}
+
+export function questionsForQuiz(
+  lesson: Lesson,
+  filter?: QuestionFilter,
+): Record<QuizKey, Question[]> {
   const result = emptyQuizResults();
   for (const quiz of ['starterQuiz', 'exitQuiz'] as QuizKey[]) {
     let lessonContent;
@@ -234,7 +259,7 @@ export function questionsForQuiz(lesson: Lesson): Record<QuizKey, Question[]> {
       }
     }
 
-    result[quiz] = questions;
+    result[quiz] = filterQuestions(questions, filter);
   }
   return result;
 }
