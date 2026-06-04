@@ -1,5 +1,6 @@
 import * as z from 'zod/v4';
+import { subjectSlugs } from '@/lib/keyStageAndSubjects';
 
 export const subjectSequenceRequestSchema = z.object({
-  subject: z.string().describe('The slug identifier for the subject'),
+  subject: z.enum(subjectSlugs).describe('The slug identifier for the subject'),
 });

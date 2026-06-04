@@ -16,6 +16,7 @@ import {
   phaseToSequences,
   yearsFromKeyStages,
 } from './helpers';
+import { getNonCurricularSubjectSlugs } from '@/lib/nonCurricularSubjects';
 import { errorResponses } from '@/lib/errorResponses';
 import {
   allSubjectsResponseOpenAPISchema,
@@ -80,16 +81,20 @@ export const getSubjects = router({
         });
       }
 
-      const reply = res[subjectPhaseView].map((subject) => {
-        const keyStages = phaseToKeyStages(subject);
-        return {
-          subjectTitle: subject.title,
-          subjectSlug: subject.slug,
-          sequenceSlugs: phaseToSequences(subject),
-          keyStages,
-          years: yearsFromKeyStages(keyStages),
-        };
-      });
+      const nonCurricular = await getNonCurricularSubjectSlugs(client);
+
+      const reply = res[subjectPhaseView]
+        .filter((subject) => !nonCurricular.has(subject.slug))
+        .map((subject) => {
+          const keyStages = phaseToKeyStages(subject);
+          return {
+            subjectTitle: subject.title,
+            subjectSlug: subject.slug,
+            sequenceSlugs: phaseToSequences(subject),
+            keyStages,
+            years: yearsFromKeyStages(keyStages),
+          };
+        });
 
       return reply;
     }),
