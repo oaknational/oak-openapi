@@ -315,7 +315,7 @@ export interface Lesson {
 export interface LessonWithTranscripts extends Lesson {
   transcript_sentences?: string;
   transcript_vtt?: string;
-  downloadsAvailable: boolean;
+  downloadsavailable: boolean;
   lessonSlug: string;
   oakUrl?: string;
   canonicalUrl?: string;
