@@ -1,19 +1,11 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import * as z from 'zod/v4';
-import type { SubjectPhaseView } from '@/lib/owaClient';
-import {
-  currentCycle,
-  getClient,
-  gql,
-  subjectPhaseView,
-} from '@/lib/owaClient';
-import { TRPCError } from '@trpc/server';
+import { subjectSlugs } from '@/lib/keyStageAndSubjects';
 import {
   getSubjectFromProgrammes,
   getSubjectPhase,
   phaseToKeyStages,
-  phaseToSequences,
   yearsFromKeyStages,
 } from './helpers';
 import { getNonCurricularSubjectSlugs } from '@/lib/nonCurricularSubjects';
@@ -24,8 +16,6 @@ import {
   subjectKeyStagesResponseOpenAPISchema,
   subjectRequestOpenAPISchema,
   subjectResponseOpenAPISchema,
-  subjectSequenceRequestOpenAPISchema,
-  subjectSequenceResponseOpenAPISchema,
   subjectYearsRequestOpenAPISchema,
   subjectYearsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/subjects';
@@ -39,7 +29,7 @@ export const getSubjects = router({
         path: '/subjects',
         summary: 'Subjects',
         description:
-          'This endpoint returns an array of all available subjects and their associated sequences, key stages and years.',
+          'This endpoint returns an array of available subject slugs.',
         errorResponses,
       },
     })
@@ -112,25 +102,8 @@ export const getSubjects = router({
     })
     .input(subjectRequestOpenAPISchema)
     .output(subjectResponseOpenAPISchema)
-    .query(async ({ input }) => {
+    .query(({ input }) => {
       return getSubjectFromProgrammes(input.subject);
-    }),
-  getSubjectSequence: protectedProcedure
-    .meta({
-      openapi: {
-        tags: ['lists', 'sequences'],
-        method: 'GET',
-        summary: 'Sequencing information for a given subject',
-        path: '/subjects/{subject}/sequences',
-        errorResponses,
-        description:
-          'This endpoint returns an array of sequence objects that are currently available for a given subject. For secondary sequences, this includes information about key stage 4 variance such as exam board sequences and non-GCSE ‘core’ unit sequences.',
-      },
-    })
-    .input(subjectSequenceRequestOpenAPISchema)
-    .output(subjectSequenceResponseOpenAPISchema)
-    .query(async ({ input }) => {
-      return phaseToSequences(await getSubjectPhase(input.subject));
     }),
   getSubjectKeyStages: protectedProcedure
     .meta({
