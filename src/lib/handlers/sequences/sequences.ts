@@ -198,8 +198,15 @@ export const getSequences = router({
         summary: 'Sequencing information for a given sequence slug',
         path: '/sequences/{slug}',
         errorResponses,
-        description:
-          'This endpoint returns the sequence object for the provided sequence slug. For secondary sequences, this includes information about key stage 4 variance such as exam board sequences and non-GCSE ‘core’ unit sequences.',
+        description: `Use this when you already have a sequence slug and need the sequence-level summary for that exact sequence.
+
+      Returns one sequence object with its slug, phase, years, key stages, and any key stage 4 programme-factor context needed to interpret sequence variants.
+
+      Do not use this for:
+      - Units in sequence order (use GET /sequences/{sequence}/units)
+      - Subject-level catalogue data (use GET /subjects or GET /subjects/{subject})
+
+      Example slugs: 'slug=maths-primary', 'slug=science-secondary-aqa'`,
       },
     })
     .input(subjectSequenceRequestOpenAPISchema)
