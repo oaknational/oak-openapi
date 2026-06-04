@@ -397,7 +397,7 @@ export async function getAllLessonData(
         pupilLessonOutcome
         teacherTips
         contentGuidance
-        downloadsAvailable: downloadsavailable
+        downloadsavailable
         supervisionLevel
         transcript_sentences
         transcript_vtt
