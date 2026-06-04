@@ -20,7 +20,13 @@ export const getKeywords = router({
         summary: 'Keywords by subject and key stage',
         description: `Use this when you want the vocabulary associated with a key stage, subject, unit, lesson, or phase — for example, to build a glossary or surface definitions alongside lesson content.
 
-Returns keywords with their definition, the subject and key stage they appear in, and the lesson slugs that use them, sorted alphabetically. All filters are optional but at least one of 'keyStage', 'subject', 'unit', 'lesson', or 'phase' is typically needed to produce a useful list.`,
+Returns keywords with their definition, the subject and key stage they appear in, and the lesson slugs that use them, sorted alphabetically. All filters are optional but at least one of 'keyStage', 'subject', 'unit', 'lesson', or 'phase' is typically needed to produce a useful list.
+
+Do not use this for:
+- A list of lessons or units themselves (use GET /key-stages/{keyStage}/subject/{subject}/lessons or GET /key-stages/{keyStage}/subject/{subject}/units)
+- Free-text lesson discovery by title or transcript (use GET /search/lessons or GET /search/transcripts)
+
+Example query: 'keyStage=ks2&subject=maths&unit=fractions-a'`,
         errorResponses: [],
       },
     })

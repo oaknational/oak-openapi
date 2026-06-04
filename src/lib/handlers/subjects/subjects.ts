@@ -31,10 +31,14 @@ export const getSubjects = router({
 
 This is the entry point for building a subject picker or crawling the whole curriculum.
 
+      Returns an array of subject slugs currently available in Oak.
+
 Do not use this for:
 - A single subject (use GET /subjects/{subject})
 - Just the sequence slugs, key stages, or years in isolation (use GET /subjects/{subject}/sequences, GET /subjects/{subject}/key-stages, or GET /subjects/{subject}/years)
-- Lessons or units inside a subject (use GET /key-stages/{keyStage}/subject/{subject}/lessons or GET /key-stages/{keyStage}/subject/{subject}/units)`,
+      - Lessons or units inside a subject (use GET /key-stages/{keyStage}/subject/{subject}/lessons or GET /key-stages/{keyStage}/subject/{subject}/units)
+
+      Example: GET /subjects`,
         errorResponses,
       },
     })
@@ -53,7 +57,11 @@ Do not use this for:
         errorResponses,
         description: `Use this when you have a subject slug and want the same bundle that GET /subjects returns, but for one subject only.
 
-Returns 'subjectTitle', 'subjectSlug', 'sequenceSlugs', 'keyStages', and 'years' for the subject. Prefer this over GET /subjects when you already know which subject you are working with.
+Returns 'subjectTitle', 'subjectSlug', 'sequenceSlugs', 'keyStages', 'years', and 'ks4ProgrammeFactors' for the subject. Prefer this over GET /subjects when you already know which subject you are working with.
+
+'ks4ProgrammeFactors' contains the valid KS4 filter values for that subject. Depending on the subject, it can include any of: 'examBoard', 'pathway', 'tier', and 'childSubject'.
+
+Each entry in 'sequenceSlugs' also includes 'phaseSlug' and 'phaseTitle', plus the years and key stages for that sequence.
 
 Do not use this for:
 - Every subject in one call (use GET /subjects)
@@ -111,7 +119,6 @@ Do not use this for:
 Example slug: 'subject=english'`,
       },
     })
-    // TODO: put these examples in their own file
     .input(subjectYearsRequestOpenAPISchema)
     .output(subjectYearsResponseOpenAPISchema)
     .query(async ({ input }) => {
