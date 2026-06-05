@@ -50,7 +50,6 @@ Short onboarding is below; a more detailed guide is in [docs/engineering/onboard
 - [README_BULK_DOWNLOAD.md](README_BULK_DOWNLOAD.md) (bulk download process)
 - [src/cms/README.md](src/cms/README.md) (CMS integration)
 - [docs/architecture/decision-records/README.md](docs/architecture/decision-records/README.md) (ADRs)
-- [.agent/summary/README.md](.agent/summary/README.md) (technical summary index)
 
 ## Development
 

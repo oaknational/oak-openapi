@@ -79,8 +79,6 @@ Docs and CMS
 Deep background (optional)
 - [docs/README.md](docs/README.md) (full docs index)
 - [docs/architecture/decision-records/README.md](docs/architecture/decision-records/README.md) (ADRs)
-- [.agent/summary/README.md](.agent/summary/README.md) (technical summary index)
-- [.agent/summary/analysis/versioned-improvements.md](.agent/summary/analysis/versioned-improvements.md) (v0/v1 priorities)
 
 Related docs
 - [README.md](README.md) (repo overview and quickstart)

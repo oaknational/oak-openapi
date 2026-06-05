@@ -8,7 +8,7 @@ V0 release checks (stability and trust)
 - [ ] OpenAPI generation (if schemas changed): `pnpm generate:openapi`
 - [ ] Docs render correctly (docs pages and Swagger UI)
 - [ ] Core endpoints smoke test: `/api/v0/subjects`, `/api/v0/swagger.json`, and one asset download
-- [ ] Update `.agent/summary` docs if behavior changed
+- [ ] Update relevant docs if behaviour changed
 
 V1 release checks (modernization)
 - [ ] All v0 checks
