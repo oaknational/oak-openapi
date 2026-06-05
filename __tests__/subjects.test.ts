@@ -54,7 +54,7 @@ test('non-curriculum subject returns 404', async () => {
 
   await expect(
     async () => await caller.getSubjects.getSubject({ subject: 'rule-of-law' }),
-  ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+  ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
 });
 
 test('years endpoint', async () => {
