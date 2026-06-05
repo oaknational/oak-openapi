@@ -29,6 +29,7 @@ import {
 } from '@/lib/owaClient';
 import { formatUnitSummary } from '@/lib/handlers/units/helpers';
 import { sequenceWhere } from '@/lib/handlers/sequences/sequences';
+import { subjectSlugs } from '@/lib/keyStageAndSubjects';
 import { createProgrammeSlug, getCanonicalUrlForUnit } from '../canonicalUrls';
 
 export interface SubjectWithLessonCount {
@@ -46,6 +47,8 @@ export async function getAllSubjects(
   if (subjectPhaseFilter) {
     const { subjectSlug } = parseSubjectPhaseSlug(subjectPhaseFilter);
     slugFilter = `slug: { _eq: "${subjectSlug}" }`;
+  } else {
+    slugFilter = `slug: { _in: ${JSON.stringify(subjectSlugs)} }`;
   }
 
   const query = gql`
