@@ -1,13 +1,13 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import * as z from 'zod/v4';
+import { subjectSlugs } from '@/lib/keyStageAndSubjects';
 import {
   getSubjectFromProgrammes,
   getSubjectPhase,
   phaseToKeyStages,
   yearsFromKeyStages,
 } from './helpers';
-import { subjectSlugs } from '@/lib/keyStageAndSubjects';
 import { errorResponses } from '@/lib/errorResponses';
 import {
   allSubjectsResponseOpenAPISchema,
@@ -15,7 +15,6 @@ import {
   subjectKeyStagesResponseOpenAPISchema,
   subjectRequestOpenAPISchema,
   subjectResponseOpenAPISchema,
-  subjectSequenceResponseOpenAPISchema,
   subjectYearsRequestOpenAPISchema,
   subjectYearsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/subjects';
@@ -36,7 +35,7 @@ export const getSubjects = router({
     .input(z.void())
     .output(allSubjectsResponseOpenAPISchema)
     .query(() => {
-      return subjectSlugs.filter((slug) => slug !== 'financial-education');
+      return subjectSlugs;
     }),
   getSubject: protectedProcedure
     .meta({
@@ -52,30 +51,8 @@ export const getSubjects = router({
     })
     .input(subjectRequestOpenAPISchema)
     .output(subjectResponseOpenAPISchema)
-    .query(async ({ input }) => {
+    .query(({ input }) => {
       return getSubjectFromProgrammes(input.subject);
-    }),
-  getSubjectSequence: protectedProcedure
-    .meta({
-      openapi: {
-        tags: ['lists', 'sequences'],
-        method: 'GET',
-        summary: 'Sequencing information for a given subject',
-        path: '/subjects/{subject}/sequences',
-        errorResponses,
-        description:
-          'This endpoint returns an array of sequence objects that are currently available for a given subject. For secondary sequences, this includes information about key stage 4 variance such as exam board sequences and non-GCSE ‘core’ unit sequences.',
-      },
-    })
-    .input(subjectRequestOpenAPISchema)
-    .output(z.array(subjectSequenceResponseOpenAPISchema))
-    .query(async ({ input }) => {
-      const subject = await getSubjectFromProgrammes(input.subject);
-
-      return subject.sequenceSlugs.map((sequence) => ({
-        ...sequence,
-        ks4ProgrammeFactors: subject.ks4ProgrammeFactors,
-      }));
     }),
   getSubjectKeyStages: protectedProcedure
     .meta({
