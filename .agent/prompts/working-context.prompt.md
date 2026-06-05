@@ -14,7 +14,6 @@ Key sources (start here)
 - [`docs/engineering/v0-v1-improvements.md`](../../docs/engineering/v0-v1-improvements.md) (improvement framing)
 - [`docs/engineering/gap-analysis.md`](../../docs/engineering/gap-analysis.md) (high-impact issues)
 - [`docs/engineering/enhancements.md`](../../docs/engineering/enhancements.md) (optional improvements)
-- [`.agent/summary/index.md`](../summary/index.md) (analysis index and deep dives)
 
 External feedback: MCP semantic search work
 - Location: [`.agent/external-feedback-and-requests/from-mcp-semantic-search-work/`](../external-feedback-and-requests/from-mcp-semantic-search-work/)
@@ -30,7 +29,7 @@ External feedback: MCP semantic search work
 
 **start with a deep analysis of all relevant documents and code. There is no time pressure, only a need to do an excellent job**
 
-We need a sensible entrypoint to .agent/ focussed on the summary and feedback, aimed at a project manager who wants to understand the current state and potential improvements, in order to refine, prioritise, and organise work.
+We need a sensible entrypoint to .agent/ focussed on feedback, aimed at a project manager who wants to understand the current state and potential improvements, in order to refine, prioritise, and organise work.
 
 Ideas for use and transformation
 - Extract actions with V0/V1 tags and link to supporting docs.
