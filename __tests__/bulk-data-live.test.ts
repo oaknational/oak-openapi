@@ -29,7 +29,7 @@ test.skipIf(!hasGraphQLEnv || !runLiveBulkDataTest)(
       expect(lesson.subjectSlug?.length).toBeGreaterThan(0);
       expect(typeof lesson.keyStageSlug).toBe('string');
       expect(lesson.keyStageSlug?.length).toBeGreaterThan(0);
-      expect(typeof lesson.downloadsAvailable).toBe('boolean');
+      expect(typeof lesson.downloadsavailable).toBe('boolean');
 
       if (lesson.transcript_sentences != null) {
         expect(typeof lesson.transcript_sentences).toBe('string');
