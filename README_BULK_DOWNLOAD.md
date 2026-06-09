@@ -4,13 +4,6 @@ The bulk download process will generate a static copy of all the assets that are
 
 The data is organised by subject & phase, for example: Maths, Primary - making a "sequence-slug" of `maths-primary`.
 
-## Related docs
-
-- [.agent/summary/guides/bulk-api-mapping-guide.md](.agent/summary/guides/bulk-api-mapping-guide.md) (bulk vs API mapping)
-- [.agent/summary/guides/bulk-api-alignment-plan.md](.agent/summary/guides/bulk-api-alignment-plan.md) (alignment plan)
-- [docs/engineering/README.md](docs/engineering/README.md) (planning structure)
-- [docs/engineering/onboarding.md](docs/engineering/onboarding.md) (local setup and common tasks)
-
 The final content structure of the build process is:
 
 ```
