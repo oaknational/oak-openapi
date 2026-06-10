@@ -49,6 +49,14 @@ test('subject includes valid KS4 programme factor values', async () => {
   ]);
 });
 
+test('non-curriculum subject returns 404', async () => {
+  const { caller } = authedCaller();
+
+  await expect(
+    async () => await caller.getSubjects.getSubject({ subject: 'rule-of-law' }),
+  ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+});
+
 test('years endpoint', async () => {
   const { caller } = authedCaller();
 
@@ -122,7 +130,7 @@ test('correct year sequence', async () => {
   expect(res.sequenceSlugs[1].years).toStrictEqual([7, 8, 9, 10, 11]);
 });
 
-test('false subjects 404 and not error', async () => {
+test('false subjects return 400', async () => {
   const { caller } = authedCaller();
 
   await expect(
@@ -130,10 +138,10 @@ test('false subjects 404 and not error', async () => {
       await caller.getSubjects.getSubjectYears({
         subject: 'maths-made-up',
       }),
-  ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+  ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
 });
 
-test('Financial education returns 404', async () => {
+test('Financial education returns 400', async () => {
   const { caller } = authedCaller();
 
   await expect(
@@ -141,5 +149,5 @@ test('Financial education returns 404', async () => {
       await caller.getSubjects.getSubjectYears({
         subject: 'financial-education',
       }),
-  ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+  ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
 });

@@ -20,6 +20,7 @@ import {
 import { TRPCError } from '@trpc/server';
 import { examBoards, pathways, tiers } from '@/lib/oakConsts';
 import { subjectTitleForSlug } from '@/lib/keyStageAndSubjects';
+import { assertSubjectIsCurricular } from '@/lib/nonCurricularSubjects';
 
 export function phaseToSequences(subject: SubjectPhase): SequenceResult[] {
   const keyStageLookup: Record<string, string[]> = {
@@ -120,6 +121,8 @@ export async function getSubjectFromProgrammes(
   }
 
   const client = getClient();
+  await assertSubjectIsCurricular(subject, client);
+
   // The MV stores child subjects (e.g. biology/chemistry under science) as
   // standalone rows whose `programme_fields.subject_parent` carries the
   // parent's display title — but no `subject_parent_slug`. So when the
@@ -453,6 +456,7 @@ function orderOr(order: number | null, fallback: number): number {
 
 export async function getSubjectPhase(subject: string): Promise<SubjectPhase> {
   const client = getClient();
+  await assertSubjectIsCurricular(subject, client);
   const query = gql`
   query ($subject: String!, $currentCycle: String!) @cached(ttl: 300) {
     ${subjectPhaseView}(
