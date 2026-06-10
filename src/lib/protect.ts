@@ -45,10 +45,6 @@ const protectLogic = async (
         resHeaders.set('X-Retry-After', limit.reset.toString());
         // resHeaders.statusCode = 429; // not sure this is needed, but belt & braces
 
-        if (process.env.NODE_ENV !== 'test') {
-          console.log('Rate limit exceeded for user %s', user.key);
-        }
-
         throw new TRPCError({
           message: 'Rate limited exceeded',
           code: 'TOO_MANY_REQUESTS',
