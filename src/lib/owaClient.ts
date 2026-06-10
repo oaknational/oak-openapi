@@ -15,13 +15,17 @@ export const lessonContentViewTable =
   'published.mv_lesson_content_published_5_0_0';
 export const subjectPhaseView = 'published_mv_subject_phase_options_0_11';
 export const sequenceView = 'published_mv_curriculum_sequence_b_13_0_21';
-export const sequenceViewTable = 'published.mv_curriculum_sequence_b_13_0_21';
 export const lessonSearchView =
   'published_function__table__mv_lesson_openapi_search_1';
 export const programmesByYearView =
   'published_mv_synthetic_programmes_by_year_18_2_0';
 export const programmesByYearViewTable =
   'published.mv_synthetic_programmes_by_year_18_2_0';
+export const lessonOpenApiWithTranscriptsView =
+  'published_view_lesson_open_api_with_transcripts_1';
+
+export const sequenceViewWhereInput =
+  'published_mv_curriculum_sequence_b_13_0_21_bool_exp';
 
 export const views = [
   lessonView,
@@ -34,25 +38,11 @@ export const views = [
   programmesByYearView,
 ];
 
-export const sequenceViewWhereInput =
-  'published_mv_curriculum_sequence_b_13_0_21_bool_exp';
-
 function hasuraHeaders() {
   return {
     'content-type': 'application/json',
     authorization: `Bearer ${process.env.OAK_GRAPHQL_SECRET}`,
   };
-}
-
-export function querySQL(sql: string): Promise<Response> {
-  return fetch(`${process.env.OAK_GRAPHQL_HOST}/v1/query`, {
-    method: 'POST',
-    headers: hasuraHeaders(),
-    body: JSON.stringify({
-      type: 'run_sql',
-      args: { source: 'Oak DB', sql, read_only: true },
-    }),
-  });
 }
 
 export function getClient(): GraphQLClient {
@@ -74,6 +64,10 @@ export interface SubjectPhaseView {
 
 export interface SyntheticProgrammesByYearView {
   [programmesByYearView]: SyntheticProgrammeByYear[];
+}
+
+export interface LessonWithTranscriptsView {
+  [lessonOpenApiWithTranscriptsView]: LessonWithTranscripts[];
 }
 
 export interface SyntheticProgrammeByYear {
@@ -223,7 +217,7 @@ export type ThreadWithUnits = TitleSlug & {
 };
 
 export interface DownloadView {
-  published_mv_openapi_downloads_1_0_0: Download[];
+  [downloadView]: Download[];
 }
 
 export interface Download {
@@ -262,7 +256,7 @@ export interface TitleSlug {
 }
 
 export interface LessonView {
-  published_mv_lesson_openapi_1_2_3: Lesson[];
+  [lessonView]: Lesson[];
 }
 
 // Note: where any is used, the structure is currently unknown/undocumented
@@ -315,6 +309,26 @@ export interface Lesson {
   yearTitle?: string;
   tpcMedia?: HasAttribution[];
   tpcWorks?: HasAttribution[];
+}
+
+// extend Lesson by adding `transcript_sentences` and `transcript_vtt`
+export interface LessonWithTranscripts extends Lesson {
+  transcript_sentences?: string;
+  transcript_vtt?: string;
+  downloadsavailable: boolean;
+  lessonSlug: string;
+  oakUrl?: string;
+  canonicalUrl?: string;
+  subjectSlug: string;
+  unitSlug: string;
+  restricted?: boolean;
+  video?: string;
+  slideDeck?: string;
+  supplementaryResource?: string;
+  worksheet?: string;
+  worksheetAnswers?: string;
+  starterQuizAnswers?: string;
+  exitQuizAnswers?: string;
 }
 
 export interface HasAttribution {

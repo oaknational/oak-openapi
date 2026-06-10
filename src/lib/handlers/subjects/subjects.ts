@@ -28,14 +28,14 @@ export const getSubjects = router({
         path: '/subjects',
         summary: 'Subjects',
         description:
-          'This endpoint returns an array of available subject slugs.',
+          'This endpoint returns an array of all available subjects and their associated sequences, key stages and years.',
         errorResponses,
       },
     })
     .input(z.void())
     .output(allSubjectsResponseOpenAPISchema)
     .query(() => {
-      return subjectSlugs.filter((slug) => slug !== 'financial-education');
+      return subjectSlugs;
     }),
   getSubject: protectedProcedure
     .meta({
@@ -83,7 +83,6 @@ export const getSubjects = router({
           'This endpoint returns an array of years that are currently available for a given subject.',
       },
     })
-    // TODO: put these examples in their own file
     .input(subjectYearsRequestOpenAPISchema)
     .output(subjectYearsResponseOpenAPISchema)
     .query(async ({ input }) => {
