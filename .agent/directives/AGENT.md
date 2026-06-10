@@ -29,6 +29,9 @@ follow-up item in the plans.
 - Always import and use the relevant `owaClient` constant for mocked response
   keys and query-string assertions.
 
+When API endpoints are added, removed, or changed, update [docs/ENDPOINTS.md](../../docs/ENDPOINTS.md) in the same task.
+
+
 ## Project context
 
 - **What**: Oak OpenAPI is a Next.js app serving UI pages, API routes, docs, and
@@ -67,19 +70,19 @@ Single test example:
 pnpm test --testNamePattern="test name"
 ```
 
-## Repo structure (high level)
-
-- `src/app`: Next.js App Router pages and API routes.
-- `src/lib`: API handlers, OpenAPI generation, integrations, gating.
-- `src/cms`: Sanity CMS integration.
-- `src/components`: UI components.
-- `bin`: bulk and schema scripts.
-- `docs`: architecture and engineering docs.
-- `infrastructure`: Terraform for bulk uploader job.
-- `__tests__`: tests and load testing config.
-
 ## Remember
 
 1. When in doubt, make it simpler.
 2. Keep docs and `.env.example` in sync with code changes.
 3. If a change is significant or policy-level, add it to the plans.
+
+## Schema changes
+
+`pnpm generate:openapi` is currently broken and must not be run. Until it's
+fixed in a separate task, when a handler's request or response shape changes
+you must update **both**:
+
+- the source schemas under `src/lib/handlers/<handler>/schemas/*.ts`, and
+- the generated schemas under `src/lib/zod-openapi/generated/<handler>/*.ts`.
+
+Keep the two files in sync by hand.
