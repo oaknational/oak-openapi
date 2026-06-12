@@ -27,18 +27,9 @@ export const getSubjects = router({
         method: 'GET',
         path: '/subjects',
         summary: 'All subjects',
-        description: `Use this when you need a catalogue of every subject Oak currently offers.
+        description: `Use when you need every subject in one call — the entry point for a subject picker or for crawling the whole curriculum. Returns subjects alphabetically, each with subjectTitle, subjectSlug, sequenceSlugs, keyStages, and years. sequenceSlugs lists the sequences available for that subject; each sequence contains one programme per year group — call GET /sequences/{sequence}/programmes to enumerate them.
 
-This is the entry point for building a subject picker or crawling the whole curriculum.
-
-      Returns an array of subject slugs currently available in Oak.
-
-Do not use this for:
-- A single subject (use GET /subjects/{subject})
-- Just the sequence slugs, key stages, or years in isolation (use GET /subjects/{subject}/sequences, GET /subjects/{subject}/key-stages, or GET /subjects/{subject}/years)
-      - Lessons or units inside a subject (use GET /key-stages/{keyStage}/subject/{subject}/lessons or GET /key-stages/{keyStage}/subject/{subject}/units)
-
-      Example: GET /subjects`,
+Not for: a single subject (GET /subjects/{subject}); the key stages or year groups for a subject (GET /subjects/{subject}/key-stages or GET /subjects/{subject}/years); lessons or units inside a subject (GET /key-stages/{keyStage}/subject/{subject}/lessons or GET /key-stages/{keyStage}/subject/{subject}/units); the detail of one sequence (GET /sequences/{sequence}).`,
         errorResponses,
       },
     })
@@ -55,20 +46,11 @@ Do not use this for:
         summary: 'Single subject with sequences, key stages, and years',
         path: '/subjects/{subject}',
         errorResponses,
-        description: `Use this when you have a subject slug and want the same bundle that GET /subjects returns, but for one subject only.
+        description: `Use when you have a subject slug. Returns subjectTitle, subjectSlug, sequenceSlugs, keyStages, and years. sequenceSlugs lists the sequences available for this subject; each sequence contains one programme per year group — call GET /sequences/{sequence}/programmes to enumerate them.
 
-Returns 'subjectTitle', 'subjectSlug', 'sequenceSlugs', 'keyStages', 'years', and 'ks4ProgrammeFactors' for the subject. Prefer this over GET /subjects when you already know which subject you are working with.
+Not for: every subject in one call (GET /subjects); the key stages or year groups for a subject (GET /subjects/{subject}/key-stages or GET /subjects/{subject}/years); subject-scoped lessons or units (GET /key-stages/{keyStage}/subject/{subject}/lessons or GET /key-stages/{keyStage}/subject/{subject}/units); the detail of one sequence (GET /sequences/{sequence}).
 
-'ks4ProgrammeFactors' contains the valid KS4 filter values for that subject. Depending on the subject, it can include any of: 'examBoard', 'pathway', 'tier', and 'childSubject'.
-
-Each entry in 'sequenceSlugs' also includes 'phaseSlug' and 'phaseTitle', plus the years and key stages for that sequence.
-
-Do not use this for:
-- Every subject in one call (use GET /subjects)
-- Just one of the fields in isolation (use GET /subjects/{subject}/sequences, GET /subjects/{subject}/key-stages, or GET /subjects/{subject}/years)
-- Subject-scoped lessons or units (use GET /key-stages/{keyStage}/subject/{subject}/lessons or GET /key-stages/{keyStage}/subject/{subject}/units)
-
-Example slug: 'subject=maths'`,
+Example: subject=maths.`,
       },
     })
     .input(subjectRequestOpenAPISchema)
@@ -84,15 +66,11 @@ Example slug: 'subject=maths'`,
         summary: 'Key stages for a subject',
         path: '/subjects/{subject}/key-stages',
         errorResponses,
-        description: `Use this when you only need the key stages in which a subject is currently taught.
+        description: `Use when you only need the key stages where this subject is available. Returns key-stage titles and slugs.
 
-Returns key stages (titles and slugs) available for the subject. Smaller payload than GET /subjects/{subject}.
+Not for: every key stage (GET /key-stages); the subject record (GET /subjects/{subject}).
 
-Do not use this for:
-- Every key stage across Oak (use GET /key-stages)
-- The full subject bundle including sequences and years (use GET /subjects/{subject})
-
-Example slug: 'subject=history'`,
+Example: 'subject=history'.`,
       },
     })
     .input(subjectKeyStagesRequestOpenAPISchema)
@@ -108,15 +86,11 @@ Example slug: 'subject=history'`,
         summary: 'Year groups for a subject',
         path: '/subjects/{subject}/years',
         errorResponses,
-        description: `Use this when you only need the year groups in which a subject is currently taught.
+        description: `Use when you only need the year groups where this subject is available. Returns an array of year numbers, derived from the subject's key stages.
 
-Returns an array of year numbers derived from the key stages available for the subject.
+Not for: the subject record (GET /subjects/{subject}); key stages rather than year groups (GET /subjects/{subject}/key-stages).
 
-Do not use this for:
-- The full subject bundle (use GET /subjects/{subject})
-- Key stages rather than years (use GET /subjects/{subject}/key-stages)
-
-Example slug: 'subject=english'`,
+Example: 'subject=english'.`,
       },
     })
     .input(subjectYearsRequestOpenAPISchema)

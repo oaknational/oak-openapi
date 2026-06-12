@@ -44,17 +44,9 @@ export const getUnits = router({
         tags: ['units', 'unit-and-curriculum-data'],
         path: '/units/{unit}/summary',
         summary: 'Unit summary by slug',
-        description: `Use this when you have a unit slug and need the curriculum-level detail for that unit: title, description, key stage, subject, year, threads, prior knowledge requirements, national curriculum statements, and the list of lessons inside.
+        description: `Use when you have a unit slug and need the unit summary: title, description, key stage, subject, year, threads, prior-knowledge requirements, national-curriculum statements, and the lessons inside. Unit variant slugs (ending in -1, -2, etc.) resolve to that specific variant.
 
-Optional programme-factor filters can narrow the returned variant. The childSubject filter is only available for science units and accepts biology, chemistry, combined-science, or physics.
-
-Returns the full unit record. Unit-variant slugs (ending in '-1', '-2', etc.) resolve to the specific variant's content.
-
-Do not use this for:
-- Listing every unit in a key stage and subject (use GET /key-stages/{keyStage}/subject/{subject}/units)
-- Units as they appear in a curriculum sequence, with tiers and exam boards (use GET /sequences/{sequence}/units)
-- Units inside a thread (use GET /threads/{threadSlug}/units)
-- Lessons inside the unit (use GET /key-stages/{keyStage}/subject/{subject}/lessons with 'unit=<slug>')`,
+Not for: listing every unit in a key stage + subject (GET /key-stages/{keyStage}/subject/{subject}/units); all units across a sequence (GET /sequences/{sequence}/units); units in one programme (GET /sequences/{sequence}/programmes/{programme}/units); units in a thread (GET /threads/{threadSlug}/units); lessons inside the unit (GET /key-stages/{keyStage}/subject/{subject}/lessons with unit={unit}).`,
         errorResponses,
       },
     })

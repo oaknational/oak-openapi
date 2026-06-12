@@ -46,14 +46,9 @@ export const getQuestions = router({
         path: '/lessons/{lesson}/quiz',
         summary: 'Quiz questions for a lesson',
         errorResponses,
-        description: `Use this when you have a lesson slug and need its starter quiz and exit quiz questions with correct answers marked.
+        description: `Use when you have a lesson slug and need its starter and exit quiz questions with correct answers marked. Returns two arrays, starterQuiz and exitQuiz; each question includes the prompt, the answers (with correct ones flagged), and which answers are distractors.
 
-Returns two arrays, 'starterQuiz' and 'exitQuiz'. Each question includes its stem, the answer options, and flags indicating which options are correct and which are distractors.
-
-Do not use this for:
-- Quiz questions across a whole sequence (use GET /sequences/{sequence}/questions)
-- Quiz questions across a key stage and subject (use GET /key-stages/{keyStage}/subject/{subject}/questions)
-- The lesson's metadata or downloadable assets (use GET /lessons/{lesson}/summary or GET /lessons/{lesson}/assets)`,
+Not for: quiz questions across a sequence (GET /sequences/{sequence}/questions); quiz questions in one programme (GET /sequences/{sequence}/programmes/{programme}/questions); across a key stage + subject (GET /key-stages/{keyStage}/subject/{subject}/questions); lesson metadata or assets (GET /lessons/{lesson}/summary or GET /lessons/{lesson}/assets).`,
       },
     })
     .input(questionForLessonsRequestOpenAPISchema)
@@ -139,13 +134,9 @@ Do not use this for:
         tags: ['questions', 'sequences', 'unit-and-curriculum-data'],
         path: '/sequences/{sequence}/questions',
         summary: 'Quiz questions across a sequence',
-        description: `Use this when you want every quiz question for a whole curriculum sequence — for example, to build a bank of revision questions spanning a subject and year.
+        description: `Use when you want every quiz question across a whole sequence — all programmes combined. Returns questions grouped by lesson in unit sequence order. Pass year as an optional filter to return only that year's questions. Supports offset and limit; Link: rel="next" header signals more pages.
 
-Returns lessons in sequence order, each with its starter quiz and exit quiz questions and answers. Supports 'year', 'offset', and 'limit'; a 'Link: <...>; rel="next"' header is returned when more pages are available.
-
-Do not use this for:
-- A single lesson's quiz (use GET /lessons/{lesson}/quiz)
-- A key-stage and subject grouping rather than a sequence (use GET /key-stages/{keyStage}/subject/{subject}/questions)`,
+Not for: questions in a single programme (GET /sequences/{sequence}/programmes/{programme}/questions); a single lesson's quiz (GET /lessons/{lesson}/quiz); questions for a key stage + subject without programme structure (GET /key-stages/{keyStage}/subject/{subject}/questions).`,
         errorResponses,
       },
     })
@@ -293,13 +284,9 @@ Do not use this for:
         path: '/key-stages/{keyStage}/subject/{subject}/questions',
         summary: 'Quiz questions by key stage and subject',
         errorResponses,
-        description: `Use this when you want every quiz question for a key stage and subject, without regard to sequence or year ordering.
+        description: `Use when you want every quiz question for a key stage + subject, without programme structure or unit sequence order. Returns lessons each with starter and exit quiz questions and answers. Supports offset/limit pagination; Link: rel="next" header signals more pages.
 
-Returns lessons each with their starter quiz and exit quiz questions and answers. Supports 'offset' and 'limit'; a 'Link: <...>; rel="next"' header is returned when more pages are available.
-
-Do not use this for:
-- A single lesson's quiz (use GET /lessons/{lesson}/quiz)
-- A specific curriculum sequence with year ordering (use GET /sequences/{sequence}/questions)`,
+Not for: a single lesson's quiz (GET /lessons/{lesson}/quiz); questions across a sequence (GET /sequences/{sequence}/questions); questions in one programme (GET /sequences/{sequence}/programmes/{programme}/questions).`,
       },
     })
     .input(questionsForKeyStageAndSubjectRequestOpenAPISchema)

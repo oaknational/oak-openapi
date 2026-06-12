@@ -16,16 +16,11 @@ export const searchTranscripts = router({
         path: '/search/transcripts',
         summary: 'Lesson search by video transcript',
         errorResponses,
-        description: `Use this when a term is more likely to appear in what a teacher says on video than in the lesson title — for example, a concept, a quotation, or a worked example that isn't called out in metadata.
+        description: `Use when you want to search the spoken content of lesson videos. Returns up to 5 lessons whose transcripts contain similar text, each with a transcript snippet showing the match. No filters; searches every published transcript.
 
-Returns up to 5 lessons whose transcripts contain similar text, each with a transcript snippet showing the match. No filters are applied; the search runs across every published lesson transcript.
+Not for: terms in the lesson title (GET /search/lessons); metadata for a known lesson (GET /lessons/{lesson}/summary); a transcript by slug (GET /lessons/{lesson}/transcript).
 
-Do not use this for:
-- Finding a lesson from a term that appears in the title (use GET /search/lessons, which supports key-stage, subject, and unit filters)
-- Fetching the full metadata for a known lesson (use GET /lessons/{lesson}/summary)
-- Retrieving the transcript itself once you have the slug (use GET /lessons/{lesson}/transcript)
-
-Example queries: "the mitochondria are the powerhouse", "to be or not to be", "carry the one"`,
+Example queries: the mitochondria are the powerhouse, to be or not to be, carry the one.`,
       },
     })
     .input(searchTranscriptRequestOpenAPISchema)

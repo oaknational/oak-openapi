@@ -14,12 +14,9 @@ export const changelog = router({
         tags: ['internal'],
         errorResponses,
         summary: 'API changelog',
-        description: `Use this when you need the full history of significant changes to the API — for example, to surface release notes in a client or to verify which version introduced a field.
+        description: `Use when you need the full history of API changes — for surfacing release notes or checking which version introduced a field. Returns every changelog entry with version and date.
 
-Returns every entry in the changelog with its version and date.
-
-Do not use this for:
-- Just the latest version (use GET /changelog/latest)`,
+Not for: the current version (GET /changelog/latest).`,
       },
     })
     .output(
@@ -38,12 +35,9 @@ Do not use this for:
         path: '/changelog/latest',
         errorResponses,
         summary: 'Latest API version',
-        description: `Use this when you only need the current API version and its release note — for example, to show a "You're on vX.Y.Z" banner or to check whether a deployment has rolled out.
+        description: `Use when you only need the current API version — e.g. a version banner or deployment check. Returns the most recent changelog entry.
 
-Returns the most recent changelog entry.
-
-Do not use this for:
-- The full version history (use GET /changelog)`,
+Not for: full version history (GET /changelog).`,
         tags: ['internal'],
       },
     })

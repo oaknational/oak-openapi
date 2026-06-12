@@ -316,3 +316,7 @@ div.swagger-ui,
   .authorize {
   font-weight: 400;
 }
+
+.swagger-ui .renderedMarkdown code {
+  padding: 2px 3px;
+}

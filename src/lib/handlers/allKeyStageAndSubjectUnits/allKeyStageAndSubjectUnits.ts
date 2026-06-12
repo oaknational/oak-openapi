@@ -19,15 +19,9 @@ export const getAllKeyStageAndSubjectUnits = router({
         summary: 'Units in a key stage and subject',
         path: '/key-stages/{keyStage}/subject/{subject}/units',
         errorResponses,
-        description: `Use this when you want a flat list of every unit that has published lessons for a key stage and subject, grouped by year.
+        description: `Use when you want a flat list of every unit with published lessons in a key stage + subject, without programme structure or unit sequence order. Returns units grouped by year slug; units without published lessons are omitted. Pass examBoard to restrict KS4 to one board (one of: aqa, edexcel (Edexcel A), eduqas, ocr, wjec, edexcelb (Edexcel B)); otherwise each unit lists the boards it appears in.
 
-Returns units grouped by year slug. Units without any published lessons are omitted. Pass 'examBoard' to restrict KS4 results to a single board (AQA, Edexcel, OCR) — when omitted, each unit lists the exam boards it appears in.
-
-Do not use this for:
-- Curriculum-ordered units with tiers and pathway/exam-board structure (use GET /sequences/{sequence}/units)
-- A single unit's detail (use GET /units/{unit}/summary)
-- Lessons rather than units (use GET /key-stages/{keyStage}/subject/{subject}/lessons)
-- Units that belong to a thematic thread (use GET /threads/{threadSlug}/units)`,
+Not for: all units across a sequence (GET /sequences/{sequence}/units); units in one programme (GET /sequences/{sequence}/programmes/{programme}/units); a single unit (GET /units/{unit}/summary); lessons rather than units (GET /key-stages/{keyStage}/subject/{subject}/lessons); units in a thread (GET /threads/{threadSlug}/units).`,
       },
     })
     .input(allKeyStageAndSubjectUnitsRequestOpenAPISchema)

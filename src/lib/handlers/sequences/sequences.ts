@@ -198,15 +198,11 @@ export const getSequences = router({
         summary: 'Sequencing information for a given sequence slug',
         path: '/sequences/{slug}',
         errorResponses,
-        description: `Use this when you already have a sequence slug and need the sequence-level summary for that exact sequence.
+        description: `Use when you have a sequence slug and need the sequence-level summary. A sequence is a subject's curriculum across a phase (e.g. maths-primary, science-secondary-aqa); it spans one or more National Curriculum schemes and contains one programme per year group. Get sequence slugs from GET /subjects or GET /subjects/{subject} (the sequenceSlugs field). Returns slug, phase, key stages, years, and any KS4 programme factors (exam board, tier, child subject, pathway) needed to interpret the programmes within it.
 
-      Returns one sequence object with its slug, phase, years, key stages, and any key stage 4 programme-factor context needed to interpret sequence variants.
+Not for: the programmes within this sequence (GET /sequences/{sequence}/programmes); the unit sequence for one programme (GET /sequences/{sequence}/programmes/{programme}/units); all units across the sequence (GET /sequences/{sequence}/units); subject-level catalogue data (GET /subjects or GET /subjects/{subject}).
 
-      Do not use this for:
-      - Units in sequence order (use GET /sequences/{sequence}/units)
-      - Subject-level catalogue data (use GET /subjects or GET /subjects/{subject})
-
-      Example slugs: 'slug=maths-primary', 'slug=science-secondary-aqa'`,
+Example: sequence=maths-primary or science-secondary-aqa.`,
       },
     })
     .input(subjectSequenceRequestOpenAPISchema)
@@ -271,16 +267,11 @@ export const getSequences = router({
         method: 'GET',
         summary: 'Units in a curriculum sequence',
         path: '/sequences/{sequence}/units',
-        description: `Use this when you want units in the order and shape Oak teaches them — including tiers, exam boards, pathways, and exam subjects at KS4.
+        description: `Use when you want every unit across a whole sequence — all programmes combined, in unit sequence order. Returns units grouped by programme (year group) in unit sequence order. If the sequence slug includes an exam board (e.g. science-secondary-aqa), units are scoped to that exam board. Secondary sequences also expose tiers, pathways, and exam subjects where applicable. Pass year as an optional filter to return only that year's units (across all KS4 factor combinations).
 
-Returns units grouped by year in sequence order. Secondary sequences expose tiers and exam subjects where applicable; sequences not pinned to an exam board list the boards each unit appears in. Pass 'year' to restrict to a single year (or 'all-years').
+Not for: units in a single programme (GET /sequences/{sequence}/programmes/{programme}/units); a flat list of units for a key stage + subject without programme structure or unit sequence order (GET /key-stages/{keyStage}/subject/{subject}/units); the programmes within this sequence (GET /sequences/{sequence}/programmes); a single unit (GET /units/{unit}/summary); units in a thread (GET /threads/{threadSlug}/units).
 
-Do not use this for:
-- A flat subject and key-stage list of units without curriculum shape (use GET /key-stages/{keyStage}/subject/{subject}/units)
-- A single unit's detail (use GET /units/{unit}/summary)
-- Units in a thematic thread (use GET /threads/{threadSlug}/units)
-
-Example slugs: 'sequence=science-secondary-aqa', 'sequence=maths-primary'`,
+Example: sequence=science-secondary-aqa or maths-primary.`,
         errorResponses,
       },
     })

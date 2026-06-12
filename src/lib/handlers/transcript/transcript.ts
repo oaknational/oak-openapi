@@ -19,14 +19,9 @@ export const getLessonTranscript = router({
         tags: ['lessons', 'lesson-data'],
         summary: 'Lesson video transcript',
         path: '/lessons/{lesson}/transcript',
-        description: `Use this when you have a lesson slug and need the transcript of its teacher video — for accessibility, captioning, or text analysis.
+        description: `Use when you have a lesson slug and need the video transcript — for accessibility, captioning, or text analysis. Returns the transcript as an array of sentences plus a raw WebVTT captions file (vtt) suitable for a <track> element.
 
-Returns the transcript as an array of sentences plus the raw WebVTT captions file ('vtt') suitable for a <track> element.
-
-Do not use this for:
-- Searching across transcripts (use GET /search/transcripts)
-- The video file itself (use GET /lessons/{lesson}/assets/{type} with 'type=video')
-- Lesson metadata (use GET /lessons/{lesson}/summary)`,
+Not for: searching across transcripts (GET /search/transcripts); the video file itself (GET /lessons/{lesson}/assets/{type} with type=video); lesson metadata (GET /lessons/{lesson}/summary).`,
         errorResponses,
       },
     })

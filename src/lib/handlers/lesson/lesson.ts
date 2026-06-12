@@ -44,15 +44,11 @@ export const getLessons = router({
         tags: ['lessons', 'lesson-data'],
         summary: 'Lesson summary by slug',
         path: '/lessons/{lesson}/summary',
-        description: `Use this when you already have a lesson slug and need its full metadata: title, key stage, subject, unit, keywords, key learning points, misconceptions, pupil outcomes, teacher tips, and whether downloadable resources are available.
+        description: `Use when you have a lesson slug and need its full metadata: title, key stage, subject, unit, keywords, key learning points, misconceptions, pupil lesson outcome, teacher tips, content guidance, supervision level, and downloadsAvailable. Returns the lesson summary record.
 
-Returns the canonical lesson record for the given slug. The slug is the same identifier used across every lesson-scoped endpoint (e.g. 'imagining-you-are-the-characters-the-three-billy-goats-gruff').
+Not for: finding a lesson from a search term (GET /search/lessons); searching what's said in lesson videos (GET /search/transcripts); listing every lesson in a unit or subject (GET /key-stages/{keyStage}/subject/{subject}/lessons); the transcript or assets (GET /lessons/{lesson}/transcript or GET /lessons/{lesson}/assets).
 
-Do not use this for:
-- Finding a lesson from a free-text search term (use GET /search/lessons)
-- Searching the spoken content of lesson videos (use GET /search/transcripts)
-- Listing every lesson in a unit or subject (use GET /key-stages/{keyStage}/subject/{subject}/lessons)
-- Fetching the transcript or downloadable assets (use GET /lessons/{lesson}/transcript or GET /lessons/{lesson}/assets)`,
+Example slug: imagining-you-are-the-characters-the-three-billy-goats-gruff.`,
         errorResponses,
       },
     })
@@ -221,16 +217,11 @@ Do not use this for:
         tags: ['lessons', 'search'],
         path: '/search/lessons',
         summary: 'Lesson search by title',
-        description: `Use this when you want to find lessons from a free-text term that matches the lesson title.
+        description: `Use when you want to find lessons whose titles match a search term. Returns up to 20 lessons ranked by title similarity — each with slug, title, URL, similarity score, and the unit(s) the lesson appears in. Optional keyStage, subject, and unit narrow the search.
 
-Returns up to 20 lessons ranked by title similarity. Each result includes the lesson slug, title, Oak URL, similarity score, and the unit(s) the lesson appears in. Optional 'keyStage', 'subject', and 'unit' query parameters narrow the search.
+Not for: searching what's said in lesson videos (GET /search/transcripts); metadata for a known lesson (GET /lessons/{lesson}/summary); listing every lesson in a key stage + subject without ranking (GET /key-stages/{keyStage}/subject/{subject}/lessons).
 
-Do not use this for:
-- Searching the spoken content of lesson videos (use GET /search/transcripts)
-- Fetching the full metadata for a lesson you already know (use GET /lessons/{lesson}/summary)
-- Listing every lesson in a key stage and subject without ranking (use GET /key-stages/{keyStage}/subject/{subject}/lessons)
-
-Example queries: "KS3 science photosynthesis", "fractions year 5", "Macbeth soliloquy"`,
+Example queries: KS3 science photosynthesis, fractions year 5, Macbeth soliloquy.`,
         errorResponses,
       },
     })
