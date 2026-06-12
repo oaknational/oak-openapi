@@ -45,7 +45,7 @@ Do not use this for:
     .input(z.void())
     .output(allSubjectsResponseOpenAPISchema)
     .query(() => {
-      return subjectSlugs.filter((slug) => slug !== 'financial-education');
+      return subjectSlugs;
     }),
   getSubject: protectedProcedure
     .meta({

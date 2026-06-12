@@ -32,7 +32,6 @@ the contract should be made in the Zod schemas and regenerated.
 
 - Keep the OpenAPI document, docs, and handlers in sync.
 - Regenerate OpenAPI-ready schemas when schemas or examples change.
-- Update [`docs/architecture/openapi-generation.md`](../../docs/architecture/openapi-generation.md) when the generation flow
   changes.
 
 ## Compliance
