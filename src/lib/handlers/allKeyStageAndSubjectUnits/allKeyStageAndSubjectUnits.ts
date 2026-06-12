@@ -16,11 +16,12 @@ export const getAllKeyStageAndSubjectUnits = router({
       openapi: {
         method: 'GET',
         tags: ['lists', 'units'],
-        summary: 'Units',
+        summary: 'Units in a key stage and subject',
         path: '/key-stages/{keyStage}/subject/{subject}/units',
         errorResponses,
-        description:
-          'This endpoint returns an array of units containing available published lessons for a given key stage and subject, grouped by year. Units without published lessons will not be returned by this endpoint.',
+        description: `Use when you want a flat list of every unit with published lessons in a key stage + subject, without programme structure or unit sequence order. Returns units grouped by year slug; units without published lessons are omitted. Pass examBoard to restrict KS4 to one board (one of: aqa, edexcel (Edexcel A), eduqas, ocr, wjec, edexcelb (Edexcel B)); otherwise each unit lists the boards it appears in.
+
+Not for: all units across a sequence (GET /sequences/{sequence}/units); units in one programme (GET /sequences/{sequence}/programmes/{programme}/units); a single unit (GET /units/{unit}/summary); lessons rather than units (GET /key-stages/{keyStage}/subject/{subject}/lessons); units in a thread (GET /threads/{threadSlug}/units).`,
       },
     })
     .input(allKeyStageAndSubjectUnitsRequestOpenAPISchema)

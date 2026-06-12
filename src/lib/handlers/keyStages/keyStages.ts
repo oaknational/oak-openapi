@@ -12,10 +12,11 @@ export const getKeyStages = router({
         tags: ['lists'],
         method: 'GET',
         path: '/key-stages',
-        summary: 'Key stages',
+        summary: 'All key stages',
         errorResponses,
-        description:
-          'This endpoint returns all the key stages (titles and slugs) that are currently available on Oak',
+        description: `Use when you need the master list of key stages. Returns every key stage with its title and slug.
+
+Not for: key stages restricted to a subject (GET /subjects/{subject}/key-stages).`,
       },
     })
     .input(z.void())

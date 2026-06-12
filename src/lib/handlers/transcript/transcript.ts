@@ -17,10 +17,11 @@ export const getLessonTranscript = router({
       openapi: {
         method: 'GET',
         tags: ['lessons', 'lesson-data'],
-        summary: 'Lesson transcript',
+        summary: 'Lesson video transcript',
         path: '/lessons/{lesson}/transcript',
-        description:
-          'This endpoint returns the video transcript and video captions file for a given lesson.',
+        description: `Use when you have a lesson slug and need the video transcript — for accessibility, captioning, or text analysis. Returns the transcript as an array of sentences plus a raw WebVTT captions file (vtt) suitable for a <track> element.
+
+Not for: searching across transcripts (GET /search/transcripts); the video file itself (GET /lessons/{lesson}/assets/{type} with type=video); lesson metadata (GET /lessons/{lesson}/summary).`,
         errorResponses,
       },
     })

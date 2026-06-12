@@ -26,9 +26,10 @@ export const getSubjects = router({
         tags: ['lists'],
         method: 'GET',
         path: '/subjects',
-        summary: 'Subjects',
-        description:
-          'This endpoint returns an array of all available subjects and their associated sequences, key stages and years.',
+        summary: 'All subjects',
+        description: `Use when you need every subject in one call — the entry point for a subject picker or for crawling the whole curriculum. Returns subjects alphabetically, each with subjectTitle, subjectSlug, sequenceSlugs, keyStages, and years. sequenceSlugs lists the sequences available for that subject; each sequence contains one programme per year group — call GET /sequences/{sequence}/programmes to enumerate them.
+
+Not for: a single subject (GET /subjects/{subject}); the key stages or year groups for a subject (GET /subjects/{subject}/key-stages or GET /subjects/{subject}/years); lessons or units inside a subject (GET /key-stages/{keyStage}/subject/{subject}/lessons or GET /key-stages/{keyStage}/subject/{subject}/units); the detail of one sequence (GET /sequences/{sequence}).`,
         errorResponses,
       },
     })
@@ -42,11 +43,14 @@ export const getSubjects = router({
       openapi: {
         tags: ['lists'],
         method: 'GET',
-        summary: 'Subject',
+        summary: 'Single subject with sequences, key stages, and years',
         path: '/subjects/{subject}',
         errorResponses,
-        description:
-          'This endpoint returns the sequences, key stages and years that are currently available for a given subject.',
+        description: `Use when you have a subject slug. Returns subjectTitle, subjectSlug, sequenceSlugs, keyStages, and years. sequenceSlugs lists the sequences available for this subject; each sequence contains one programme per year group — call GET /sequences/{sequence}/programmes to enumerate them.
+
+Not for: every subject in one call (GET /subjects); the key stages or year groups for a subject (GET /subjects/{subject}/key-stages or GET /subjects/{subject}/years); subject-scoped lessons or units (GET /key-stages/{keyStage}/subject/{subject}/lessons or GET /key-stages/{keyStage}/subject/{subject}/units); the detail of one sequence (GET /sequences/{sequence}).
+
+Example: subject=maths.`,
       },
     })
     .input(subjectRequestOpenAPISchema)
@@ -59,11 +63,14 @@ export const getSubjects = router({
       openapi: {
         tags: ['lists'],
         method: 'GET',
-        summary: 'Key stages within a subject',
+        summary: 'Key stages for a subject',
         path: '/subjects/{subject}/key-stages',
         errorResponses,
-        description:
-          'This endpoint returns a list of key stages that are currently available for a given subject.',
+        description: `Use when you only need the key stages where this subject is available. Returns key-stage titles and slugs.
+
+Not for: every key stage (GET /key-stages); the subject record (GET /subjects/{subject}).
+
+Example: 'subject=history'.`,
       },
     })
     .input(subjectKeyStagesRequestOpenAPISchema)
@@ -76,11 +83,14 @@ export const getSubjects = router({
       openapi: {
         tags: ['lists'],
         method: 'GET',
-        summary: 'Year groups for a given subject',
+        summary: 'Year groups for a subject',
         path: '/subjects/{subject}/years',
         errorResponses,
-        description:
-          'This endpoint returns an array of years that are currently available for a given subject.',
+        description: `Use when you only need the year groups where this subject is available. Returns an array of year numbers, derived from the subject's key stages.
+
+Not for: the subject record (GET /subjects/{subject}); key stages rather than year groups (GET /subjects/{subject}/key-stages).
+
+Example: 'subject=english'.`,
       },
     })
     .input(subjectYearsRequestOpenAPISchema)

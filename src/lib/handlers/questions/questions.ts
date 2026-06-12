@@ -44,10 +44,11 @@ export const getQuestions = router({
         method: 'GET',
         tags: ['lessons', 'questions', 'quiz-questions'],
         path: '/lessons/{lesson}/quiz',
-        summary: 'Quiz questions by lesson',
+        summary: 'Quiz questions for a lesson',
         errorResponses,
-        description:
-          'The endpoint returns the quiz questions and answers for a given lesson. The answers data indicates which answers are correct, and which are distractors.',
+        description: `Use when you have a lesson slug and need its starter and exit quiz questions with correct answers marked. Returns two arrays, starterQuiz and exitQuiz; each question includes the prompt, the answers (with correct ones flagged), and which answers are distractors.
+
+Not for: quiz questions across a sequence (GET /sequences/{sequence}/questions); quiz questions in one programme (GET /sequences/{sequence}/programmes/{programme}/questions); across a key stage + subject (GET /key-stages/{keyStage}/subject/{subject}/questions); lesson metadata or assets (GET /lessons/{lesson}/summary or GET /lessons/{lesson}/assets).`,
       },
     })
     .input(questionForLessonsRequestOpenAPISchema)
@@ -132,8 +133,10 @@ export const getQuestions = router({
         method: 'GET',
         tags: ['questions', 'sequences', 'unit-and-curriculum-data'],
         path: '/sequences/{sequence}/questions',
-        summary: 'Questions within a sequence',
-        description: `This endpoint returns all quiz questions for a given sequence. The assets are separated into starter quiz and entry quiz arrays, grouped by lesson.`,
+        summary: 'Quiz questions across a sequence',
+        description: `Use when you want every quiz question across a whole sequence — all programmes combined. Returns questions grouped by lesson in unit sequence order. Pass year as an optional filter to return only that year's questions. Supports offset and limit; Link: rel="next" header signals more pages.
+
+Not for: questions in a single programme (GET /sequences/{sequence}/programmes/{programme}/questions); a single lesson's quiz (GET /lessons/{lesson}/quiz); questions for a key stage + subject without programme structure (GET /key-stages/{keyStage}/subject/{subject}/questions).`,
         errorResponses,
       },
     })
@@ -279,10 +282,11 @@ export const getQuestions = router({
         tags: ['questions', 'quiz-questions'],
         method: 'GET',
         path: '/key-stages/{keyStage}/subject/{subject}/questions',
-        summary: 'Quiz questions by subject and key stage',
+        summary: 'Quiz questions by key stage and subject',
         errorResponses,
-        description:
-          'This endpoint returns quiz questions and answers for each lesson within a requested subject and key stage.',
+        description: `Use when you want every quiz question for a key stage + subject, without programme structure or unit sequence order. Returns lessons each with starter and exit quiz questions and answers. Supports offset/limit pagination; Link: rel="next" header signals more pages.
+
+Not for: a single lesson's quiz (GET /lessons/{lesson}/quiz); questions across a sequence (GET /sequences/{sequence}/questions); questions in one programme (GET /sequences/{sequence}/programmes/{programme}/questions).`,
       },
     })
     .input(questionsForKeyStageAndSubjectRequestOpenAPISchema)

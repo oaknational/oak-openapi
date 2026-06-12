@@ -14,10 +14,13 @@ export const searchTranscripts = router({
         method: 'GET',
         tags: ['search'],
         path: '/search/transcripts',
-        summary: 'Lesson search using lesson video transcripts',
+        summary: 'Lesson search by video transcript',
         errorResponses,
-        description:
-          'Search for a term and find the 5 most similar lessons whose video transcripts contain similar text.',
+        description: `Use when you want to search the spoken content of lesson videos. Returns up to 5 lessons whose transcripts contain similar text, each with a transcript snippet showing the match. No filters; searches every published transcript.
+
+Not for: terms in the lesson title (GET /search/lessons); metadata for a known lesson (GET /lessons/{lesson}/summary); a transcript by slug (GET /lessons/{lesson}/transcript).
+
+Example queries: the mitochondria are the powerhouse, to be or not to be, carry the one.`,
       },
     })
     .input(searchTranscriptRequestOpenAPISchema)

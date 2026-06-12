@@ -27,11 +27,12 @@ export const getThreads = router({
       openapi: {
         tags: ['lists'],
         method: 'GET',
-        summary: 'Threads',
+        summary: 'All threads',
         path: '/threads',
         errorResponses,
-        description:
-          'This endpoint returns an array of all threads, across all subjects. Threads signpost groups of units that link to one another, building a common body of knowledge over time. They are an important component of how Oak’s curricula are sequenced.',
+        description: `Use when you want the catalogue of every thread. A thread is an attribute on a unit that groups units across the curriculum to build a common body of knowledge — making vertical connections across year groups. Returns all threads with published units, sorted alphabetically — each with title, slug, and unitCount.
+
+Not for: the units inside a thread (GET /threads/{threadSlug}/units).`,
       },
     })
     .output(allThreadsResponseOpenAPISchema)
@@ -66,9 +67,12 @@ export const getThreads = router({
         tags: ['lists'],
         method: 'GET',
         path: '/threads/{threadSlug}/units',
-        summary: 'Units belonging to a given thread',
-        description:
-          'This endpoint returns all of the units that belong to a given thread.',
+        summary: 'Units in a thread',
+        description: `Use when you want every unit in a thread. A thread is an attribute on a unit that groups units across the curriculum to build a common body of knowledge — for example, number and place value or scientific method. Units in a thread span multiple programmes and key stages; thread order is independent of unit sequence order within any individual programme. Returns units in thread order with unitTitle, unitSlug, and unitOrder.
+
+Not for: the catalogue of threads (GET /threads); all units across a sequence (GET /sequences/{sequence}/units); units in one programme (GET /sequences/{sequence}/programmes/{programme}/units); a single unit (GET /units/{unit}/summary).
+
+Example: 'threadSlug=number-and-place-value'.`,
         errorResponses,
       },
     })
