@@ -251,9 +251,10 @@ export const getAssets = router({
         tags: ['assets', 'sequences', 'unit-and-curriculum-data'],
         path: '/sequences/{sequence}/assets',
         errorResponses,
-        summary: 'Assets within a sequence',
-        description: `This endpoint returns all assets for a given sequence, and the download endpoints for each. The assets are grouped by lesson.
-This endpoint contains licence information for any third-party content contained in the lesson’s downloadable resources. Third-party content is exempt from the open-government license, and users will need to consider whether their use is covered by the stated licence, or if they need to procure their own agreement.`,
+        summary: 'Downloadable assets in a sequence',
+        description: `Use when you need every downloadable asset across a whole sequence — all programmes combined. Returns assets grouped by lesson in unit sequence order, with signed download URLs, asset type, lesson title and slug, and attribution. Pass year as an optional filter. Narrow further with type (one of: slideDeck, starterQuiz, starterQuizAnswers, exitQuiz, exitQuizAnswers, worksheet, worksheetAnswers, supplementaryResource, video). Lesson content is under OGL v3.0; assets are either Oak-owned or third-party under an OGL-compatible licence. Attribution required — see https://open-api.thenational.academy/docs/about-oaks-api/terms.
+
+Not for: assets in a single programme (GET /sequences/{sequence}/programmes/{programme}/assets); a single lesson's downloads (GET /lessons/{lesson}/assets); streaming one file (GET /lessons/{lesson}/assets/{type}); assets for a key stage + subject without programme structure (GET /key-stages/{keyStage}/subject/{subject}/assets).`,
       },
     })
     .input(sequenceAssetsRequestOpenAPISchema)
@@ -429,10 +430,11 @@ This endpoint contains licence information for any third-party content contained
         method: 'GET',
         tags: ['assets'],
         errorResponses,
-        summary: 'Assets',
+        summary: 'Downloadable assets by key stage and subject',
         path: '/key-stages/{keyStage}/subject/{subject}/assets',
-        description:
-          'This endpoint returns signed download URLs and types for available assets for a given key stage and subject, grouped by lesson. You can also optionally filter by type and unit.',
+        description: `Use when you want every downloadable asset for a key stage + subject, without programme structure or unit sequence order, optionally scoped to a unit or asset type. Returns assets grouped by lesson, each with signed download URLs, asset type, lesson title and slug, and attribution. Pass unit to restrict to one unit and type to restrict to one asset type (one of: slideDeck, starterQuiz, starterQuizAnswers, exitQuiz, exitQuizAnswers, worksheet, worksheetAnswers, supplementaryResource, video). Lesson content is under OGL v3.0; assets are either Oak-owned or third-party under an OGL-compatible licence. Attribution required — see https://open-api.thenational.academy/docs/about-oaks-api/terms.
+
+Not for: assets across a sequence (GET /sequences/{sequence}/assets); assets in one programme (GET /sequences/{sequence}/programmes/{programme}/assets); a single lesson's downloads (GET /lessons/{lesson}/assets); streaming one file (GET /lessons/{lesson}/assets/{type}).`,
       },
     })
     .input(subjectAssetsRequestOpenAPISchema)
@@ -615,12 +617,12 @@ This endpoint contains licence information for any third-party content contained
       openapi: {
         method: 'GET',
         tags: ['assets', 'lessons', 'lesson-data'],
-        summary: 'Downloadable lesson assets',
+        summary: 'Downloadable assets for a lesson',
         path: '/lessons/{lesson}/assets',
         errorResponses,
-        description: `This endpoint returns the types of available assets for a given lesson, and the download endpoints for each.
-        This endpoint contains licence information for any third-party content contained in the lesson’s downloadable resources. Third-party content is exempt from the open-government license, and users will need to consider whether their use is covered by the stated licence, or if they need to procure their own agreement.
-          `,
+        description: `Use when you have a lesson slug and need the list of what's downloadable. Returns every available asset type with a signed download URL per asset and attribution. The 9 type values are: slideDeck, starterQuiz, starterQuizAnswers, exitQuiz, exitQuizAnswers, worksheet, worksheetAnswers, supplementaryResource, video. Pass type to return only one. Lesson content is under OGL v3.0; assets are either Oak-owned or third-party under an OGL-compatible licence. Attribution required — see https://open-api.thenational.academy/docs/about-oaks-api/terms.
+
+Not for: streaming the file itself (GET /lessons/{lesson}/assets/{type}); bulk asset retrieval across a key stage + subject (GET /key-stages/{keyStage}/subject/{subject}/assets), a sequence (GET /sequences/{sequence}/assets), or one programme (GET /sequences/{sequence}/programmes/{programme}/assets); lesson metadata (GET /lessons/{lesson}/summary).`,
       },
     })
     .input(lessonAssetsRequestOpenAPISchema)
@@ -642,9 +644,10 @@ This endpoint contains licence information for any third-party content contained
         method: 'GET',
         tags: ['assets', 'lessons', 'lesson-data'],
         path: '/lessons/{lesson}/assets/{type}',
-        summary: 'Lesson asset by type',
-        description:
-          'This endpoint will stream the downloadable asset for the given lesson and type. \nThere is no response returned for this endpoint as it returns a content attachment.',
+        summary: 'Stream a lesson asset file',
+        description: `Use when you want to download one specific asset for a lesson — slide deck, worksheet, etc. Returns the file directly. Call GET /lessons/{lesson}/assets first to see which type values are available. Valid type values: slideDeck, starterQuiz, starterQuizAnswers, exitQuiz, exitQuizAnswers, worksheet, worksheetAnswers, supplementaryResource, video. Lesson content is under OGL v3.0; assets are either Oak-owned or third-party under an OGL-compatible licence. Attribution required — see https://open-api.thenational.academy/docs/about-oaks-api/terms.
+
+Not for: listing which asset types a lesson has (GET /lessons/{lesson}/assets); fetching the transcript (GET /lessons/{lesson}/transcript).`,
         contentTypes: ['application/octet-stream'],
         errorResponses,
       },

@@ -42,9 +42,13 @@ export const getLessons = router({
       openapi: {
         method: 'GET',
         tags: ['lessons', 'lesson-data'],
-        summary: 'Lesson summary',
+        summary: 'Lesson summary by slug',
         path: '/lessons/{lesson}/summary',
-        description: 'This endpoint returns a summary for a given lesson',
+        description: `Use when you have a lesson slug and need its full metadata: title, key stage, subject, unit, keywords, key learning points, misconceptions, pupil lesson outcome, teacher tips, content guidance, supervision level, and downloadsAvailable. Returns the lesson summary record.
+
+Not for: finding a lesson from a search term (GET /search/lessons); searching what's said in lesson videos (GET /search/transcripts); listing every lesson in a unit or subject (GET /key-stages/{keyStage}/subject/{subject}/lessons); the transcript or assets (GET /lessons/{lesson}/transcript or GET /lessons/{lesson}/assets).
+
+Example slug: imagining-you-are-the-characters-the-three-billy-goats-gruff.`,
         errorResponses,
       },
     })
@@ -212,9 +216,12 @@ export const getLessons = router({
         method: 'GET',
         tags: ['lessons', 'search'],
         path: '/search/lessons',
-        summary: 'Lesson search using lesson title',
-        description:
-          'Search for a term and find the 20 most similar lessons with titles that contain similar text.',
+        summary: 'Lesson search by title',
+        description: `Use when you want to find lessons whose titles match a search term. Returns up to 20 lessons ranked by title similarity — each with slug, title, URL, similarity score, and the unit(s) the lesson appears in. Optional keyStage, subject, and unit narrow the search.
+
+Not for: searching what's said in lesson videos (GET /search/transcripts); metadata for a known lesson (GET /lessons/{lesson}/summary); listing every lesson in a key stage + subject without ranking (GET /key-stages/{keyStage}/subject/{subject}/lessons).
+
+Example queries: KS3 science photosynthesis, fractions year 5, Macbeth soliloquy.`,
         errorResponses,
       },
     })

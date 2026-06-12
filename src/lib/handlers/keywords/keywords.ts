@@ -17,9 +17,8 @@ export const getKeywords = router({
         method: 'GET',
         tags: ['lists'],
         path: '/keywords',
-        summary: 'Keywords',
-        description:
-          'This endpoint returns a list of keywords for a given key stage and subject, based on the keywords associated with the lessons that are available for that key stage and subject. The keywords are returned in order of frequency, with the most common keywords appearing first.',
+        summary: 'Keywords by subject and key stage',
+        description: `Use when you want the vocabulary for a key stage, subject, unit, lesson, or phase — e.g. to build a glossary or attach definitions to content. Returns keywords with definition, the subject + key stage they appear in, and the lessons that use them, sorted alphabetically. All filters are optional, but pass at least one of keyStage, subject, unit, lesson, or phase.`,
         errorResponses: [],
       },
     })
