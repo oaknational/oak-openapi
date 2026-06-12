@@ -30,12 +30,9 @@ export const getThreads = router({
         summary: 'All threads',
         path: '/threads',
         errorResponses,
-        description: `Use this when you want the catalogue of every thematic thread across Oak's curricula. Threads signpost groups of units that build a common body of knowledge over time and are a key part of how sequences are constructed.
+        description: `Use when you want the catalogue of every thread. A thread is an attribute on a unit that groups units across the curriculum to build a common body of knowledge — making vertical connections across year groups. Returns all threads with published units, sorted alphabetically — each with title, slug, and unitCount.
 
-Returns all threads with published units, sorted alphabetically by title, each with 'title', 'slug', and 'unitCount'.
-
-Do not use this for:
-- The units inside a specific thread (use GET /threads/{threadSlug}/units)`,
+Not for: the units inside a thread (GET /threads/{threadSlug}/units).`,
       },
     })
     .output(allThreadsResponseOpenAPISchema)
@@ -71,16 +68,11 @@ Do not use this for:
         method: 'GET',
         path: '/threads/{threadSlug}/units',
         summary: 'Units in a thread',
-        description: `Use this when you want every unit that belongs to a thematic thread — a cross-subject or longitudinal strand such as "number and place value" or "scientific method".
+        description: `Use when you want every unit in a thread. A thread is an attribute on a unit that groups units across the curriculum to build a common body of knowledge — for example, number and place value or scientific method. Units in a thread span multiple programmes and key stages; thread order is independent of unit sequence order within any individual programme. Returns units in thread order with unitTitle, unitSlug, and unitOrder.
 
-Returns units in thread order, each with 'unitTitle', 'unitSlug', and 'unitOrder'. Threads link units that build a common body of knowledge over time.
+Not for: the catalogue of threads (GET /threads); all units across a sequence (GET /sequences/{sequence}/units); units in one programme (GET /sequences/{sequence}/programmes/{programme}/units); a single unit (GET /units/{unit}/summary).
 
-Do not use this for:
-- The catalogue of threads themselves (use GET /threads)
-- Units in a curriculum sequence rather than a thread (use GET /sequences/{sequence}/units)
-- A single unit's detail (use GET /units/{unit}/summary)
-
-Example slug: 'threadSlug=number-and-place-value'`,
+Example: 'threadSlug=number-and-place-value'.`,
         errorResponses,
       },
     })

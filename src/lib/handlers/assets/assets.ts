@@ -252,14 +252,9 @@ export const getAssets = router({
         path: '/sequences/{sequence}/assets',
         errorResponses,
         summary: 'Downloadable assets in a sequence',
-        description: `Use this when you need every downloadable asset across a whole subject sequence — for example, to mirror or pre-cache all slide decks and worksheets for Year 7 maths.
+        description: `Use when you need every downloadable asset across a whole sequence — all programmes combined. Returns assets grouped by lesson in unit sequence order, with signed download URLs, asset type, lesson title and slug, and attribution. Pass year as an optional filter. Narrow further with type (one of: slideDeck, starterQuiz, starterQuizAnswers, exitQuiz, exitQuizAnswers, worksheet, worksheetAnswers, supplementaryResource, video). Lesson content is under OGL v3.0; assets are either Oak-owned or third-party under an OGL-compatible licence. Attribution required — see https://open-api.thenational.academy/docs/about-oaks-api/terms.
 
-Returns assets grouped by lesson, each with signed download URLs, asset type, lesson title and slug, plus any third-party content attribution. Narrow results with the 'year' query parameter and the 'type' query parameter (e.g. 'slideDeck', 'worksheet'). Third-party (TPC) content is listed in 'attribution' — these items fall outside the Open Government Licence, so you must confirm your use is covered or secure your own agreement.
-
-Do not use this for:
-- A single lesson's downloads (use GET /lessons/{lesson}/assets)
-- Streaming one asset file (use GET /lessons/{lesson}/assets/{type})
-- A subject/key-stage grouping rather than a sequence (use GET /key-stages/{keyStage}/subject/{subject}/assets)`,
+Not for: assets in a single programme (GET /sequences/{sequence}/programmes/{programme}/assets); a single lesson's downloads (GET /lessons/{lesson}/assets); streaming one file (GET /lessons/{lesson}/assets/{type}); assets for a key stage + subject without programme structure (GET /key-stages/{keyStage}/subject/{subject}/assets).`,
       },
     })
     .input(sequenceAssetsRequestOpenAPISchema)
@@ -437,14 +432,9 @@ Do not use this for:
         errorResponses,
         summary: 'Downloadable assets by key stage and subject',
         path: '/key-stages/{keyStage}/subject/{subject}/assets',
-        description: `Use this when you want every downloadable asset for a key stage and subject, optionally scoped to a single unit or asset type.
+        description: `Use when you want every downloadable asset for a key stage + subject, without programme structure or unit sequence order, optionally scoped to a unit or asset type. Returns assets grouped by lesson, each with signed download URLs, asset type, lesson title and slug, and attribution. Pass unit to restrict to one unit and type to restrict to one asset type (one of: slideDeck, starterQuiz, starterQuizAnswers, exitQuiz, exitQuizAnswers, worksheet, worksheetAnswers, supplementaryResource, video). Lesson content is under OGL v3.0; assets are either Oak-owned or third-party under an OGL-compatible licence. Attribution required — see https://open-api.thenational.academy/docs/about-oaks-api/terms.
 
-Returns assets grouped by lesson, each with signed download URLs, asset type, lesson title and slug, and any third-party content attribution. Pass 'unit' to restrict to one unit and 'type' to restrict to a single asset type (e.g. 'slideDeck', 'worksheet', 'starterQuiz').
-
-Do not use this for:
-- All assets across a whole curriculum sequence with year ordering (use GET /sequences/{sequence}/assets)
-- A single lesson's downloads (use GET /lessons/{lesson}/assets)
-- Streaming one asset file (use GET /lessons/{lesson}/assets/{type})`,
+Not for: assets across a sequence (GET /sequences/{sequence}/assets); assets in one programme (GET /sequences/{sequence}/programmes/{programme}/assets); a single lesson's downloads (GET /lessons/{lesson}/assets); streaming one file (GET /lessons/{lesson}/assets/{type}).`,
       },
     })
     .input(subjectAssetsRequestOpenAPISchema)
@@ -630,14 +620,9 @@ Do not use this for:
         summary: 'Downloadable assets for a lesson',
         path: '/lessons/{lesson}/assets',
         errorResponses,
-        description: `Use this when you have a lesson slug and need the list of what can be downloaded for it.
+        description: `Use when you have a lesson slug and need the list of what's downloadable. Returns every available asset type with a signed download URL per asset and attribution. The 9 type values are: slideDeck, starterQuiz, starterQuizAnswers, exitQuiz, exitQuizAnswers, worksheet, worksheetAnswers, supplementaryResource, video. Pass type to return only one. Lesson content is under OGL v3.0; assets are either Oak-owned or third-party under an OGL-compatible licence. Attribution required — see https://open-api.thenational.academy/docs/about-oaks-api/terms.
 
-Returns every downloadable asset type available for the lesson (slide deck, worksheet, worksheet answers, starter quiz, exit quiz, supplementary resource, video) with a signed download URL per asset, along with any third-party content attribution. Pass 'type' to return only one asset type. Third-party (TPC) content is listed in 'attribution' — these items fall outside the Open Government Licence, so you must confirm your use is covered or secure your own agreement.
-
-Do not use this for:
-- Streaming or downloading the file itself (use GET /lessons/{lesson}/assets/{type})
-- Bulk asset retrieval across a subject or sequence (use GET /key-stages/{keyStage}/subject/{subject}/assets or GET /sequences/{sequence}/assets)
-- Metadata about the lesson that isn't about downloads (use GET /lessons/{lesson}/summary)`,
+Not for: streaming the file itself (GET /lessons/{lesson}/assets/{type}); bulk asset retrieval across a key stage + subject (GET /key-stages/{keyStage}/subject/{subject}/assets), a sequence (GET /sequences/{sequence}/assets), or one programme (GET /sequences/{sequence}/programmes/{programme}/assets); lesson metadata (GET /lessons/{lesson}/summary).`,
       },
     })
     .input(lessonAssetsRequestOpenAPISchema)
@@ -660,13 +645,9 @@ Do not use this for:
         tags: ['assets', 'lessons', 'lesson-data'],
         path: '/lessons/{lesson}/assets/{type}',
         summary: 'Stream a lesson asset file',
-        description: `Use this when you need the actual bytes of a downloadable asset — slide deck, worksheet, quiz, video, or supplementary resource — for a given lesson.
+        description: `Use when you want to download one specific asset for a lesson — slide deck, worksheet, etc. Returns the file directly. Call GET /lessons/{lesson}/assets first to see which type values are available. Valid type values: slideDeck, starterQuiz, starterQuizAnswers, exitQuiz, exitQuizAnswers, worksheet, worksheetAnswers, supplementaryResource, video. Lesson content is under OGL v3.0; assets are either Oak-owned or third-party under an OGL-compatible licence. Attribution required — see https://open-api.thenational.academy/docs/about-oaks-api/terms.
 
-Streams the file directly as 'application/octet-stream'; there is no JSON body. Call GET /lessons/{lesson}/assets first to see which 'type' values are available for the lesson.
-
-Do not use this for:
-- Listing which asset types a lesson has (use GET /lessons/{lesson}/assets)
-- Fetching the transcript (use GET /lessons/{lesson}/transcript)`,
+Not for: listing which asset types a lesson has (GET /lessons/{lesson}/assets); fetching the transcript (GET /lessons/{lesson}/transcript).`,
         contentTypes: ['application/octet-stream'],
         errorResponses,
       },
