@@ -4,11 +4,6 @@ This repository holds the front and backend code for the API. This readme is pri
 
 The public API is currently v0 (public alpha moving toward public beta).
 
-## Improving the repo (start here)
-
-For potential improvement work and sequencing, start with:
-[docs/engineering/v0-v1-improvements.md](docs/engineering/v0-v1-improvements.md)
-
 ## Contents
 
 - Onboarding
@@ -27,9 +22,6 @@ For potential improvement work and sequencing, start with:
 - Load testing
 - Styling
 
-## Onboarding
-
-Short onboarding is below; a more detailed guide is in [docs/engineering/onboarding.md](docs/engineering/onboarding.md) and the docs index is in [docs/README.md](docs/README.md).
 
 ## Quickstart
 
@@ -44,13 +36,9 @@ Short onboarding is below; a more detailed guide is in [docs/engineering/onboard
 
 - [docs/README.md](docs/README.md) (docs index and start-here links)
 - [docs/engineering/README.md](docs/engineering/README.md) (lightweight planning structure)
-- [docs/engineering/onboarding.md](docs/engineering/onboarding.md) (detailed onboarding)
-- [docs/requests/README.md](docs/requests/README.md) (consumer bug reports and feature requests)
 - [docs/api/quickstart.md](docs/api/quickstart.md) (API usage and auth examples)
 - [README_BULK_DOWNLOAD.md](README_BULK_DOWNLOAD.md) (bulk download process)
 - [src/cms/README.md](src/cms/README.md) (CMS integration)
-- [docs/architecture/decision-records/README.md](docs/architecture/decision-records/README.md) (ADRs)
-- [.agent/summary/README.md](.agent/summary/README.md) (technical summary index)
 
 ## Development
 
