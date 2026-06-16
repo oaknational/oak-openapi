@@ -70,7 +70,7 @@ test('sequence endpoint returns only the requested sequence metadata', async () 
   const { caller } = authedCaller();
 
   const res = await caller.getSequences.getSubjectSequence({
-    slug: 'computing-secondary-core',
+    sequence: 'computing-secondary-core',
   });
 
   expect(Array.isArray(res)).toBeFalsy();
@@ -90,7 +90,7 @@ test('invalid sequence slug returns 404', async () => {
   await expect(
     async () =>
       await caller.getSequences.getSubjectSequence({
-        slug: 'computing-secondary-gcse',
+        sequence: 'computing-secondary-gcse',
       }),
   ).rejects.toMatchObject({ code: 'NOT_FOUND' });
 });
