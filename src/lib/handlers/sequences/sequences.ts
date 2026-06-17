@@ -196,7 +196,7 @@ export const getSequences = router({
         tags: ['lists', 'sequences'],
         method: 'GET',
         summary: 'Sequencing information for a given sequence slug',
-        path: '/sequences/{slug}',
+        path: '/sequences/{sequence}',
         errorResponses,
         description: `Use when you have a sequence slug and need the sequence-level summary. A sequence is a subject's curriculum across a phase (e.g. maths-primary, science-secondary-aqa); it spans one or more National Curriculum schemes and contains one programme per year group. Get sequence slugs from GET /subjects or GET /subjects/{subject} (the sequenceSlugs field). Returns slug, phase, key stages, years, and any KS4 programme factors (exam board, tier, child subject, pathway) needed to interpret the programmes within it.
 
@@ -208,13 +208,7 @@ Example: sequence=maths-primary or science-secondary-aqa.`,
     .input(subjectSequenceRequestOpenAPISchema)
     .output(subjectSequenceResponseOpenAPISchema)
     .query(async ({ input }) => {
-      const rawSlug = (input as Record<string, unknown>).slug;
-      if (typeof rawSlug !== 'string') {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Sequence not found',
-        });
-      }
+      const rawSlug = input.sequence;
 
       let subjectSlug: string;
       let phaseSlug: string;
