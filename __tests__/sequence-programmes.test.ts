@@ -91,4 +91,92 @@ describe('/sequences/{sequence}/programmes', () => {
 
     expect(mocks.owaClientRequestMock).not.toHaveBeenCalled();
   });
+
+  it('returns metadata for a specific programme', async () => {
+    mocks.owaClientRequestMock.mockResolvedValue({
+      [programmesByYearView]: [
+        {
+          programme_fields: {
+            tier: null,
+            year: 'Year 7',
+            phase: 'Secondary',
+            pathway: null,
+            subject: 'Computing',
+            keystage: 'Key Stage 3',
+            examboard: null,
+            tier_slug: null,
+            year_slug: 'year-7',
+            phase_slug: 'secondary',
+            pathway_slug: null,
+            subject_slug: 'computing',
+            keystage_slug: 'ks3',
+            examboard_slug: null,
+          },
+        },
+      ],
+    });
+
+    const { authedCaller } = await import('./helper');
+    const { caller } = authedCaller();
+
+    const res = await caller.getAllProgrammesForSequence.getProgramme({
+      sequence: 'computing-secondary',
+      programme: 'computing-secondary-year-7',
+    });
+
+    expect(mocks.owaClientRequestMock).toHaveBeenCalledTimes(1);
+    expect(mocks.owaClientRequestMock.mock.calls[0]?.[0]).toContain(
+      `${programmesByYearView}(`,
+    );
+    expect(mocks.owaClientRequestMock.mock.calls[0]?.[1]).toEqual({
+      programme: 'computing-secondary-year-7',
+    });
+
+    expect(res).toStrictEqual({
+      examboardSlug: null,
+      examboardTitle: null,
+      keystageSlug: 'ks3',
+      keystageTitle: 'Key Stage 3',
+      pathwaySlug: null,
+      pathwayTitle: null,
+      phaseSlug: 'secondary',
+      phaseTitle: 'Secondary',
+      subjectSlug: 'computing',
+      subjectTitle: 'Computing',
+      tierSlug: null,
+      tierTitle: null,
+      yearSlug: 'year-7',
+      yearTitle: 'Year 7',
+    });
+  });
+
+  it('throws when programme is not found', async () => {
+    mocks.owaClientRequestMock.mockResolvedValue({
+      [programmesByYearView]: [],
+    });
+
+    const { authedCaller } = await import('./helper');
+    const { caller } = authedCaller();
+
+    await expect(
+      caller.getAllProgrammesForSequence.getProgramme({
+        sequence: 'computing-secondary',
+        programme: 'computing-secondary-year-999',
+      }),
+    ).rejects.toThrow('Programme not found: computing-secondary-year-999');
+  });
+
+  it('returns BAD_REQUEST for getProgramme with invalid sequence slug', async () => {
+    const { authedCaller } = await import('./helper');
+    const { caller } = authedCaller();
+
+    await expect(
+      caller.getAllProgrammesForSequence.getProgramme({
+        sequence: 'not-a-valid-sequence',
+        programme: 'computing-secondary-year-7',
+      }),
+    ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+
+    expect(mocks.owaClientRequestMock).not.toHaveBeenCalled();
+  });
 });
