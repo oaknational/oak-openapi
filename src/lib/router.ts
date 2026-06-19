@@ -15,6 +15,7 @@ import { getLessonTranscript } from './handlers/transcript/transcript';
 import { getSequences } from './handlers/sequences/sequences';
 import { getThreads } from './handlers/threads/threads';
 import { getRateLimit } from './handlers/rate/rate';
+import { getAllProgrammesForSequence } from './handlers/sequenceProgrammes/programmes';
 
 export default router({
   getSequences,
@@ -25,6 +26,7 @@ export default router({
   getKeyStages,
   getKeyStageSubjectLessons,
   getAllKeyStageAndSubjectUnits,
+  getAllProgrammesForSequence,
   getKeywords,
   getQuestions,
   getLessons,
