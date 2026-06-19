@@ -33,6 +33,43 @@ const sequenceProgrammesResponseOpenAPISchema = z.array(z.string()).meta({
   ],
 });
 
+const programmeResponseOpenAPISchema = z
+  .object({
+    examboardSlug: z.string().nullable(),
+    examboardTitle: z.string().nullable(),
+    keystageSlug: z.string(),
+    keystageTitle: z.string(),
+    pathwaySlug: z.string().nullable(),
+    pathwayTitle: z.string().nullable(),
+    phaseSlug: z.string(),
+    phaseTitle: z.string(),
+    subjectSlug: z.string(),
+    subjectTitle: z.string(),
+    tierSlug: z.string().nullable(),
+    tierTitle: z.string().nullable(),
+    yearSlug: z.string(),
+    yearTitle: z.string(),
+  })
+  .meta({
+    id: 'ProgrammeResponseSchema',
+    example: {
+      examboardSlug: 'aqa',
+      examboardTitle: 'AQA',
+      keystageSlug: 'ks4',
+      keystageTitle: 'Key Stage 4',
+      pathwaySlug: null,
+      pathwayTitle: null,
+      phaseSlug: 'secondary',
+      phaseTitle: 'Secondary',
+      subjectSlug: 'computing',
+      subjectTitle: 'Computing',
+      tierSlug: null,
+      tierTitle: null,
+      yearSlug: 'year-10',
+      yearTitle: 'Year 10',
+    },
+  });
+
 export const getAllProgrammesForSequence = router({
   getAllProgrammesForSequence: protectedProcedure
     .meta({
@@ -82,6 +119,87 @@ Not for: the metadata of one programme (GET /sequences/{sequence}/programmes/{pr
       return rows
         .map((row) => row.programme_slug)
         .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    }),
+
+  getProgramme: protectedProcedure
+    .meta({
+      openapi: {
+        tags: ['programmes'],
+        method: 'GET',
+        path: '/sequences/{sequence}/programmes/{programme}',
+        summary: 'Get a programme by slug',
+        description: `Use when you need to get the metadata of one programme — to get a programme's slug for use with GET /sequences/{sequence}/programmes/{programme} or its sub-endpoints. Returns the programme's year group, slug (e.g. y7, y10-biology-foundation), and applicable programme factors (exam board, tier, child subject).
+
+Not for: the units, questions, or assets of one programme (GET /sequences/{sequence}/programmes/{programme}/units, /questions, or /assets); the sequence-level summary (GET /sequences/{sequence}); all programmes in a sequence (GET /sequences/{sequence}/programmes).`,
+        errorResponses,
+      },
+    })
+    .input(programmeUnitsRequestOpenAPISchema)
+    .output(programmeResponseOpenAPISchema)
+    .query(async ({ input }) => {
+      const { sequence, programme } = input;
+
+      // Validate the sequence slug so callers get a clear BAD_REQUEST rather
+      // than an empty result for a malformed path parameter.
+      parseSubjectPhaseSlug(sequence);
+
+      const client = getClient();
+      const query = gql`
+        query ($programme: String!) {
+          ${programmesByYearView}(
+            where: {
+              programme_slug: { _eq: $programme }
+              is_legacy: { _eq: false }
+            }
+          ) {
+            programme_fields
+          }
+        }
+      `;
+
+      const res: SyntheticProgrammesByYearView = await client.request(query, {
+        programme,
+      });
+
+      const rows: SyntheticProgrammeByYear[] = res[programmesByYearView] ?? [];
+
+      if (rows.length === 0) {
+        throw new Error(`Programme not found: ${programme}`);
+      }
+
+      const {
+        tier: tierTitle,
+        year: yearTitle,
+        phase: phaseTitle,
+        pathway: pathwayTitle,
+        subject: subjectTitle,
+        keystage: keystageTitle,
+        examboard: examboardTitle,
+        tier_slug: tierSlug,
+        year_slug: yearSlug,
+        phase_slug: phaseSlug,
+        pathway_slug: pathwaySlug,
+        subject_slug: subjectSlug,
+        keystage_slug: keystageSlug,
+        examboard_slug: examboardSlug,
+      } = rows[0].programme_fields;
+
+      return {
+        examboardSlug,
+        examboardTitle,
+        keystageSlug,
+        keystageTitle,
+        pathwaySlug,
+        pathwayTitle,
+        phaseSlug,
+        phaseTitle,
+        subjectSlug,
+        subjectTitle,
+        tierSlug,
+        tierTitle,
+        yearSlug,
+        yearTitle,
+      };
     }),
 
   getProgrammeUnits: protectedProcedure
