@@ -6,8 +6,13 @@ import {
   lessonView,
   sequenceView,
   sequenceViewWhereInput,
+  unitVariantLessonsView,
 } from 'lib/owaClient';
-import type { LessonView, SequenceView } from 'lib/owaClient';
+import type {
+  LessonView,
+  SequenceView,
+  UnitVariantLessonsView,
+} from 'lib/owaClient';
 
 import {
   blockedSubjects,
@@ -27,6 +32,8 @@ import {
   questionForLessonsResponseOpenAPISchema,
   questionsForKeyStageAndSubjectRequestOpenAPISchema,
   questionsForKeyStageAndSubjectResponseOpenAPISchema,
+  questionsForProgrammeRequestOpenAPISchema,
+  questionsForProgrammeResponseOpenAPISchema,
   questionsForSequenceRequestOpenAPISchema,
   questionsForSequenceResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/questions';
@@ -430,6 +437,147 @@ Not for: a single lesson's quiz (GET /lessons/{lesson}/quiz); questions across a
           // unitSlug,
           ...results,
         });
+      }
+
+      return lessons;
+    }),
+  getQuestionsForProgramme: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        tags: ['questions', 'programmes'],
+        path: '/sequences/{sequence}/programmes/{programme}/questions',
+        summary: 'Quiz questions in a programme',
+        description: `Use when you want every quiz question in a single programme (year group) within a sequence. Get programme slugs from GET /sequences/{sequence}/programmes. Returns questions grouped by lesson with starter and exit quiz questions and answers. Supports offset/limit pagination; Link: rel="next" header signals more pages.
+
+Not for: questions in a single lesson (GET /lessons/{lesson}/quiz); questions across a whole sequence (GET /sequences/{sequence}/questions); questions for a key stage + subject without programme structure (GET /key-stages/{keyStage}/subject/{subject}/questions).`,
+        errorResponses,
+      },
+    })
+    .input(questionsForProgrammeRequestOpenAPISchema)
+    .output(questionsForProgrammeResponseOpenAPISchema)
+    .query(async ({ input, ctx }) => {
+      const typedInput = input as {
+        sequence: string;
+        programme: string;
+        offset: number;
+        limit: number;
+        filter?: 'images';
+      };
+      const { programme, sequence, limit, offset } = typedInput;
+      const client = getClient();
+
+      const { subjectSlug } = parseSubjectPhaseSlug(sequence);
+      const gateTest = isSequenceSubjectBlocked(subjectSlug);
+      if (gateTest.isBlocked()) {
+        throw new TRPCError({
+          message: `The subject "${subjectSlug}" is not currently available`,
+          code: 'BAD_REQUEST',
+          cause: gateTest.reason,
+        });
+      }
+
+      // Step 1: get lesson slugs for this programme from the unit variant view
+      const lessonSlugQuery = gql`
+        query ($programme: String!) {
+          ${unitVariantLessonsView}(
+            where: {
+              programme_slug: { _eq: $programme }
+              is_legacy: { _eq: false }
+            }
+          ) {
+            lesson_slug
+            unit_slug
+          }
+        }
+      `;
+
+      const lessonSlugResult: UnitVariantLessonsView = await client.request(
+        lessonSlugQuery,
+        { programme },
+      );
+      const rows = lessonSlugResult[unitVariantLessonsView];
+
+      if (rows.length === 0) {
+        return [];
+      }
+
+      const uniqueLessonSlugs = [...new Set(rows.map((r) => r.lesson_slug))];
+      const lessonToUnitSlug = Object.fromEntries(
+        rows.map((r) => [r.lesson_slug, r.unit_slug]),
+      );
+
+      // Step 2: fetch questions with pagination
+      const questionQuery = gql`
+        query getQuestions($lessonSlugs: [String!]!, $limit: Int!, $offset: Int!) {
+          ${lessonView}(
+            where: {
+              lessonSlug: { _in: $lessonSlugs }
+              isLegacy: { _eq: false }
+            }
+            distinct_on: lessonSlug
+            offset: $offset
+            limit: $limit
+          ) {
+            lessonTitle
+            lessonSlug
+            unitSlug
+            exitQuiz
+            starterQuiz
+          }
+        }
+      `;
+
+      const res: LessonView = await client.request(questionQuery, {
+        lessonSlugs: uniqueLessonSlugs,
+        offset,
+        limit,
+      });
+
+      const data = res[lessonView];
+
+      if (data.length === 0) {
+        return [];
+      }
+
+      if (data.length === limit) {
+        ctx.resHeaders.set(
+          'link',
+          `<${nextPageLink(ctx.req.url, offset, limit)}>; rel="next"`,
+        );
+      }
+
+      const lessons = [];
+
+      for (const {
+        exitQuiz,
+        starterQuiz,
+        lessonSlug,
+        lessonTitle,
+        unitSlug: rawUnitSlug,
+      } of data) {
+        if (!lessonSlug || !lessonTitle) continue;
+        if (!exitQuiz && !starterQuiz) continue;
+
+        const unitSlug = rawUnitSlug ?? lessonToUnitSlug[lessonSlug] ?? '';
+        if (!unitSlug) continue;
+
+        if (checkLessonAllowedQuiz(lessonSlug).isBlocked()) continue;
+
+        const lessonGateTest = await checkLessonAllowedAsset({
+          lessonSlug,
+          unitSlug,
+          subjectSlug,
+        });
+        if (lessonGateTest.isBlocked()) continue;
+
+        const results = questionsForQuiz(
+          { exitQuiz, starterQuiz },
+          typedInput.filter,
+        );
+        if (!hasQuestions(results)) continue;
+
+        lessons.push({ lessonTitle, lessonSlug, ...results });
       }
 
       return lessons;
