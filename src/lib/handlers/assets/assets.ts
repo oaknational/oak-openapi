@@ -783,24 +783,25 @@ Not for: assets across a whole sequence (GET /sequences/{sequence}/assets); asse
         return false;
       };
 
-      // DEBUG: remove before merging
       const afterGate = downloads.filter(({ lessonSlug }) =>
         isLessonAllowed(lessonSlug),
       );
-      const mapped = afterGate.map((d) => ({
-        lessonSlug: d.lessonSlug,
-        assetCount: assetDownloads(d.lessonSlug, d, typeFilter).length,
-      }));
-      console.log('[getProgrammeAssets debug]', {
-        programme,
-        totalUniqueSlugCount: uniqueSlugs.length,
-        requestedPage: { offset, limit },
-        fetchedSlugCount: lessonSlugs.length,
-        downloadsFromView: downloads.length,
-        afterGateCount: afterGate.length,
-        perLesson: mapped,
-        finalCount: mapped.length,
-      });
+
+      // DEBUG (commented out):
+      // const mapped = afterGate.map((d) => ({
+      //   lessonSlug: d.lessonSlug,
+      //   assetCount: assetDownloads(d.lessonSlug, d, typeFilter).length,
+      // }));
+      // console.log('[getProgrammeAssets debug]', {
+      //   programme,
+      //   totalUniqueSlugCount: uniqueSlugs.length,
+      //   requestedPage: { offset, limit },
+      //   fetchedSlugCount: lessonSlugs.length,
+      //   downloadsFromView: downloads.length,
+      //   afterGateCount: afterGate.length,
+      //   perLesson: mapped,
+      //   finalCount: mapped.length,
+      // });
 
       return afterGate.map((d) => {
         const lessonSlug = d.lessonSlug;
