@@ -32,7 +32,7 @@ function makeRow(overrides: {
   };
 }
 
-describe('/sequences/{sequence}/programmes/{programme}/units', () => {
+describe('/subjects/{subject}/programmes/{programme}/units', () => {
   beforeEach(() => {
     mocks.owaClientRequestMock.mockReset();
   });
@@ -63,7 +63,7 @@ describe('/sequences/{sequence}/programmes/{programme}/units', () => {
     const { caller } = authedCaller();
 
     const res = await caller.getAllProgrammesForSequence.getProgrammeUnits({
-      sequence: 'computing-secondary',
+      subject: 'computing',
       programme: 'computing-secondary-year-7',
     });
 
@@ -101,7 +101,7 @@ describe('/sequences/{sequence}/programmes/{programme}/units', () => {
     const { caller } = authedCaller();
 
     const res = await caller.getAllProgrammesForSequence.getProgrammeUnits({
-      sequence: 'english-primary',
+      subject: 'english',
       programme: 'english-primary-year-3',
     });
 
@@ -117,20 +117,20 @@ describe('/sequences/{sequence}/programmes/{programme}/units', () => {
     const { caller } = authedCaller();
 
     const res = await caller.getAllProgrammesForSequence.getProgrammeUnits({
-      sequence: 'computing-secondary',
+      subject: 'computing',
       programme: 'computing-secondary-year-99',
     });
 
     expect(res).toStrictEqual([]);
   });
 
-  it('returns BAD_REQUEST for an invalid sequence slug without calling the OWA client', async () => {
+  it('returns BAD_REQUEST for an invalid subject slug without calling the OWA client', async () => {
     const { authedCaller } = await import('./helper');
     const { caller } = authedCaller();
 
     await expect(
       caller.getAllProgrammesForSequence.getProgrammeUnits({
-        sequence: 'not-a-valid-slug',
+        subject: 'not-a-valid-subject',
         programme: 'computing-secondary-year-7',
       }),
     ).rejects.toMatchObject({ code: 'BAD_REQUEST' });

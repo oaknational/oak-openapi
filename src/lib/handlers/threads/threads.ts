@@ -70,7 +70,7 @@ Not for: the units inside a thread (GET /threads/{threadSlug}/units).`,
         summary: 'Units in a thread',
         description: `Use when you want every unit in a thread. A thread is an attribute on a unit that groups units across the curriculum to build a common body of knowledge — for example, number and place value or scientific method. Units in a thread span multiple programmes and key stages; thread order is independent of unit sequence order within any individual programme. Returns units in thread order with unitTitle, unitSlug, and unitOrder.
 
-Not for: the catalogue of threads (GET /threads); all units across a sequence (GET /sequences/{sequence}/units); units in one programme (GET /sequences/{sequence}/programmes/{programme}/units); a single unit (GET /units/{unit}/summary).
+Not for: the catalogue of threads (GET /threads); all units across a sequence (GET /sequences/{sequence}/units); units in one programme (GET /subjects/{subject}/programmes/{programme}/units); a single unit (GET /units/{unit}/summary).
 
 Example: 'threadSlug=number-and-place-value'.`,
         errorResponses,

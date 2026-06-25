@@ -68,6 +68,24 @@ if (!swaggerData.paths) {
   throw new Error(`Paths object undefined`);
 }
 
+it('subject programme endpoints are tagged as programmes', () => {
+  const subjectProgrammePaths = Object.entries(swaggerData.paths ?? {}).filter(
+    ([path]) => path.startsWith('/subjects/{subject}/programmes'),
+  );
+
+  expect(subjectProgrammePaths.length).toBeGreaterThan(0);
+
+  for (const [path, methods] of subjectProgrammePaths) {
+    const operation = methods?.get;
+
+    if (!operation) {
+      expect.fail(`GET ${path} missing operation`);
+    }
+
+    expect(operation.tags).toContain('programmes');
+  }
+});
+
 for (const [path, methods] of Object.entries(swaggerData.paths)) {
   if (!methods) continue;
 
