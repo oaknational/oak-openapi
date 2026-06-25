@@ -24,7 +24,7 @@ export const downloadTypeEnum = z
     'worksheetAnswers',
   ])
   .describe(
-    'Use the this type and the lesson slug in conjunction to get a signed download URL to the asset type from the /api/lessons/{slug}/asset/{type} endpoint',
+    'Use the this type and the lesson slug in conjunction to get a signed download URL to the asset type from the /api/lessons/{slug}/assets/{type} endpoint',
   )
   .meta({ example: 'slideDeck' });
 
