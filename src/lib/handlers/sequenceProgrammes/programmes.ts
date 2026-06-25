@@ -15,11 +15,11 @@ import {
   unitVariantLessonsView,
   gql,
 } from '@/lib/owaClient';
-import { subjects } from '@/lib/oakConsts';
+import { subjectSlugs } from '@/lib/keyStageAndSubjects';
 
 const subjectProgrammeRequestOpenAPISchema = z.object({
   subject: z
-    .enum(subjects as [string, ...string[]])
+    .enum(subjectSlugs)
     .meta({ description: 'The subject slug identifier', example: 'english' }),
 });
 
