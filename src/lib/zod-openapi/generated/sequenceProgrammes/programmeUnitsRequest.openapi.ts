@@ -1,9 +1,9 @@
 import * as z from 'zod/v4';
-import { subjects } from '@/lib/oakConsts';
+import { subjectSlugs } from '@/lib/keyStageAndSubjects';
 
 export const programmeUnitsRequestOpenAPISchema = z.object({
   subject: z
-    .enum(subjects as [string, ...string[]])
+    .enum(subjectSlugs)
     .meta({ description: 'The subject slug identifier', example: 'english' }),
   programme: z.string().meta({
     description: 'The programme slug identifier',
