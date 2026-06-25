@@ -2,7 +2,6 @@ import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import * as z from 'zod/v4';
 import { errorResponses } from '@/lib/errorResponses';
-import { subjectSequenceRequestOpenAPISchema } from '@/lib/zod-openapi/generated/subjects';
 import {
   programmeUnitsRequestOpenAPISchema,
   programmeUnitsResponseOpenAPISchema,
@@ -16,7 +15,13 @@ import {
   unitVariantLessonsView,
   gql,
 } from '@/lib/owaClient';
-import { parseSubjectPhaseSlug } from '@/lib/sequenceSlugParser';
+import { subjects } from '@/lib/oakConsts';
+
+const subjectProgrammeRequestOpenAPISchema = z.object({
+  subject: z
+    .enum(subjects as [string, ...string[]])
+    .meta({ description: 'The subject slug identifier', example: 'english' }),
+});
 
 const sequenceProgrammesResponseOpenAPISchema = z.array(z.string()).meta({
   id: 'SequenceProgrammesResponseSchema',
@@ -76,21 +81,19 @@ export const getAllProgrammesForSequence = router({
       openapi: {
         tags: ['programmes'],
         method: 'GET',
-        path: '/sequences/{sequence}/programmes',
-        summary: 'Get all programmes for a sequence',
+        path: '/subjects/{subject}/programmes',
+        summary: 'Get all programmes for a subject slug',
         /* FIXME this is wrong, it references hallucinations */
-        description: `Use when you need to discover the programmes within a sequence — to get a programme's slug for use with GET /sequences/{sequence}/programmes/{programme} or its sub-endpoints. Returns programmes grouped by key stage, each with year group, slug (e.g. y7, y10-biology-foundation), and applicable programme factors (exam board, tier, child subject).
+        description: `Use when you need to discover the programmes within a subject — to get a programme's slug for use with GET /subjects/{subject}/programmes/{programme} or its sub-endpoints. Returns programmes grouped by key stage, each with year group, slug (e.g. y7, y10-biology-foundation), and applicable programme factors (exam board, tier, child subject).
 
-Not for: the metadata of one programme (GET /sequences/{sequence}/programmes/{programme}); the units, questions, or assets of one programme (GET /sequences/{sequence}/programmes/{programme}/units, /questions, or /assets); the sequence-level summary (GET /sequences/{sequence}).`,
+Not for: the metadata of one programme (GET /subjects/{subject}/programmes/{programme}); the units, questions, or assets of one programme (GET /subjects/{subject}/programmes/{programme}/units, /questions, or /assets); the sequence-level summary (GET /sequences/{sequence}).`,
         errorResponses,
       },
     })
-    .input(subjectSequenceRequestOpenAPISchema)
+    .input(subjectProgrammeRequestOpenAPISchema)
     .output(sequenceProgrammesResponseOpenAPISchema)
     .query(async ({ input }) => {
-      const { sequence } = input;
-
-      const parsedSequence = parseSubjectPhaseSlug(sequence);
+      const { subject } = input;
 
       const client = getClient();
       const query = gql`
@@ -109,8 +112,7 @@ Not for: the metadata of one programme (GET /sequences/{sequence}/programmes/{pr
 
       const res: SyntheticProgrammesByYearView = await client.request(query, {
         subjectMatch: {
-          subject_slug: parsedSequence.subjectSlug,
-          phase_slug: parsedSequence.phaseSlug,
+          subject_slug: subject,
         },
       });
 
@@ -126,22 +128,18 @@ Not for: the metadata of one programme (GET /sequences/{sequence}/programmes/{pr
       openapi: {
         tags: ['programmes'],
         method: 'GET',
-        path: '/sequences/{sequence}/programmes/{programme}',
+        path: '/subjects/{subject}/programmes/{programme}',
         summary: 'Get a programme by slug',
-        description: `Use when you need to get the metadata of one programme — to get a programme's slug for use with GET /sequences/{sequence}/programmes/{programme} or its sub-endpoints. Returns the programme's year group, slug (e.g. y7, y10-biology-foundation), and applicable programme factors (exam board, tier, child subject).
+        description: `Use when you need to get the metadata of one programme — to get a programme's slug for use with GET /subjects/{subject}/programmes/{programme} or its sub-endpoints. Returns the programme's year group, slug (e.g. y7, y10-biology-foundation), and applicable programme factors (exam board, tier, child subject).
 
-Not for: the units, questions, or assets of one programme (GET /sequences/{sequence}/programmes/{programme}/units, /questions, or /assets); the sequence-level summary (GET /sequences/{sequence}); all programmes in a sequence (GET /sequences/{sequence}/programmes).`,
+Not for: the units, questions, or assets of one programme (GET /subjects/{subject}/programmes/{programme}/units, /questions, or /assets); the sequence-level summary (GET /sequences/{sequence}); all programmes for a subject (GET /subjects/{subject}/programmes).`,
         errorResponses,
       },
     })
     .input(programmeUnitsRequestOpenAPISchema)
     .output(programmeResponseOpenAPISchema)
     .query(async ({ input }) => {
-      const { sequence, programme } = input;
-
-      // Validate the sequence slug so callers get a clear BAD_REQUEST rather
-      // than an empty result for a malformed path parameter.
-      parseSubjectPhaseSlug(sequence);
+      const { programme } = input;
 
       const client = getClient();
       const query = gql`
@@ -207,9 +205,9 @@ Not for: the units, questions, or assets of one programme (GET /sequences/{seque
       openapi: {
         tags: ['programmes', 'units'],
         method: 'GET',
-        path: '/sequences/{sequence}/programmes/{programme}/units',
+        path: '/subjects/{subject}/programmes/{programme}/units',
         summary: 'Units in a programme',
-        description: `Use when you need the unit sequence for one programme — units as an ordered arrangement designed to build knowledge progressively. Get programme slugs from GET /sequences/{sequence}/programmes. Returns units in unit sequence order with title, slug, and any associated factors.
+        description: `Use when you need the unit sequence for one programme — units as an ordered arrangement designed to build knowledge progressively. Get programme slugs from GET /subjects/{subject}/programmes. Returns units in unit sequence order with title, slug, and any associated factors.
 
   Not for: every unit across the whole sequence (GET /sequences/{sequence}/units); a flat list of units for a key stage + subject without programme structure (GET /key-stages/{keyStage}/subject/{subject}/units); a single unit (GET /units/{unit}/summary); units in a thread (GET /threads/{threadSlug}/units).`,
         errorResponses,
@@ -219,10 +217,6 @@ Not for: the units, questions, or assets of one programme (GET /sequences/{seque
     .output(programmeUnitsResponseOpenAPISchema)
     .query(async ({ input }) => {
       const { programme } = input;
-
-      // Validate the sequence slug so callers get a clear BAD_REQUEST rather
-      // than an empty result for a malformed path parameter.
-      parseSubjectPhaseSlug(input.sequence);
 
       const client = getClient();
       const query = gql`

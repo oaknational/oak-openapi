@@ -15,12 +15,12 @@ vi.mock('@/lib/owaClient', async () => {
   };
 });
 
-describe('/sequences/{sequence}/programmes', () => {
+describe('/subjects/{subject}/programmes', () => {
   beforeEach(() => {
     mocks.owaClientRequestMock.mockReset();
   });
 
-  it('queries programmes by parsed subject and phase', async () => {
+  it('queries programmes by subject', async () => {
     mocks.owaClientRequestMock.mockResolvedValue({
       [programmesByYearView]: [
         { programme_slug: 'computing-secondary-year-7' },
@@ -33,7 +33,7 @@ describe('/sequences/{sequence}/programmes', () => {
 
     const res =
       await caller.getAllProgrammesForSequence.getAllProgrammesForSequence({
-        sequence: 'computing-secondary',
+        subject: 'computing',
       });
 
     expect(mocks.owaClientRequestMock).toHaveBeenCalledTimes(1);
@@ -46,7 +46,6 @@ describe('/sequences/{sequence}/programmes', () => {
     expect(mocks.owaClientRequestMock.mock.calls[0]?.[1]).toEqual({
       subjectMatch: {
         subject_slug: 'computing',
-        phase_slug: 'secondary',
       },
     });
     expect(res).toStrictEqual([
@@ -69,7 +68,7 @@ describe('/sequences/{sequence}/programmes', () => {
 
     const res =
       await caller.getAllProgrammesForSequence.getAllProgrammesForSequence({
-        sequence: 'maths-primary',
+        subject: 'maths',
       });
 
     expect(res).toStrictEqual([
@@ -79,13 +78,13 @@ describe('/sequences/{sequence}/programmes', () => {
     ]);
   });
 
-  it('returns BAD_REQUEST for an invalid sequence slug', async () => {
+  it('returns BAD_REQUEST for an invalid subject slug', async () => {
     const { authedCaller } = await import('./helper');
     const { caller } = authedCaller();
 
     await expect(
       caller.getAllProgrammesForSequence.getAllProgrammesForSequence({
-        sequence: 'not-a-valid-sequence',
+        subject: 'not-a-valid-subject',
       }),
     ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
 
@@ -120,7 +119,7 @@ describe('/sequences/{sequence}/programmes', () => {
     const { caller } = authedCaller();
 
     const res = await caller.getAllProgrammesForSequence.getProgramme({
-      sequence: 'computing-secondary',
+      subject: 'computing',
       programme: 'computing-secondary-year-7',
     });
 
@@ -160,19 +159,19 @@ describe('/sequences/{sequence}/programmes', () => {
 
     await expect(
       caller.getAllProgrammesForSequence.getProgramme({
-        sequence: 'computing-secondary',
+        subject: 'computing',
         programme: 'computing-secondary-year-999',
       }),
     ).rejects.toThrow('Programme not found: computing-secondary-year-999');
   });
 
-  it('returns BAD_REQUEST for getProgramme with invalid sequence slug', async () => {
+  it('returns BAD_REQUEST for getProgramme with invalid subject slug', async () => {
     const { authedCaller } = await import('./helper');
     const { caller } = authedCaller();
 
     await expect(
       caller.getAllProgrammesForSequence.getProgramme({
-        sequence: 'not-a-valid-sequence',
+        subject: 'not-a-valid-subject',
         programme: 'computing-secondary-year-7',
       }),
     ).rejects.toMatchObject({ code: 'BAD_REQUEST' });

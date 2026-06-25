@@ -20,7 +20,7 @@ export const getKeyStageSubjectLessons = router({
         summary: 'List lessons in a key stage and subject',
         description: `Use when you want every published lesson in a key stage + subject, grouped by unit, without programme structure or unit sequence order. Returns an array of units, each with slug, title, and the lessons inside. Pass unit to restrict to one. Supports offset/limit pagination; Link: rel="next" header signals more pages.
 
-Not for: finding a lesson from a search term (GET /search/lessons); a single lesson's metadata (GET /lessons/{lesson}/summary); all units across a sequence (GET /sequences/{sequence}/units); units in one programme (GET /sequences/{sequence}/programmes/{programme}/units).
+Not for: finding a lesson from a search term (GET /search/lessons); a single lesson's metadata (GET /lessons/{lesson}/summary); all units across a sequence (GET /sequences/{sequence}/units); units in one programme (GET /subjects/{subject}/programmes/{programme}/units).
 
 Example: keyStage=ks3, subject=maths, unit=perimeter-and-area.`,
         errorResponses,
