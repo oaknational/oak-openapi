@@ -6,7 +6,7 @@ export * as lesson from './lesson';
 export * as questions from './questions';
 export * as rate from './rate';
 export * as searchTranscripts from './searchTranscripts';
-export * as sequenceProgrammes from './sequenceProgrammes';
+export * as programmes from './programmes';
 export * as sequences from './sequences';
 export * as subjects from './subjects';
 export * as threads from './threads';

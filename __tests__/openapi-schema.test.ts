@@ -68,14 +68,17 @@ if (!swaggerData.paths) {
   throw new Error(`Paths object undefined`);
 }
 
-it('subject programme endpoints are tagged as programmes', () => {
-  const subjectProgrammePaths = Object.entries(swaggerData.paths ?? {}).filter(
-    ([path]) => path.startsWith('/subjects/{subject}/programmes'),
-  );
+it('programme endpoints are tagged as programmes', () => {
+  const programmePaths = [
+    '/subjects/{subject}/programmes',
+    '/programmes/{programme}',
+    '/programmes/{programme}/assets',
+    '/programmes/{programme}/questions',
+    '/programmes/{programme}/units',
+  ];
 
-  expect(subjectProgrammePaths.length).toBeGreaterThan(0);
-
-  for (const [path, methods] of subjectProgrammePaths) {
+  for (const path of programmePaths) {
+    const methods = swaggerData.paths?.[path];
     const operation = methods?.get;
 
     if (!operation) {
@@ -84,6 +87,19 @@ it('subject programme endpoints are tagged as programmes', () => {
 
     expect(operation.tags).toContain('programmes');
   }
+
+  expect(
+    swaggerData.paths?.['/subjects/{subject}/programmes/{programme}'],
+  ).toBeUndefined();
+  expect(
+    swaggerData.paths?.['/subjects/{subject}/programmes/{programme}/assets'],
+  ).toBeUndefined();
+  expect(
+    swaggerData.paths?.['/subjects/{subject}/programmes/{programme}/questions'],
+  ).toBeUndefined();
+  expect(
+    swaggerData.paths?.['/subjects/{subject}/programmes/{programme}/units'],
+  ).toBeUndefined();
 });
 
 for (const [path, methods] of Object.entries(swaggerData.paths)) {
