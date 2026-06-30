@@ -7,10 +7,10 @@ interface CurriculumApiLandingPageQueryResponse {
 }
 
 const documentationQuery = async (): Promise<CurriculumApiLandingPage> => {
-  const res = await client.request(query);
+  const res: CurriculumApiLandingPageQueryResponse =
+    await client.request(query);
 
-  const { allCurriculumApiLandingPage } =
-    res as CurriculumApiLandingPageQueryResponse;
+  const { allCurriculumApiLandingPage } = res;
 
   if (!allCurriculumApiLandingPage) {
     throw new Error(

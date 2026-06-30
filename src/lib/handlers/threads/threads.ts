@@ -50,8 +50,8 @@ Not for: the units inside a thread (GET /threads/{threadSlug}/units).`,
         }
       `;
 
-      const res = await client.request(query);
-      const threads = (res as ThreadView)[threadView];
+      const res: ThreadView = await client.request(query);
+      const threads = res[threadView];
 
       return threads
         .sort((a, b) => a.title.localeCompare(b.title))
@@ -94,8 +94,10 @@ Example: 'threadSlug=number-and-place-value'.`,
         }
       `;
 
-      const threadRes = await client.request(threadQuery, { threadSlug });
-      const threads = (threadRes as ThreadView)[threadView];
+      const threadRes: ThreadView = await client.request(threadQuery, {
+        threadSlug,
+      });
+      const threads = threadRes[threadView];
 
       if (!threads.length) {
         throw new TRPCError({

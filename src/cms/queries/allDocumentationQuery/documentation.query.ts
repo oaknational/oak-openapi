@@ -7,9 +7,9 @@ import {
 import query from './documentationQuery.gql';
 
 const documentationQuery = async (): Promise<DocumentationQuery> => {
-  const res = await client.request(query);
+  const res: CurriculumAPIDocumentationPage = await client.request(query);
 
-  const { allApiContentPage } = res as CurriculumAPIDocumentationPage;
+  const { allApiContentPage } = res;
 
   if (!allApiContentPage) {
     throw new Error(

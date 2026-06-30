@@ -84,9 +84,12 @@ Example: keyStage=ks3, subject=maths, unit=perimeter-and-area.`,
         variables.filter.subject_parent = 'Science';
       }
 
-      const res = await client.request(query, variables);
+      const res: UnitVariantLessonsView = await client.request(
+        query,
+        variables,
+      );
 
-      const lessons = (res as UnitVariantLessonsView)[unitVariantLessonsView];
+      const lessons = res[unitVariantLessonsView];
 
       if (lessons.length === 0) {
         return [];
