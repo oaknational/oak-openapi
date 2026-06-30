@@ -49,6 +49,12 @@ export const groupedEndpointInfo = [
     tags: ['sequences'],
     order: 6,
   },
+  {
+    title: 'Programme data',
+    slug: 'programme-data',
+    tags: ['programmes'],
+    order: 6,
+  },
 ];
 
 // RS: I don't honestly understand this return type, but it's a new TS ruleset
