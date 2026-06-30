@@ -68,6 +68,40 @@ if (!swaggerData.paths) {
   throw new Error(`Paths object undefined`);
 }
 
+it('programme endpoints are tagged as programmes', () => {
+  const programmePaths = [
+    '/subjects/{subject}/programmes',
+    '/programmes/{programme}',
+    '/programmes/{programme}/assets',
+    '/programmes/{programme}/questions',
+    '/programmes/{programme}/units',
+  ];
+
+  for (const path of programmePaths) {
+    const methods = swaggerData.paths?.[path];
+    const operation = methods?.get;
+
+    if (!operation) {
+      expect.fail(`GET ${path} missing operation`);
+    }
+
+    expect(operation.tags).toContain('programmes');
+  }
+
+  expect(
+    swaggerData.paths?.['/subjects/{subject}/programmes/{programme}'],
+  ).toBeUndefined();
+  expect(
+    swaggerData.paths?.['/subjects/{subject}/programmes/{programme}/assets'],
+  ).toBeUndefined();
+  expect(
+    swaggerData.paths?.['/subjects/{subject}/programmes/{programme}/questions'],
+  ).toBeUndefined();
+  expect(
+    swaggerData.paths?.['/subjects/{subject}/programmes/{programme}/units'],
+  ).toBeUndefined();
+});
+
 for (const [path, methods] of Object.entries(swaggerData.paths)) {
   if (!methods) continue;
 
