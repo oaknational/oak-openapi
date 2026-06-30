@@ -5,7 +5,7 @@ import { errorResponses } from '@/lib/errorResponses';
 import {
   programmeUnitsRequestOpenAPISchema,
   programmeUnitsResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/sequenceProgrammes';
+} from '@/lib/zod-openapi/generated/programmes';
 import {
   getClient,
   programmesByYearView,
@@ -24,7 +24,7 @@ const subjectProgrammeRequestOpenAPISchema = z.object({
 });
 
 const sequenceProgrammesResponseOpenAPISchema = z.array(z.string()).meta({
-  id: 'SequenceProgrammesResponseSchema',
+  id: 'SubjectProgrammesResponseSchema',
   example: [
     'english-secondary-year-7',
     'english-secondary-year-8',
@@ -75,8 +75,8 @@ const programmeResponseOpenAPISchema = z
     },
   });
 
-export const getAllProgrammesForSequence = router({
-  getAllProgrammesForSequence: protectedProcedure
+export const getAllProgrammesForSubject = router({
+  getAllProgrammesForSubject: protectedProcedure
     .meta({
       openapi: {
         tags: ['programmes'],
@@ -84,9 +84,9 @@ export const getAllProgrammesForSequence = router({
         path: '/subjects/{subject}/programmes',
         summary: 'Get all programmes for a subject slug',
         /* FIXME this is wrong, it references hallucinations */
-        description: `Use when you need to discover the programmes within a subject — to get a programme's slug for use with GET /subjects/{subject}/programmes/{programme} or its sub-endpoints. Returns programmes grouped by key stage, each with year group, slug (e.g. y7, y10-biology-foundation), and applicable programme factors (exam board, tier, child subject).
+        description: `Use when you need to discover the programmes within a subject — to get a programme's slug for use with GET /programmes/{programme} or its sub-endpoints. Returns programmes grouped by key stage, each with year group, slug (e.g. y7, y10-biology-foundation), and applicable programme factors (exam board, tier, child subject).
 
-Not for: the metadata of one programme (GET /subjects/{subject}/programmes/{programme}); the units, questions, or assets of one programme (GET /subjects/{subject}/programmes/{programme}/units, /questions, or /assets); the sequence-level summary (GET /sequences/{sequence}).`,
+Not for: the metadata of one programme (GET /programmes/{programme}); the units, questions, or assets of one programme (GET /programmes/{programme}/units, GET /programmes/{programme}/questions, or GET /programmes/{programme}/assets); the sequence-level summary (GET /sequences/{sequence}).`,
         errorResponses,
       },
     })
@@ -128,11 +128,11 @@ Not for: the metadata of one programme (GET /subjects/{subject}/programmes/{prog
       openapi: {
         tags: ['programmes'],
         method: 'GET',
-        path: '/subjects/{subject}/programmes/{programme}',
+        path: '/programmes/{programme}',
         summary: 'Get a programme by slug',
-        description: `Use when you need to get the metadata of one programme — to get a programme's slug for use with GET /subjects/{subject}/programmes/{programme} or its sub-endpoints. Returns the programme's year group, slug (e.g. y7, y10-biology-foundation), and applicable programme factors (exam board, tier, child subject).
+        description: `Use when you need to get the metadata of one programme. Get programme slugs from GET /subjects/{subject}/programmes. Returns the programme's year group, slug (e.g. y7, y10-biology-foundation), and applicable programme factors (exam board, tier, child subject).
 
-Not for: the units, questions, or assets of one programme (GET /subjects/{subject}/programmes/{programme}/units, /questions, or /assets); the sequence-level summary (GET /sequences/{sequence}); all programmes for a subject (GET /subjects/{subject}/programmes).`,
+Not for: the units, questions, or assets of one programme (GET /programmes/{programme}/units, GET /programmes/{programme}/questions, or GET /programmes/{programme}/assets); the sequence-level summary (GET /sequences/{sequence}); all programmes for a subject (GET /subjects/{subject}/programmes).`,
         errorResponses,
       },
     })
@@ -205,7 +205,7 @@ Not for: the units, questions, or assets of one programme (GET /subjects/{subjec
       openapi: {
         tags: ['programmes', 'units'],
         method: 'GET',
-        path: '/subjects/{subject}/programmes/{programme}/units',
+        path: '/programmes/{programme}/units',
         summary: 'Units in a programme',
         description: `Use when you need the unit sequence for one programme — units as an ordered arrangement designed to build knowledge progressively. Get programme slugs from GET /subjects/{subject}/programmes. Returns units in unit sequence order with title, slug, and any associated factors.
 

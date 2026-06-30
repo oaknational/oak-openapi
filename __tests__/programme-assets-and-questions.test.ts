@@ -20,7 +20,7 @@ describe('programme assets and questions endpoints', () => {
     mocks.owaClientRequestMock.mockReset();
   });
 
-  it('/subjects/{subject}/programmes/{programme}/assets returns [] when no lessons are found in programme', async () => {
+  it('/programmes/{programme}/assets returns [] when no lessons are found in programme', async () => {
     mocks.owaClientRequestMock.mockResolvedValue({
       [unitVariantLessonsView]: [],
     });
@@ -30,7 +30,6 @@ describe('programme assets and questions endpoints', () => {
 
     await expect(
       caller.getAssets.getProgrammeAssets({
-        subject: 'computing',
         programme: 'computing-secondary-year-7',
       }),
     ).resolves.toStrictEqual([]);
@@ -44,7 +43,7 @@ describe('programme assets and questions endpoints', () => {
     });
   });
 
-  it('/subjects/{subject}/programmes/{programme}/questions returns [] when no lessons are found in programme', async () => {
+  it('/programmes/{programme}/questions returns [] when no lessons are found in programme', async () => {
     mocks.owaClientRequestMock.mockResolvedValue({
       [unitVariantLessonsView]: [],
     });
@@ -54,7 +53,6 @@ describe('programme assets and questions endpoints', () => {
 
     await expect(
       caller.getQuestions.getQuestionsForProgramme({
-        subject: 'computing',
         programme: 'computing-secondary-year-7',
         offset: 0,
         limit: 10,
@@ -70,12 +68,13 @@ describe('programme assets and questions endpoints', () => {
     });
   });
 
-  it('/subjects/{subject}/programmes/{programme}/questions queries lessonView for programme lesson slugs', async () => {
+  it('/programmes/{programme}/questions queries lessonView for programme lesson slugs', async () => {
     mocks.owaClientRequestMock.mockResolvedValueOnce({
       [unitVariantLessonsView]: [
         {
           lesson_slug: 'variables-and-data-types',
           unit_slug: 'variables',
+          subject_slug: 'computing',
         },
       ],
     });
@@ -88,7 +87,6 @@ describe('programme assets and questions endpoints', () => {
 
     await expect(
       caller.getQuestions.getQuestionsForProgramme({
-        subject: 'computing',
         programme: 'computing-secondary-year-7',
         offset: 0,
         limit: 10,

@@ -15,7 +15,7 @@ vi.mock('@/lib/owaClient', async () => {
   };
 });
 
-describe('/subjects/{subject}/programmes', () => {
+describe('programme endpoints', () => {
   beforeEach(() => {
     mocks.owaClientRequestMock.mockReset();
   });
@@ -32,7 +32,7 @@ describe('/subjects/{subject}/programmes', () => {
     const { caller } = authedCaller();
 
     const res =
-      await caller.getAllProgrammesForSequence.getAllProgrammesForSequence({
+      await caller.getAllProgrammesForSubject.getAllProgrammesForSubject({
         subject: 'computing',
       });
 
@@ -67,7 +67,7 @@ describe('/subjects/{subject}/programmes', () => {
     const { caller } = authedCaller();
 
     const res =
-      await caller.getAllProgrammesForSequence.getAllProgrammesForSequence({
+      await caller.getAllProgrammesForSubject.getAllProgrammesForSubject({
         subject: 'maths',
       });
 
@@ -83,7 +83,7 @@ describe('/subjects/{subject}/programmes', () => {
     const { caller } = authedCaller();
 
     await expect(
-      caller.getAllProgrammesForSequence.getAllProgrammesForSequence({
+      caller.getAllProgrammesForSubject.getAllProgrammesForSubject({
         subject: 'not-a-valid-subject',
       }),
     ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
@@ -118,8 +118,7 @@ describe('/subjects/{subject}/programmes', () => {
     const { authedCaller } = await import('./helper');
     const { caller } = authedCaller();
 
-    const res = await caller.getAllProgrammesForSequence.getProgramme({
-      subject: 'computing',
+    const res = await caller.getAllProgrammesForSubject.getProgramme({
       programme: 'computing-secondary-year-7',
     });
 
@@ -158,24 +157,9 @@ describe('/subjects/{subject}/programmes', () => {
     const { caller } = authedCaller();
 
     await expect(
-      caller.getAllProgrammesForSequence.getProgramme({
-        subject: 'computing',
+      caller.getAllProgrammesForSubject.getProgramme({
         programme: 'computing-secondary-year-999',
       }),
     ).rejects.toThrow('Programme not found: computing-secondary-year-999');
-  });
-
-  it('returns BAD_REQUEST for getProgramme with invalid subject slug', async () => {
-    const { authedCaller } = await import('./helper');
-    const { caller } = authedCaller();
-
-    await expect(
-      caller.getAllProgrammesForSequence.getProgramme({
-        subject: 'not-a-valid-subject',
-        programme: 'computing-secondary-year-7',
-      }),
-    ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
-
-    expect(mocks.owaClientRequestMock).not.toHaveBeenCalled();
   });
 });

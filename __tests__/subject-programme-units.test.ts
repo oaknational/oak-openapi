@@ -32,7 +32,7 @@ function makeRow(overrides: {
   };
 }
 
-describe('/subjects/{subject}/programmes/{programme}/units', () => {
+describe('/programmes/{programme}/units', () => {
   beforeEach(() => {
     mocks.owaClientRequestMock.mockReset();
   });
@@ -62,8 +62,7 @@ describe('/subjects/{subject}/programmes/{programme}/units', () => {
     const { authedCaller } = await import('./helper');
     const { caller } = authedCaller();
 
-    const res = await caller.getAllProgrammesForSequence.getProgrammeUnits({
-      subject: 'computing',
+    const res = await caller.getAllProgrammesForSubject.getProgrammeUnits({
       programme: 'computing-secondary-year-7',
     });
 
@@ -100,8 +99,7 @@ describe('/subjects/{subject}/programmes/{programme}/units', () => {
     const { authedCaller } = await import('./helper');
     const { caller } = authedCaller();
 
-    const res = await caller.getAllProgrammesForSequence.getProgrammeUnits({
-      subject: 'english',
+    const res = await caller.getAllProgrammesForSubject.getProgrammeUnits({
       programme: 'english-primary-year-3',
     });
 
@@ -116,25 +114,10 @@ describe('/subjects/{subject}/programmes/{programme}/units', () => {
     const { authedCaller } = await import('./helper');
     const { caller } = authedCaller();
 
-    const res = await caller.getAllProgrammesForSequence.getProgrammeUnits({
-      subject: 'computing',
+    const res = await caller.getAllProgrammesForSubject.getProgrammeUnits({
       programme: 'computing-secondary-year-99',
     });
 
     expect(res).toStrictEqual([]);
-  });
-
-  it('returns BAD_REQUEST for an invalid subject slug without calling the OWA client', async () => {
-    const { authedCaller } = await import('./helper');
-    const { caller } = authedCaller();
-
-    await expect(
-      caller.getAllProgrammesForSequence.getProgrammeUnits({
-        subject: 'not-a-valid-subject',
-        programme: 'computing-secondary-year-7',
-      }),
-    ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
-
-    expect(mocks.owaClientRequestMock).not.toHaveBeenCalled();
   });
 });
