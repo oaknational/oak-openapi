@@ -14,7 +14,7 @@ export const offsetSchema = z
   .describe(
     'If limiting results returned, this allows you to return the next set of results, starting at the given offset point',
   )
-  .meta({ example: 50 })
+  .meta({ example: 0 })
   .optional()
   .default(0);
 
