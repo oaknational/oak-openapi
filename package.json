@@ -2,7 +2,7 @@
   "name": "oak-openapi",
   "version": "1.0.0",
   "engines": {
-    "node": ">=22.20.0 <23",
+    "node": ">=22.23.1 <23",
     "pnpm": ">=10"
   },
   "scripts": {
