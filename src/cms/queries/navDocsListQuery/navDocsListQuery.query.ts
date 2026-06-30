@@ -10,8 +10,8 @@ import query from './navDocsListQuery.gql';
 const API_ENDPOINTS_SLUG = 'api-endpoints';
 
 const navDocsListQuery = async (): Promise<CurriculumApiDocsNav> => {
-  const res = await client.request(query);
-  const { groups, pages } = res as NavDocsListQuery;
+  const res: NavDocsListQuery = await client.request(query);
+  const { groups, pages } = res;
 
   if (!groups || !pages) {
     throw new Error(

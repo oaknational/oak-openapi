@@ -71,9 +71,12 @@ export const getKeywords = router({
         ...(lesson && { lesson }),
       };
 
-      const res = await client.request(query, variables);
+      const res: UnitVariantLessonsView = await client.request(
+        query,
+        variables,
+      );
 
-      let lessons = (res as UnitVariantLessonsView)[unitVariantLessonsView];
+      let lessons = res[unitVariantLessonsView];
 
       if (phaseKeyStages) {
         lessons = lessons.filter((l) =>

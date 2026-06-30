@@ -34,5 +34,6 @@ export const openApiDocument = generateOpenApiDocument(router, {
     'units',
     'search',
     'sequences',
+    'programmes',
   ],
 });
