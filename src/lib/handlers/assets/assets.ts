@@ -31,6 +31,7 @@ import {
 } from '@/lib/queryGate';
 import { sequenceWhere } from '../sequences/sequences';
 import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
+import { nextPageLink } from '@/lib/pagination';
 import { downloadTypeEnum } from './types';
 import type { DownloadTypeEnum, LessonAssetsType } from './types';
 import { getAttribution } from './helpers';
@@ -38,6 +39,8 @@ import { getAttribution } from './helpers';
 import {
   subjectAssetsRequestOpenAPISchema,
   subjectAssetsResponseOpenAPISchema,
+  programmeAssetsRequestOpenAPISchema,
+  programmeAssetsResponseOpenAPISchema,
   sequenceAssetsRequestOpenAPISchema,
   sequenceAssetsResponseOpenAPISchema,
   lessonAssetRequestOpenAPISchema,
@@ -254,7 +257,7 @@ export const getAssets = router({
         summary: 'Downloadable assets in a sequence',
         description: `Use when you need every downloadable asset across a whole sequence — all programmes combined. Returns assets grouped by lesson in unit sequence order, with signed download URLs, asset type, lesson title and slug, and attribution. Pass year as an optional filter. Narrow further with type (one of: slideDeck, starterQuiz, starterQuizAnswers, exitQuiz, exitQuizAnswers, worksheet, worksheetAnswers, supplementaryResource, video). Lesson content is under OGL v3.0; assets are either Oak-owned or third-party under an OGL-compatible licence. Attribution required — see https://open-api.thenational.academy/docs/about-oaks-api/terms.
 
-Not for: assets in a single programme (GET /sequences/{sequence}/programmes/{programme}/assets); a single lesson's downloads (GET /lessons/{lesson}/assets); streaming one file (GET /lessons/{lesson}/assets/{type}); assets for a key stage + subject without programme structure (GET /key-stages/{keyStage}/subject/{subject}/assets).`,
+Not for: assets in a single programme (GET /programmes/{programme}/assets); a single lesson's downloads (GET /lessons/{lesson}/assets); streaming one file (GET /lessons/{lesson}/assets/{type}); assets for a key stage + subject without programme structure (GET /key-stages/{keyStage}/subject/{subject}/assets).`,
       },
     })
     .input(sequenceAssetsRequestOpenAPISchema)
@@ -434,7 +437,7 @@ Not for: assets in a single programme (GET /sequences/{sequence}/programmes/{pro
         path: '/key-stages/{keyStage}/subject/{subject}/assets',
         description: `Use when you want every downloadable asset for a key stage + subject, without programme structure or unit sequence order, optionally scoped to a unit or asset type. Returns assets grouped by lesson, each with signed download URLs, asset type, lesson title and slug, and attribution. Pass unit to restrict to one unit and type to restrict to one asset type (one of: slideDeck, starterQuiz, starterQuizAnswers, exitQuiz, exitQuizAnswers, worksheet, worksheetAnswers, supplementaryResource, video). Lesson content is under OGL v3.0; assets are either Oak-owned or third-party under an OGL-compatible licence. Attribution required — see https://open-api.thenational.academy/docs/about-oaks-api/terms.
 
-Not for: assets across a sequence (GET /sequences/{sequence}/assets); assets in one programme (GET /sequences/{sequence}/programmes/{programme}/assets); a single lesson's downloads (GET /lessons/{lesson}/assets); streaming one file (GET /lessons/{lesson}/assets/{type}).`,
+Not for: assets across a sequence (GET /sequences/{sequence}/assets); assets in one programme (GET /programmes/{programme}/assets); a single lesson's downloads (GET /lessons/{lesson}/assets); streaming one file (GET /lessons/{lesson}/assets/{type}).`,
       },
     })
     .input(subjectAssetsRequestOpenAPISchema)
@@ -622,7 +625,7 @@ Not for: assets across a sequence (GET /sequences/{sequence}/assets); assets in 
         errorResponses,
         description: `Use when you have a lesson slug and need the list of what's downloadable. Returns every available asset type with a signed download URL per asset and attribution. The 9 type values are: slideDeck, starterQuiz, starterQuizAnswers, exitQuiz, exitQuizAnswers, worksheet, worksheetAnswers, supplementaryResource, video. Pass type to return only one. Lesson content is under OGL v3.0; assets are either Oak-owned or third-party under an OGL-compatible licence. Attribution required — see https://open-api.thenational.academy/docs/about-oaks-api/terms.
 
-Not for: streaming the file itself (GET /lessons/{lesson}/assets/{type}); bulk asset retrieval across a key stage + subject (GET /key-stages/{keyStage}/subject/{subject}/assets), a sequence (GET /sequences/{sequence}/assets), or one programme (GET /sequences/{sequence}/programmes/{programme}/assets); lesson metadata (GET /lessons/{lesson}/summary).`,
+Not for: streaming the file itself (GET /lessons/{lesson}/assets/{type}); bulk asset retrieval across a key stage + subject (GET /key-stages/{keyStage}/subject/{subject}/assets), a sequence (GET /sequences/{sequence}/assets), or one programme (GET /programmes/{programme}/assets); lesson metadata (GET /lessons/{lesson}/summary).`,
       },
     })
     .input(lessonAssetsRequestOpenAPISchema)
@@ -637,6 +640,177 @@ Not for: streaming the file itself (GET /lessons/{lesson}/assets/{type}); bulk a
         attribution,
         assets: assetDownloads(lessonSlug, assets, type),
       } as LessonAssetsType;
+    }),
+  getProgrammeAssets: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        tags: ['assets', 'programmes'],
+        errorResponses,
+        summary: 'Downloadable assets in a programme',
+        path: '/programmes/{programme}/assets',
+        description: `Use when you need every downloadable asset for a single programme (year group) within a subject. Returns assets grouped by lesson with signed download URLs, asset type, lesson title and slug, and attribution. Supports offset/limit pagination; Link: rel="next" header signals more pages. Optionally narrow by asset type (one of: slideDeck, starterQuiz, starterQuizAnswers, exitQuiz, exitQuizAnswers, worksheet, worksheetAnswers, supplementaryResource, video). Lesson content is under OGL v3.0; assets are either Oak-owned or third-party under an OGL-compatible licence. Attribution required — see https://open-api.thenational.academy/docs/about-oaks-api/terms.
+
+Not for: assets across a whole sequence (GET /sequences/{sequence}/assets); assets for a key stage + subject without programme structure (GET /key-stages/{keyStage}/subject/{subject}/assets); a single lesson's downloads (GET /lessons/{lesson}/assets); streaming one file (GET /lessons/{lesson}/assets/{type}).`,
+      },
+    })
+    .input(programmeAssetsRequestOpenAPISchema)
+    .output(programmeAssetsResponseOpenAPISchema)
+    .query(async ({ input, ctx }) => {
+      const { programme, offset, limit } = input;
+      const typeFilter = input.type;
+
+      // Step 1: get lesson slugs for this programme
+      const lessonQuery = gql`
+        query ($programme: String!) {
+          ${unitVariantLessonsView}(
+            where: {
+              programme_slug: { _eq: $programme }
+              is_legacy: { _eq: false }
+            }
+          ) {
+            unit_slug
+            lesson_slug
+            subject_slug: programme_fields(path: "subject_slug")
+          }
+        }
+      `;
+
+      const lessonViewResult: UnitVariantLessonsView =
+        await graphqlClient.request(lessonQuery, { programme });
+      const rows = lessonViewResult[unitVariantLessonsView];
+
+      if (rows.length === 0) {
+        return [];
+      }
+
+      const subject = rows[0]?.subject_slug ?? '';
+      const gateTest = isSequenceSubjectBlocked(subject);
+      if (gateTest.isBlocked()) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `The subject "${subject}" is not currently available`,
+          cause: gateTest.reason,
+        });
+      }
+
+      // Deduplicate lesson slugs and apply pagination before fetching downloads.
+      const uniqueSlugs = [...new Set(rows.map((l) => l.lesson_slug))];
+      const lessonSlugs = uniqueSlugs.slice(offset, offset + limit);
+
+      if (lessonSlugs.length === 0) {
+        return [];
+      }
+
+      if (lessonSlugs.length === limit) {
+        ctx.resHeaders.set(
+          'link',
+          `<${nextPageLink(ctx.req.url, offset, limit)}>; rel="next"`,
+        );
+      }
+
+      const lessonToUnitLookup = rows.reduce(
+        (acc, { lesson_slug, unit_slug }) => {
+          acc[lesson_slug] = unit_slug;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
+
+      // Step 2: fetch downloads
+      const downloadsQuery = gql`
+        query GetDownloads($lessonSlugs: [String!]!) {
+          ${downloadView}(
+            where: {
+              lessonSlug: { _in: $lessonSlugs }
+            }
+          ) {
+            lessonSlug
+            lessonTitle
+            exitQuiz
+            exitQuizAnswers
+            slideDeck: slidedeck
+            starterQuizAnswers
+            starterQuiz: starter_quiz
+            supplementaryResource
+            video: videos
+            worksheet
+            worksheetAnswers
+          }
+        }
+      `;
+
+      const downloadsViewResult: DownloadView = await graphqlClient.request(
+        downloadsQuery,
+        { lessonSlugs },
+      );
+      const downloads = downloadsViewResult[downloadView];
+
+      if (!downloads || downloads.length === 0) {
+        return [];
+      }
+
+      // Step 3: fetch TPC for attribution
+      const tpcQuery = gql`
+        query GetTPC($lessonSlugs: [String!]!) {
+          ${lessonView}(
+            where: {
+              lessonSlug: { _in: $lessonSlugs }
+            }
+          ) {
+            lessonSlug
+            tpcWorks
+            tpcMedia
+          }
+        }
+      `;
+
+      const tpcViewResult: LessonView = await graphqlClient.request(tpcQuery, {
+        lessonSlugs,
+      });
+      const tpc = tpcViewResult[lessonView];
+
+      const isLessonAllowed = (slug: string): boolean => {
+        if (isSubjectSupported(subject).isAllowed()) return true;
+        if (isUnitSupported(lessonToUnitLookup[slug]).isAllowed()) return true;
+        if (isLessonSupported(slug).isAllowed()) return true;
+        return false;
+      };
+
+      const afterGate = downloads.filter(({ lessonSlug }) =>
+        isLessonAllowed(lessonSlug),
+      );
+
+      // DEBUG (commented out):
+      // const mapped = afterGate.map((d) => ({
+      //   lessonSlug: d.lessonSlug,
+      //   assetCount: assetDownloads(d.lessonSlug, d, typeFilter).length,
+      // }));
+      // console.log('[getProgrammeAssets debug]', {
+      //   programme,
+      //   totalUniqueSlugCount: uniqueSlugs.length,
+      //   requestedPage: { offset, limit },
+      //   fetchedSlugCount: lessonSlugs.length,
+      //   downloadsFromView: downloads.length,
+      //   afterGateCount: afterGate.length,
+      //   perLesson: mapped,
+      //   finalCount: mapped.length,
+      // });
+
+      return afterGate.map((d) => {
+        const lessonSlug = d.lessonSlug;
+        const attribution = tpc.find((l) => l.lessonSlug === lessonSlug);
+        let mappedAttribution: string[] = [];
+        if (attribution) {
+          mappedAttribution = getAttribution(attribution);
+        }
+        return {
+          lessonSlug,
+          lessonTitle: d.lessonTitle,
+          attribution: mappedAttribution.length ? mappedAttribution : undefined,
+          assets: assetDownloads(lessonSlug, d, typeFilter),
+        };
+      });
     }),
   getLessonAsset: protectedProcedure
     .meta({
