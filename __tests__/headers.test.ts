@@ -1,6 +1,13 @@
+import { readFileSync } from 'node:fs';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { NextRequest } from 'next/server';
 import { unitVariantLessonsView } from '@/lib/owaClient';
+import getConfig, {
+  apiCatalogContentType,
+  apiCatalogLinkHeader,
+  apiCatalogPath,
+  homepageDiscoveryLinkHeader,
+} from '../next.config.mjs';
 
 /**
  * HTTP Headers Integration Tests
@@ -117,5 +124,83 @@ describe('HTTP Headers - Link header pagination', () => {
     expect(res.status).toBe(200);
     const linkHeader = res.headers.get('link');
     expect(linkHeader).toBeNull();
+  });
+});
+
+describe('HTTP Headers - homepage agent discovery', () => {
+  it('sets RFC 8288 Link headers for useful API resources', async () => {
+    const config = await getConfig('');
+    const headers = await config.headers?.();
+    const homepageHeaders = headers?.find(({ source }) => source === '/');
+    const linkHeader = homepageHeaders?.headers.find(
+      ({ key }) => key.toLowerCase() === 'link',
+    );
+
+    expect(linkHeader?.value).toBe(homepageDiscoveryLinkHeader);
+    expect(linkHeader?.value).toContain(
+      `<${apiCatalogPath}>; rel="api-catalog"`,
+    );
+    expect(linkHeader?.value).toContain(
+      '</api/v0/swagger.json>; rel="service-desc"',
+    );
+    expect(linkHeader?.value).toContain(
+      '</docs/about-oaks-api/api-overview>; rel="service-doc"',
+    );
+    expect(linkHeader?.value).toContain('</playground>; rel="service-doc"');
+  });
+
+  it('sets Linkset headers for the well-known API catalog', async () => {
+    const config = await getConfig('');
+    const headers = await config.headers?.();
+    const catalogHeaders = headers?.find(
+      ({ source }) => source === apiCatalogPath,
+    );
+
+    expect(catalogHeaders?.headers).toContainEqual({
+      key: 'Content-Type',
+      value: apiCatalogContentType,
+    });
+    expect(catalogHeaders?.headers).toContainEqual({
+      key: 'Link',
+      value: apiCatalogLinkHeader,
+    });
+  });
+
+  it('publishes a Linkset API catalog document', () => {
+    const apiCatalog = JSON.parse(
+      readFileSync(
+        new URL('../public/.well-known/api-catalog', import.meta.url),
+        'utf8',
+      ),
+    ) as {
+      linkset: Array<{
+        anchor: string;
+        'service-desc'?: Array<{ href: string; type: string; title: string }>;
+        'service-doc'?: Array<{ href: string; type: string; title: string }>;
+      }>;
+    };
+
+    expect(apiCatalog.linkset).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          anchor: '/api/v0',
+          'service-desc': expect.arrayContaining([
+            expect.objectContaining({
+              href: '/api/v0/swagger.json',
+              type: 'application/json',
+            }),
+          ]),
+        }),
+        expect.objectContaining({
+          anchor: '/api/bulk',
+          'service-desc': expect.arrayContaining([
+            expect.objectContaining({
+              href: '/api/bulk/schema.json',
+              type: 'application/schema+json',
+            }),
+          ]),
+        }),
+      ]),
+    );
   });
 });

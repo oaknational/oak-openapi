@@ -1,0 +1,43 @@
+{
+  "linkset": [
+    {
+      "anchor": "/api/v0",
+      "service-desc": [
+        {
+          "href": "/api/v0/swagger.json",
+          "type": "application/json",
+          "title": "OpenAPI description"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "/docs/about-oaks-api/api-overview",
+          "type": "text/html",
+          "title": "API overview"
+        },
+        {
+          "href": "/playground",
+          "type": "text/html",
+          "title": "Interactive API playground"
+        }
+      ]
+    },
+    {
+      "anchor": "/api/bulk",
+      "service-desc": [
+        {
+          "href": "/api/bulk/schema.json",
+          "type": "application/schema+json",
+          "title": "Bulk request schema"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "/bulk-download",
+          "type": "text/html",
+          "title": "Bulk download"
+        }
+      ]
+    }
+  ]
+}
