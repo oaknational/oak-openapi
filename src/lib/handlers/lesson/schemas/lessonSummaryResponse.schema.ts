@@ -102,7 +102,7 @@ export const lessonSummaryResponseSchema = z.object({
   }),
   downloadsAvailable: z.boolean().meta({
     description:
-      'Whether the lesson currently has any downloadable assets availableNote: this field reflects the current availability of downloadable assets, which reflects the availability of early-release content available for the hackathon. All lessons will eventually have downloadable assets available.',
+      'Whether the lesson currently has any downloadable assets available.',
   }),
 });
 
