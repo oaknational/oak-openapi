@@ -1,11 +1,22 @@
 # API docs
 
 Purpose
+
 - Provide lightweight guidance for using the API and navigating OpenAPI docs.
 
 Start here
+
 - [`docs/api/quickstart.md`](quickstart.md)
 
+Discovery
+
+- The homepage returns RFC 8288 `Link` response headers for agent discovery:
+  `/.well-known/api-catalog` as `api-catalog`, `/api/v0/swagger.json` as
+  `service-desc`, plus the API overview and playground as `service-doc`.
+- The API catalogue is published as a Linkset document at
+  `/.well-known/api-catalog`.
+
 Related docs
+
 - [`docs/architecture/openapi-generation.md`](../architecture/openapi-generation.md)
 - [`README.md`](../../README.md)
