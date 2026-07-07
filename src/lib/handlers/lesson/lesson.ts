@@ -2,9 +2,18 @@ import groupBy from 'object.groupby';
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import { TRPCError } from '@trpc/server';
-import { getClient, gql, lessonSearchView, lessonView } from 'lib/owaClient';
+import {
+  getClient,
+  gql,
+  LessonRestrictionView,
+  lessonRestrictionView,
+  lessonSearchView,
+  lessonView,
+  LessonRestrictionLevel,
+} from 'lib/owaClient';
+
 import type { LessonSearchView, LessonView } from 'lib/owaClient';
-import type * as z from 'zod/v4';
+import * as z from 'zod/v4';
 import { errorResponses } from '@/lib/errorResponses';
 
 import {
@@ -36,7 +45,106 @@ groupBy.shim();
 
 const timing = new Timing();
 
+const restrictionEnum = z.enum([
+  LessonRestrictionLevel.OGL_COMPATIBLE,
+  LessonRestrictionLevel.OGL_EQUIVALENT,
+  LessonRestrictionLevel.RESTRICTED,
+]);
+
+type RestrictionOutput = z.infer<typeof restrictionEnum>;
+
 export const getLessons = router({
+  postCheckRestrictedLessons: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        tags: ['lessons', 'lesson-data'],
+        summary: 'Check restrictions for a list of lessons',
+        path: '/lessons/check-restricted',
+        description: `Use when you have a list of lesson slugs and need to check if they are restricted. Returns a list of lessons with their restriction status and reasons.
+Not for: checking a single lesson (GET /lessons/{lesson}/summary); searching lessons by title (GET /search/lessons); listing every lesson in a unit or subject (GET /key-stages/{keyStage}/subject/{subject}/lessons).`,
+        errorResponses,
+      },
+    })
+    .input(
+      z.object({
+        lessons: z
+          .array(z.string())
+          .min(1, 'At least one lesson slug is required'),
+      }),
+    )
+    .output(
+      z.array(
+        z.object({
+          lessonSlug: z.string(),
+          assets: restrictionEnum,
+          lessonText: restrictionEnum,
+          quiz: restrictionEnum,
+        }),
+      ),
+    )
+    .query(async ({ input }) => {
+      const { lessons } = input;
+      const client = getClient();
+
+      const normalizeRestriction = (
+        restriction: LessonRestrictionLevel | undefined,
+      ): RestrictionOutput => {
+        switch (restriction) {
+          case LessonRestrictionLevel.OGL_COMPATIBLE:
+          case LessonRestrictionLevel.OGL_EQUIVALENT:
+            return restriction;
+          case LessonRestrictionLevel.RESTRICTED:
+          case LessonRestrictionLevel.HIGHLY_RESTRICTED:
+            return LessonRestrictionLevel.RESTRICTED;
+          default:
+            return LessonRestrictionLevel.OGL_COMPATIBLE;
+        }
+      };
+
+      const query = gql`
+        query ($slugs: [String!]!) @cached(ttl: 300) {
+          ${lessonRestrictionView}(
+            where: { slug: { _in: $slugs } }
+          ) {
+            slug
+            tpc_downloadablefiles_max_restriction
+            tpc_media_max_restriction
+            tpc_quizimages_max_restriction
+            tpc_works_max_restriction
+          }
+        }
+      `;
+
+      const res: LessonRestrictionView = await client.request(query, {
+        slugs: lessons,
+      });
+
+      const results = lessons.map((lessonSlug) => {
+        const restriction = res[lessonRestrictionView].find(
+          (r) => r.slug === lessonSlug,
+        );
+
+        const assets = normalizeRestriction(
+          restriction?.tpc_media_max_restriction,
+        );
+        const lessonText = normalizeRestriction(
+          restriction?.tpc_works_max_restriction,
+        );
+        const quiz = normalizeRestriction(
+          restriction?.tpc_quizimages_max_restriction,
+        );
+
+        return {
+          lessonSlug,
+          assets,
+          lessonText,
+          quiz,
+        };
+      });
+
+      return results;
+    }),
   getLesson: protectedProcedure
     .meta({
       openapi: {
@@ -61,31 +169,6 @@ Example slug: imagining-you-are-the-characters-the-three-billy-goats-gruff.`,
       const blocked = await blockLessonForCopyrightText(client, slug);
 
       if (blocked.isBlocked()) {
-        // blocking actually gets true for a real 404 too, so we're
-        // going to do a quick check to see if the lesson exists at all, and if not, we'll return a 404 instead of a 451. This is because we don't want to leak information about what lessons are blocked by returning a different status code for blocked vs non-existent lessons.
-
-        const existsQuery = gql`
-          query ($slug: String!) @cached(ttl: 300) {
-            ${lessonView}(
-              where: { lessonSlug: { _eq: $slug }, isLegacy: { _eq: false } }
-            ) {
-              lessonSlug
-            }
-          }
-        `;
-
-        const existsRes: LessonView = await client.request(existsQuery, {
-          slug,
-        });
-
-        if (existsRes[lessonView].length === 0) {
-          // lesson doesn't exist - return 404
-          throw new TRPCError({
-            message: 'Lesson not found',
-            code: 'NOT_FOUND',
-          });
-        }
-
         throw new TRPCError({
           message: `Lesson (${slug}) not available for this query (blocked for copyright text)`,
           code: 'BAD_REQUEST',

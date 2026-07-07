@@ -19,13 +19,11 @@ import {
   checkLessonAllowedAsset,
   checkLessonAllowedQuiz,
   getSubjectAndUnitForLesson,
-  isSequenceSubjectBlocked,
 } from '../../queryGate';
 import allowedUnits from '../../queryGateData/copyright/supportedUnits.json' with { type: 'json' };
 import type { Question, QuizKey } from './types';
 import { TRPCError } from '@trpc/server';
 import { sequenceWhere } from '../sequences/sequences';
-import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
 import { questionsForQuiz } from './helpers';
 import {
   questionForLessonsRequestOpenAPISchema,
@@ -65,7 +63,7 @@ Not for: quiz questions across a sequence (GET /sequences/{sequence}/questions);
 
       const client = getClient();
 
-      const quizGateTest = checkLessonAllowedQuiz(slug);
+      const quizGateTest = await checkLessonAllowedQuiz(client, slug);
 
       if (quizGateTest.isBlocked()) {
         throw new TRPCError({
@@ -153,17 +151,6 @@ Not for: questions in a single programme (GET /programmes/{programme}/questions)
       const { limit, offset, sequence, year } = input;
       const client = getClient();
 
-      const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
-      const gateTest = isSequenceSubjectBlocked(subjectSlug);
-
-      if (gateTest.isBlocked()) {
-        throw new TRPCError({
-          message: `The subject "${subjectSlug}" is not currently available`,
-          code: 'BAD_REQUEST',
-          cause: gateTest.reason,
-        });
-      }
-
       const where = sequenceWhere(sequence, year?.toString());
 
       const query = gql`
@@ -250,15 +237,15 @@ Not for: questions in a single programme (GET /programmes/{programme}/questions)
           continue;
         }
 
-        if (checkLessonAllowedQuiz(lessonSlug).isBlocked()) {
+        // FIXME this should use a bulk method
+        if ((await checkLessonAllowedQuiz(client, lessonSlug)).isBlocked()) {
           continue;
         }
 
         // check if the lesson has blocked assets or not
         const gateTest = await checkLessonAllowedAsset({
           lessonSlug,
-          unitSlug,
-          subjectSlug,
+          client,
         });
 
         if (gateTest.isBlocked()) {
@@ -404,15 +391,14 @@ Not for: a single lesson's quiz (GET /lessons/{lesson}/quiz); questions across a
           continue;
         }
 
-        if (checkLessonAllowedQuiz(lessonSlug).isBlocked()) {
+        if ((await checkLessonAllowedQuiz(client, lessonSlug)).isBlocked()) {
           continue;
         }
 
         // check if the lesson has blocked assets or not
         const gateTest = await checkLessonAllowedAsset({
           lessonSlug,
-          unitSlug,
-          subjectSlug: subject,
+          client,
         });
 
         // I'm fairly sure this is going to mess with the pagination numbers
@@ -483,25 +469,15 @@ Not for: questions in a single lesson (GET /lessons/{lesson}/quiz); questions ac
       const rows = lessonSlugResult[unitVariantLessonsView];
 
       if (rows.length === 0) {
-        return [];
-      }
-
-      const subject = rows[0]?.subject_slug ?? '';
-      const gateTest = isSequenceSubjectBlocked(subject);
-      if (gateTest.isBlocked()) {
         throw new TRPCError({
-          message: `The subject "${subject}" is not currently available`,
-          code: 'BAD_REQUEST',
-          cause: gateTest.reason,
+          message: `Programme not found: ${programme}`,
+          code: 'NOT_FOUND',
         });
       }
 
       const uniqueLessonSlugs = [...new Set(rows.map((r) => r.lesson_slug))];
       const lessonToUnitSlug = Object.fromEntries(
         rows.map((r) => [r.lesson_slug, r.unit_slug]),
-      );
-      const lessonToSubjectSlug = Object.fromEntries(
-        rows.map((r) => [r.lesson_slug, r.subject_slug]),
       );
 
       // Step 2: fetch questions with pagination
@@ -559,12 +535,13 @@ Not for: questions in a single lesson (GET /lessons/{lesson}/quiz); questions ac
         const unitSlug = rawUnitSlug ?? lessonToUnitSlug[lessonSlug] ?? '';
         if (!unitSlug) continue;
 
-        if (checkLessonAllowedQuiz(lessonSlug).isBlocked()) continue;
+        if ((await checkLessonAllowedQuiz(client, lessonSlug)).isBlocked()) {
+          continue;
+        }
 
         const lessonGateTest = await checkLessonAllowedAsset({
           lessonSlug,
-          unitSlug,
-          subjectSlug: lessonToSubjectSlug[lessonSlug] ?? subject,
+          client,
         });
         if (lessonGateTest.isBlocked()) continue;
 

@@ -22,13 +22,7 @@ import {
 import { baseUrl } from '../../baseUrl';
 import { getOakUrlForLesson } from '@/lib/canonicalUrls';
 
-import {
-  checkLessonAllowedAsset,
-  isLessonSupported,
-  isSequenceSubjectBlocked,
-  isSubjectSupported,
-  isUnitSupported,
-} from '@/lib/queryGate';
+import { checkLessonAllowedAsset, isSubjectSupported } from '@/lib/queryGate';
 import { sequenceWhere } from '../sequences/sequences';
 import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
 import { nextPageLink } from '@/lib/pagination';
@@ -267,15 +261,6 @@ Not for: assets in a single programme (GET /programmes/{programme}/assets); a si
       const client = getClient();
 
       const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
-      const gateTest = isSequenceSubjectBlocked(subjectSlug);
-
-      if (gateTest.isBlocked()) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: `The subject in "${sequence}" is not currently available`,
-          cause: gateTest.reason,
-        });
-      }
 
       const where = sequenceWhere(sequence, year ? year.toString() : undefined);
 
@@ -311,11 +296,13 @@ Not for: assets in a single programme (GET /programmes/{programme}/assets); a si
         {} as Record<string, string>,
       );
 
+      // FIXME ------------------
       const isLessonAllowed = async (slug: string): Promise<boolean> => {
         const gateTest = await checkLessonAllowedAsset({
           lessonSlug: slug,
           subjectSlug,
           unitSlug: lessonToUnitLookup[slug],
+          client,
         });
 
         return gateTest.isAllowed();
@@ -531,13 +518,6 @@ Not for: assets across a sequence (GET /sequences/{sequence}/assets); assets in 
       `;
 
       const lessonSlugs = res.map((l) => l.lesson_slug);
-      const lessonToUnitLookup = res.reduce(
-        (acc, { lesson_slug, unit_slug }) => {
-          acc[lesson_slug] = unit_slug;
-          return acc;
-        },
-        {} as Record<string, string>,
-      );
 
       const downloadsViewResult: DownloadView = await graphqlClient.request(
         downloadsQuery,
@@ -575,43 +555,28 @@ Not for: assets across a sequence (GET /sequences/{sequence}/assets); assets in 
 
       const tpc = tpcViewResult[lessonView];
 
-      const isLessonAllowed = (slug: string): boolean => {
-        if (isSubjectSupported(subject).isAllowed()) {
-          return true;
-        }
-
-        if (isUnitSupported(lessonToUnitLookup[slug]).isAllowed()) {
-          return true;
-        }
-
-        if (isLessonSupported(slug).isAllowed()) {
-          return true;
-        }
-
+      // FIXME - this needs to know en mass which lessons are restricted
+      const isLessonAllowed = (): boolean => {
         return false;
       };
 
-      const result = downloads
-        .filter(({ lessonSlug }) => isLessonAllowed(lessonSlug))
-        .map((d) => {
-          const lessonSlug = d.lessonSlug;
+      const result = downloads.filter(isLessonAllowed).map((d) => {
+        const lessonSlug = d.lessonSlug;
 
-          const attribution = tpc.find((l) => l.lessonSlug === lessonSlug);
-          let mappedAttribution: string[] = [];
+        const attribution = tpc.find((l) => l.lessonSlug === lessonSlug);
+        let mappedAttribution: string[] = [];
 
-          if (attribution) {
-            mappedAttribution = getAttribution(attribution);
-          }
+        if (attribution) {
+          mappedAttribution = getAttribution(attribution);
+        }
 
-          return {
-            lessonSlug,
-            lessonTitle: d.lessonTitle,
-            attribution: mappedAttribution.length
-              ? mappedAttribution
-              : undefined,
-            assets: assetDownloads(lessonSlug, d, typeFilter),
-          };
-        });
+        return {
+          lessonSlug,
+          lessonTitle: d.lessonTitle,
+          attribution: mappedAttribution.length ? mappedAttribution : undefined,
+          assets: assetDownloads(lessonSlug, d, typeFilter),
+        };
+      });
 
       return result;
     }),
@@ -685,14 +650,6 @@ Not for: assets across a whole sequence (GET /sequences/{sequence}/assets); asse
       }
 
       const subject = rows[0]?.subject_slug ?? '';
-      const gateTest = isSequenceSubjectBlocked(subject);
-      if (gateTest.isBlocked()) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: `The subject "${subject}" is not currently available`,
-          cause: gateTest.reason,
-        });
-      }
 
       // Deduplicate lesson slugs and apply pagination before fetching downloads.
       const uniqueSlugs = [...new Set(rows.map((l) => l.lesson_slug))];
@@ -708,14 +665,6 @@ Not for: assets across a whole sequence (GET /sequences/{sequence}/assets); asse
           `<${nextPageLink(ctx.req.url, offset, limit)}>; rel="next"`,
         );
       }
-
-      const lessonToUnitLookup = rows.reduce(
-        (acc, { lesson_slug, unit_slug }) => {
-          acc[lesson_slug] = unit_slug;
-          return acc;
-        },
-        {} as Record<string, string>,
-      );
 
       // Step 2: fetch downloads
       const downloadsQuery = gql`
@@ -770,16 +719,13 @@ Not for: assets across a whole sequence (GET /sequences/{sequence}/assets); asse
       });
       const tpc = tpcViewResult[lessonView];
 
-      const isLessonAllowed = (slug: string): boolean => {
+      // FIXME -------------
+      const isLessonAllowed = (): boolean => {
         if (isSubjectSupported(subject).isAllowed()) return true;
-        if (isUnitSupported(lessonToUnitLookup[slug]).isAllowed()) return true;
-        if (isLessonSupported(slug).isAllowed()) return true;
         return false;
       };
 
-      const afterGate = downloads.filter(({ lessonSlug }) =>
-        isLessonAllowed(lessonSlug),
-      );
+      const afterGate = downloads.filter(() => isLessonAllowed());
 
       // DEBUG (commented out):
       // const mapped = afterGate.map((d) => ({
