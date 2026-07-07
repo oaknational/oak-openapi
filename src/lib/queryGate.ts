@@ -13,16 +13,19 @@ allow access to the following lessons:
 
 import { gql } from 'graphql-request';
 import type { GraphQLClient } from 'graphql-request';
-import type { LessonView, SequenceView } from './owaClient';
-import { lessonView, sequenceView, sequenceViewWhereInput } from './owaClient';
+import type { LessonRestrictionView, LessonView } from './owaClient';
+import {
+  LessonRestrictionLevel,
+  lessonRestrictionView,
+  lessonView,
+} from './owaClient';
 
 // blocked always overrules
-import assetBlockedLessons from './queryGateData/assets/blockedLessons.json' with { type: 'json' };
-import assetBlockedUnits from './queryGateData/assets/blockedUnits.json' with { type: 'json' };
+// import assetBlockedUnits from './queryGateData/assets/blockedUnits.json' with { type: 'json' };
 import supportedUnits from './queryGateData/copyright/supportedUnits.json' with { type: 'json' };
-import supportedLessons from './queryGateData/copyright/supportedLessons.json' with { type: 'json' };
-import quizBlockedLessons from './queryGateData/quiz/blockedLessons.json' with { type: 'json' };
-import { blockedSequenceSubjects } from './blockedContent';
+
+const commonError =
+  'Learn more about Oak errors: https://open-api.thenational.academy/docs/about-oaks-api/errors';
 
 // Custom result class that requires explicit narrowing via type guards
 class GateWithReason {
@@ -47,97 +50,59 @@ class GateWithReason {
   }
 }
 
-const supportedSubjects: string[] = [];
-export const blockedSubjects = ['english', 'financial-education'];
-
-function isLessonBlocked(lessonSlug: string): boolean {
-  return assetBlockedLessons.includes(lessonSlug);
+export function isRestricted(
+  restriction: LessonRestrictionLevel | undefined,
+): boolean {
+  return (
+    restriction === LessonRestrictionLevel.RESTRICTED ||
+    restriction === LessonRestrictionLevel.HIGHLY_RESTRICTED
+  );
 }
 
-function isLessonQuizBlocked(lessonSlug: string): boolean {
-  return quizBlockedLessons.includes(lessonSlug);
-}
-
-function isUnitBlocked(unitSlug: string): boolean {
-  return assetBlockedUnits.includes(unitSlug);
-}
-
-export function isSequenceSubjectBlocked(subjectSlug: string): GateWithReason {
-  if (blockedSequenceSubjects.includes(subjectSlug)) {
-    return new GateWithReason(true, `Subject '${subjectSlug}' is blocked`);
-  }
-
-  return new GateWithReason(false, `Subject '${subjectSlug}' is not blocked`);
-}
+export const blockedSubjects = ['financial-education'];
 
 export async function blockLessonForCopyrightText(
   client: GraphQLClient,
   lessonSlug: string,
 ): Promise<GateWithReason> {
-  if (supportedLessons.includes(lessonSlug)) {
-    // not copyright
-    return new GateWithReason(false, 'Lesson is in supported content');
+  const query = gql`
+  query ($slug: String!) {
+    ${lessonRestrictionView}(
+      where: { slug: { _eq: $slug } }
+    ) {
+      tpc_downloadablefiles_max_restriction
+      tpc_media_max_restriction
+      tpc_quizimages_max_restriction
+      tpc_works_max_restriction
+    }
+  }
+  `;
+
+  const res: LessonRestrictionView = await client.request(query, {
+    slug: lessonSlug,
+  });
+
+  if (!res[lessonRestrictionView].length) {
+    return new GateWithReason(false, 'Lesson not in restrictions');
   }
 
-  const res = await getSubjectAndUnitForLesson(client, lessonSlug);
+  const restriction = res[lessonRestrictionView][0];
 
-  if (!res) {
-    // unknown subject - block
-    return new GateWithReason(true, 'Unknown subject');
-  }
-
-  return isBlockedUnitOrSubject(res);
-}
-
-export function isBlockedUnitOrSubject({
-  unitSlug,
-  subjectSlug,
-}: {
-  unitSlug: string;
-  subjectSlug: string;
-}): GateWithReason {
-  if (supportedUnits.includes(unitSlug)) {
-    // not copyright
-    return new GateWithReason(false, 'Unit is in supported content');
-  }
-
-  if (blockedSubjects.includes(subjectSlug)) {
+  if (isRestricted(restriction.tpc_works_max_restriction)) {
     return new GateWithReason(
       true,
-      'Subject is copyright protected and therefore blocked',
+      'Lesson contains copyright text and therefore blocked. ' + commonError,
     );
   }
 
-  return new GateWithReason(false, 'Unit and subject are supported');
+  return new GateWithReason(false, 'Lesson does not contain copyright text');
 }
 
-export async function blockUnitForCopyrightText(
-  client: GraphQLClient,
-  unitSlug: string,
-): Promise<GateWithReason> {
-  // it's possible we're dealing with an unit optional, which always end in a
-  // number, so we'll remove that for the moment, and then check
-
-  if (/-\d+$/.test(unitSlug)) {
-    if (supportedUnits.includes(unitSlug.replace(/-\d+$/, ''))) {
-      return new GateWithReason(false, 'Unit base is in supported content');
-    }
-  }
-
-  if (supportedUnits.includes(unitSlug)) {
-    // not copyright
-    return new GateWithReason(false, 'Unit is in supported content');
-  }
-
-  const res = await getSubjectForUnit(client, unitSlug);
-
-  if (!res) {
-    // unknown subject - block
-    return new GateWithReason(true, 'Unknown subject for given lesson');
-  }
-
-  const { subjectSlug } = res;
-
+export function isBlockedUnitOrSubject({
+  subjectSlug,
+}: {
+  subjectSlug: string;
+}): GateWithReason {
   if (blockedSubjects.includes(subjectSlug)) {
     return new GateWithReason(
       true,
@@ -152,6 +117,7 @@ interface CheckLessonWithSubject {
   lessonSlug: string;
   subjectSlug: string;
   unitSlug: string;
+  client: GraphQLClient;
 }
 
 interface CheckLessonWithoutSubject {
@@ -162,99 +128,79 @@ interface CheckLessonWithoutSubject {
 export async function checkLessonAllowedAsset(
   args: CheckLessonWithSubject | CheckLessonWithoutSubject,
 ): Promise<GateWithReason> {
-  const { lessonSlug } = args;
+  const { lessonSlug, client } = args;
 
-  // if the lesson is blocked, return false
-  if (isLessonBlocked(lessonSlug)) {
+  const query = gql`
+  query ($slug: String!) @cached(ttl: 300) {
+    ${lessonRestrictionView}(
+      where: { slug: { _eq: $slug } }
+    ) {
+      tpc_downloadablefiles_max_restriction
+      tpc_media_max_restriction
+    }
+  }
+  `;
+
+  const res: LessonRestrictionView = await client.request(query, {
+    slug: lessonSlug,
+  });
+
+  if (!res[lessonRestrictionView].length) {
+    return new GateWithReason(false, 'Lesson not in restrictions');
+  }
+
+  const restriction = res[lessonRestrictionView][0];
+
+  if (
+    isRestricted(restriction.tpc_downloadablefiles_max_restriction) ||
+    isRestricted(restriction.tpc_media_max_restriction)
+  ) {
     return new GateWithReason(
       true,
-      'Lesson asset is restricted and therefore blocked',
+      'Lesson contains copyright assets and therefore blocked. ' + commonError,
     );
   }
 
-  let subjectSlug: string;
-  let unitSlug: string;
-
-  // Type narrowing: check which variant we have
-  if ('client' in args && !('subjectSlug' in args)) {
-    // CheckLessonWithoutSubject case
-    const res = await getSubjectAndUnitForLesson(args.client, lessonSlug);
-
-    if (!res) {
-      return new GateWithReason(true, 'Subject and unit not found');
-    }
-
-    subjectSlug = res.subjectSlug;
-    unitSlug = res.unitSlug;
-  } else {
-    // CheckLessonWithSubject case
-    subjectSlug = (args as CheckLessonWithSubject).subjectSlug;
-    unitSlug = (args as CheckLessonWithSubject).unitSlug;
-  }
-
-  if (isUnitBlocked(unitSlug)) {
-    // blocked unit
-    return new GateWithReason(true, 'Unit is restricted and therefore blocked');
-  }
-
-  if (isSubjectSupported(subjectSlug).isAllowed()) {
-    return new GateWithReason(false, `Subject (${subjectSlug}) is supported`);
-  }
-
-  if (isUnitSupported(unitSlug).isAllowed()) {
-    return new GateWithReason(false, `Unit (${unitSlug}) is supported`);
-  }
-
-  if (isLessonSupported(lessonSlug).isAllowed()) {
-    return new GateWithReason(false, `Lesson (${lessonSlug}) is supported`);
-  }
-
-  return new GateWithReason(
-    true,
-    `Lesson (${lessonSlug}) is restricted and not available, and subject (${subjectSlug}) and unit (${unitSlug}) are blocked for assets`,
-  );
+  return new GateWithReason(false, `Lesson (${lessonSlug}) is supported`);
 }
 
-export function checkLessonAllowedQuiz(lessonSlug: string): GateWithReason {
-  if (isLessonQuizBlocked(lessonSlug)) {
+export async function checkLessonAllowedQuiz(
+  client: GraphQLClient,
+  lessonSlug: string,
+): Promise<GateWithReason> {
+  const query = gql`
+  query ($slug: String!) @cached(ttl: 300) {
+    ${lessonRestrictionView}(
+      where: { slug: { _eq: $slug } }
+    ) {
+      tpc_quizimages_max_restriction
+    }
+  }
+  `;
+
+  const res: LessonRestrictionView = await client.request(query, {
+    slug: lessonSlug,
+  });
+
+  if (!res[lessonRestrictionView].length) {
+    return new GateWithReason(false, 'Lesson not in restrictions');
+  }
+
+  const restriction = res[lessonRestrictionView][0];
+
+  if (isRestricted(restriction.tpc_quizimages_max_restriction)) {
     return new GateWithReason(
       true,
-      'Lesson quiz contains restricted content, and therefore blocked',
+      'Lesson contains copyright quiz images and therefore blocked. ' +
+        commonError,
     );
   }
 
   return new GateWithReason(false, 'Lesson quiz is not blocked');
 }
 
-export function supportsImages(subject: string, unit: string): GateWithReason {
-  const subjectSupported = isSubjectSupported(subject);
-  const unitSupported = isUnitSupported(unit);
-
-  if (subjectSupported.isBlocked()) {
-    return new GateWithReason(
-      true,
-      'An image has copyright at the subject level, so this is blocked',
-    );
-  }
-
-  if (unitSupported.isBlocked()) {
-    return new GateWithReason(
-      true,
-      'An image has copyright at the unit level, so this is blocked',
-    );
-  }
-
-  return new GateWithReason(false, 'Images allowed for this subject and unit');
-}
-
 export function isSubjectSupported(subject: string): GateWithReason {
-  const blocked = !supportedSubjects.includes(subject);
-  return new GateWithReason(
-    blocked,
-    blocked
-      ? `Subject '${subject}' is not supported`
-      : `Subject '${subject}' is supported`,
-  );
+  return new GateWithReason(false, `Subject '${subject}' is supported`);
 }
 
 export function isUnitSupported(unit: string): GateWithReason {
@@ -262,16 +208,6 @@ export function isUnitSupported(unit: string): GateWithReason {
   return new GateWithReason(
     blocked,
     blocked ? `Unit '${unit}' is not supported` : `Unit '${unit}' is supported`,
-  );
-}
-
-export function isLessonSupported(lesson: string): GateWithReason {
-  const blocked = !supportedLessons.includes(lesson);
-  return new GateWithReason(
-    blocked,
-    blocked
-      ? `Lesson '${lesson}' is not supported`
-      : `Lesson '${lesson}' is supported`,
   );
 }
 
@@ -301,40 +237,4 @@ export async function getSubjectAndUnitForLesson(
   const { subjectSlug = '', unitSlug = '' } = res[lessonView][0];
 
   return { subjectSlug, unitSlug };
-}
-
-async function getSubjectForUnit(
-  client: GraphQLClient,
-  slug: string,
-): Promise<{ subjectSlug: string } | false> {
-  let where;
-
-  if (/-\d+$/.test(slug)) {
-    where = { slug: { _like: `${slug.replace(/-\d+$/, '-')}%` } };
-  } else {
-    where = { slug: { _eq: slug } };
-  }
-
-  const query = gql`
-  query ($where: ${sequenceViewWhereInput}) @cached(ttl: 300) {
-    ${sequenceView}(
-      where: $where
-      limit: 1
-    ) {
-      subject_slug
-    }
-  }
-  `;
-
-  const res: SequenceView = await client.request(query, {
-    where,
-  });
-
-  if (!res[sequenceView].length) {
-    return false;
-  }
-
-  const { subject_slug: subjectSlug = '' } = res[sequenceView][0];
-
-  return { subjectSlug };
 }

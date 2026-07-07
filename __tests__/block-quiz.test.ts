@@ -2,16 +2,19 @@ import { expect, test } from 'vitest';
 import { extractCauseFromTRPCError, makeCaller } from './helper';
 import { TRPCError } from '@trpc/server';
 import { checkLessonAllowedQuiz } from '@/lib/queryGate';
+import { getClient } from '@/lib/owaClient';
 import quizBlockedLessons from '@/lib/queryGateData/quiz/blockedLessons.json' with { type: 'json' };
 
-test('checkLessonAllowedQuiz blocks a quiz-blocked lesson', () => {
-  const result = checkLessonAllowedQuiz(quizBlockedLessons[0]);
+test('checkLessonAllowedQuiz blocks a quiz-blocked lesson', async () => {
+  const client = getClient();
+  const result = await checkLessonAllowedQuiz(client, quizBlockedLessons[0]);
   expect(result.isBlocked()).toBe(true);
   expect(result.reason).toContain('quiz contains restricted content');
 });
 
-test('checkLessonAllowedQuiz allows a non-blocked lesson', () => {
-  const result = checkLessonAllowedQuiz('joining-using-and');
+test('checkLessonAllowedQuiz allows a non-blocked lesson', async () => {
+  const client = getClient();
+  const result = await checkLessonAllowedQuiz(client, 'joining-using-and');
   expect(result.isAllowed()).toBe(true);
 });
 
