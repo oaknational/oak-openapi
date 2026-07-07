@@ -134,14 +134,13 @@ async function runGateChecks(lessons: LessonRow[]): Promise<GateResult[]> {
   const client = getClient();
   const results: GateResult[] = [];
 
-  for (const { lessonSlug, unitSlug, subjectSlug } of lessons) {
+  for (const { lessonSlug } of lessons) {
     const copyright = await blockLessonForCopyrightText(client, lessonSlug);
     const asset = await checkLessonAllowedAsset({
       lessonSlug,
-      unitSlug,
-      subjectSlug,
+      client,
     });
-    const quiz = checkLessonAllowedQuiz(lessonSlug);
+    const quiz = await checkLessonAllowedQuiz(client, lessonSlug);
 
     results.push({
       lessonSlug,
