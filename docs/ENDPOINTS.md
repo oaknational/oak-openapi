@@ -70,3 +70,5 @@ the table lists the primary verb used by consumers.
 | Method | Endpoint                   | Definition                                                            |
 | ------ | -------------------------- | --------------------------------------------------------------------- |
 | GET    | `/.well-known/api-catalog` | [`public/.well-known/api-catalog`](../public/.well-known/api-catalog) |
+| GET    | `/auth.md`                 | [`public/auth.md`](../public/auth.md)                                 |
+| GET    | `/robots.txt`              | [`public/robots.txt`](../public/robots.txt)                           |
