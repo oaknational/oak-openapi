@@ -14,13 +14,7 @@ import type {
   UnitVariantLessonsView,
 } from 'lib/owaClient';
 
-import {
-  blockedSubjects,
-  checkLessonAllowedAsset,
-  checkLessonAllowedQuiz,
-  getSubjectAndUnitForLesson,
-} from '../../queryGate';
-import allowedUnits from '../../queryGateData/copyright/supportedUnits.json' with { type: 'json' };
+import { getLessonsRestrictions, isLessonRestricted } from '../../queryGate';
 import type { Question, QuizKey } from './types';
 import { TRPCError } from '@trpc/server';
 import { sequenceWhere } from '../sequences/sequences';
@@ -63,35 +57,13 @@ Not for: quiz questions across a sequence (GET /sequences/{sequence}/questions);
 
       const client = getClient();
 
-      const quizGateTest = await checkLessonAllowedQuiz(client, slug);
-
-      if (quizGateTest.isBlocked()) {
-        throw new TRPCError({
-          message: `Lesson (${slug}) quiz is not available`,
-          code: 'BAD_REQUEST',
-          cause: quizGateTest.reason,
-        });
-      }
-
-      const gateTest = await checkLessonAllowedAsset({
-        client,
-        lessonSlug: slug,
-      });
+      const gateTest = await isLessonRestricted(client, slug);
 
       if (gateTest.isBlocked()) {
         throw new TRPCError({
-          message: `Lesson (${slug}) quiz is not available due to copyright restrictions`,
+          message: `Lesson (${slug}) quiz is not available due to restrictions`,
           code: 'BAD_REQUEST',
           cause: gateTest.reason,
-        });
-      }
-
-      const subjectUnit = await getSubjectAndUnitForLesson(client, slug);
-
-      if (!subjectUnit) {
-        throw new TRPCError({
-          message: 'Lesson not found',
-          code: 'NOT_FOUND',
         });
       }
 
@@ -169,13 +141,18 @@ Not for: questions in a single programme (GET /programmes/{programme}/questions)
       const rawData = sequenceResult[sequenceView];
 
       // unique lesson slugs
-      const lessonSlugs = new Set(
-        rawData
-          .map((unit) => {
-            return unit.lessons.map((lesson) => lesson.slug);
-          })
-          .flat(),
+      const lessonSlugs = Array.from(
+        new Set(
+          rawData
+            .map((unit) => {
+              return unit.lessons.map((lesson) => lesson.slug);
+            })
+            .flat(),
+        ),
       );
+
+      const restrictions = await getLessonsRestrictions(client, lessonSlugs);
+      const lessonsAllowed = lessonSlugs.filter((slug) => !restrictions[slug]);
 
       const questionQuery = gql`
         query getQuestions($lessonSlugs: [String!]!, $limit: Int!, $offset: Int!) {
@@ -198,7 +175,7 @@ Not for: questions in a single programme (GET /programmes/{programme}/questions)
       `;
 
       const res: LessonView = await client.request(questionQuery, {
-        lessonSlugs: Array.from(lessonSlugs),
+        lessonSlugs: lessonsAllowed,
         offset,
         limit,
       });
@@ -234,21 +211,6 @@ Not for: questions in a single programme (GET /programmes/{programme}/questions)
         }
 
         if (!unitSlug) {
-          continue;
-        }
-
-        // FIXME this should use a bulk method
-        if ((await checkLessonAllowedQuiz(client, lessonSlug)).isBlocked()) {
-          continue;
-        }
-
-        // check if the lesson has blocked assets or not
-        const gateTest = await checkLessonAllowedAsset({
-          lessonSlug,
-          client,
-        });
-
-        if (gateTest.isBlocked()) {
           continue;
         }
 
@@ -294,37 +256,7 @@ Not for: a single lesson's quiz (GET /lessons/{lesson}/quiz); questions across a
 
       const client = getClient();
 
-      let query;
-
-      // this is a brittle hack to get us through the hackathon. I know that
-      if (blockedSubjects.includes(subject)) {
-        query = gql`
-        query (
-          $keyStage: String!
-          $subject: String!
-          $offset: Int!
-          $limit: Int!
-        ) {
-          ${lessonView}(
-            where: {
-              keyStageSlug: { _eq: $keyStage }
-              subjectSlug: { _eq: $subject }
-              isLegacy: { _eq: false }
-              unitSlug: { _in: ${JSON.stringify(allowedUnits)} }
-            }
-            offset: $offset
-            limit: $limit
-          ) {
-            lessonTitle
-            lessonSlug
-            unitSlug
-            exitQuiz
-            starterQuiz
-          }
-        }
-      `;
-      } else {
-        query = gql`
+      const query = gql`
         query (
           $keyStage: String!
           $subject: String!
@@ -348,7 +280,6 @@ Not for: a single lesson's quiz (GET /lessons/{lesson}/quiz); questions across a
           }
         }
       `;
-      }
 
       const res: LessonView = await client.request(query, {
         keyStage,
@@ -372,6 +303,13 @@ Not for: a single lesson's quiz (GET /lessons/{lesson}/quiz); questions across a
 
       const lessons = [];
 
+      const restrictions = await getLessonsRestrictions(
+        client,
+        data
+          .map((lesson) => lesson.lessonSlug)
+          .filter((lessonSlug): lessonSlug is string => Boolean(lessonSlug)),
+      );
+
       for (const {
         exitQuiz,
         starterQuiz,
@@ -391,20 +329,7 @@ Not for: a single lesson's quiz (GET /lessons/{lesson}/quiz); questions across a
           continue;
         }
 
-        if ((await checkLessonAllowedQuiz(client, lessonSlug)).isBlocked()) {
-          continue;
-        }
-
-        // check if the lesson has blocked assets or not
-        const gateTest = await checkLessonAllowedAsset({
-          lessonSlug,
-          client,
-        });
-
-        // I'm fairly sure this is going to mess with the pagination numbers
-        // but until we are able to use the database for restricted lessons,
-        // we have to do it _post-query_.
-        if (gateTest.isBlocked()) {
+        if (restrictions[lessonSlug]) {
           continue;
         }
 
@@ -469,15 +394,20 @@ Not for: questions in a single lesson (GET /lessons/{lesson}/quiz); questions ac
       const rows = lessonSlugResult[unitVariantLessonsView];
 
       if (rows.length === 0) {
-        throw new TRPCError({
-          message: `Programme not found: ${programme}`,
-          code: 'NOT_FOUND',
-        });
+        return [];
       }
 
       const uniqueLessonSlugs = [...new Set(rows.map((r) => r.lesson_slug))];
       const lessonToUnitSlug = Object.fromEntries(
         rows.map((r) => [r.lesson_slug, r.unit_slug]),
+      );
+
+      const restrictions = await getLessonsRestrictions(
+        client,
+        uniqueLessonSlugs,
+      );
+      const lessonSlugs = uniqueLessonSlugs.filter(
+        (slug) => !restrictions[slug],
       );
 
       // Step 2: fetch questions with pagination
@@ -502,7 +432,7 @@ Not for: questions in a single lesson (GET /lessons/{lesson}/quiz); questions ac
       `;
 
       const res: LessonView = await client.request(questionQuery, {
-        lessonSlugs: uniqueLessonSlugs,
+        lessonSlugs,
         offset,
         limit,
       });
@@ -534,16 +464,6 @@ Not for: questions in a single lesson (GET /lessons/{lesson}/quiz); questions ac
 
         const unitSlug = rawUnitSlug ?? lessonToUnitSlug[lessonSlug] ?? '';
         if (!unitSlug) continue;
-
-        if ((await checkLessonAllowedQuiz(client, lessonSlug)).isBlocked()) {
-          continue;
-        }
-
-        const lessonGateTest = await checkLessonAllowedAsset({
-          lessonSlug,
-          client,
-        });
-        if (lessonGateTest.isBlocked()) continue;
 
         const results = questionsForQuiz({ exitQuiz, starterQuiz }, filter);
         if (!hasQuestions(results)) continue;

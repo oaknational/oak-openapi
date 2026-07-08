@@ -14,6 +14,7 @@
   "eslint.useFlatConfig": true,
   "eslint.nodePath": "node_modules",
   "cSpell.words": [
+    "Aakesh",
     "apikeys",
     "APIV",
     "commitlint",
