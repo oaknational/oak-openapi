@@ -137,17 +137,9 @@ test('blocked videos return 400', async () => {
 
 test('specifically blocked lessons (assets only)', async () => {
   const lessons = [
-    'checking-understanding-of-pictograms-and-bar-charts',
-    'securing-constructing-pictograms',
-    'securing-constructing-bar-charts-by-hand',
-    'constructing-bar-charts-by-utilising-technology',
-    'constructing-pie-charts',
-    'constructing-pie-charts-by-utilising-technology',
-    'interpreting-pie-charts',
-    'constructing-scatter-graphs',
     'constructing-scatter-graphs-by-utilising-technology',
-    'interpreting-scatter-graphs',
-    'problem-solving-with-graphical-representations-of-data',
+    'constructing-bar-charts-by-utilising-technology',
+    'constructing-pie-charts-by-utilising-technology',
   ];
 
   const caller = makeCaller({
@@ -182,7 +174,7 @@ test('lessons in the supported lessons array are allowed', async () => {
   expect(res).toBeInstanceOf(Response);
 });
 
-test('lessons not in the supported lessons array are not allowed', async () => {
+test('unknown lessons return not found when no downloadable assets exist', async () => {
   const res = await getLessonAsset({
     lesson: 'made up lesson for testing',
     type: 'video',
@@ -192,10 +184,10 @@ test('lessons not in the supported lessons array are not allowed', async () => {
     message: string;
   }
 
-  expect(res.status).toBe(400);
+  expect(res.status).toBe(404);
   const body = (await res.json()) as Body;
   expect(body).toHaveProperty('message');
-  expect(body.message).toContain('Lesson not available');
+  expect(body.message).toContain('No lessons found');
 });
 
 test('cycling down the quality of videos against mux', async () => {

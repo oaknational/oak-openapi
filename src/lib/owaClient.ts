@@ -57,6 +57,7 @@ function hasuraHeaders() {
 
 export function getClient(): GraphQLClient {
   return new GraphQLClient(`${process.env.OAK_GRAPHQL_HOST}/v1/graphql`, {
+    // @ts-expect-error FIXME will remove later
     headers: hasuraHeaders(),
   });
 }

@@ -9,7 +9,6 @@ import {
   lessonRestrictionView,
   lessonSearchView,
   lessonView,
-  LessonRestrictionLevel,
 } from 'lib/owaClient';
 
 import type { LessonSearchView, LessonView } from 'lib/owaClient';
@@ -17,9 +16,11 @@ import * as z from 'zod/v4';
 import { errorResponses } from '@/lib/errorResponses';
 
 import {
-  blockLessonForCopyrightText,
-  checkLessonAllowedAsset,
-} from '../../queryGate';
+  collapsedRestrictionStatus,
+  collapsedRestrictionStatuses,
+  highestRestrictionLevel,
+  isLessonRestricted,
+} from '@/lib/queryGate';
 import Timing from '@/lib/serverTimings';
 import {
   getUnitProgrammeFactorsFromLesson,
@@ -45,20 +46,23 @@ groupBy.shim();
 
 const timing = new Timing();
 
-const restrictionEnum = z.enum([
-  LessonRestrictionLevel.OGL_COMPATIBLE,
-  LessonRestrictionLevel.OGL_EQUIVALENT,
-  LessonRestrictionLevel.RESTRICTED,
-]);
-
+const restrictionEnum = z.enum(collapsedRestrictionStatuses);
 type RestrictionOutput = z.infer<typeof restrictionEnum>;
+const checkRestrictedLessonsResponseSchema = z
+  .record(z.string(), restrictionEnum)
+  .meta({
+    example: {
+      'joining-using-and': 'ogl-compatible',
+      'restricted-lesson': 'restricted',
+    },
+  });
 
 export const getLessons = router({
   postCheckRestrictedLessons: protectedProcedure
     .meta({
       openapi: {
         method: 'POST',
-        tags: ['lessons', 'lesson-data'],
+        tags: ['lessons'],
         summary: 'Check restrictions for a list of lessons',
         path: '/lessons/check-restricted',
         description: `Use when you have a list of lesson slugs and need to check if they are restricted. Returns a list of lessons with their restriction status and reasons.
@@ -68,39 +72,15 @@ Not for: checking a single lesson (GET /lessons/{lesson}/summary); searching les
     })
     .input(
       z.object({
-        lessons: z
+        lessonSlugs: z
           .array(z.string())
           .min(1, 'At least one lesson slug is required'),
       }),
     )
-    .output(
-      z.array(
-        z.object({
-          lessonSlug: z.string(),
-          assets: restrictionEnum,
-          lessonText: restrictionEnum,
-          quiz: restrictionEnum,
-        }),
-      ),
-    )
+    .output(checkRestrictedLessonsResponseSchema)
     .query(async ({ input }) => {
-      const { lessons } = input;
+      const { lessonSlugs } = input;
       const client = getClient();
-
-      const normalizeRestriction = (
-        restriction: LessonRestrictionLevel | undefined,
-      ): RestrictionOutput => {
-        switch (restriction) {
-          case LessonRestrictionLevel.OGL_COMPATIBLE:
-          case LessonRestrictionLevel.OGL_EQUIVALENT:
-            return restriction;
-          case LessonRestrictionLevel.RESTRICTED:
-          case LessonRestrictionLevel.HIGHLY_RESTRICTED:
-            return LessonRestrictionLevel.RESTRICTED;
-          default:
-            return LessonRestrictionLevel.OGL_COMPATIBLE;
-        }
-      };
 
       const query = gql`
         query ($slugs: [String!]!) @cached(ttl: 300) {
@@ -117,31 +97,24 @@ Not for: checking a single lesson (GET /lessons/{lesson}/summary); searching les
       `;
 
       const res: LessonRestrictionView = await client.request(query, {
-        slugs: lessons,
+        slugs: lessonSlugs,
       });
 
-      const results = lessons.map((lessonSlug) => {
-        const restriction = res[lessonRestrictionView].find(
-          (r) => r.slug === lessonSlug,
-        );
+      const results = res[lessonRestrictionView].reduce(
+        (acc, curr) => {
+          acc[curr.slug] = collapsedRestrictionStatus(
+            highestRestrictionLevel([
+              curr.tpc_downloadablefiles_max_restriction,
+              curr.tpc_media_max_restriction,
+              curr.tpc_quizimages_max_restriction,
+              curr.tpc_works_max_restriction,
+            ]),
+          );
 
-        const assets = normalizeRestriction(
-          restriction?.tpc_media_max_restriction,
-        );
-        const lessonText = normalizeRestriction(
-          restriction?.tpc_works_max_restriction,
-        );
-        const quiz = normalizeRestriction(
-          restriction?.tpc_quizimages_max_restriction,
-        );
-
-        return {
-          lessonSlug,
-          assets,
-          lessonText,
-          quiz,
-        };
-      });
+          return acc;
+        },
+        {} as Record<string, RestrictionOutput>,
+      );
 
       return results;
     }),
@@ -166,15 +139,16 @@ Example slug: imagining-you-are-the-characters-the-three-billy-goats-gruff.`,
       const slug = decodeURIComponent(input.lesson);
       const client = getClient();
 
-      const blocked = await blockLessonForCopyrightText(client, slug);
+      /** show lesson summary (regardless of tpc) - but Aakesh is going to find out if "highly restricted in works" means blocked on /summary */
+      // const blocked = await isLessonRestricted(client, slug);
 
-      if (blocked.isBlocked()) {
-        throw new TRPCError({
-          message: `Lesson (${slug}) not available for this query (blocked for copyright text)`,
-          code: 'BAD_REQUEST',
-          cause: blocked.reason,
-        });
-      }
+      // if (blocked.isBlocked()) {
+      //   throw new TRPCError({
+      //     message: `Lesson "${slug}" is restricted and cannot be accessed`,
+      //     code: 'BAD_REQUEST',
+      //     cause: blocked.reason,
+      //   });
+      // }
 
       const query = gql`
         query ($slug: String!) @cached(ttl: 300) {
@@ -268,17 +242,9 @@ Example slug: imagining-you-are-the-characters-the-three-billy-goats-gruff.`,
           oakUrl: getOakUrlForLesson(slug),
         } as z.infer<typeof lessonSummaryResponseOpenAPISchema>;
 
-        // we need to loop through the lessons and change the downloadsAvailable
-        // to check against the blockedLessons list. Ideally this would come from
-        // the database, but currently it's not available and some parts of the
-        // restricted flags are not fully implemented in the database
         if (lesson.downloadsAvailable) {
-          const isBlockedForDownloads = await checkLessonAllowedAsset({
-            client,
-            lessonSlug: slug,
-          });
-
-          if (isBlockedForDownloads.isBlocked()) {
+          const gated = await isLessonRestricted(client, slug);
+          if (gated.isBlocked()) {
             lesson.downloadsAvailable = false;
           }
         }

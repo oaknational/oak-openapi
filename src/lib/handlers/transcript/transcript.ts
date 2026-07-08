@@ -3,7 +3,7 @@ import { router } from '@/lib/trpc';
 import type { LessonContentView } from 'lib/owaClient';
 import { getClient, gql, lessonContentView } from 'lib/owaClient';
 
-import { checkLessonAllowedAsset } from '../../queryGate';
+import { isLessonRestricted } from '../../queryGate';
 import {
   transcriptRequestOpenAPISchema,
   transcriptResponseOpenAPISchema,
@@ -32,7 +32,7 @@ Not for: searching across transcripts (GET /search/transcripts); the video file 
 
       const client = getClient();
 
-      const gated = await checkLessonAllowedAsset({ client, lessonSlug: slug });
+      const gated = await isLessonRestricted(client, slug);
 
       if (gated.isBlocked()) {
         throw new TRPCError({
