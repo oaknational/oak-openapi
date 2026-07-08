@@ -1,0 +1,17 @@
+# Oak OpenAPI crawl policy
+
+User-agent: *
+Allow: /
+Allow: /.well-known/api-catalog
+Allow: /api/bulk/schema.json
+Allow: /api/v0/swagger.json
+Allow: /docs/
+Allow: /playground
+
+Disallow: /admin
+Disallow: /api/admin/
+Disallow: /api/bulk
+Disallow: /api/health
+Disallow: /api/pingdom
+Disallow: /api/v0/
+Disallow: /bulk-download/success
