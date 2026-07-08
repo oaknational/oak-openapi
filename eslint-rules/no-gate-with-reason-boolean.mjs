@@ -59,13 +59,8 @@ export default {
           const gateReturningFunctions = [
             'isSubjectSupported',
             'isUnitSupported',
-            'isLessonSupported',
-            'blockLessonForCopyrightText',
-            'blockUnitForCopyrightText',
-            'checkLessonAllowedAsset',
+            'isLessonRestricted',
             'isBlockedUnitOrSubject',
-            'supportsImages',
-            'isSequenceSubjectBlocked',
           ];
           return gateReturningFunctions.includes(callee.name);
         }

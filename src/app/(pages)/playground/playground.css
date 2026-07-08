@@ -324,6 +324,8 @@ div.swagger-ui,
 .swagger-ui textarea {
   font-weight: 400;
   font-size: 14px;
+  field-sizing: content;
+  min-height: 120px;
 }
 
 .swagger-ui input,
@@ -337,4 +339,9 @@ div.swagger-ui,
 
 .swagger-ui button + button {
   margin-left: 20px !important;
+}
+
+.swagger-ui textarea:focus {
+  border: 0;
+  outline: 2px solid #61affe;
 }
