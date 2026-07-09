@@ -4,7 +4,7 @@ import 'renvy';
 import { getClient } from '@/lib/owaClient';
 
 import { getVideoFromMux } from '@/lib/handlers/assets/helpers';
-import { checkLessonAllowedAsset } from '@/lib/queryGate';
+import { getLessonsRestrictions } from '@/lib/queryGate';
 // import assert from 'node:assert';
 import { log, logError } from '../src/lib/bulk-data/logger';
 import {
@@ -101,6 +101,11 @@ async function buildLessonData(
 
     const blockedLessons = new Set();
 
+    const restrictions = await getLessonsRestrictions(
+      client,
+      lessonData.map((l) => l.lessonSlug),
+    );
+
     if (!processAssets) {
       for (const lesson of lessonData) {
         const programmeSlug = lesson.programmeSlug;
@@ -113,13 +118,9 @@ async function buildLessonData(
           programmeSlug,
         );
 
-        const assetsAllowed = await checkLessonAllowedAsset({
-          lessonSlug: lesson.lessonSlug,
-          subjectSlug: lesson.subjectSlug,
-          unitSlug: lesson.unitSlug,
-        });
+        const restrictedLesson = restrictions[lesson.lessonSlug];
 
-        if (assetsAllowed.isBlocked()) {
+        if (restrictedLesson) {
           blockedLessons.add(lesson.lessonSlug);
 
           // now remove the transcripts and mark as restricted
