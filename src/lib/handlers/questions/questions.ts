@@ -31,6 +31,7 @@ import {
 } from '@/lib/zod-openapi/generated/questions';
 import { nextPageLink } from '@/lib/pagination';
 import { errorResponses } from '@/lib/errorResponses';
+import { subjectSlugs } from '@/lib/keyStageAndSubjects';
 
 function hasQuestions(results: Record<QuizKey, Question[]>): boolean {
   return results.starterQuiz.length > 0 || results.exitQuiz.length > 0;
@@ -77,6 +78,7 @@ Not for: quiz questions across a sequence (GET /sequences/{sequence}/questions);
           ) {
             exitQuiz
             starterQuiz
+            subjectSlug
           }
         }
       `;
@@ -97,6 +99,14 @@ Not for: quiz questions across a sequence (GET /sequences/{sequence}/questions);
       }
 
       const lesson = data[0];
+
+      // validate the subject
+      if (!lesson.subjectSlug || !subjectSlugs.includes(lesson.subjectSlug)) {
+        throw new TRPCError({
+          message: 'Programme not found',
+          code: 'NOT_FOUND',
+        });
+      }
 
       if (!lesson) {
         return result;
@@ -393,8 +403,16 @@ Not for: questions in a single lesson (GET /lessons/{lesson}/quiz); questions ac
       );
       const rows = lessonSlugResult[unitVariantLessonsView];
 
-      if (rows.length === 0) {
+      if (!rows || rows.length === 0) {
         return [];
+      }
+
+      // validate the subject
+      if (!subjectSlugs.includes(rows[0].subject_slug)) {
+        throw new TRPCError({
+          message: 'Programme not found',
+          code: 'NOT_FOUND',
+        });
       }
 
       const uniqueLessonSlugs = [...new Set(rows.map((r) => r.lesson_slug))];
