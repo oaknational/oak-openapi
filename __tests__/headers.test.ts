@@ -3,8 +3,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { NextRequest } from 'next/server';
 import { unitVariantLessonsView } from '@/lib/owaClient';
 import getConfig, {
-  apiCatalogContentType,
-  apiCatalogLinkHeader,
   apiCatalogPath,
   homepageDiscoveryLinkHeader,
 } from '../next.config.mjs';
@@ -149,58 +147,20 @@ describe('HTTP Headers - homepage agent discovery', () => {
     expect(linkHeader?.value).toContain('</playground>; rel="service-doc"');
   });
 
-  it('sets Linkset headers for the well-known API catalog', async () => {
-    const config = await getConfig('');
-    const headers = await config.headers?.();
-    const catalogHeaders = headers?.find(
-      ({ source }) => source === apiCatalogPath,
+  it('publishes truthful auth.md instructions for agent discovery', () => {
+    const authMd = readFileSync(
+      new URL('../public/auth.md', import.meta.url),
+      'utf8',
     );
 
-    expect(catalogHeaders?.headers).toContainEqual({
-      key: 'Content-Type',
-      value: apiCatalogContentType,
-    });
-    expect(catalogHeaders?.headers).toContainEqual({
-      key: 'Link',
-      value: apiCatalogLinkHeader,
-    });
-  });
-
-  it('publishes a Linkset API catalog document', () => {
-    const apiCatalog = JSON.parse(
-      readFileSync(
-        new URL('../public/.well-known/api-catalog', import.meta.url),
-        'utf8',
-      ),
-    ) as {
-      linkset: Array<{
-        anchor: string;
-        'service-desc'?: Array<{ href: string; type: string; title: string }>;
-        'service-doc'?: Array<{ href: string; type: string; title: string }>;
-      }>;
-    };
-
-    expect(apiCatalog.linkset).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          anchor: '/api/v0',
-          'service-desc': expect.arrayContaining([
-            expect.objectContaining({
-              href: '/api/v0/swagger.json',
-              type: 'application/json',
-            }),
-          ]),
-        }),
-        expect.objectContaining({
-          anchor: '/api/bulk',
-          'service-desc': expect.arrayContaining([
-            expect.objectContaining({
-              href: '/api/bulk/schema.json',
-              type: 'application/schema+json',
-            }),
-          ]),
-        }),
-      ]),
+    expect(authMd).toContain('# Oak OpenAPI auth.md');
+    expect(authMd).toContain('does not currently support OAuth 2.0');
+    expect(authMd).toContain('OpenID Connect');
+    expect(authMd).toContain(
+      'Automated agent registration is not currently supported',
     );
+    expect(authMd).toContain('No OAuth token endpoint');
+    expect(authMd).toContain('Authorization: Bearer <API_KEY>');
+    expect(authMd).toContain('Request an API key');
   });
 });
