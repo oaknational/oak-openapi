@@ -15,6 +15,9 @@ Discovery
   `service-desc`, plus the API overview and playground as `service-doc`.
 - The API catalogue is published as a Linkset document at
   `/.well-known/api-catalog`.
+- Authentication instructions for agents are published at `/auth.md`. OAuth 2.0,
+  OpenID Connect, dynamic client registration, and auth.md agent registration
+  flows are not currently supported.
 
 Related docs
 
