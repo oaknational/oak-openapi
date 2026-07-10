@@ -226,12 +226,12 @@ export interface UnitVariantLesson {
   unit_title: string; // via unit_data(path:"title")
   unit_slug: string;
   lesson_slug: string; // via lesson_data(path: "slug")
-  lesson_title: string; // via lesson_data(path: "title")
-  year_slug: string;
-  phase_slug: string;
-  keystage_slug: string;
-  subject_slug: string;
-  optionality?: string;
+  lesson_title: string; // via lesson_data(path: "lesson_title")
+  year_slug: string; // via lesson_data(path: "year_slug")
+  phase_slug: string; // via lesson_data(path: "phase_slug")
+  keystage_slug: string; // via lesson_data(path: "keystage_slug")
+  subject_slug: string; // via lesson_data(path: "subject_slug")
+  optionality?: string; // via lesson_data(path: "optionality")
   examboard_slug?: string | null; // via programme_fields(path:"examboard_slug")
   examboard_title?: string | null; // via programme_fields(path:"examboard")
   keywords?: { keyword: string; description: string }[];
