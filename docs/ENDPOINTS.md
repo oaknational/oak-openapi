@@ -60,3 +60,11 @@ the table lists the primary verb used by consumers.
 | GET    | `/api/bulk/schema.json`     | [`src/app/api/bulk/schema.json/route.ts`](../src/app/api/bulk/schema.json/route.ts#L4)          |
 | GET    | `/api/health`               | [`src/app/api/health/route.ts`](../src/app/api/health/route.ts#L30)                             |
 | GET    | `/api/pingdom`              | [`src/app/api/pingdom/route.ts`](../src/app/api/pingdom/route.ts#L42)                           |
+
+## Discovery resources
+
+| Method | Endpoint                   | Definition                                                            |
+| ------ | -------------------------- | --------------------------------------------------------------------- |
+| GET    | `/.well-known/api-catalog` | [`public/.well-known/api-catalog`](../public/.well-known/api-catalog) |
+| GET    | `/auth.md`                 | [`public/auth.md`](../public/auth.md)                                 |
+| GET    | `/robots.txt`              | [`public/robots.txt`](../public/robots.txt)                           |
