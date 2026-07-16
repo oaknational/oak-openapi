@@ -1,6 +1,11 @@
+import { readFileSync } from 'node:fs';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { NextRequest } from 'next/server';
 import { unitVariantLessonsView } from '@/lib/owaClient';
+import getConfig, {
+  apiCatalogPath,
+  homepageDiscoveryLinkHeader,
+} from '../next.config.mjs';
 
 /**
  * HTTP Headers Integration Tests
@@ -117,5 +122,45 @@ describe('HTTP Headers - Link header pagination', () => {
     expect(res.status).toBe(200);
     const linkHeader = res.headers.get('link');
     expect(linkHeader).toBeNull();
+  });
+});
+
+describe('HTTP Headers - homepage agent discovery', () => {
+  it('sets RFC 8288 Link headers for useful API resources', async () => {
+    const config = await getConfig('');
+    const headers = await config.headers?.();
+    const homepageHeaders = headers?.find(({ source }) => source === '/');
+    const linkHeader = homepageHeaders?.headers.find(
+      ({ key }) => key.toLowerCase() === 'link',
+    );
+
+    expect(linkHeader?.value).toBe(homepageDiscoveryLinkHeader);
+    expect(linkHeader?.value).toContain(
+      `<${apiCatalogPath}>; rel="api-catalog"`,
+    );
+    expect(linkHeader?.value).toContain(
+      '</api/v0/swagger.json>; rel="service-desc"',
+    );
+    expect(linkHeader?.value).toContain(
+      '</docs/about-oaks-api/api-overview>; rel="service-doc"',
+    );
+    expect(linkHeader?.value).toContain('</playground>; rel="service-doc"');
+  });
+
+  it('publishes truthful auth.md instructions for agent discovery', () => {
+    const authMd = readFileSync(
+      new URL('../public/auth.md', import.meta.url),
+      'utf8',
+    );
+
+    expect(authMd).toContain('# Oak OpenAPI auth.md');
+    expect(authMd).toContain('does not currently support OAuth 2.0');
+    expect(authMd).toContain('OpenID Connect');
+    expect(authMd).toContain(
+      'Automated agent registration is not currently supported',
+    );
+    expect(authMd).toContain('No OAuth token endpoint');
+    expect(authMd).toContain('Authorization: Bearer <API_KEY>');
+    expect(authMd).toContain('Request an API key');
   });
 });
