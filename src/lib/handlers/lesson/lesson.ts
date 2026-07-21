@@ -47,8 +47,8 @@ groupBy.shim();
 const timing = new Timing();
 
 const restrictionEnum = z.enum(collapsedRestrictionStatuses);
-type RestrictionOutput = z.infer<typeof restrictionEnum>;
-const checkRestrictedLessonsResponseSchema = z
+export type RestrictionOutput = z.infer<typeof restrictionEnum>;
+export const checkRestrictedLessonsResponseSchema = z
   .record(z.string(), restrictionEnum)
   .meta({
     example: {

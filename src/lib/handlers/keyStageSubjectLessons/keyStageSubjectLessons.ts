@@ -1,14 +1,30 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import { errorResponses } from '@/lib/errorResponses';
-import type { UnitVariantLessonsView } from 'lib/owaClient';
-import { getClient, gql, unitVariantLessonsView } from 'lib/owaClient';
+import type {
+  LessonRestrictionView,
+  UnitVariantLessonsView,
+} from 'lib/owaClient';
+import {
+  getClient,
+  gql,
+  lessonRestrictionView,
+  unitVariantLessonsView,
+} from 'lib/owaClient';
 
 import {
   keyStageSubjectLessonsRequestOpenAPISchema,
   keyStageSubjectLessonsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/keyStageSubjectLessons';
 import { nextPageLink } from '@/lib/pagination';
+import {
+  collapsedRestrictionStatus,
+  highestRestrictionLevel,
+} from '@/lib/queryGate';
+import {
+  checkRestrictedLessonsResponseSchema,
+  RestrictionOutput,
+} from '../lesson/lesson';
 
 export const getKeyStageSubjectLessons = router({
   getKeyStageSubjectLessons: protectedProcedure
@@ -150,5 +166,139 @@ Example: keyStage=ks3, subject=maths, unit=perimeter-and-area.`,
       );
 
       return units;
+    }),
+
+  getKeyStageSubjectLessonRestrictions: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        tags: ['lists', 'lessons'],
+        path: '/key-stages/{keyStage}/subject/{subject}/check-restricted',
+        summary: 'List lesson TPC restrictions in a key stage and subject',
+        description: `Use when you want every published lesson in a key stage + subject, grouped by unit, without programme structure or unit sequence order. Returns an array of units, each with slug, title, and the lessons inside. Pass unit to restrict to one. Supports offset/limit pagination; Link: rel="next" header signals more pages.
+Not for: finding a lesson from a search term (GET /search/lessons); a single lesson's metadata (GET /lessons/{lesson}/summary); all units across a sequence (GET /sequences/{sequence}/units); units in one programme (GET /programmes/{programme}/units).
+
+Example: keyStage=ks3, subject=maths, unit=perimeter-and-area.`,
+        errorResponses,
+      },
+    })
+    .input(keyStageSubjectLessonsRequestOpenAPISchema)
+    .output(checkRestrictedLessonsResponseSchema)
+    .query(async ({ input, ctx }) => {
+      const keyStage = decodeURIComponent(input.keyStage);
+      const subject = decodeURIComponent(input.subject);
+      const unit = input.unit || null;
+
+      const offset = input.offset ?? 0;
+      const limit = input.limit;
+
+      const client = getClient();
+
+      const unitFilter = unit ? `unit_slug: {_eq: "${unit}"}` : '';
+
+      const query = gql`
+        query ($filter: jsonb!, $offset: Int! $limit: Int!) {
+          ${unitVariantLessonsView}(
+            where: {
+              programme_fields: {
+                _contains: $filter
+              }
+              is_legacy: { _eq: false }
+              ${unitFilter}
+            },
+            offset: $offset,
+            limit: $limit,
+            order_by: {unit_slug: asc}
+          ) {
+            lesson_slug: lesson_data(path: "slug")
+          }
+        }
+      `;
+
+      const variables: {
+        filter: {
+          keystage_slug: string;
+          subject_slug?: string;
+          subject_parent?: string;
+        };
+        offset: number;
+        limit: number;
+      } = {
+        filter: {
+          subject_slug: subject,
+          keystage_slug: keyStage,
+        },
+        offset,
+        limit,
+      };
+
+      if (keyStage === 'ks4' && subject === 'science') {
+        delete variables.filter.subject_slug;
+        variables.filter.subject_parent = 'Science';
+      }
+
+      const res: UnitVariantLessonsView = await client.request(
+        query,
+        variables,
+      );
+
+      const lessons = res[unitVariantLessonsView];
+
+      if (lessons.length === 0) {
+        return {};
+      }
+
+      let next = null;
+      if (lessons.length === limit) {
+        next = nextPageLink(
+          ctx.req.url,
+          offset,
+          limit,
+          unit ? { unit } : undefined,
+        );
+
+        ctx.resHeaders.set('link', `<${next}>; rel="next"`);
+      }
+
+      const lessonSlugs = lessons.map((lesson) => lesson.lesson_slug);
+
+      const tpcQuery = gql`
+        query ($slugs: [String!]!) @cached(ttl: 300) {
+          ${lessonRestrictionView}(
+            where: { slug: { _in: $slugs } }
+          ) {
+            slug
+            tpc_downloadablefiles_max_restriction
+            tpc_media_max_restriction
+            tpc_quizimages_max_restriction
+            tpc_works_max_restriction
+          }
+        }
+      `;
+
+      const resRestrictions: LessonRestrictionView = await client.request(
+        tpcQuery,
+        {
+          slugs: lessonSlugs,
+        },
+      );
+
+      const results = resRestrictions[lessonRestrictionView].reduce(
+        (acc, curr) => {
+          acc[curr.slug] = collapsedRestrictionStatus(
+            highestRestrictionLevel([
+              curr.tpc_downloadablefiles_max_restriction,
+              curr.tpc_media_max_restriction,
+              curr.tpc_quizimages_max_restriction,
+              curr.tpc_works_max_restriction,
+            ]),
+          );
+
+          return acc;
+        },
+        {} as Record<string, RestrictionOutput>,
+      );
+
+      return results;
     }),
 });
