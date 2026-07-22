@@ -68,6 +68,18 @@ if (!swaggerData.paths) {
   throw new Error(`Paths object undefined`);
 }
 
+it('describes bearer API keys without claiming they are JWTs', () => {
+  const bearerAuth = swaggerData.components?.securitySchemes?.bearerAuth;
+
+  expect(bearerAuth).toEqual(
+    expect.objectContaining({
+      type: 'http',
+      scheme: 'bearer',
+    }),
+  );
+  expect(bearerAuth).not.toHaveProperty('bearerFormat');
+});
+
 it('programme endpoints are tagged as programmes', () => {
   const programmePaths = [
     '/subjects/{subject}/programmes',
