@@ -124,10 +124,12 @@ describe('programme assets and questions endpoints', () => {
         {
           lesson_slug: 'variables-and-data-types',
           unit_slug: 'variables',
+          subject_slug: 'computing',
         },
         {
           lesson_slug: 'restricted-lesson',
           unit_slug: 'variables',
+          subject_slug: 'computing',
         },
       ],
     });
