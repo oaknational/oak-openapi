@@ -24,6 +24,8 @@ export const programmesByYearViewTable =
 export const lessonOpenApiWithTranscriptsView =
   'published_view_lesson_open_api_with_transcripts_1';
 
+export const lessonRestrictionView = 'published_mv_lesson_restriction_levels_1';
+
 export const sequenceViewWhereInput =
   'published_mv_curriculum_sequence_b_13_0_21_bool_exp';
 
@@ -36,9 +38,17 @@ export const views = [
   sequenceView,
   lessonSearchView,
   programmesByYearView,
+  lessonRestrictionView,
 ];
 
 function hasuraHeaders() {
+  // FIXME remove later
+  if (process.env.OAK_GRAPHQL_DEV) {
+    return {
+      'content-type': 'application/json',
+      'x-hasura-admin-secret': process.env.OAK_GRAPHQL_DEV,
+    };
+  }
   return {
     'content-type': 'application/json',
     authorization: `Bearer ${process.env.OAK_GRAPHQL_SECRET}`,
@@ -47,6 +57,7 @@ function hasuraHeaders() {
 
 export function getClient(): GraphQLClient {
   return new GraphQLClient(`${process.env.OAK_GRAPHQL_HOST}/v1/graphql`, {
+    // @ts-expect-error FIXME will remove later
     headers: hasuraHeaders(),
   });
 }
@@ -56,6 +67,38 @@ export interface LessonDetail {
   has_worksheet_asset_object: boolean;
   has_worksheet_answers_asset_object: boolean;
   has_supplementary_asset_object: boolean;
+}
+
+/**
+ * enum LessonRestrictionLevel based on:
+ * OGL compatible, OGL equivalent, Restricted, Highly restricted
+ */
+
+export enum LessonRestrictionLevel {
+  OGL_COMPATIBLE = 'OGL compatible',
+  OGL_EQUIVALENT = 'OGL equivalent',
+  RESTRICTED = 'Restricted',
+  HIGHLY_RESTRICTED = 'Highly restricted',
+}
+
+export interface LessonRestrictionView {
+  [lessonRestrictionView]: LessonRestriction[];
+}
+
+export interface LessonRestriction {
+  slug: string;
+
+  /** not used yet */
+  tpc_downloadablefiles_max_restriction?: LessonRestrictionLevel;
+
+  /** Copyright on any assets (different from downloadable files) */
+  tpc_media_max_restriction?: LessonRestrictionLevel;
+
+  /** Question image copyright */
+  tpc_quizimages_max_restriction?: LessonRestrictionLevel;
+
+  /** Copyright text restriction level */
+  tpc_works_max_restriction?: LessonRestrictionLevel;
 }
 
 export interface SubjectPhaseView {

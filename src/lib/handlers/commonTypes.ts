@@ -20,11 +20,11 @@ export const offsetSchema = z
 
 export const limitSchema = z
   .number()
-  .describe('Limit the number of lessons, e.g. return a maximum of 100 lessons')
-  .meta({ example: 10 })
-  .lte(100)
+  .describe('Limit the number of lessons, e.g. return a maximum of 300 lessons')
+  .meta({ example: 20 })
+  .lte(300)
   .optional()
-  .default(10);
+  .default(20);
 
 export const keyStageSubjectSchema = z.object({
   keyStage: z

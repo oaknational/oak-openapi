@@ -22,15 +22,8 @@ import {
 import { baseUrl } from '../../baseUrl';
 import { getOakUrlForLesson } from '@/lib/canonicalUrls';
 
-import {
-  checkLessonAllowedAsset,
-  isLessonSupported,
-  isSequenceSubjectBlocked,
-  isSubjectSupported,
-  isUnitSupported,
-} from '@/lib/queryGate';
+import { getLessonsRestrictions, isLessonRestricted } from '@/lib/queryGate';
 import { sequenceWhere } from '../sequences/sequences';
-import { parseSubjectPhaseSlug } from '../../sequenceSlugParser';
 import { nextPageLink } from '@/lib/pagination';
 import { downloadTypeEnum } from './types';
 import type { DownloadTypeEnum, LessonAssetsType } from './types';
@@ -51,8 +44,6 @@ import {
 
 import placeholderVideoLessons from '@/lib/queryGateData/placeholderVideoLessons.json' with { type: 'json' };
 
-const graphqlClient = getClient();
-
 type Attribution = (string | undefined)[] | undefined;
 
 interface AssetsForLesson {
@@ -63,10 +54,8 @@ interface AssetsForLesson {
 export async function assetsForLesson(
   lessonSlug: string,
 ): Promise<AssetsForLesson> {
-  const gateTest = await checkLessonAllowedAsset({
-    client: graphqlClient,
-    lessonSlug,
-  });
+  const graphqlClient = getClient();
+  const gateTest = await isLessonRestricted(graphqlClient, lessonSlug);
 
   if (gateTest.isBlocked()) {
     throw new TRPCError({
@@ -266,17 +255,7 @@ Not for: assets in a single programme (GET /programmes/{programme}/assets); a si
       const { sequence, type, year } = input;
       const client = getClient();
 
-      const { subjectSlug } = parseSubjectPhaseSlug(input.sequence);
-      const gateTest = isSequenceSubjectBlocked(subjectSlug);
-
-      if (gateTest.isBlocked()) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: `The subject in "${sequence}" is not currently available`,
-          cause: gateTest.reason,
-        });
-      }
-
+      // FIXME can I get finance education? I shouldn't be able to.
       const where = sequenceWhere(sequence, year ? year.toString() : undefined);
 
       const query = gql`
@@ -293,33 +272,18 @@ Not for: assets in a single programme (GET /programmes/{programme}/assets); a si
       const res: SequenceView = await client.request(query, { where });
       const rawData = res[sequenceView];
 
-      const lessonSlugs = new Set(
-        rawData
-          .map((unit) => {
-            return unit.lessons.map((lesson) => lesson.slug);
-          })
-          .flat(),
+      const lessonSlugs = Array.from(
+        new Set(
+          rawData
+            .map((unit) => {
+              return unit.lessons.map((lesson) => lesson.slug);
+            })
+            .flat(),
+        ),
       );
 
-      const lessonToUnitLookup = rawData.reduce(
-        (acc, unit) => {
-          unit.lessons.forEach((lesson) => {
-            acc[lesson.slug] = unit.slug;
-          });
-          return acc;
-        },
-        {} as Record<string, string>,
-      );
-
-      const isLessonAllowed = async (slug: string): Promise<boolean> => {
-        const gateTest = await checkLessonAllowedAsset({
-          lessonSlug: slug,
-          subjectSlug,
-          unitSlug: lessonToUnitLookup[slug],
-        });
-
-        return gateTest.isAllowed();
-      };
+      const restrictions = await getLessonsRestrictions(client, lessonSlugs);
+      const lessonsAllowed = lessonSlugs.filter((slug) => !restrictions[slug]);
 
       const downloadsQuery = gql`
         query GetDownloads($lessonSlugs: [String!]!) {
@@ -344,11 +308,9 @@ Not for: assets in a single programme (GET /programmes/{programme}/assets); a si
           }
         }`;
 
-      const downloadsViewResult: DownloadView = await graphqlClient.request(
+      const downloadsViewResult: DownloadView = await client.request(
         downloadsQuery,
-        {
-          lessonSlugs: Array.from(lessonSlugs),
-        },
+        { lessonSlugs: lessonsAllowed },
       );
 
       const downloads = downloadsViewResult[downloadView];
@@ -367,42 +329,29 @@ Not for: assets in a single programme (GET /programmes/{programme}/assets); a si
         }
       `;
 
-      const tpcViewResult: LessonView = await graphqlClient.request(tpcQuery, {
+      const tpcViewResult: LessonView = await client.request(tpcQuery, {
         lessonSlugs: downloads.map((d) => d.lessonSlug),
       });
 
       const tpc = tpcViewResult[lessonView];
 
-      // filter the downloads based on whether assets are allowed
-      const downloadsAllowed = await Promise.all(
-        downloads.map(async (d) =>
-          isLessonAllowed(d.lessonSlug).then((allowed) =>
-            allowed ? d : false,
-          ),
-        ),
-      );
+      const result = downloads.map((d) => {
+        const lessonSlug = d.lessonSlug;
 
-      const result = downloadsAllowed
-        .filter((_) => _ !== false)
-        .map((d) => {
-          const lessonSlug = d.lessonSlug;
+        const attribution = tpc.find((l) => l.lessonSlug === lessonSlug);
+        let mappedAttribution: string[] = [];
 
-          const attribution = tpc.find((l) => l.lessonSlug === lessonSlug);
-          let mappedAttribution: string[] = [];
+        if (attribution) {
+          mappedAttribution = getAttribution(attribution);
+        }
 
-          if (attribution) {
-            mappedAttribution = getAttribution(attribution);
-          }
-
-          return {
-            lessonSlug,
-            lessonTitle: d.lessonTitle,
-            attribution: mappedAttribution.length
-              ? mappedAttribution
-              : undefined,
-            assets: assetDownloads(lessonSlug, d, type),
-          };
-        });
+        return {
+          lessonSlug,
+          lessonTitle: d.lessonTitle,
+          attribution: mappedAttribution.length ? mappedAttribution : undefined,
+          assets: assetDownloads(lessonSlug, d, type),
+        };
+      });
 
       return result;
     }),
@@ -447,25 +396,24 @@ Not for: assets across a sequence (GET /sequences/{sequence}/assets); assets in 
       const subject = input.subject;
       const unit = input.unit || null;
       const typeFilter = input.type;
+      const client = getClient();
 
       let unitFilter = '';
       let unitArg = '';
 
       if (unit) {
-        unitFilter = ', _and: { unit_slug: { _eq: $unit } }';
-        unitArg = ', $unit: String';
+        unitFilter = 'unit_slug: { _eq: $unit }';
+        unitArg = ', $unit: String!';
       }
 
       // step 1: find the slugs that match
       const lessonQuery = gql`
-        query GetLessons($_contains: jsonb, ${unitArg}) {
+        query GetLessons($_contains: jsonb${unitArg}) {
           ${unitVariantLessonsView} (
             where: {
               is_legacy: { _eq: false }
-              _and: {
-                programme_fields: { _contains: $_contains }
-                ${unitFilter}
-              }
+              programme_fields: { _contains: $_contains }
+              ${unitFilter}
             }
           ) {
             unit_slug
@@ -500,12 +448,21 @@ Not for: assets across a sequence (GET /sequences/{sequence}/assets); assets in 
         lessonQueryVariables.unit = unit;
       }
 
-      const lessonViewResult: UnitVariantLessonsView =
-        await graphqlClient.request(lessonQuery, lessonQueryVariables);
+      const lessonViewResult: UnitVariantLessonsView = await client.request(
+        lessonQuery,
+        lessonQueryVariables,
+      );
 
       const res = lessonViewResult[unitVariantLessonsView];
 
-      // step 2: get the assets for each lesson
+      const lessonSlugs = [...new Set(res.map((l) => l.lesson_slug))];
+      const restrictions = await getLessonsRestrictions(client, lessonSlugs);
+      const lessonsAllowed = lessonSlugs.filter((slug) => !restrictions[slug]);
+
+      if (lessonsAllowed.length === 0) {
+        return [];
+      }
+
       const downloadsQuery = gql`
         query GetDownloads($lessonSlugs: [String!]!) {
           ${downloadView}(
@@ -530,29 +487,17 @@ Not for: assets across a sequence (GET /sequences/{sequence}/assets); assets in 
         }
       `;
 
-      const lessonSlugs = res.map((l) => l.lesson_slug);
-      const lessonToUnitLookup = res.reduce(
-        (acc, { lesson_slug, unit_slug }) => {
-          acc[lesson_slug] = unit_slug;
-          return acc;
-        },
-        {} as Record<string, string>,
-      );
-
-      const downloadsViewResult: DownloadView = await graphqlClient.request(
+      const downloadsViewResult: DownloadView = await client.request(
         downloadsQuery,
         {
-          lessonSlugs,
+          lessonSlugs: lessonsAllowed,
         },
       );
 
       const downloads = downloadsViewResult[downloadView];
 
       if (!downloads || downloads.length === 0 || !downloads[0]) {
-        throw new TRPCError({
-          message: 'No lessons found',
-          code: 'NOT_FOUND',
-        });
+        return [];
       }
 
       const tpcQuery = gql`
@@ -569,49 +514,29 @@ Not for: assets across a sequence (GET /sequences/{sequence}/assets); assets in 
         }
       `;
 
-      const tpcViewResult: LessonView = await graphqlClient.request(tpcQuery, {
-        lessonSlugs,
+      const tpcViewResult: LessonView = await client.request(tpcQuery, {
+        lessonSlugs: lessonsAllowed,
       });
 
       const tpc = tpcViewResult[lessonView];
 
-      const isLessonAllowed = (slug: string): boolean => {
-        if (isSubjectSupported(subject).isAllowed()) {
-          return true;
+      const result = downloads.map((d) => {
+        const lessonSlug = d.lessonSlug;
+
+        const attribution = tpc.find((l) => l.lessonSlug === lessonSlug);
+        let mappedAttribution: string[] = [];
+
+        if (attribution) {
+          mappedAttribution = getAttribution(attribution);
         }
 
-        if (isUnitSupported(lessonToUnitLookup[slug]).isAllowed()) {
-          return true;
-        }
-
-        if (isLessonSupported(slug).isAllowed()) {
-          return true;
-        }
-
-        return false;
-      };
-
-      const result = downloads
-        .filter(({ lessonSlug }) => isLessonAllowed(lessonSlug))
-        .map((d) => {
-          const lessonSlug = d.lessonSlug;
-
-          const attribution = tpc.find((l) => l.lessonSlug === lessonSlug);
-          let mappedAttribution: string[] = [];
-
-          if (attribution) {
-            mappedAttribution = getAttribution(attribution);
-          }
-
-          return {
-            lessonSlug,
-            lessonTitle: d.lessonTitle,
-            attribution: mappedAttribution.length
-              ? mappedAttribution
-              : undefined,
-            assets: assetDownloads(lessonSlug, d, typeFilter),
-          };
-        });
+        return {
+          lessonSlug,
+          lessonTitle: d.lessonTitle,
+          attribution: mappedAttribution.length ? mappedAttribution : undefined,
+          assets: assetDownloads(lessonSlug, d, typeFilter),
+        };
+      });
 
       return result;
     }),
@@ -659,6 +584,7 @@ Not for: assets across a whole sequence (GET /sequences/{sequence}/assets); asse
     .query(async ({ input, ctx }) => {
       const { programme, offset, limit } = input;
       const typeFilter = input.type;
+      const client = getClient();
 
       // Step 1: get lesson slugs for this programme
       const lessonQuery = gql`
@@ -676,22 +602,14 @@ Not for: assets across a whole sequence (GET /sequences/{sequence}/assets); asse
         }
       `;
 
-      const lessonViewResult: UnitVariantLessonsView =
-        await graphqlClient.request(lessonQuery, { programme });
+      const lessonViewResult: UnitVariantLessonsView = await client.request(
+        lessonQuery,
+        { programme },
+      );
       const rows = lessonViewResult[unitVariantLessonsView];
 
       if (rows.length === 0) {
         return [];
-      }
-
-      const subject = rows[0]?.subject_slug ?? '';
-      const gateTest = isSequenceSubjectBlocked(subject);
-      if (gateTest.isBlocked()) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: `The subject "${subject}" is not currently available`,
-          cause: gateTest.reason,
-        });
       }
 
       // Deduplicate lesson slugs and apply pagination before fetching downloads.
@@ -709,15 +627,14 @@ Not for: assets across a whole sequence (GET /sequences/{sequence}/assets); asse
         );
       }
 
-      const lessonToUnitLookup = rows.reduce(
-        (acc, { lesson_slug, unit_slug }) => {
-          acc[lesson_slug] = unit_slug;
-          return acc;
-        },
-        {} as Record<string, string>,
-      );
-
       // Step 2: fetch downloads
+      const restrictions = await getLessonsRestrictions(client, lessonSlugs);
+      const lessonsAllowed = lessonSlugs.filter((slug) => !restrictions[slug]);
+
+      if (lessonsAllowed.length === 0) {
+        return [];
+      }
+
       const downloadsQuery = gql`
         query GetDownloads($lessonSlugs: [String!]!) {
           ${downloadView}(
@@ -740,9 +657,9 @@ Not for: assets across a whole sequence (GET /sequences/{sequence}/assets); asse
         }
       `;
 
-      const downloadsViewResult: DownloadView = await graphqlClient.request(
+      const downloadsViewResult: DownloadView = await client.request(
         downloadsQuery,
-        { lessonSlugs },
+        { lessonSlugs: lessonsAllowed },
       );
       const downloads = downloadsViewResult[downloadView];
 
@@ -765,39 +682,12 @@ Not for: assets across a whole sequence (GET /sequences/{sequence}/assets); asse
         }
       `;
 
-      const tpcViewResult: LessonView = await graphqlClient.request(tpcQuery, {
-        lessonSlugs,
+      const tpcViewResult: LessonView = await client.request(tpcQuery, {
+        lessonSlugs: lessonsAllowed,
       });
       const tpc = tpcViewResult[lessonView];
 
-      const isLessonAllowed = (slug: string): boolean => {
-        if (isSubjectSupported(subject).isAllowed()) return true;
-        if (isUnitSupported(lessonToUnitLookup[slug]).isAllowed()) return true;
-        if (isLessonSupported(slug).isAllowed()) return true;
-        return false;
-      };
-
-      const afterGate = downloads.filter(({ lessonSlug }) =>
-        isLessonAllowed(lessonSlug),
-      );
-
-      // DEBUG (commented out):
-      // const mapped = afterGate.map((d) => ({
-      //   lessonSlug: d.lessonSlug,
-      //   assetCount: assetDownloads(d.lessonSlug, d, typeFilter).length,
-      // }));
-      // console.log('[getProgrammeAssets debug]', {
-      //   programme,
-      //   totalUniqueSlugCount: uniqueSlugs.length,
-      //   requestedPage: { offset, limit },
-      //   fetchedSlugCount: lessonSlugs.length,
-      //   downloadsFromView: downloads.length,
-      //   afterGateCount: afterGate.length,
-      //   perLesson: mapped,
-      //   finalCount: mapped.length,
-      // });
-
-      return afterGate.map((d) => {
+      return downloads.map((d) => {
         const lessonSlug = d.lessonSlug;
         const attribution = tpc.find((l) => l.lessonSlug === lessonSlug);
         let mappedAttribution: string[] = [];
