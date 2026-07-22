@@ -320,3 +320,28 @@ div.swagger-ui,
 .swagger-ui .renderedMarkdown code {
   padding: 2px 3px;
 }
+
+.swagger-ui textarea {
+  font-weight: 400;
+  font-size: 14px;
+  field-sizing: content;
+  min-height: 120px;
+}
+
+.swagger-ui input,
+.swagger-ui select {
+  padding: 4px 8px !important;
+}
+
+.swagger-ui button {
+  border-radius: 4px !important;
+}
+
+.swagger-ui button + button {
+  margin-left: 20px !important;
+}
+
+.swagger-ui textarea:focus {
+  border: 0;
+  outline: 2px solid #61affe;
+}

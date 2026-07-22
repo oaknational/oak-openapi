@@ -9,7 +9,6 @@ import {
   sequenceViewWhereInput,
 } from 'lib/owaClient';
 import { errorResponses } from '@/lib/errorResponses';
-import { blockUnitForCopyrightText } from '../../queryGate';
 
 import {
   doesUnitExist,
@@ -82,16 +81,6 @@ Not for: listing every unit in a key stage + subject (GET /key-stages/{keyStage}
           // move the original slug back to the original for the rest of the function
           slug = originalSlug;
         }
-      }
-
-      const blocked = await blockUnitForCopyrightText(client, slug);
-
-      if (blocked.isBlocked()) {
-        throw new TRPCError({
-          message: 'Unit not available for this query (blocked copyright text)',
-          code: 'BAD_REQUEST',
-          cause: blocked.reason,
-        });
       }
 
       // Ensure that non-curriculum units don't come through. Programme-factor

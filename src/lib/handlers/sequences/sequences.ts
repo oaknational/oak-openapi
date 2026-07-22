@@ -28,7 +28,6 @@ import {
   subjectSequenceRequestOpenAPISchema,
   subjectSequenceResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/subjects';
-import { isSequenceSubjectBlocked } from '@/lib/queryGate';
 import { TRPCError } from '@trpc/server';
 import { getSubjectFromProgrammes } from '../subjects/helpers';
 
@@ -285,15 +284,6 @@ Example: sequence=science-secondary-aqa or maths-primary.`,
       const { subjectSlug, ks4OptionSlug } = parseSubjectPhaseSlug(
         input.sequence,
       );
-      const gateTest = isSequenceSubjectBlocked(subjectSlug);
-
-      if (gateTest.isBlocked()) {
-        throw new TRPCError({
-          message: `The subject "${subjectSlug}" is not currently available`,
-          code: 'BAD_REQUEST',
-          cause: gateTest.reason,
-        });
-      }
 
       const where = sequenceWhere(input.sequence);
 

@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { lessonView, unitVariantLessonsView } from '@/lib/owaClient';
+import {
+  downloadView,
+  lessonRestrictionView,
+  lessonView,
+  unitVariantLessonsView,
+} from '@/lib/owaClient';
 
 const mocks = vi.hoisted(() => ({
   owaClientRequestMock: vi.fn(),
@@ -79,6 +84,9 @@ describe('programme assets and questions endpoints', () => {
       ],
     });
     mocks.owaClientRequestMock.mockResolvedValueOnce({
+      [lessonRestrictionView]: [],
+    });
+    mocks.owaClientRequestMock.mockResolvedValueOnce({
       [lessonView]: [],
     });
 
@@ -93,14 +101,173 @@ describe('programme assets and questions endpoints', () => {
       }),
     ).resolves.toStrictEqual([]);
 
-    expect(mocks.owaClientRequestMock).toHaveBeenCalledTimes(2);
+    expect(mocks.owaClientRequestMock).toHaveBeenCalledTimes(3);
     expect(mocks.owaClientRequestMock.mock.calls[1]?.[0]).toContain(
-      `${lessonView}(`,
+      `${lessonRestrictionView}(`,
     );
     expect(mocks.owaClientRequestMock.mock.calls[1]?.[1]).toEqual({
+      slugs: ['variables-and-data-types'],
+    });
+    expect(mocks.owaClientRequestMock.mock.calls[2]?.[0]).toContain(
+      `${lessonView}(`,
+    );
+    expect(mocks.owaClientRequestMock.mock.calls[2]?.[1]).toEqual({
       lessonSlugs: ['variables-and-data-types'],
       offset: 0,
       limit: 10,
+    });
+  });
+
+  it('/programmes/{programme}/assets filters restricted lessons before fetching downloads', async () => {
+    mocks.owaClientRequestMock.mockResolvedValueOnce({
+      [unitVariantLessonsView]: [
+        {
+          lesson_slug: 'variables-and-data-types',
+          unit_slug: 'variables',
+        },
+        {
+          lesson_slug: 'restricted-lesson',
+          unit_slug: 'variables',
+        },
+      ],
+    });
+    mocks.owaClientRequestMock.mockResolvedValueOnce({
+      [lessonRestrictionView]: [
+        {
+          slug: 'restricted-lesson',
+          tpc_downloadablefiles_max_restriction: 'Restricted',
+        },
+      ],
+    });
+    mocks.owaClientRequestMock.mockResolvedValueOnce({
+      [downloadView]: [
+        {
+          lessonSlug: 'variables-and-data-types',
+          lessonTitle: 'Variables and data types',
+          slideDeck: {
+            label: 'Slide Deck',
+            bucket_path: 'LESS-ID/slidedeck/PDF.pdf',
+          },
+        },
+      ],
+    });
+    mocks.owaClientRequestMock.mockResolvedValueOnce({
+      [lessonView]: [
+        {
+          lessonSlug: 'variables-and-data-types',
+          tpcWorks: [],
+          tpcMedia: [],
+        },
+      ],
+    });
+
+    const { authedCaller } = await import('./helper');
+    const { caller } = authedCaller();
+
+    const result = await caller.getAssets.getProgrammeAssets({
+      programme: 'computing-secondary-year-7',
+      offset: 0,
+      limit: 10,
+    });
+
+    expect(result).toMatchObject([
+      {
+        lessonSlug: 'variables-and-data-types',
+        lessonTitle: 'Variables and data types',
+        assets: [
+          {
+            label: 'Slide Deck',
+            type: 'slideDeck',
+          },
+        ],
+      },
+    ]);
+    expect(result.map((lesson) => lesson.lessonSlug)).not.toContain(
+      'restricted-lesson',
+    );
+    expect(result[0]?.assets[0]?.url).toContain(
+      '/api/v0/lessons/variables-and-data-types/assets/slideDeck',
+    );
+
+    expect(mocks.owaClientRequestMock).toHaveBeenCalledTimes(4);
+    expect(mocks.owaClientRequestMock.mock.calls[2]?.[1]).toEqual({
+      lessonSlugs: ['variables-and-data-types'],
+    });
+  });
+
+  it('/key-stages/{keyStage}/subject/{subject}/assets filters restricted lessons before fetching downloads', async () => {
+    mocks.owaClientRequestMock.mockResolvedValueOnce({
+      [unitVariantLessonsView]: [
+        {
+          lesson_slug: 'noun-phrases',
+          unit_slug: 'word-class',
+        },
+        {
+          lesson_slug: 'restricted-lesson',
+          unit_slug: 'word-class',
+        },
+      ],
+    });
+    mocks.owaClientRequestMock.mockResolvedValueOnce({
+      [lessonRestrictionView]: [
+        {
+          slug: 'restricted-lesson',
+          tpc_media_max_restriction: 'Highly restricted',
+        },
+      ],
+    });
+    mocks.owaClientRequestMock.mockResolvedValueOnce({
+      [downloadView]: [
+        {
+          lessonSlug: 'noun-phrases',
+          lessonTitle: 'Noun phrases',
+          worksheet: {
+            label: 'Worksheet',
+            bucket_path: 'LESS-ID/worksheet/PDF.pdf',
+          },
+        },
+      ],
+    });
+    mocks.owaClientRequestMock.mockResolvedValueOnce({
+      [lessonView]: [
+        {
+          lessonSlug: 'noun-phrases',
+          tpcWorks: [],
+          tpcMedia: [],
+        },
+      ],
+    });
+
+    const { authedCaller } = await import('./helper');
+    const { caller } = authedCaller();
+
+    const result = await caller.getAssets.getSubjectAssets({
+      keyStage: 'ks1',
+      subject: 'english',
+    });
+
+    expect(result).toMatchObject([
+      {
+        lessonSlug: 'noun-phrases',
+        lessonTitle: 'Noun phrases',
+        assets: [
+          {
+            label: 'Worksheet',
+            type: 'worksheet',
+          },
+        ],
+      },
+    ]);
+    expect(result.map((lesson) => lesson.lessonSlug)).not.toContain(
+      'restricted-lesson',
+    );
+    expect(result[0]?.assets[0]?.url).toContain(
+      '/api/v0/lessons/noun-phrases/assets/worksheet',
+    );
+
+    expect(mocks.owaClientRequestMock).toHaveBeenCalledTimes(4);
+    expect(mocks.owaClientRequestMock.mock.calls[2]?.[1]).toEqual({
+      lessonSlugs: ['noun-phrases'],
     });
   });
 });
