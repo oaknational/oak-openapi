@@ -18,8 +18,8 @@ import {
   sequenceView,
   sequenceViewWhereInput,
 } from '@/lib/owaClient';
-
-import { baseUrl } from '../../baseUrl';
+import { subjectSlugs } from '@/lib/keyStageAndSubjects';
+import { baseUrl } from '@/lib/baseUrl';
 import { getOakUrlForLesson } from '@/lib/canonicalUrls';
 
 import { getLessonsRestrictions, isLessonRestricted } from '@/lib/queryGate';
@@ -112,6 +112,7 @@ export async function assetsForLesson(
           lessonSlug: { _eq: $lessonSlug }
         }
       ) {
+        subjectSlug
         lessonSlug
         tpcWorks
         tpcMedia
@@ -124,6 +125,17 @@ export async function assetsForLesson(
   });
 
   const attribution = tpcViewResult[lessonView][0];
+
+  // validate the subject
+  if (
+    !attribution.subjectSlug ||
+    !subjectSlugs.includes(attribution.subjectSlug)
+  ) {
+    throw new TRPCError({
+      message: 'Lesson not found',
+      code: 'NOT_FOUND',
+    });
+  }
 
   let mappedAttribution: Attribution = [];
 
@@ -610,6 +622,14 @@ Not for: assets across a whole sequence (GET /sequences/{sequence}/assets); asse
 
       if (rows.length === 0) {
         return [];
+      }
+
+      // validate the subject
+      if (!subjectSlugs.includes(rows[0].subject_slug)) {
+        throw new TRPCError({
+          message: 'Programme not found',
+          code: 'NOT_FOUND',
+        });
       }
 
       // Deduplicate lesson slugs and apply pagination before fetching downloads.

@@ -10,7 +10,7 @@ import {
   lessonSearchView,
   lessonView,
 } from 'lib/owaClient';
-
+import { subjectSlugs } from '@/lib/keyStageAndSubjects';
 import type { LessonSearchView, LessonView } from 'lib/owaClient';
 import * as z from 'zod/v4';
 import { errorResponses } from '@/lib/errorResponses';
@@ -21,7 +21,6 @@ import {
   highestRestrictionLevel,
   isLessonRestricted,
 } from '@/lib/queryGate';
-import Timing from '@/lib/serverTimings';
 import {
   getUnitProgrammeFactorsFromLesson,
   getUnitProgrammeFactorsSignature,
@@ -43,8 +42,6 @@ import {
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 groupBy.shim();
-
-const timing = new Timing();
 
 const restrictionEnum = z.enum(collapsedRestrictionStatuses);
 export type RestrictionOutput = z.infer<typeof restrictionEnum>;
@@ -179,15 +176,21 @@ Example slug: imagining-you-are-the-characters-the-three-billy-goats-gruff.`,
         }
       `;
 
-      timing.start('getLesson graphql');
       const res: LessonView = await client.request(query, {
         slug,
       });
-      timing.end('getLesson graphql');
 
       const data = res[lessonView];
 
       if (data.length === 0) {
+        throw new TRPCError({
+          message: 'Lesson not found',
+          code: 'NOT_FOUND',
+        });
+      }
+
+      // validate the subject
+      if (!data[0].subjectSlug || !subjectSlugs.includes(data[0].subjectSlug)) {
         throw new TRPCError({
           message: 'Lesson not found',
           code: 'NOT_FOUND',
