@@ -12,7 +12,6 @@ const version = getLatestVersion(getLatestMajorVersion());
 const bearerAuth = {
   type: 'http',
   scheme: 'bearer',
-  bearerFormat: 'JWT', // Optional, only if you want to specify the token format
 } as const;
 
 export const openApiDocument = generateOpenApiDocument(router, {

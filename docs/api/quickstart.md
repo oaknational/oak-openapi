@@ -10,6 +10,9 @@ Base URLs
 Authentication
 - Most endpoints require an API key.
 - Use the header: `Authorization: Bearer <API_KEY>`.
+- Agents and tools can read `/auth.md` for the same authentication guidance.
+  OAuth 2.0, OpenID Connect, dynamic client registration, and auth.md agent
+  registration flows are not currently supported.
 
 First request (subjects list)
 ```sh
