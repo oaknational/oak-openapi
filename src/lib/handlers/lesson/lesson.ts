@@ -85,7 +85,7 @@ Not for: checking a single lesson (GET /lessons/{lesson}/summary); searching les
       const query = gql`
         query ($slugs: [String!]!) @cached(ttl: 300) {
           ${lessonRestrictionView}(
-            where: { slug: { _in: $slugs } }
+            where: { slug: { _in: $slugs }, _state: { _eq: "published" } }
           ) {
             slug
             tpc_downloadablefiles_max_restriction

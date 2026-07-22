@@ -263,9 +263,9 @@ Example: keyStage=ks3, subject=maths, unit=perimeter-and-area.`,
       const lessonSlugs = lessons.map((lesson) => lesson.lesson_slug);
 
       const tpcQuery = gql`
-        query ($slugs: [String!]!) @cached(ttl: 300) {
+        query ($slugs: [String!]!) {
           ${lessonRestrictionView}(
-            where: { slug: { _in: $slugs } }
+            where: { slug: { _in: $slugs }, _state: { _eq: "published" } }
           ) {
             slug
             tpc_downloadablefiles_max_restriction
