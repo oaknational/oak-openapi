@@ -35,8 +35,6 @@
     "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.mts",
-    ".storybook/**/*.ts",
-    ".storybook/**/*.tsx",
     "src/loaders/gql.js"
   ]
 }
