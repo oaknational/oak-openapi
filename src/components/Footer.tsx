@@ -239,7 +239,7 @@ function ContactUs(): React.ReactElement {
       <OakBox $mt="spacing-24">
         <StrongLinkNoUnderline
           iconName="arrow-right"
-          href="mailto:help@thenational.academy"
+          href="https://bvumd.share.hsforms.com/2nacebr1eQuKMoA-vGpkjCA"
           isTrailingIcon={true}
         >
           Send us an email
