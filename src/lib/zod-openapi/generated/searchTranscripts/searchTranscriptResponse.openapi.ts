@@ -1,24 +1,21 @@
+import 'zod-openapi';
 import * as z from 'zod/v4';
-
 export const searchTranscriptResponseOpenAPISchema = z
   .array(
     z.object({
-      lessonTitle: z.string().meta({
-        description: 'The lesson title',
+      lessonTitle: z.string().describe('The lesson title').meta({
         example: 'The Roman invasion of Britain ',
       }),
-      lessonSlug: z.string().meta({
-        description: 'The lesson slug identifier',
+      lessonSlug: z.string().describe('The lesson slug identifier').meta({
         example: 'the-roman-invasion-of-britain',
       }),
       transcriptSnippet: z
         .string()
+        .describe('The snippet of the transcript that matched the search term')
+        .optional()
         .meta({
-          description:
-            'The snippet of the transcript that matched the search term',
           example: 'The Romans were ready,',
-        })
-        .optional(),
+        }),
     }),
   )
   .meta({

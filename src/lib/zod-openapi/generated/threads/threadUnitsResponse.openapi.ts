@@ -1,5 +1,5 @@
+import 'zod-openapi';
 import { unitListSchema } from '@/lib/handlers/threads/types';
-
 export const threadUnitsResponseOpenAPISchema = unitListSchema.meta({
   id: 'ThreadUnitsResponseSchema',
   example: [
@@ -8,12 +8,9 @@ export const threadUnitsResponseOpenAPISchema = unitListSchema.meta({
       unitSlug: 'unitising-and-coin-recognitions-counting-in-2s-5s-and-10s',
     },
     {
-      unitTitle: 'Programming subroutines',
-      unitSlug: 'programming-subroutines',
-    },
-    {
-      unitTitle: 'Programming subroutines',
-      unitSlug: 'programming-subroutines',
+      unitTitle: 'Solving problems in a range of contexts',
+      unitSlug:
+        'unitising-and-coin-recognition-solving-problems-involving-money',
     },
   ],
 });
