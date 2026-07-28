@@ -1,13 +1,71 @@
+import 'zod-openapi';
 import * as z from 'zod/v4';
 import {
   exitQuizSchema,
   starterQuizSchema,
 } from '@/lib/handlers/questions/types';
-
 export const questionForLessonsResponseOpenAPISchema = z
   .object({
-    starterQuiz: starterQuizSchema,
-    exitQuiz: exitQuizSchema,
+    starterQuiz: starterQuizSchema.meta({
+      example: [
+        {
+          question: 'Tick the sentence with the correct punctuation.',
+          questionType: 'multiple-choice',
+          answers: [
+            {
+              distractor: true,
+              type: 'text',
+              content: 'the baby cried',
+            },
+            {
+              distractor: true,
+              type: 'text',
+              content: 'The baby cried',
+            },
+            {
+              distractor: false,
+              type: 'text',
+              content: 'The baby cried.',
+            },
+            {
+              distractor: true,
+              type: 'text',
+              content: 'the baby cried.',
+            },
+          ],
+        },
+      ],
+    }),
+    exitQuiz: exitQuizSchema.meta({
+      example: [
+        {
+          question: 'Which word is a verb?',
+          questionType: 'multiple-choice',
+          answers: [
+            {
+              distractor: true,
+              type: 'text',
+              content: 'shops',
+            },
+            {
+              distractor: true,
+              type: 'text',
+              content: 'Jun',
+            },
+            {
+              distractor: true,
+              type: 'text',
+              content: 'I',
+            },
+            {
+              distractor: false,
+              type: 'text',
+              content: 'shout',
+            },
+          ],
+        },
+      ],
+    }),
   })
   .meta({
     id: 'QuestionForLessonsResponseSchema',
@@ -17,23 +75,54 @@ export const questionForLessonsResponseOpenAPISchema = z
           question: 'Tick the sentence with the correct punctuation.',
           questionType: 'multiple-choice',
           answers: [
-            { distractor: true, type: 'text', content: 'the baby cried' },
-            { distractor: true, type: 'text', content: 'The baby cried' },
-            { distractor: false, type: 'text', content: 'The baby cried.' },
-            { distractor: true, type: 'text', content: 'the baby cried.' },
+            {
+              distractor: true,
+              type: 'text',
+              content: 'the baby cried',
+            },
+            {
+              distractor: true,
+              type: 'text',
+              content: 'The baby cried',
+            },
+            {
+              distractor: false,
+              type: 'text',
+              content: 'The baby cried.',
+            },
+            {
+              distractor: true,
+              type: 'text',
+              content: 'the baby cried.',
+            },
           ],
         },
       ],
-
       exitQuiz: [
         {
           question: 'Which word is a verb?',
           questionType: 'multiple-choice',
           answers: [
-            { distractor: true, type: 'text', content: 'shops' },
-            { distractor: true, type: 'text', content: 'Jun' },
-            { distractor: true, type: 'text', content: 'I' },
-            { distractor: false, type: 'text', content: 'shout' },
+            {
+              distractor: true,
+              type: 'text',
+              content: 'shops',
+            },
+            {
+              distractor: true,
+              type: 'text',
+              content: 'Jun',
+            },
+            {
+              distractor: true,
+              type: 'text',
+              content: 'I',
+            },
+            {
+              distractor: false,
+              type: 'text',
+              content: 'shout',
+            },
           ],
         },
       ],

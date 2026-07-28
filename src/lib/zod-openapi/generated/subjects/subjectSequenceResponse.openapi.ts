@@ -1,25 +1,74 @@
+import 'zod-openapi';
 import * as z from 'zod/v4';
 import {
   numberArrayResult,
   keyStagesResult,
   ks4ProgrammeFactorsResult,
 } from '@/lib/handlers/subjects/types';
-
 export const subjectSequenceResponseOpenAPISchema = z
   .object({
     sequenceSlug: z.string().meta({
       description: 'The unique identifier for each sequence',
+      example: 'computing-secondary-core',
     }),
-    years: numberArrayResult,
-    keyStages: keyStagesResult,
+    years: numberArrayResult.meta({
+      example: [7, 8, 9, 10, 11],
+    }),
+    keyStages: keyStagesResult.meta({
+      example: [
+        {
+          keyStageTitle: 'Key Stage 3',
+          keyStageSlug: 'ks3',
+        },
+        {
+          keyStageTitle: 'Key Stage 4',
+          keyStageSlug: 'ks4',
+        },
+      ],
+    }),
     phaseSlug: z.string().meta({
       description:
         'The unique identifier for the phase to which this sequence belongs',
+      example: 'secondary',
     }),
     phaseTitle: z.string().meta({
       description: 'The title for the phase to which this sequence belongs',
+      example: 'Secondary',
     }),
-    ks4ProgrammeFactors: ks4ProgrammeFactorsResult,
+    ks4ProgrammeFactors: ks4ProgrammeFactorsResult.meta({
+      example: {
+        examBoard: [
+          {
+            title: 'AQA',
+            slug: 'aqa',
+          },
+          {
+            title: 'Edexcel',
+            slug: 'edexcel',
+          },
+          {
+            title: 'OCR',
+            slug: 'ocr',
+          },
+        ],
+        pathway: [
+          {
+            title: 'Core',
+            slug: 'core',
+          },
+        ],
+        tier: [
+          {
+            title: 'Foundation',
+            slug: 'foundation',
+          },
+          {
+            title: 'Higher',
+            slug: 'higher',
+          },
+        ],
+      },
+    }),
   })
   .meta({
     id: 'SubjectSequenceResponseSchema',
@@ -27,21 +76,47 @@ export const subjectSequenceResponseOpenAPISchema = z
       sequenceSlug: 'computing-secondary-core',
       years: [7, 8, 9, 10, 11],
       keyStages: [
-        { keyStageTitle: 'Key Stage 3', keyStageSlug: 'ks3' },
-        { keyStageTitle: 'Key Stage 4', keyStageSlug: 'ks4' },
+        {
+          keyStageTitle: 'Key Stage 3',
+          keyStageSlug: 'ks3',
+        },
+        {
+          keyStageTitle: 'Key Stage 4',
+          keyStageSlug: 'ks4',
+        },
       ],
       phaseSlug: 'secondary',
       phaseTitle: 'Secondary',
       ks4ProgrammeFactors: {
         examBoard: [
-          { title: 'AQA', slug: 'aqa' },
-          { title: 'Edexcel', slug: 'edexcel' },
-          { title: 'OCR', slug: 'ocr' },
+          {
+            title: 'AQA',
+            slug: 'aqa',
+          },
+          {
+            title: 'Edexcel',
+            slug: 'edexcel',
+          },
+          {
+            title: 'OCR',
+            slug: 'ocr',
+          },
         ],
-        pathway: [{ title: 'Core', slug: 'core' }],
+        pathway: [
+          {
+            title: 'Core',
+            slug: 'core',
+          },
+        ],
         tier: [
-          { title: 'Foundation', slug: 'foundation' },
-          { title: 'Higher', slug: 'higher' },
+          {
+            title: 'Foundation',
+            slug: 'foundation',
+          },
+          {
+            title: 'Higher',
+            slug: 'higher',
+          },
         ],
       },
     },

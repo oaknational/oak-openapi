@@ -1,9 +1,13 @@
+import 'zod-openapi';
 import * as z from 'zod/v4';
-import { oakUrlSchema } from '@/lib/handlers/commonTypes';
-
+import { oakUrlSchema } from '../../../handlers/commonTypes';
 export const lessonSearchResultSchema = z.object({
-  lessonSlug: z.string().meta({ description: 'The lesson slug identifier' }),
-  lessonTitle: z.string().meta({ description: 'The lesson title' }),
+  lessonSlug: z.string().meta({
+    description: 'The lesson slug identifier',
+  }),
+  lessonTitle: z.string().meta({
+    description: 'The lesson title',
+  }),
   oakUrl: oakUrlSchema,
   similarity: z.number().meta({
     description: 'The snippet of the transcript that matched the search term',
@@ -23,7 +27,6 @@ export const lessonSearchResultSchema = z.object({
         'The units that the lesson is part of. See sample response below',
     }),
 });
-
 export const lessonSearchResponseOpenAPISchema = z
   .array(lessonSearchResultSchema)
   .meta({

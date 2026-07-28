@@ -1,5 +1,5 @@
+import 'zod-openapi';
 import { questionsSchema } from '@/lib/handlers/questions/types';
-
 export const questionsForSequenceResponseOpenAPISchema = questionsSchema.meta({
   id: 'QuestionsForSequenceResponseSchema',
   example: [
@@ -11,14 +11,29 @@ export const questionsForSequenceResponseOpenAPISchema = questionsSchema.meta({
           question: 'Select all of the names of shapes that are polygons.',
           questionType: 'multiple-choice',
           answers: [
-            { type: 'text', content: 'Cube ', distractor: true },
-            { type: 'text', content: ' Square', distractor: false },
-            { type: 'text', content: 'Triangle', distractor: false },
-            { type: 'text', content: 'Semi-circle', distractor: true },
+            {
+              type: 'text',
+              content: 'Cube ',
+              distractor: true,
+            },
+            {
+              type: 'text',
+              content: ' Square',
+              distractor: false,
+            },
+            {
+              type: 'text',
+              content: 'Triangle',
+              distractor: false,
+            },
+            {
+              type: 'text',
+              content: 'Semi-circle',
+              distractor: true,
+            },
           ],
         },
       ],
-
       exitQuiz: [
         {
           question: 'What is a net?',
@@ -34,7 +49,11 @@ export const questionsForSequenceResponseOpenAPISchema = questionsSchema.meta({
               content: 'A 2D shape made of 3D shapes folded togehther.',
               distractor: true,
             },
-            { type: 'text', content: 'A type of cube.', distractor: true },
+            {
+              type: 'text',
+              content: 'A type of cube.',
+              distractor: true,
+            },
           ],
         },
       ],
