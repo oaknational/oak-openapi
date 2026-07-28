@@ -142,9 +142,9 @@ export default function Features(): React.ReactElement {
                 <strong>Support</strong>
               </OakLI>
               <OakP>
-                If you need more help, email{' '}
-                <OakLink href="mailto:help@thenational.academy?subject=Oak%20OpenAPI">
-                  help@thenational.academy
+                If you need more help, please
+                <OakLink href="https://bvumd.share.hsforms.com/2nacebr1eQuKMoA-vGpkjCA">
+                  contact us
                 </OakLink>
                 . We&apos;ll be happy to support you.
               </OakP>
