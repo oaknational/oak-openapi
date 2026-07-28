@@ -345,3 +345,11 @@ div.swagger-ui,
   border: 0;
   outline: 2px solid #61affe;
 }
+
+.swagger-ui .information-container {
+  margin-left: 0;
+  p,
+  li {
+    font-size: 1rem;
+  }
+}
