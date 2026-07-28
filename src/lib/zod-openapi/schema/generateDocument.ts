@@ -1,15 +1,10 @@
 import { baseUrl } from '@/lib/baseUrl';
 import router from '@/lib/router';
-import {
-  getLatestVersion,
-  getLatestMajorVersion,
-} from '@/lib/handlers/changelog/helpers';
+import { VERSION } from '@/lib/version';
 
 import { generateOpenApiDocument } from 'trpc-to-openapi';
 
 import { applyRequestMetadata } from './requestMetadata';
-
-const version = getLatestVersion(getLatestMajorVersion());
 
 const bearerAuth = {
   type: 'http',
@@ -22,9 +17,7 @@ const bearerAuth = {
 export const openApiDocument = applyRequestMetadata(
   generateOpenApiDocument(router, {
     title: 'Oak Curriculum API',
-    version: process.env.VERCEL_GIT_COMMIT_SHA
-      ? `${version}-${process.env.VERCEL_GIT_COMMIT_SHA}`
-      : version,
+    version: VERSION,
     baseUrl,
     docsUrl: '/docs',
     description: `This Oak Curriculum API is an intermediary that enables software applications to communicate with each other to exchange - in this case - data and assets. Through the Oak Curriculum API, you will have access to a wide range of educational content across subjects for key stages 1-4.
