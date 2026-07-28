@@ -20,11 +20,13 @@ function makeRow(overrides: {
   unit_title: string;
   unit_order: number;
   optionality?: string;
+  subject_slug?: string;
 }) {
   return {
     unit_slug: overrides.unit_slug,
     unit_title: overrides.unit_title,
     optionality: overrides.optionality ?? null,
+    subject_slug: overrides.subject_slug ?? 'computing',
     supplementary_data: {
       unit_order: overrides.unit_order,
       order_in_unit: 1,
@@ -106,7 +108,7 @@ describe('/programmes/{programme}/units', () => {
     expect(res[0]?.unitTitle).toBe('Poetry: haiku or sonnet');
   });
 
-  it('returns an empty array when no units are found', async () => {
+  it('returns NOT_FOUND when no units are found', async () => {
     mocks.owaClientRequestMock.mockResolvedValue({
       [unitVariantLessonsView]: [],
     });
@@ -114,10 +116,10 @@ describe('/programmes/{programme}/units', () => {
     const { authedCaller } = await import('./helper');
     const { caller } = authedCaller();
 
-    const res = await caller.getAllProgrammesForSubject.getProgrammeUnits({
-      programme: 'computing-secondary-year-99',
-    });
-
-    expect(res).toStrictEqual([]);
+    await expect(
+      caller.getAllProgrammesForSubject.getProgrammeUnits({
+        programme: 'computing-secondary-year-99',
+      }),
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 });
