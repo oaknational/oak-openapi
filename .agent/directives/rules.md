@@ -31,7 +31,11 @@ follow-up item in the plans.
 - Prefer `TRPCError` for API error handling where applicable.
 - Prefer single quotes (Prettier enforces this).
 - Use async/await for asynchronous logic.
-- Use conventional commit messages (commitlint is enforced).
+- Use conventional commit messages (commitlint is enforced). These drive
+  automated versioning — see [`docs/RELEASING.md`](../../docs/RELEASING.md) for
+  which prefixes cause a release and how they read in the changelog.
+- Do not edit `src/lib/version.ts`, `package.json`'s `version`, or
+  `.release-please-manifest.json` by hand; release-please owns them.
 - Prefer explicit typing and avoid `any` where practical.
 
 ## Testing guidance
