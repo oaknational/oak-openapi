@@ -1,8 +1,8 @@
+import 'zod-openapi';
 import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
 import { limitSchema, offsetSchema } from '@/lib/handlers/commonTypes';
 import * as z from 'zod/v4';
-import { questionFilterSchema } from '@/lib/handlers/questions/types';
-
+import { questionFilterSchema } from '../../../handlers/questions/types';
 export const questionsForKeyStageAndSubjectRequestOpenAPISchema = z.object({
   keyStage: z.enum(keyStageSlugs as [string]).meta({
     description:
@@ -14,7 +14,11 @@ export const questionsForKeyStageAndSubjectRequestOpenAPISchema = z.object({
       "Subject slug to search by, e.g. 'science' - note that casing is important here",
     example: 'art',
   }),
-  offset: offsetSchema,
-  limit: limitSchema,
+  offset: offsetSchema.meta({
+    example: 11,
+  }),
+  limit: limitSchema.meta({
+    example: 10,
+  }),
   filter: questionFilterSchema.optional(),
 });

@@ -1,42 +1,36 @@
 import 'zod-openapi';
 import * as z from 'zod/v4';
-
 export const keywordsResponseOpenAPISchema = z
   .array(
     z.object({
-      keyword: z
-        .string()
-        .meta({ example: 'non-finite clause' })
-        .describe('The keyword text'),
-      description: z
-        .string()
-        .meta({
-          example:
-            'a type of subordinate clause that can start with a verb in the progressive tense',
-        })
-        .describe('A description of the keyword'),
+      keyword: z.string().describe('The keyword text').meta({
+        example: 'animate',
+      }),
+      description: z.string().describe('A description of the keyword').meta({
+        example: 'to make something move or change its appearance',
+      }),
       keyStageSlug: z
         .string()
-        .meta({ example: 'ks2' })
-        .describe('The key stage slug associated with this keyword'),
+        .describe('The key stage slug associated with the keyword')
+        .meta({
+          example: 'ks2',
+        }),
       subjectSlug: z
         .string()
-        .meta({ example: 'science' })
-        .describe('The subject slug associated with this keyword'),
+        .describe('The subject slug associated with the keyword')
+        .meta({
+          example: 'computing',
+        }),
       lessonSlugs: z
         .array(z.string())
+        .describe('The different lesson slugs where this keyword is used')
         .meta({
-          example: [
-            'a-new-sentence-structure-the-non-finite-complex-sentence',
-            'using-the-comma-rules-in-non-finite-complex-sentences',
-            'a-new-subordinate-clause-the-non-finite-ing-clause',
-          ],
-        })
-        .describe('The different lesson slugs where this keyword is used'),
+          example: ['animating-text'],
+        }),
     }),
   )
   .meta({
-    ref: 'KeyStageSubjectKeywordsResponseSchema',
+    id: 'KeywordsResponseSchema',
     example: [
       {
         keyword: 'animate',
