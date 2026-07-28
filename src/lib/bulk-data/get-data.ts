@@ -382,7 +382,6 @@ export async function getAllLessonData(
   const query = gql`
      query ($unitSlug: String!) {
       ${lessonOpenApiWithTranscriptsView}(
-        limit: 1
         where: { unitSlug: { _eq: $unitSlug } }
       ) {
         lessonTitle

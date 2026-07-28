@@ -62,13 +62,6 @@ export function getClient(): GraphQLClient {
   });
 }
 
-export interface LessonDetail {
-  has_slide_deck_asset_object: boolean;
-  has_worksheet_asset_object: boolean;
-  has_worksheet_answers_asset_object: boolean;
-  has_supplementary_asset_object: boolean;
-}
-
 /**
  * enum LessonRestrictionLevel based on:
  * OGL compatible, OGL equivalent, Restricted, Highly restricted
