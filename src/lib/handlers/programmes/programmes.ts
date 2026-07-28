@@ -16,6 +16,7 @@ import {
   gql,
 } from '@/lib/owaClient';
 import { subjectSlugs } from '@/lib/keyStageAndSubjects';
+import { TRPCError } from '@trpc/server';
 
 const subjectProgrammeRequestOpenAPISchema = z.object({
   subject: z
@@ -182,6 +183,14 @@ Not for: the units, questions, or assets of one programme (GET /programmes/{prog
         examboard_slug: examboardSlug,
       } = rows[0].programme_fields;
 
+      // validate the subject
+      if (!subjectSlugs.includes(subjectSlug)) {
+        throw new TRPCError({
+          message: 'Programme not found',
+          code: 'NOT_FOUND',
+        });
+      }
+
       return {
         examboardSlug,
         examboardTitle,
@@ -230,6 +239,7 @@ Not for: the units, questions, or assets of one programme (GET /programmes/{prog
             unit_slug
             unit_title: unit_data(path: "title")
             optionality: programme_fields(path: "optionality")
+            subject_slug: programme_fields(path: "subject_slug")
             supplementary_data
           }
         }
@@ -240,6 +250,21 @@ Not for: the units, questions, or assets of one programme (GET /programmes/{prog
       });
 
       const rows = res[unitVariantLessonsView];
+
+      if (!rows || rows.length === 0) {
+        throw new TRPCError({
+          message: 'Programme not found',
+          code: 'NOT_FOUND',
+        });
+      }
+
+      // validate the subject
+      if (!subjectSlugs.includes(rows[0].subject_slug)) {
+        throw new TRPCError({
+          message: 'Programme not found',
+          code: 'NOT_FOUND',
+        });
+      }
 
       // Deduplicate: the view has one row per lesson; we only need one row per
       // unit (the first encountered carries the order and title).
