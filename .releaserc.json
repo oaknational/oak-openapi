@@ -1,0 +1,56 @@
+{
+  "branches": ["main"],
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "parserOpts": {
+          "headerPattern": "^(\\w*)(?:\\(([^)]*)\\))?(!)?: (.*)$",
+          "headerCorrespondence": ["type", "scope", "breaking", "subject"],
+          "breakingHeaderPattern": "^(\\w*)(?:\\(([^)]*)\\))?!: (.*)$"
+        },
+        "releaseRules": [
+          { "type": "*", "release": false },
+          { "type": "feat", "scope": "api", "release": "minor" },
+          { "type": "fix", "scope": "api", "release": "patch" },
+          { "type": "perf", "scope": "api", "release": "patch" },
+          { "type": "revert", "scope": "api", "release": "patch" },
+          { "breaking": true, "scope": "api", "release": "major" }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "parserOpts": {
+          "headerPattern": "^(\\w*)(?:\\(([^)]*)\\))?(!)?: (.*)$",
+          "headerCorrespondence": ["type", "scope", "breaking", "subject"],
+          "breakingHeaderPattern": "^(\\w*)(?:\\(([^)]*)\\))?!: (.*)$"
+        }
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md",
+        "changelogTitle": "# Changelog"
+      }
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "node bin/write-version.mjs ${nextRelease.version}"
+      }
+    ],
+    "@semantic-release/github",
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["package.json", "CHANGELOG.md", "src/lib/version.ts"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ]
+  ]
+}
