@@ -1,6 +1,7 @@
 # Oak OpenAPI crawl policy
 
 User-agent: *
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
 Allow: /
 Allow: /.well-known/api-catalog
 Allow: /api/bulk/schema.json
