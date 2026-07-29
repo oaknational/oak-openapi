@@ -15,3 +15,5 @@ Disallow: /api/health
 Disallow: /api/pingdom
 Disallow: /api/v0/
 Disallow: /bulk-download/success
+
+Sitemap: https://open-api.thenational.academy/sitemap.xml
