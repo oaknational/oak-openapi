@@ -347,9 +347,19 @@ div.swagger-ui,
 }
 
 .swagger-ui .information-container {
-  margin-left: 0;
+  box-sizing: border-box;
+  margin: 0 auto;
+  max-width: 1460px;
+  padding: 0 20px;
+  width: 100%;
   p,
   li {
     font-size: 1rem;
+    max-width: 80ch;
+    margin-left: 0;
+  }
+
+  li {
+    margin-bottom: 0.5rem;
   }
 }
