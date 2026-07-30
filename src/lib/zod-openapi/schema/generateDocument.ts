@@ -4,17 +4,23 @@ import { VERSION } from '@/lib/version';
 
 import { generateOpenApiDocument } from 'trpc-to-openapi';
 
+import { applyRequestMetadata } from './requestMetadata';
+
 const bearerAuth = {
   type: 'http',
   scheme: 'bearer',
 } as const;
 
-export const openApiDocument = generateOpenApiDocument(router, {
-  title: 'Oak Curriculum API',
-  version: VERSION,
-  baseUrl,
-  docsUrl: '/docs',
-  description: `This Oak Curriculum API is an intermediary that enables software applications to communicate with each other to exchange - in this case - data and assets. Through the Oak Curriculum API, you will have access to a wide range of educational content across subjects for key stages 1-4.
+// trpc-to-openapi rebuilds query parameters from the input schema's shape,
+// which loses the descriptions and cross-field rules declared on it, so we copy
+// them back onto the document afterwards.
+export const openApiDocument = applyRequestMetadata(
+  generateOpenApiDocument(router, {
+    title: 'Oak Curriculum API',
+    version: VERSION,
+    baseUrl,
+    docsUrl: '/docs',
+    description: `This Oak Curriculum API is an intermediary that enables software applications to communicate with each other to exchange - in this case - data and assets. Through the Oak Curriculum API, you will have access to a wide range of educational content across subjects for key stages 1-4.
 
 ### How could you use this API?
 
@@ -29,18 +35,20 @@ To give you some inspiration, here are just a few examples of how you could use 
 
 Full documentation for the Oak Curriculum API is available on the URL below:
 `,
-  securitySchemes: {
-    bearerAuth,
-  },
-  tags: [
-    'internal',
-    'lists',
-    'assets',
-    'lessons',
-    'questions',
-    'units',
-    'search',
-    'sequences',
-    'programmes',
-  ],
-});
+    securitySchemes: {
+      bearerAuth,
+    },
+    tags: [
+      'internal',
+      'lists',
+      'assets',
+      'lessons',
+      'questions',
+      'units',
+      'search',
+      'sequences',
+      'programmes',
+    ],
+  }),
+  router,
+);
