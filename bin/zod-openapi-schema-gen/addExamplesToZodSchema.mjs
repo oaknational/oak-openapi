@@ -112,7 +112,7 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
   const originalSchemaName = baseName + 'Schema';
   const openapiSchemaName = baseName + 'OpenAPISchema';
 
-  let inputCode = fs.readFileSync(schemaFilePath, 'utf-8');
+  const inputCode = fs.readFileSync(schemaFilePath, 'utf-8');
   const exampleJson = JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'));
   const descriptionsJson = JSON.parse(
     fs.readFileSync('./src/lib/endpoint-docs/outputDescriptions.json', 'utf-8'),
@@ -148,9 +148,11 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
   });
 
   // Traverse the original file
+  let foundSchema = false;
   traverse.default(ast, {
     VariableDeclarator(path) {
       if (path.node.id.name !== originalSchemaName) return;
+      foundSchema = true;
       path.node.id.name = openapiSchemaName;
 
       const importedIdents = new Set(localImports.keys());
@@ -194,6 +196,14 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
       }
     },
   });
+
+  // Without a matching declaration the file is copied through untouched, which
+  // looks like a successful generation but silently drops examples.
+  if (!foundSchema) {
+    throw new Error(
+      `${schemaFilePath} must export \`${originalSchemaName}\` (the generator exports it as \`${openapiSchemaName}\`)`,
+    );
+  }
 
   const endpointName = extractEndpointName(schemaFilePath);
 

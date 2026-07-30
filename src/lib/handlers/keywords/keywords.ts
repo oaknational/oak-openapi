@@ -9,6 +9,7 @@ import {
   keywordsResponseOpenAPISchema,
 } from '@/lib/zod-openapi/generated/keywords';
 import { phaseToKeyStageMap } from '@/lib/oakConsts';
+import { nextPageLink } from '@/lib/pagination';
 
 export const getKeywords = router({
   getKeywords: protectedProcedure
@@ -24,8 +25,8 @@ export const getKeywords = router({
     })
     .input(keywordsRequestOpenAPISchema)
     .output(keywordsResponseOpenAPISchema)
-    .query(async ({ input }) => {
-      // ctx
+    .query(async ({ input, ctx }) => {
+      const { offset, limit } = input;
       const keyStage = decodeURIComponent(input.keyStage || '') || undefined;
       const subject = decodeURIComponent(input.subject || '') || undefined;
       const unit = input.unit ? decodeURIComponent(input.unit) : undefined;
@@ -125,6 +126,15 @@ export const getKeywords = router({
           ...data,
         }));
 
-      return keywords;
+      // Keywords are deduplicated across every matching lesson, so the page is
+      // taken after that rather than from the lessons query.
+      if (offset + limit < keywords.length) {
+        ctx.resHeaders.set(
+          'link',
+          `<${nextPageLink(ctx.req.url, offset, limit)}>; rel="next"`,
+        );
+      }
+
+      return keywords.slice(offset, offset + limit);
     }),
 });
