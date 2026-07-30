@@ -123,30 +123,51 @@ test('keywords with unit alone is allowed', async () => {
   expect(Array.isArray(res)).toBe(true);
 });
 
-test('keywords with key stage alone should throw an error', async () => {
+test('keywords with key stage alone is allowed', async () => {
   const { caller } = authedCaller();
   const keyStage = 'ks1';
 
-  try {
-    await caller.getKeywords.getKeywords({
-      keyStage,
-    });
-    expect.fail('Should have thrown an error');
-  } catch (error) {
-    expect(error).toBeDefined();
-  }
+  const res = await caller.getKeywords.getKeywords({
+    keyStage,
+  });
+
+  expect(Array.isArray(res)).toBe(true);
+  expect(res.length).toBeGreaterThan(0);
 });
 
-test('keywords with key stage and unit (no subject) should throw an error', async () => {
+test('keywords with lesson alone is allowed', async () => {
+  const { caller } = authedCaller();
+  const lesson = 'animating-text';
+
+  const res = await caller.getKeywords.getKeywords({
+    lesson,
+  });
+
+  expect(Array.isArray(res)).toBe(true);
+  expect(res.length).toBeGreaterThan(0);
+  res.forEach((keyword) => {
+    expect(keyword.lessonSlugs).toEqual([lesson]);
+  });
+});
+
+test('keywords with key stage and unit (no subject) is allowed', async () => {
   const { caller } = authedCaller();
   const keyStage = 'ks1';
   const unit = 'some-unit-slug';
 
+  const res = await caller.getKeywords.getKeywords({
+    keyStage,
+    unit,
+  });
+
+  expect(Array.isArray(res)).toBe(true);
+});
+
+test('keywords with no filters at all should throw an error', async () => {
+  const { caller } = authedCaller();
+
   try {
-    await caller.getKeywords.getKeywords({
-      keyStage,
-      unit,
-    });
+    await caller.getKeywords.getKeywords({});
     expect.fail('Should have thrown an error');
   } catch (error) {
     expect(error).toBeDefined();
@@ -215,12 +236,58 @@ test('keywords with both phase and keyStage should throw an error', async () => 
   }
 });
 
-test('keywords with phase alone (no subject) should throw an error', async () => {
+test('keywords with phase alone (no subject) is allowed', async () => {
+  const { caller } = authedCaller();
+
+  const res = await caller.getKeywords.getKeywords({
+    phase: 'primary',
+  });
+
+  expect(Array.isArray(res)).toBe(true);
+  expect(res.length).toBeGreaterThan(0);
+});
+
+test('keywords are limited to a page, and the offset moves through them', async () => {
+  const { caller } = authedCaller();
+  const filters = { keyStage: 'ks1', subject: 'english' };
+
+  const firstPage = await caller.getKeywords.getKeywords({
+    ...filters,
+    limit: 2,
+  });
+
+  expect(firstPage.length).toBe(2);
+
+  const secondPage = await caller.getKeywords.getKeywords({
+    ...filters,
+    limit: 2,
+    offset: 2,
+  });
+
+  expect(secondPage.length).toBe(2);
+  expect(secondPage.map(({ keyword }) => keyword)).not.toEqual(
+    firstPage.map(({ keyword }) => keyword),
+  );
+});
+
+test('keywords default to a page of 20', async () => {
+  const { caller } = authedCaller();
+
+  const res = await caller.getKeywords.getKeywords({
+    keyStage: 'ks1',
+    subject: 'english',
+  });
+
+  expect(res.length).toBe(20);
+});
+
+test('keywords with a limit above the maximum should throw an error', async () => {
   const { caller } = authedCaller();
 
   try {
     await caller.getKeywords.getKeywords({
-      phase: 'primary',
+      subject: 'english',
+      limit: 301,
     });
     expect.fail('Should have thrown an error');
   } catch (error) {
