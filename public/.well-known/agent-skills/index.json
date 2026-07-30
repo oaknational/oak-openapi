@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "oak-openapi",
+      "type": "skill-md",
+      "description": "Use Oak National Academy's OpenAPI to retrieve UK curriculum data — key stages, subjects, units, lessons, quizzes, transcripts, and lesson assets.",
+      "url": "/.well-known/agent-skills/oak-openapi/SKILL.md",
+      "digest": "sha256:f72103b06ca232e4e0b012c75d8f238b20eea5fce5c0b3cee4bad54461e62450"
+    }
+  ]
+}
