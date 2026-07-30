@@ -9,6 +9,7 @@ const STATIC_PUBLIC_PATHS = [
   '/api/bulk/schema.json',
   '/api/v0/swagger.json',
   '/.well-known/api-catalog',
+  '/.well-known/agent-skills/index.json',
 ] as const;
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
