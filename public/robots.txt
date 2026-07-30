@@ -4,6 +4,7 @@ User-agent: *
 Content-Signal: ai-train=yes, search=yes, ai-input=yes
 Allow: /
 Allow: /.well-known/api-catalog
+Allow: /.well-known/agent-skills/
 Allow: /api/bulk/schema.json
 Allow: /api/v0/swagger.json
 Allow: /docs/
