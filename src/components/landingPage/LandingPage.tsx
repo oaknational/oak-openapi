@@ -35,8 +35,10 @@ const BlockHeading = styled(OakHeading)`
 
 export default function Page({
   documentationData,
+  showChrome = true,
 }: {
   documentationData: CurriculumApiLandingPage;
+  showChrome?: boolean;
 }): React.ReactElement {
   const data = transformContentBlocks(documentationData);
   const usingTheAPI = transformUsingTheAPI(documentationData);
@@ -45,7 +47,7 @@ export default function Page({
       <Head>
         <title>Oak Curriculum API - Oak National Academy</title>
       </Head>
-      <Navigation />
+      {showChrome && <Navigation />}
       <MaxWidth
         $ph="spacing-16"
         $flexDirection={'column'}
@@ -69,7 +71,7 @@ export default function Page({
         })}
         <UsingTheAPI {...usingTheAPI} />
       </MaxWidth>
-      <Footer />
+      {showChrome && <Footer />}
     </>
   );
 }

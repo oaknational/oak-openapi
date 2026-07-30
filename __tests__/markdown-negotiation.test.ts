@@ -152,6 +152,9 @@ describe('markdown proxy route', () => {
     });
 
     const res = await GET(req);
+    const upstreamArgs = vi.mocked(global.fetch).mock.calls[0];
+    const upstreamHeaders =
+      (upstreamArgs?.[1]?.headers as Headers) ?? new Headers();
 
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toBe(
@@ -159,5 +162,51 @@ describe('markdown proxy route', () => {
     );
     expect(res.headers.get('x-markdown-build-version')).toBe('test-build-1');
     expect(res.headers.get('x-markdown-tokens')).toBeTruthy();
+    expect(upstreamHeaders.get('x-markdown-render-mode')).toBe('body-only');
+  });
+
+  it('returns docs body content without global header and footer text', async () => {
+    global.fetch = vi.fn().mockResolvedValue(
+      new Response(
+        `<!doctype html><html><head><title>Docs page</title></head><body>
+          <div>
+            <nav><a href="/docs">Docs Nav</a></nav>
+            <a id="content"></a>
+            <section><h1>API Overview</h1><p>Main docs body content.</p></section>
+          </div>
+          <script>window.__NEXT_DATA__ = {}</script>
+        </body></html>`,
+        {
+          status: 200,
+          headers: {
+            'content-type': 'text/html; charset=utf-8',
+          },
+        },
+      ),
+    ) as typeof fetch;
+
+    const { GET } = await import('@/app/api/markdown/route');
+
+    const req = new NextRequest(
+      'http://localhost:2727/api/markdown?path=/docs/about-oaks-api/api-overview',
+      {
+        method: 'GET',
+        headers: {
+          accept: 'text/markdown',
+        },
+      },
+    );
+
+    const res = await GET(req);
+    const body = await res.text();
+    const upstreamArgs = vi.mocked(global.fetch).mock.calls[0];
+    const upstreamHeaders =
+      (upstreamArgs?.[1]?.headers as Headers) ?? new Headers();
+
+    expect(res.status).toBe(200);
+    expect(body).toContain('# API Overview');
+    expect(body).toContain('Main docs body content.');
+    expect(body).not.toContain('__NEXT_DATA__');
+    expect(upstreamHeaders.get('x-markdown-render-mode')).toBe('body-only');
   });
 });

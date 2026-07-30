@@ -13,25 +13,27 @@ import { usePathname } from 'next/navigation';
 export default function DocsLayout({
   children,
   navigationItems,
+  showChrome = true,
 }: {
   children: React.ReactNode;
   navigationItems: CurriculumApiDocsNav;
+  showChrome?: boolean;
 }): React.ReactElement {
   const location = usePathname();
   return (
     <>
-      <Navigation />
+      {showChrome && <Navigation />}
       <OakFlex
         $flexDirection={['column', 'row']}
         $mh={'auto'}
         $maxWidth={['spacing-480', 'spacing-1280']}
         $gap="spacing-40"
       >
-        <DocsNav items={navigationItems} location={location} />
+        {showChrome && <DocsNav items={navigationItems} location={location} />}
         <a id="content" />
         {children}
       </OakFlex>
-      <Footer />
+      {showChrome && <Footer />}
     </>
   );
 }

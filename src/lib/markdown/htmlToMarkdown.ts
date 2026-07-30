@@ -23,8 +23,37 @@ function extractTitle(html: string): string | null {
   return titleMatch[1].replace(/\s+/g, ' ').trim() || null;
 }
 
-export function htmlToMarkdown(html: string): string {
-  const title = extractTitle(html);
+function extractBody(html: string): string {
+  const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  if (!bodyMatch) {
+    return html;
+  }
+
+  return bodyMatch[1];
+}
+
+function stripTagBlocks(html: string, tagName: string): string {
+  const tagPattern = new RegExp(
+    `<${tagName}\\b[^>]*>[\\s\\S]*?<\\/${tagName}>`,
+    'gi',
+  );
+  return html.replace(tagPattern, '');
+}
+
+export function selectHtmlForMarkdown(html: string): string {
+  const body = extractBody(html);
+
+  return ['script', 'style', 'template', 'noscript'].reduce(
+    (acc, tagName) => stripTagBlocks(acc, tagName),
+    body,
+  );
+}
+
+export function htmlToMarkdown(
+  html: string,
+  options?: { title?: string | null },
+): string {
+  const title = options?.title ?? extractTitle(html);
   const markdown = normaliseWhitespace(markdownConverter.translate(html));
 
   if (!markdown && title) {

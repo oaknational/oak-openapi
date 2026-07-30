@@ -2,12 +2,15 @@ import type { NextRequest } from 'next/server';
 import {
   htmlToMarkdown,
   estimateMarkdownTokens,
+  selectHtmlForMarkdown,
 } from '@/lib/markdown/htmlToMarkdown';
 
 const MARKDOWN_CONTENT_TYPE = 'text/markdown; charset=utf-8';
 const MARKDOWN_BYPASS_HEADER = 'x-markdown-negotiation-bypass';
 const MARKDOWN_PATH_HEADER = 'x-markdown-original-path';
 const MARKDOWN_BUILD_HEADER = 'x-markdown-build-version';
+const MARKDOWN_RENDER_MODE_HEADER = 'x-markdown-render-mode';
+const MARKDOWN_RENDER_MODE_BODY_ONLY = 'body-only';
 const MARKDOWN_CACHE_CONTROL =
   'public, s-maxage=3600, stale-while-revalidate=86400';
 
@@ -80,6 +83,10 @@ export async function GET(req: NextRequest): Promise<Response> {
   const upstreamHeaders = new Headers(req.headers);
   upstreamHeaders.set('accept', 'text/html,application/xhtml+xml');
   upstreamHeaders.set(MARKDOWN_BYPASS_HEADER, '1');
+  upstreamHeaders.set(
+    MARKDOWN_RENDER_MODE_HEADER,
+    MARKDOWN_RENDER_MODE_BODY_ONLY,
+  );
 
   const upstreamResponse = await fetch(targetUrl, {
     method: 'GET',
@@ -94,7 +101,8 @@ export async function GET(req: NextRequest): Promise<Response> {
   }
 
   const html = await upstreamResponse.text();
-  const markdown = htmlToMarkdown(html);
+  const htmlForMarkdown = selectHtmlForMarkdown(html);
+  const markdown = htmlToMarkdown(htmlForMarkdown);
   const headers = new Headers(upstreamResponse.headers);
 
   headers.set('content-type', MARKDOWN_CONTENT_TYPE);
