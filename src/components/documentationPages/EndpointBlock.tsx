@@ -56,6 +56,12 @@ const EndpointHeading = styled(OakHeading)`
   word-break: break-all;
 `;
 
+// Descriptions can span several lines - the cross-field request rules are
+// appended to them as a bulleted list - so keep the line breaks.
+const Description = styled(OakP)`
+  white-space: pre-line;
+`;
+
 const generateTableRows = (data: InputOutputTable): TableInterface => {
   const header = data[0]
     ? Object.keys(data[0]).map((key) => capitalize(key))
@@ -122,7 +128,7 @@ export default function EndpointBlock(props: {
       >
         {requestType.toUpperCase()} {path}
       </EndpointHeading>
-      {description && <OakP>{description}</OakP>}
+      {description && <Description>{description}</Description>}
       <TableSection
         title={`Inputs ${paramTypes.length ? `(${paramTypes.join(', ')})` : ''}`}
         tableData={params}
