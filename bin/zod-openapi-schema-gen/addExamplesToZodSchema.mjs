@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import parser from '@babel/parser';
 import traverse from '@babel/traverse';
 import generate from '@babel/generator';
@@ -56,8 +56,8 @@ function getMatchingJson(schemaPath, allJsonFiles) {
 // We want to make sure imports are maintained, especially in Response files
 function fixImports(ast, schemaFilePath, outputFilePath) {
   traverse.default(ast, {
-    ImportDeclaration(path) {
-      const source = path.node.source.value;
+    ImportDeclaration(importPath) {
+      const source = importPath.node.source.value;
       if (!source.startsWith('.') || source.startsWith('@')) return;
 
       try {
@@ -70,7 +70,7 @@ function fixImports(ast, schemaFilePath, outputFilePath) {
           absImportPath,
         );
         if (!newRelPath.startsWith('.')) newRelPath = './' + newRelPath;
-        path.node.source.value = newRelPath.replace(/\\/g, '/');
+        importPath.node.source.value = newRelPath.replace(/\\/g, '/');
       } catch (err) {
         console.warn(`⚠️ Failed to rewrite import: ${source}`, err.message);
       }
@@ -112,7 +112,7 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
   const originalSchemaName = baseName + 'Schema';
   const openapiSchemaName = baseName + 'OpenAPISchema';
 
-  let inputCode = fs.readFileSync(schemaFilePath, 'utf-8');
+  const inputCode = fs.readFileSync(schemaFilePath, 'utf-8');
   const exampleJson = JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'));
   const descriptionsJson = JSON.parse(
     fs.readFileSync('./src/lib/endpoint-docs/outputDescriptions.json', 'utf-8'),
@@ -123,7 +123,7 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
     plugins: ['typescript'],
   });
   const programNode = ast.program;
-  const importPath = 'zod-openapi/extend';
+  const importPath = 'zod-openapi';
   if (
     !programNode.body.some(
       (n) => t.isImportDeclaration(n) && n.source.value === importPath,
@@ -148,9 +148,11 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
   });
 
   // Traverse the original file
+  let foundSchema = false;
   traverse.default(ast, {
     VariableDeclarator(path) {
       if (path.node.id.name !== originalSchemaName) return;
+      foundSchema = true;
       path.node.id.name = openapiSchemaName;
 
       const importedIdents = new Set(localImports.keys());
@@ -168,7 +170,7 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
       );
 
       if (originalSchemaName.includes('Response')) {
-        const refProp = generateObjectProps('ref', refName);
+        const refProp = generateObjectProps('id', refName);
         const exampleProp = generateObjectProps('example', exampleJson);
 
         const props = [refProp, exampleProp];
@@ -195,6 +197,14 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
     },
   });
 
+  // Without a matching declaration the file is copied through untouched, which
+  // looks like a successful generation but silently drops examples.
+  if (!foundSchema) {
+    throw new Error(
+      `${schemaFilePath} must export \`${originalSchemaName}\` (the generator exports it as \`${openapiSchemaName}\`)`,
+    );
+  }
+
   const endpointName = extractEndpointName(schemaFilePath);
 
   const outputPath = path.join(
@@ -209,10 +219,7 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   }
 
-  fs.writeFileSync(
-    outputPath,
-    generate.default(ast, { retainLines: true }).code,
-  );
+  fs.writeFileSync(outputPath, generate.default(ast).code);
 
   console.log(`✅ Generated: ${outputPath}`);
 
@@ -220,34 +227,40 @@ function processSchemaFile(schemaFilePath, jsonFilePath) {
 }
 
 function generatePerEndpointIndexes(endpointMap) {
-  for (const [endpoint, files] of Object.entries(endpointMap)) {
-    const exports = files.map(
-      (filePath) =>
-        `export * from "./${path.basename(filePath).replace(/\.ts$/, '')}";`,
-    );
+  for (const endpoint of Object.keys(endpointMap)) {
+    const endpointDirectory = path.join(GENERATED_DIR, endpoint);
+    const exports = fs
+      .readdirSync(endpointDirectory)
+      .filter((fileName) => fileName.endsWith('.openapi.ts'))
+      .sort()
+      .map((fileName) => `export * from "./${fileName.replace(/\.ts$/, '')}";`);
     const indexPath = path.join(GENERATED_DIR, endpoint, 'index.ts');
     fs.writeFileSync(indexPath, exports.join('\n') + '\n');
-    formatWithPrettier(indexPath);
     console.log(`📦 Generated: ${indexPath}`);
   }
 }
 
-function generateGlobalIndex(endpointMap) {
-  const allEndpointDirs = Object.keys(endpointMap);
+function generateGlobalIndex() {
+  const allEndpointDirs = fs
+    .readdirSync(GENERATED_DIR, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort();
   const indexExports = allEndpointDirs.map(
     (endpoint) => `export * as ${endpoint} from "./${endpoint}";`,
   );
   const indexPath = path.join(GENERATED_DIR, 'index.ts');
   fs.writeFileSync(indexPath, indexExports.join('\n') + '\n');
-  formatWithPrettier(indexPath);
   console.log(`📦 Generated: ${indexPath}`);
 }
 
-function formatWithPrettier(pathName) {
+function formatWithPrettier(pathNames) {
   try {
-    execSync(`bash -c "pnpm prettier --write ${pathName}"`, {
-      stdio: 'inherit',
-    });
+    execFileSync(
+      'pnpm',
+      ['prettier', '--write', '--log-level=warn', ...pathNames],
+      { stdio: 'inherit' },
+    );
   } catch (err) {
     console.error('❌ Prettier formatting failed:', err.message);
   }
@@ -266,14 +279,16 @@ function main() {
     if (outputPath) {
       const endpoint = extractEndpointName(schemaFile);
       if (!endpointMap[endpoint]) endpointMap[endpoint] = [];
-      formatWithPrettier(outputPath);
       endpointMap[endpoint].push(outputPath);
     }
   }
 
   if (Object.keys(endpointMap).length > 0) {
     generatePerEndpointIndexes(endpointMap);
-    generateGlobalIndex(endpointMap);
+    generateGlobalIndex();
+    formatWithPrettier(
+      getAllFiles(GENERATED_DIR).filter((file) => file.endsWith('.ts')),
+    );
   } else {
     console.warn('⚠️ No schemas processed.');
   }

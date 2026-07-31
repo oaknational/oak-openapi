@@ -74,6 +74,9 @@ importers:
       next-sanity:
         specifier: '9'
         version: 9.12.3(@emotion/is-prop-valid@1.4.0)(@sanity/client@7.14.0)(@sanity/icons@3.7.4(react@19.2.3))(@sanity/types@3.99.0(@types/react@18.3.27))(@sanity/ui@2.16.22(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.3(react@19.2.3))(react-is@18.3.1)(react@19.2.3)(styled-components@6.3.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)))(next@15.5.9(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react-is@18.3.1)(react@19.2.3)(sanity@3.99.0(@emotion/is-prop-valid@1.4.0)(@types/node@22.19.7)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(immer@10.2.0)(jiti@2.6.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(styled-components@6.3.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(styled-components@6.3.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)
+      node-html-markdown:
+        specifier: ^2.0.0
+        version: 2.0.0
       object.groupby:
         specifier: ^1.0.3
         version: 1.0.3
@@ -6801,6 +6804,10 @@ packages:
   node-gyp-build@4.8.4:
     resolution: {integrity: sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ==}
     hasBin: true
+
+  node-html-markdown@2.0.0:
+    resolution: {integrity: sha512-DqUC3GGP7pwSYxS93SwHoP+qCw78xcMP6C6H2DuC8rPD2AweJRjBzQb5SdXpKtDlqAQ7hVotJcfhgU7hU5Gthw==}
+    engines: {node: '>=20.0.0'}
 
   node-html-parser@6.1.13:
     resolution: {integrity: sha512-qIsTMOY4C/dAa5Q5vsobRpOOvPfC4pB61UVW2uSwZNUp0QU/jCekTal1vMmbO0DgdHeLUJpv/ARmDqErVxA3Sg==}
@@ -17119,6 +17126,10 @@ snapshots:
 
   node-gyp-build@4.8.4:
     optional: true
+
+  node-html-markdown@2.0.0:
+    dependencies:
+      node-html-parser: 6.1.13
 
   node-html-parser@6.1.13:
     dependencies:

@@ -65,8 +65,10 @@ the table lists the primary verb used by consumers.
 
 ## Discovery resources
 
-| Method | Endpoint                   | Definition                                                            |
-| ------ | -------------------------- | --------------------------------------------------------------------- |
-| GET    | `/.well-known/api-catalog` | [`public/.well-known/api-catalog`](../public/.well-known/api-catalog) |
-| GET    | `/auth.md`                 | [`public/auth.md`](../public/auth.md)                                 |
-| GET    | `/robots.txt`              | [`public/robots.txt`](../public/robots.txt)                           |
+| Method | Endpoint                                         | Definition                                                                                                       |
+| ------ | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| GET    | `/.well-known/api-catalog`                       | [`public/.well-known/api-catalog`](../public/.well-known/api-catalog)                                            |
+| GET    | `/.well-known/agent-skills/index.json`           | [`public/.well-known/agent-skills/index.json`](../public/.well-known/agent-skills/index.json)                    |
+| GET    | `/.well-known/agent-skills/oak-openapi/SKILL.md` | [`public/.well-known/agent-skills/oak-openapi/SKILL.md`](../public/.well-known/agent-skills/oak-openapi/SKILL.md) |
+| GET    | `/auth.md`                                       | [`public/auth.md`](../public/auth.md)                                                                            |
+| GET    | `/robots.txt`                                    | [`public/robots.txt`](../public/robots.txt)                                                                      |

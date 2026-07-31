@@ -1,5 +1,5 @@
+import 'zod-openapi';
 import { lessonAssetsType } from '@/lib/handlers/assets/types';
-
 export const lessonAssetsResponseOpenAPISchema = lessonAssetsType.meta({
   id: 'LessonAssetsResponseSchema',
   example: {

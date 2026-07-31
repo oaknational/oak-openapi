@@ -53,6 +53,7 @@
     "next": "^15.3.8",
     "next-hubspot": "^2.0.0",
     "next-sanity": "9",
+    "node-html-markdown": "^2.0.0",
     "object.groupby": "^1.0.3",
     "openapi-types": "^12.1.3",
     "openapi3-ts": "^4.5.0",
