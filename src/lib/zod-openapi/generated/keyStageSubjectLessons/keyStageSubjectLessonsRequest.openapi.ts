@@ -20,10 +20,6 @@ export const keyStageSubjectLessonsRequestOpenAPISchema = z.object({
     .meta({
       example: 'word-class',
     }),
-  offset: offsetSchema.meta({
-    example: 11,
-  }),
-  limit: limitSchema.meta({
-    example: 10,
-  }),
+  offset: offsetSchema,
+  limit: limitSchema,
 });

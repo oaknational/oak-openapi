@@ -1,6 +1,7 @@
 import 'zod-openapi';
 import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
 import { downloadTypeEnum } from '@/lib/handlers/assets/types';
+import { limitSchema, offsetSchema } from '@/lib/handlers/commonTypes';
 import * as z from 'zod/v4';
 export const subjectAssetsRequestOpenAPISchema = z.object({
   keyStage: z
@@ -27,4 +28,6 @@ export const subjectAssetsRequestOpenAPISchema = z.object({
     .meta({
       example: 'word-class',
     }),
+  offset: offsetSchema,
+  limit: limitSchema,
 });
