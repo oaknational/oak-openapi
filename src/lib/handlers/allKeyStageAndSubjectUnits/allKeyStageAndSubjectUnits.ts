@@ -7,6 +7,7 @@ import {
 import { gql } from 'graphql-request';
 import { errorResponses } from '@/lib/errorResponses';
 import type { UnitVariantLessonsView } from 'lib/owaClient';
+import { nextPageLink } from '@/lib/pagination';
 
 import { getClient, unitVariantLessonsView } from 'lib/owaClient';
 
@@ -26,10 +27,12 @@ Not for: all units across a sequence (GET /sequences/{sequence}/units); units in
     })
     .input(allKeyStageAndSubjectUnitsRequestOpenAPISchema)
     .output(allKeyStageAndSubjectUnitsResponseOpenAPISchema)
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const keyStage = decodeURIComponent(input.keyStage);
       const subject = decodeURIComponent(input.subject);
       const examBoard = input.examBoard;
+      const offset = input.offset;
+      const limit = input.limit;
 
       // We drop `distinct_on: unit_slug` so that we can see every exam board a
       // unit appears in — otherwise KS4 units would get collapsed to a single
@@ -161,9 +164,44 @@ Not for: all units across a sequence (GET /sequences/{sequence}/units); units in
         return aYear - bYear;
       });
 
-      return keys.map((key) => {
+      const grouped = keys.map((key) => {
         const { yearSlug, yearTitle, units } = result[key];
         return { yearSlug, yearTitle, units };
       });
+
+      const flatUnits = grouped.flatMap(({ yearSlug, yearTitle, units }) =>
+        units.map((unit) => ({ yearSlug, yearTitle, unit })),
+      );
+
+      const page = flatUnits.slice(offset, offset + limit);
+      if (page.length === 0) {
+        return [];
+      }
+
+      if (offset + limit < flatUnits.length) {
+        ctx.resHeaders.set(
+          'link',
+          `<${nextPageLink(ctx.req.url, offset, limit)}>; rel="next"`,
+        );
+      }
+
+      const pagedByYear = page.reduce((acc, { yearSlug, yearTitle, unit }) => {
+        const year = acc.get(yearSlug);
+
+        if (year) {
+          year.units.push(unit);
+          return acc;
+        }
+
+        acc.set(yearSlug, {
+          yearSlug,
+          yearTitle,
+          units: [unit],
+        });
+
+        return acc;
+      }, new Map<string, { yearSlug: string; yearTitle: string; units: GroupedUnit[] }>());
+
+      return Array.from(pagedByYear.values());
     }),
 });

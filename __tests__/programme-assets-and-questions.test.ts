@@ -272,4 +272,68 @@ describe('programme assets and questions endpoints', () => {
       lessonSlugs: ['noun-phrases'],
     });
   });
+
+  it('/key-stages/{keyStage}/subject/{subject}/assets applies offset/limit before restrictions and downloads', async () => {
+    mocks.owaClientRequestMock.mockResolvedValueOnce({
+      [unitVariantLessonsView]: [
+        {
+          lesson_slug: 'lesson-1',
+          unit_slug: 'word-class',
+        },
+        {
+          lesson_slug: 'lesson-2',
+          unit_slug: 'word-class',
+        },
+        {
+          lesson_slug: 'lesson-3',
+          unit_slug: 'word-class',
+        },
+      ],
+    });
+    mocks.owaClientRequestMock.mockResolvedValueOnce({
+      [lessonRestrictionView]: [],
+    });
+    mocks.owaClientRequestMock.mockResolvedValueOnce({
+      [downloadView]: [
+        {
+          lessonSlug: 'lesson-2',
+          lessonTitle: 'Lesson 2',
+          worksheet: {
+            label: 'Worksheet',
+            bucket_path: 'LESS-ID/worksheet/PDF.pdf',
+          },
+        },
+      ],
+    });
+    mocks.owaClientRequestMock.mockResolvedValueOnce({
+      [lessonView]: [
+        {
+          lessonSlug: 'lesson-2',
+          tpcWorks: [],
+          tpcMedia: [],
+        },
+      ],
+    });
+
+    const { authedCaller } = await import('./helper');
+    const { caller } = authedCaller();
+
+    const result = await caller.getAssets.getSubjectAssets({
+      keyStage: 'ks1',
+      subject: 'english',
+      offset: 1,
+      limit: 1,
+    });
+
+    expect(result.map((lesson) => lesson.lessonSlug)).toStrictEqual([
+      'lesson-2',
+    ]);
+    expect(mocks.owaClientRequestMock).toHaveBeenCalledTimes(4);
+    expect(mocks.owaClientRequestMock.mock.calls[1]?.[1]).toEqual({
+      slugs: ['lesson-2'],
+    });
+    expect(mocks.owaClientRequestMock.mock.calls[2]?.[1]).toEqual({
+      lessonSlugs: ['lesson-2'],
+    });
+  });
 });

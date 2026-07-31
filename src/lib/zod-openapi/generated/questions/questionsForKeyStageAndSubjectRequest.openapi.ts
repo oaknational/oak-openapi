@@ -14,11 +14,7 @@ export const questionsForKeyStageAndSubjectRequestOpenAPISchema = z.object({
       "Subject slug to search by, e.g. 'science' - note that casing is important here",
     example: 'art',
   }),
-  offset: offsetSchema.meta({
-    example: 11,
-  }),
-  limit: limitSchema.meta({
-    example: 10,
-  }),
+  offset: offsetSchema,
+  limit: limitSchema,
   filter: questionFilterSchema.optional(),
 });

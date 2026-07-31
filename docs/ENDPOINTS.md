@@ -9,7 +9,11 @@ Notes
 - Public v0 endpoints are served under `/api/v0`.
 - Most public v0 endpoint paths are defined in handler `openapi` metadata and routed through [`src/app/api/v0/[...trpc]/route.ts`](../src/app/api/v0/%5B...trpc%5D/route.ts).
 - Response and request shapes remain defined by the Zod schemas and generated OpenAPI output, not this file.
-- Questions list endpoints support `limit` and `offset` query params for pagination.
+- These list endpoints support `limit` and `offset` query params for pagination:
+	- `/api/v0/key-stages/{keyStage}/subject/{subject}/lessons`
+	- `/api/v0/key-stages/{keyStage}/subject/{subject}/questions`
+	- `/api/v0/key-stages/{keyStage}/subject/{subject}/units`
+	- `/api/v0/key-stages/{keyStage}/subject/{subject}/assets`
 - For questions list endpoints, `limit` has a maximum value of `100`.
 
 ## Public v0 endpoints
