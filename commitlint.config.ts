@@ -15,6 +15,7 @@ const scopes = [
   'playground',
   'release',
   'repo',
+  'scripts',
 ];
 
 const scopeExemptTypes = ['chore', 'docs', 'test'];

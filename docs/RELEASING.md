@@ -37,6 +37,19 @@ are non-obvious and easy to break:
 If you change those rules, verify them before merging (see
 [Testing the rules](#testing-the-rules)).
 
+## List of valid scopes
+
+- `api`
+- `bulk`
+- `ci`
+- `deps`
+- `docs`
+- `infra`
+- `playground`
+- `release`
+- `repo`
+- `scripts`
+
 ## Scopes are checked selectively
 
 [`commitlint.config.ts`](../commitlint.config.ts) requires a lower-case scope
