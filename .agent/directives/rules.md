@@ -31,7 +31,17 @@ follow-up item in the plans.
 - Prefer `TRPCError` for API error handling where applicable.
 - Prefer single quotes (Prettier enforces this).
 - Use async/await for asynchronous logic.
-- Use conventional commit messages (commitlint is enforced).
+- Use conventional commit messages (commitlint is enforced). A lower-case scope
+  from the enum in `commitlint.config.ts` is **required** on every commit.
+- Scope API-affecting work `api` — only `feat(api)`, `fix(api)`, `perf(api)` and
+  `revert(api)` release a new version. Everything else deploys but does not move
+  the version or reach the changelog, so a mis-scoped API change ships
+  unannounced. When in doubt, scope it `api`.
+- Do not edit `src/lib/version.ts` or `package.json`'s `version` by hand;
+  semantic-release owns them.
+- See [`docs/RELEASING.md`](../../docs/RELEASING.md) before changing
+  `.releaserc.json` — rule order and `parserOpts` there have silent failure
+  modes.
 - Prefer explicit typing and avoid `any` where practical.
 
 ## Testing guidance
