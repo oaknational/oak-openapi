@@ -34,6 +34,24 @@ function makeRow(overrides: {
   };
 }
 
+function makeKeyStageSubjectRow(overrides: {
+  unit_slug: string;
+  unit_title: string;
+  year_slug: string;
+  optionality?: string;
+  examboard_slug?: string | null;
+  examboard_title?: string | null;
+}) {
+  return {
+    unit_slug: overrides.unit_slug,
+    unit_title: overrides.unit_title,
+    year_slug: overrides.year_slug,
+    optionality: overrides.optionality ?? null,
+    examboard_slug: overrides.examboard_slug ?? null,
+    examboard_title: overrides.examboard_title ?? null,
+  };
+}
+
 describe('/programmes/{programme}/units', () => {
   beforeEach(() => {
     mocks.owaClientRequestMock.mockReset();
@@ -121,5 +139,57 @@ describe('/programmes/{programme}/units', () => {
         programme: 'computing-secondary-year-99',
       }),
     ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+  });
+});
+
+describe('/key-stages/{keyStage}/subject/{subject}/units', () => {
+  beforeEach(() => {
+    mocks.owaClientRequestMock.mockReset();
+  });
+
+  it('applies offset/limit pagination over deduplicated units', async () => {
+    mocks.owaClientRequestMock.mockResolvedValue({
+      [unitVariantLessonsView]: [
+        makeKeyStageSubjectRow({
+          unit_slug: 'year-3-unit-a',
+          unit_title: 'Year 3 Unit A',
+          year_slug: 'year-3',
+        }),
+        makeKeyStageSubjectRow({
+          unit_slug: 'year-3-unit-b',
+          unit_title: 'Year 3 Unit B',
+          year_slug: 'year-3',
+        }),
+        makeKeyStageSubjectRow({
+          unit_slug: 'year-4-unit-a',
+          unit_title: 'Year 4 Unit A',
+          year_slug: 'year-4',
+        }),
+      ],
+    });
+
+    const { authedCaller } = await import('./helper');
+    const { caller } = authedCaller();
+
+    const res =
+      await caller.getAllKeyStageAndSubjectUnits.getAllKeyStageAndSubjectUnits({
+        keyStage: 'ks1',
+        subject: 'computing',
+        offset: 1,
+        limit: 1,
+      });
+
+    expect(res).toStrictEqual([
+      {
+        yearSlug: 'year-3',
+        yearTitle: 'Year 3',
+        units: [
+          {
+            unitSlug: 'year-3-unit-b',
+            unitTitle: 'Year 3 Unit B',
+          },
+        ],
+      },
+    ]);
   });
 });

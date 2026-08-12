@@ -403,10 +403,12 @@ Not for: assets across a sequence (GET /sequences/{sequence}/assets); assets in 
     })
     .input(subjectAssetsRequestOpenAPISchema)
     .output(subjectAssetsResponseOpenAPISchema)
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const keyStage = input.keyStage;
       const subject = input.subject;
       const unit = input.unit || null;
+      const offset = input.offset;
+      const limit = input.limit;
       const typeFilter = input.type;
       const client = getClient();
 
@@ -467,7 +469,20 @@ Not for: assets across a sequence (GET /sequences/{sequence}/assets); assets in 
 
       const res = lessonViewResult[unitVariantLessonsView];
 
-      const lessonSlugs = [...new Set(res.map((l) => l.lesson_slug))];
+      const allLessonSlugs = [...new Set(res.map((l) => l.lesson_slug))];
+      const lessonSlugs = allLessonSlugs.slice(offset, offset + limit);
+
+      if (lessonSlugs.length === 0) {
+        return [];
+      }
+
+      if (offset + limit < allLessonSlugs.length) {
+        ctx.resHeaders.set(
+          'link',
+          `<${nextPageLink(ctx.req.url, offset, limit, unit ? { unit } : undefined)}>; rel="next"`,
+        );
+      }
+
       const restrictions = await getLessonsRestrictions(client, lessonSlugs);
       const lessonsAllowed = lessonSlugs.filter((slug) => !restrictions[slug]);
 
