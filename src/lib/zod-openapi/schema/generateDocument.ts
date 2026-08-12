@@ -1,7 +1,6 @@
 import { baseUrl } from '@/lib/baseUrl';
 import router from '@/lib/router';
 import { VERSION } from '@/lib/version';
-
 import { generateOpenApiDocument } from 'trpc-to-openapi';
 
 import { applyRequestMetadata } from './requestMetadata';
