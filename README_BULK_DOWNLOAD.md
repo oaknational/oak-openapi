@@ -50,7 +50,7 @@ A pushed image can only be used to generate the bulk data once it's been tagged 
 
 To find the correct tag for the preview deploy, open the the deploy job for "Publish", and open the "Release Tag":
 
-![](https://raw.githubusercontent.com/oaknational/oak-openapi/refs/heads/main/.github/assets/SCR-20250603-lcmc.png)
+![](https://github.com/oaknational/oak-openapi/blob/main/.github/assets/SCR-20250603-lcmc.png?raw=true)
 
 ### Releasing a production image
 
@@ -90,7 +90,7 @@ The job name is `ow-$STAGE-ldn-bulk-uploader` and changes depending on the proje
 
 Click through to the job, and with the latest release selected (sorted by "Creation time") then click the "Execute":
 
-![](https://raw.githubusercontent.com/oaknational/oak-openapi/refs/heads/main/.github/assets/SCR-20250603-lgoe.png)
+![](https://github.com/oaknational/oak-openapi/blob/main/.github/assets/SCR-20250603-lgoe.png?raw=true)
 
 If all is successful, you should get a green tick after approximately 3-4 minutes and the artefacts have been sent to the appropriate GCP storage bucket.
 
