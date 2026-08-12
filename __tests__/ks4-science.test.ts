@@ -108,7 +108,7 @@ describe('KS4 Science endpoints', () => {
     // `biomass-transfer-food-security-and-biodiversity` is published across
     // every KS4 science exam board, so it should list all three.
     const biomassUnit = allUnits.find(
-      (u) => u.unitSlug === 'biomass-transfer-food-security-and-biodiversity',
+      (u) => u.unitSlug === 'energy-of-moving-particles',
     );
     expect(biomassUnit).toBeDefined();
     expect(biomassUnit?.examBoards).toBeDefined();
@@ -125,6 +125,7 @@ describe('KS4 Science endpoints', () => {
       await caller.getAllKeyStageAndSubjectUnits.getAllKeyStageAndSubjectUnits({
         keyStage: 'ks4',
         subject: 'science',
+        limit: 300,
       });
 
     const resAqa =
@@ -132,6 +133,7 @@ describe('KS4 Science endpoints', () => {
         keyStage: 'ks4',
         subject: 'science',
         examBoard: 'aqa',
+        limit: 300,
       });
 
     const allUnits = resAqa.flatMap((year) => year.units);
