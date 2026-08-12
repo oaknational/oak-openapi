@@ -11,13 +11,13 @@ appear in the changelog.
 
 ## What causes a release
 
-| Commit                                | Result                 |
-| ------------------------------------- | ---------------------- |
-| `fix(api): …`                         | patch (`0.7.0→0.7.1`)  |
-| `perf(api): …` / `revert(api): …`     | patch                  |
-| `feat(api): …`                        | minor (`0.7.0→0.8.0`)  |
-| `feat(api)!: …` / `BREAKING CHANGE:`  | major (`0.7.0→1.0.0`)  |
-| Any other scope, or any other type    | no release             |
+| Commit                               | Result                |
+| ------------------------------------ | --------------------- |
+| `fix(api): …`                        | patch (`0.7.0→0.7.1`) |
+| `perf(api): …` / `revert(api): …`    | patch                 |
+| `feat(api): …`                       | minor (`0.7.0→0.8.0`) |
+| `feat(api)!: …` / `BREAKING CHANGE:` | major (`0.7.0→1.0.0`) |
+| Any other scope, or any other type   | no release            |
 
 So `chore(api): tidy handler imports` deploys but doesn't release, and
 `feat(playground): new footer` deploys but doesn't release. Only the four rows
@@ -37,13 +37,15 @@ are non-obvious and easy to break:
 If you change those rules, verify them before merging (see
 [Testing the rules](#testing-the-rules)).
 
-## Scopes are required
+## Scopes are checked selectively
 
 [`commitlint.config.ts`](../commitlint.config.ts) requires a lower-case scope
-from a fixed list on every commit. This exists because the failure mode of scope
-gating is silent: `fix(API):` or `fix(apis):` is a perfectly valid conventional
-commit that simply never matches the release rules, so a real API change would
-ship with no version bump and no changelog entry.
+from a fixed list on every commit except `docs`, `chore`, and `test`. Those
+commit types may omit a scope or use any scope. For the other types, this exists
+because the failure mode of scope gating is silent: `fix(API):` or `fix(apis):`
+is a perfectly valid conventional commit that simply never matches the release
+rules, so a real API change would ship with no version bump and no changelog
+entry.
 
 Requiring the scope catches "forgot to add one"; the enum catches "typed it
 slightly wrong". Add to the list when a genuinely new area appears — it's a
@@ -86,10 +88,10 @@ afterwards if it warrants better prose.
 mints a token for a GitHub App on the bypass list via
 `actions/create-github-app-token`, using two secrets:
 
-| Secret                     | Value                        |
-| -------------------------- | ---------------------------- |
-| `RELEASE_APP_ID`           | The App's ID                 |
-| `RELEASE_APP_PRIVATE_KEY`  | The App's private key (PEM)  |
+| Secret                    | Value                       |
+| ------------------------- | --------------------------- |
+| `RELEASE_APP_ID`          | The App's ID                |
+| `RELEASE_APP_PRIVATE_KEY` | The App's private key (PEM) |
 
 The App needs `contents: write` on this repository and must be added to `main`'s
 bypass list. Without it the workflow fails at the push step, after having
