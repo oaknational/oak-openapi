@@ -11,7 +11,7 @@ const SwaggerUI = dynamic<SwaggerUIProps>(() => import('swagger-ui-react'), {
 export default function Playground(): React.ReactElement {
   return (
     <>
-      <SwaggerUI url={`/api/v0/swagger.json`} />
+      <SwaggerUI url={`/api/v0/swagger.json`} tryItOutEnabled={true} />
     </>
   );
 }

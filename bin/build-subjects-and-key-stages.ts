@@ -1,5 +1,5 @@
 import 'renvy';
-import { getLatestMajorVersion } from '@/lib/handlers/changelog/helpers';
+import { API_MAJOR } from '@/lib/apiVersion';
 
 import { promises as fs } from 'node:fs';
 import type { SourceRecord } from '@/lib/keyStageAndSubjects';
@@ -23,9 +23,8 @@ if (!key) {
   );
 }
 
-const version = getLatestMajorVersion();
 const subjectsRes = await fetch(
-  `http://localhost:${port}/api/v${version}/subjects`,
+  `http://localhost:${port}/api/${API_MAJOR}/subjects`,
   {
     headers: {
       Authorization: `Bearer ${key}`,
@@ -48,7 +47,7 @@ try {
 const subjectsData: SubjectResult[] = [];
 for (const slug of subjectSlugs) {
   const res = await fetch(
-    `http://localhost:${port}/api/v${version}/subjects/${slug}`,
+    `http://localhost:${port}/api/${API_MAJOR}/subjects/${slug}`,
     {
       headers: {
         Authorization: `Bearer ${key}`,
