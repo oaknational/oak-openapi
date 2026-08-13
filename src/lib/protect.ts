@@ -1,20 +1,13 @@
 import { TRPCError } from '@trpc/server';
 import { publicProcedure, t } from '@/lib/trpc';
-import type { RateLimiter, RateLimitInfo } from './rateLimit';
-import { rateLimiter, rateLimits, defaultRateLimit } from './rateLimit';
+import type { RateLimitInfo } from './rateLimit';
+import { getRateLimiter } from './rateLimit';
 import type { Context } from './context';
 import type { OpenApiMeta } from 'trpc-to-openapi';
 
-export const getRateLimiter = (
-  userLimit: number | undefined | null,
-): RateLimiter => {
-  if (userLimit !== defaultRateLimit && typeof userLimit === 'number') {
-    return rateLimiter(rateLimits.custom(userLimit));
-  } else {
-    // we want to use the standard rate limit otherwise
-    return rateLimiter(rateLimits.standard);
-  }
-};
+// Re-exported for the existing callers; it lives in ./rateLimit so that code
+// needing a rate limiter doesn't have to pull in tRPC (and posthog-node) too.
+export { getRateLimiter };
 
 const protectLogic = async (
   ctx: Context,
