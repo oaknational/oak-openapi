@@ -1,7 +1,9 @@
-import { OakSecondaryLink as _OakSecondaryLink } from '@oaknational/oak-components';
+import { OakLink as _OakLink } from '@oaknational/oak-components';
 import styled from 'styled-components';
 
-export const OakAPINavigationLink = styled(_OakSecondaryLink)`
+export const OakAPINavigationLink = styled(_OakLink).attrs({
+  variant: 'secondary',
+})`
   text-decoration: none;
 
   & > span + div {
@@ -21,19 +23,15 @@ export const OakAPINavigationLink = styled(_OakSecondaryLink)`
 
   &:focus-visible {
     text-decoration: none;
-
-    box-shadow:
-      0 0 0 0.125rem rgba(255, 229, 85, 1),
-      0 0 0 0.3rem rgba(87, 87, 87, 1);
   }
 
   &:active {
     text-decoration: none;
+    outline: none;
 
-    border-radius: 0;
     box-shadow:
-      2px 2px 0 0px rgba(255, 229, 85, 1),
-      5px 5px 0 0px rgba(87, 87, 87, 1);
+      0.125rem 0.125rem 0 rgba(255, 229, 85, 100%),
+      0.25rem 0.25rem 0 rgba(87, 87, 87, 100%);
   }
 
   &.selected {

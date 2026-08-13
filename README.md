@@ -81,7 +81,26 @@ See [src/cms/README.md](src/cms/README.md) for detail.
 
 ## API keys
 
-Currently these are managed by Oak through an admin tool (found in this repo: `src/app/(pages)/admin/page.tsx`).
+Currently these are managed by Oak through an admin tool in this repo, at
+`/admin`. It has three areas:
+
+| Path                | Purpose                                                            |
+| ------------------- | ------------------------------------------------------------------ |
+| `/admin/new`        | Create a user and issue their first key                            |
+| `/admin/users`      | Search and list users                                              |
+| `/admin/users/<id>` | View a user's details and usage, edit them, or regenerate their key |
+
+Everything under `/admin` (pages and API routes alike) is behind HTTP Basic
+auth, so `AUTH_USERNAME` and `AUTH_PASSWORD` must be set to use it locally. See
+[docs/ENDPOINTS.md](docs/ENDPOINTS.md) for the routes behind it.
+
+The same operations are available from the command line, sharing the data layer
+in `src/lib/apikeys.ts`:
+
+```shell
+$ pnpm tsx bin/find-api-user.ts someone@example.com   # look up (add a number to set their rate limit)
+$ pnpm tsx bin/roll-api-key.ts someone@example.com    # regenerate a key
+```
 
 Accounts are stored in a redis database on [upstash](https://console.upstash.com/login).
 

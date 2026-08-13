@@ -1,9 +1,7 @@
 import 'renvy';
 import { createInterface } from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
-import { v4 as uuid } from 'uuid';
-import { findUserByEmail, User } from '@/lib/apikeys';
-import { redis } from '@/lib/redis';
+import { findUserByEmail, rollApiKey, User } from '@/lib/apikeys';
 
 const email = process.argv[2];
 const autoConfirm = process.argv.includes('--yes');
@@ -16,45 +14,14 @@ if (!email) {
   process.exit(1);
 }
 
-async function generateUniqueApiKey(): Promise<string> {
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    const candidate = uuid();
-    const exists = await redis.exists(`user:${candidate}`);
-    if (!exists) {
-      return candidate;
-    }
-  }
-
-  throw new Error(
-    'Unable to generate a unique API key after multiple attempts.',
-  );
-}
-
-async function getStoredUserRecord(
-  key: string,
-): Promise<Record<string, unknown>> {
-  const userRecord = (await redis.hgetall(`user:${key}`)) as Record<
-    string,
-    unknown
-  >;
-
-  if (!userRecord || Object.keys(userRecord).length === 0) {
-    throw new Error(`No user record found for key ${key}`);
-  }
-
-  return userRecord;
-}
-
-async function askForConfirmation(
-  user: User,
-  nextKey: string,
-): Promise<boolean> {
+async function askForConfirmation(user: User): Promise<boolean> {
   console.log('User found:');
   console.log(`  ID: ${user.id}`);
   console.log(`  Name: ${user.name ?? '(none)'}`);
   console.log(`  Email: ${user.email ?? '(none)'}`);
   console.log(`  Current key: ${user.key}`);
-  console.log(`  New key: ${nextKey}`);
+  console.log('\nA new key will be generated and the current one deleted.');
+  console.log('The current hour’s rate limit allowance will also reset.');
 
   if (autoConfirm) {
     console.log('\n--yes provided, skipping prompt.');
@@ -78,39 +45,17 @@ async function rollApiKeyByEmail(userEmail: string): Promise<void> {
     process.exit(1);
   }
 
-  const oldKey = user.key;
-  const newKey = await generateUniqueApiKey();
-
-  const confirmed = await askForConfirmation(user, newKey);
-
-  if (!confirmed) {
+  if (!(await askForConfirmation(user))) {
     console.log('Cancelled. API key was not changed.');
     return;
   }
 
-  const userRecord = await getStoredUserRecord(oldKey);
-  const updatedRecord = { ...userRecord, key: newKey };
-
-  await redis.hset(`user:${newKey}`, updatedRecord);
-  await redis.set(`user:email:${userEmail}`, newKey);
-  await redis.del(`user:${oldKey}`);
-
-  const lookupAfterUpdate = await redis.get(`user:email:${userEmail}`);
-
-  if (lookupAfterUpdate !== newKey) {
-    throw new Error('Email lookup was not updated to the new API key.');
-  }
-
-  const updatedUser = await findUserByEmail(userEmail);
-
-  if (!updatedUser || updatedUser.key !== newKey) {
-    throw new Error('User record was not updated correctly.');
-  }
+  const { previousKey, key } = await rollApiKey(user.key);
 
   console.log('\nAPI key rolled successfully.');
   console.log(`  Email: ${userEmail}`);
-  console.log(`  Previous key: ${oldKey}`);
-  console.log(`  New key: ${newKey}`);
+  console.log(`  Previous key: ${previousKey}`);
+  console.log(`  New key: ${key}`);
 }
 
 rollApiKeyByEmail(email).catch((error) => {

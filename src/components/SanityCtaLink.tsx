@@ -13,8 +13,8 @@ interface SanityCtaLinkProps {
   value: CMSCta;
 }
 
-const OakFlexWithImage = styled(OakFlex)`
-  ${(props: { background: string }) =>
+const OakFlexWithImage = styled(OakFlex)<{ background: string }>`
+  ${(props) =>
     `background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), ${props.background};`}
   background-size: cover;
   width: 100%;

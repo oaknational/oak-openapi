@@ -82,6 +82,21 @@ export const rateLimiter = (rateLimit: RateLimit): RateLimiter => {
   };
 };
 
+/**
+ * Picks the limiter for a user: a per-limit one when they have a custom rate,
+ * otherwise the shared standard limiter.
+ */
+export const getRateLimiter = (
+  userLimit: number | undefined | null,
+): RateLimiter => {
+  if (userLimit !== defaultRateLimit && typeof userLimit === 'number') {
+    return rateLimiter(rateLimits.custom(userLimit));
+  } else {
+    // we want to use the standard rate limit otherwise
+    return rateLimiter(rateLimits.standard);
+  }
+};
+
 function isUnlimited(user: User): boolean {
   const oakAuthToken = process.env.OAK_API_AUTH_TOKEN;
 
