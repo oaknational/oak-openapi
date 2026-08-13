@@ -46,22 +46,7 @@ export const dynamic = 'force-dynamic';
 
 const storage = getGoogleCloudStorage();
 const endpointPath = '/api/v0/lessons/{lesson}/assets/{type}';
-const passthroughVideoStatuses = new Set([200, 206, 304, 416]);
-const forwardedVideoRequestHeaders = [
-  'range',
-  'if-range',
-  'if-none-match',
-  'if-modified-since',
-] as const;
-const forwardedVideoResponseHeaders = [
-  'accept-ranges',
-  'cache-control',
-  'content-length',
-  'content-range',
-  'content-type',
-  'etag',
-  'last-modified',
-] as const;
+
 const corsHeaders = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, HEAD, OPTIONS',
@@ -74,12 +59,6 @@ function createCorsHeaders(): Headers {
   return new Headers(corsHeaders);
 }
 
-function applyCorsHeaders(headers: Headers): void {
-  for (const [key, value] of Object.entries(corsHeaders)) {
-    headers.set(key, value);
-  }
-}
-
 const hasErrorCode = (error: unknown): error is { code: string } => {
   return (
     typeof error === 'object' &&
@@ -88,32 +67,6 @@ const hasErrorCode = (error: unknown): error is { code: string } => {
     typeof (error as { code: unknown }).code === 'string'
   );
 };
-
-function getUpstreamVideoRequestHeaders(
-  req: NextRequest,
-): Record<string, string> {
-  const headers: Record<string, string> = {};
-
-  for (const headerName of forwardedVideoRequestHeaders) {
-    const value = req.headers.get(headerName);
-
-    if (value) {
-      headers[headerName] = value;
-    }
-  }
-
-  return headers;
-}
-
-function copyUpstreamVideoHeaders(source: Headers, target: Headers): void {
-  for (const headerName of forwardedVideoResponseHeaders) {
-    const value = source.get(headerName);
-
-    if (value) {
-      target.set(headerName, value);
-    }
-  }
-}
 
 const handler = async (
   req: NextRequest,
@@ -245,68 +198,7 @@ const handler = async (
       }
 
       const url = new URL(download || stream);
-      const ext = url.pathname.split('.').pop();
-
-      if (ext === 'm3u8') {
-        // redirect to the video stream
-        url.hostname = new URL(assetBaseVideoUrl).hostname;
-
-        const redirectResponse = NextResponse.redirect(url.toString(), 302);
-        applyCorsHeaders(redirectResponse.headers);
-        captureApiRequestEvent({
-          url: req.url,
-          apiKey,
-          args,
-          durationMs: Date.now() - startedAt,
-          endpointPath,
-          httpMethod: req.method || 'GET',
-          queryParams,
-          source: 'lesson_assets_route',
-          success: true,
-          userId,
-        });
-
-        return redirectResponse;
-      }
-
-      const response = await fetch(download || stream, {
-        method: req.method,
-        headers: getUpstreamVideoRequestHeaders(req),
-      });
-
-      const filename = `${lesson}_${type.toLocaleLowerCase()}.${ext}`;
-
-      if (!response.ok && !passthroughVideoStatuses.has(response.status)) {
-        throw new TRPCError({
-          message: `Failed to fetch: ${response.status} ${response.statusText}`,
-          code: 'INTERNAL_SERVER_ERROR',
-        });
-      }
-
-      const headers = new Headers(resHeaders);
-      copyUpstreamVideoHeaders(response.headers, headers);
-      headers.set('Content-Disposition', `attachment; filename="${filename}"`);
-
-      const responseBody =
-        req.method === 'HEAD' || response.status === 304 ? null : response.body;
-
-      if (
-        responseBody === null &&
-        req.method !== 'HEAD' &&
-        response.status !== 304 &&
-        response.status !== 416
-      ) {
-        throw new TRPCError({
-          message: 'Video could not be streamed',
-          code: 'INTERNAL_SERVER_ERROR',
-        });
-      }
-
-      const res = new NextResponse(responseBody, {
-        headers,
-        status: response.status,
-        statusText: response.statusText,
-      });
+      url.hostname = new URL(assetBaseVideoUrl).hostname;
 
       captureApiRequestEvent({
         url: req.url,
@@ -319,6 +211,15 @@ const handler = async (
         source: 'lesson_assets_route',
         success: true,
         userId,
+      });
+
+      const headers = new Headers(resHeaders);
+
+      headers.set('Location', url.toString());
+
+      const res = new NextResponse(`Redirecting to ${url.toString()}`, {
+        headers,
+        status: 302,
       });
 
       return res;
