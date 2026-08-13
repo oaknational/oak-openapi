@@ -36,7 +36,11 @@ function shouldRequestMarkdown(req: NextRequest): boolean {
     pathname.startsWith('/_next') ||
     pathname === '/favicon.ico' ||
     pathname.includes('.') ||
-    pathname === MARKDOWN_PROXY_PATH
+    pathname === MARKDOWN_PROXY_PATH ||
+    // Admin pages must never be negotiated: this branch runs before the Basic
+    // auth check below, and the markdown proxy stamps a public, cacheable
+    // response that varies on Accept but not Authorization.
+    isAdminPath(pathname)
   ) {
     return false;
   }

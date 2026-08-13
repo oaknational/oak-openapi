@@ -125,6 +125,7 @@ export default function DocsNav({
       $flexDirection="column"
       $gap={['', 'spacing-32']}
       $ml="spacing-16"
+      $mb="spacing-16"
       $mr={['spacing-16', '']}
       $bb={[menuIsOpen ? 'border-solid-s' : '', '']}
       $borderColor={['grey40']}

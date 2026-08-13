@@ -48,6 +48,17 @@ describe('markdown negotiation middleware', () => {
 
     expect(res.headers.get('x-middleware-rewrite')).toBeNull();
   });
+
+  it.each(['/admin', '/admin/users', '/api/admin/users'])(
+    'does not rewrite %s, so it cannot skip the basic auth check',
+    (path) => {
+      const res = middleware(makeRequest(path, { accept: 'text/markdown' }));
+
+      expect(res.headers.get('x-middleware-rewrite')).toBeNull();
+      expect(res.status).toBe(401);
+      expect(res.headers.get('WWW-Authenticate')).toBe('Basic');
+    },
+  );
 });
 
 describe('markdown proxy route', () => {
