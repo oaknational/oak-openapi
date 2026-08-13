@@ -16,7 +16,7 @@ const getConfig = async () => {
   /** @type {import('next').NextConfig} */
   const config = {
     devIndicators: false,
-    webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    webpack: (config) => {
       config.module.rules.push({
         test: /\.(graphql|gql)$/,
         exclude: /node_modules/,
@@ -33,6 +33,7 @@ const getConfig = async () => {
     compiler: {
       styledComponents: true,
     },
+    transpilePackages: ['@oaknational/oak-components'],
     reactStrictMode: true,
     images: {
       domains: ['oaknationalacademy-res.cloudinary.com', 'cdn.sanity.io'],

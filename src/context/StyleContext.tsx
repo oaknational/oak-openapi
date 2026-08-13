@@ -17,8 +17,10 @@ export default function StyleContext({
   return (
     <>
       <StyledComponentsRegistry>
-        <OakGlobalStyle />
-        <OakThemeProvider theme={oakDefaultTheme}>{children}</OakThemeProvider>
+        <OakThemeProvider theme={oakDefaultTheme}>
+          <OakGlobalStyle />
+          {children}
+        </OakThemeProvider>
       </StyledComponentsRegistry>
     </>
   );

@@ -7,7 +7,9 @@ interface JauntyAngleLabelProps {
   $error?: boolean;
 }
 
-export const JauntyAngleLabel = styled(_OakJauntyAngleLabel)`
+export const JauntyAngleLabel = styled(
+  _OakJauntyAngleLabel,
+)<JauntyAngleLabelProps>`
   width: fit-content;
   background: #ffe555;
   border-radius: 0;

@@ -59,13 +59,22 @@ Notes
 Some operational route files export additional HTTP verbs from the same handler;
 the table lists the primary verb used by consumers.
 
-| Method | Endpoint                    | Definition                                                                                      |
-| ------ | --------------------------- | ----------------------------------------------------------------------------------------------- |
-| POST   | `/api/admin/create-api-key` | [`src/app/api/admin/create-api-key/route.ts`](../src/app/api/admin/create-api-key/route.ts#L42) |
-| POST   | `/api/bulk`                 | [`src/app/api/bulk/route.ts`](../src/app/api/bulk/route.ts#L158)                                |
-| GET    | `/api/bulk/schema.json`     | [`src/app/api/bulk/schema.json/route.ts`](../src/app/api/bulk/schema.json/route.ts#L4)          |
-| GET    | `/api/health`               | [`src/app/api/health/route.ts`](../src/app/api/health/route.ts#L30)                             |
-| GET    | `/api/pingdom`              | [`src/app/api/pingdom/route.ts`](../src/app/api/pingdom/route.ts#L42)                           |
+The `/api/admin/*` routes are gated by HTTP Basic auth in
+[`src/middleware.ts`](../src/middleware.ts), which matches any path under
+`/admin` or `/api/admin` against `AUTH_USERNAME` and `AUTH_PASSWORD`. They are
+internal tooling and are deliberately absent from `swagger.json`.
+
+| Method | Endpoint                          | Definition                                                                                                      |
+| ------ | --------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| GET    | `/api/admin/users`                | [`src/app/api/admin/users/route.ts`](../src/app/api/admin/users/route.ts)                                       |
+| POST   | `/api/admin/users`                | [`src/app/api/admin/users/route.ts`](../src/app/api/admin/users/route.ts)                                       |
+| GET    | `/api/admin/users/{id}`           | [`src/app/api/admin/users/[id]/route.ts`](../src/app/api/admin/users/%5Bid%5D/route.ts)                         |
+| PATCH  | `/api/admin/users/{id}`           | [`src/app/api/admin/users/[id]/route.ts`](../src/app/api/admin/users/%5Bid%5D/route.ts)                         |
+| POST   | `/api/admin/users/{id}/roll-key`  | [`src/app/api/admin/users/[id]/roll-key/route.ts`](../src/app/api/admin/users/%5Bid%5D/roll-key/route.ts)       |
+| POST   | `/api/bulk`                       | [`src/app/api/bulk/route.ts`](../src/app/api/bulk/route.ts#L158)                                                |
+| GET    | `/api/bulk/schema.json`           | [`src/app/api/bulk/schema.json/route.ts`](../src/app/api/bulk/schema.json/route.ts#L4)                          |
+| GET    | `/api/health`                     | [`src/app/api/health/route.ts`](../src/app/api/health/route.ts#L30)                                             |
+| GET    | `/api/pingdom`                    | [`src/app/api/pingdom/route.ts`](../src/app/api/pingdom/route.ts#L42)                                           |
 
 ## Discovery resources
 

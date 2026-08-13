@@ -1,13 +1,13 @@
 import 'renvy';
 import {
   findUserByEmail,
+  findUserById,
   findUserByKey,
-  findUsers,
+  findUsersSince,
+  listUsers,
   updateUser,
   User,
-  UserUpdateWithKey,
 } from '@/lib/apikeys';
-import { redis } from '@/lib/redis';
 
 const str = process.argv[2];
 
@@ -27,25 +27,7 @@ if (!str) {
   process.exit(1);
 }
 
-async function findUserById(id: number): Promise<User | null> {
-  const keys = await redis.keys('user:*');
-
-  for (const redisKey of keys) {
-    if (redisKey.startsWith('user:email:')) {
-      continue;
-    }
-
-    const key = redisKey.replace(/^user:/, '');
-    const user = await findUserByKey(key, false);
-    if (user && Number(user.id) === id) {
-      return user;
-    }
-  }
-
-  return null;
-}
-
-async function findUsersSince(dateStr: string): Promise<User[]> {
+function parseDate(dateStr: string): Date {
   // Parse date in format: 2026-02-24 or 2026 02 24
   const dateParts = dateStr.split(/[-/\s]+/);
   if (dateParts.length !== 3) {
@@ -66,28 +48,7 @@ async function findUsersSince(dateStr: string): Promise<User[]> {
     process.exit(1);
   }
 
-  const targetDate = new Date(year, month, day);
-  const keys = await redis.keys('user:*');
-  const users: User[] = [];
-
-  for (const redisKey of keys) {
-    if (redisKey.startsWith('user:email:')) {
-      continue;
-    }
-
-    const key = redisKey.replace(/^user:/, '');
-    const user = await findUserByKey(key, false);
-
-    if (user && user.lastRequest) {
-      const lastRequestDate = new Date(user.lastRequest);
-
-      if (lastRequestDate >= targetDate) {
-        users.push(user);
-      }
-    }
-  }
-
-  return users;
+  return new Date(year, month, day);
 }
 
 async function maybeUpdateRateLimit(user: User): Promise<User | null> {
@@ -102,8 +63,7 @@ async function maybeUpdateRateLimit(user: User): Promise<User | null> {
     process.exit(1);
   }
 
-  const update = { ...user, rateLimit: rate } as UserUpdateWithKey;
-  await updateUser(update);
+  await updateUser({ key: user.key, rateLimit: rate });
 
   if (user.email) {
     return findUserByEmail(user.email);
@@ -115,8 +75,7 @@ async function maybeUpdateRateLimit(user: User): Promise<User | null> {
 let data: User | User[] | null = null;
 
 if (str.startsWith('since:')) {
-  const dateStr = str.replace('since:', '');
-  data = await findUsersSince(dateStr);
+  data = await findUsersSince(parseDate(str.replace('since:', '')));
 } else if (str.startsWith('user:email:')) {
   const email = str.replace('user:email:', '');
   const user = await findUserByEmail(email);
@@ -135,7 +94,7 @@ if (str.startsWith('since:')) {
     data = await maybeUpdateRateLimit(user);
   }
 } else {
-  data = await findUsers(str);
+  data = (await listUsers({ search: str, limit: 100 })).users;
 }
 
 console.log(data);
