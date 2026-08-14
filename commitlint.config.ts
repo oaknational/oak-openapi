@@ -46,6 +46,10 @@ const config: UserConfig = {
       },
     },
   ],
+  // Release commits are written by semantic-release, with the generated release
+  // notes as the body — those changelog lines exceed body-max-line-length. CI
+  // sets HUSKY=0, this covers running semantic-release locally.
+  ignores: [(message) => message.startsWith('chore(release):')],
   rules: {
     'scope-required-unless-exempt': [2, 'always'],
   },
