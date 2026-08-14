@@ -5,6 +5,11 @@
     "node": ">=24.12.0 <25",
     "pnpm": ">=10"
   },
+  "pnpm": {
+    "overrides": {
+      "conventional-changelog-conventionalcommits": "9.3.1"
+    }
+  },
   "scripts": {
     "build": "next build",
     "build-subjects": "tsx bin/build-subjects-and-key-stages.ts",
@@ -116,7 +121,7 @@
     "@vitest/coverage-v8": "^4.0.16",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
-    "conventional-changelog-conventionalcommits": "^10.2.1",
+    "conventional-changelog-conventionalcommits": "^9.3.1",
     "dotenv-cli": "^7.4.2",
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.1.1",
