@@ -60,6 +60,18 @@ when it is. Nothing automated will save you there, so when in doubt, scope it
 `api` — an unnecessary patch release is cheap, a silently unreleased API change
 is not.
 
+## Valid scopes
+
+- `api`
+- `bulk`
+- `ci`
+- `deps`
+- `docs`
+- `infra`
+- `playground`
+- `release`
+- `repo`
+
 ## How a release happens
 
 1. You merge a PR to `main`. Vercel deploys it, as always — **every** merge
