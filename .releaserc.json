@@ -24,10 +24,9 @@
       "@semantic-release/release-notes-generator",
       {
         "preset": "conventionalcommits",
-        "parserOpts": {
-          "headerPattern": "^(\\w*)(?:\\(([^)]*)\\))?(!)?: (.*)$",
-          "headerCorrespondence": ["type", "scope", "breaking", "subject"],
-          "breakingHeaderPattern": "^(\\w*)(?:\\(([^)]*)\\))?!: (.*)$"
+        "presetConfig": {
+          "scope": "api",
+          "scopeOnly": true
         }
       }
     ],
