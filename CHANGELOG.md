@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.11.0](https://github.com/oaknational/oak-openapi/compare/v0.10.0...v0.11.0) (2026-08-14)
+
+### Features
+
+* all video asset types now redirect to source ([820d707](https://github.com/oaknational/oak-openapi/commit/820d70773fee70a0d5f4b309b80b512b7ec66379))
+
 ## [0.10.0](https://github.com/oaknational/oak-openapi/compare/v0.9.0...v0.10.0) (2026-08-12)
 
 ### Features
