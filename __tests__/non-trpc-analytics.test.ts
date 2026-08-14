@@ -150,7 +150,7 @@ describe('Non-tRPC route analytics', () => {
       }),
     });
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(302);
     expect(mocks.captureApiRequestEventMock).toHaveBeenCalledTimes(1);
     expect(mocks.captureApiRequestEventMock).toHaveBeenCalledWith(
       expect.objectContaining({
