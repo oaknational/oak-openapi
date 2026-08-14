@@ -49,3 +49,7 @@ jobs:
       - run: pnpm semantic-release
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          # The release commit body is the generated release notes, whose
+          # changelog lines run well past commitlint's body-max-line-length.
+          # Skip the husky hooks rather than lint a machine-written commit.
+          HUSKY: 0
