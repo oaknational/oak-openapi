@@ -80,7 +80,7 @@ export const footerSections = {
       },
       {
         text: 'Accessibility statement',
-        href: 'https://www.thenational.academy/legal/accessibility-statement',
+        href: 'https://www.thenational.academy/legal/accessibility-statement-api-version',
       },
       {
         text: 'Safeguarding statement',
