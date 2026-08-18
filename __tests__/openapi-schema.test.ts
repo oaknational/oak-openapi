@@ -21,6 +21,40 @@ function getSchema(ref: string) {
   return swaggerData.components?.schemas?.[refPath] || null;
 }
 
+// A response schema frequently carries its example data on the individual
+// properties (or on array `items`) rather than as one example on the whole
+// schema. Walk the schema and assemble those per-property examples into a single
+// object/array, preferring a schema-level `example` wherever one is declared, so
+// the result can be validated against the schema as a whole.
+function buildExampleFromSchema(
+  schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined,
+): unknown {
+  if (!schema) return undefined;
+
+  if ('$ref' in schema) {
+    return buildExampleFromSchema(getSchema(schema.$ref) ?? undefined);
+  }
+
+  // A schema-level example wins over reconstructing from children.
+  if (schema.example !== undefined) return schema.example;
+
+  if (schema.type === 'array' && schema.items) {
+    const item = buildExampleFromSchema(schema.items);
+    return item === undefined ? undefined : [item];
+  }
+
+  if (schema.properties) {
+    const result: Record<string, unknown> = {};
+    for (const [key, property] of Object.entries(schema.properties)) {
+      const value = buildExampleFromSchema(property);
+      if (value !== undefined) result[key] = value;
+    }
+    return Object.keys(result).length > 0 ? result : undefined;
+  }
+
+  return undefined;
+}
+
 function fixNullable(schema: OpenAPIV3.SchemaObject): OpenAPIV3.SchemaObject {
   if (typeof schema !== 'object' || schema === null) return schema;
 
@@ -168,7 +202,7 @@ for (const [path, methods] of Object.entries(swaggerData.paths)) {
       ) as OpenAPIV3.SchemaObject;
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const example = content.example ? content.example : schemaRef?.example;
+      const example = content.example ?? buildExampleFromSchema(schemaRef);
       it(`${method.toUpperCase()} ${path} should have a response example`, () => {
         if (!example) {
           expect.fail(`${method.toUpperCase()} ${path} missing example`);
@@ -185,8 +219,8 @@ for (const [path, methods] of Object.entries(swaggerData.paths)) {
         const [isValid, errors = null] = validateExample(schemaRef, example);
 
         if (!isValid) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          console.log(JSON.stringify({ schemaRef, example }, null, 2));
+          //// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          // console.log(JSON.stringify({ schemaRef, example }, null, 2));
           console.log(errors);
           throw new Error(`Example does not match schema.`);
         }

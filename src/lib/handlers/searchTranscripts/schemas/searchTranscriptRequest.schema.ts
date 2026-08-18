@@ -3,7 +3,6 @@ import * as z from 'zod/v4';
 export const searchTranscriptRequestSchema = z.object({
   q: z
     .string()
-    .describe(
-      'A snippet of text to search for in the lesson video transcripts',
-    ),
+    .describe('A snippet of text to search for in the lesson video transcripts')
+    .meta({ example: 'Who were the romans?' }),
 });

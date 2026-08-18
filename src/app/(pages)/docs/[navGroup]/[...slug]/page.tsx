@@ -1,6 +1,5 @@
 import documentationBySlugQuery from '@/cms/queries/documentationBySlugQuery/documentationBySlugQuery.query';
 import MainDocsContent from '@/components/documentationPages/MainDocsContent';
-import { getEndpointContent } from '@/lib/endpoint-docs/getEndpointDocs';
 import type { DocumentationContentPageBlock } from '@/cms/schemaTypes';
 
 export default async function Page({
@@ -16,11 +15,5 @@ export default async function Page({
     pageSlug,
   )) as DocumentationContentPageBlock[];
 
-  const endpointInfo = getEndpointContent(pageSlug);
-  return (
-    <MainDocsContent
-      endpoints={endpointInfo?.endpoints}
-      docs={documentationData}
-    />
-  );
+  return <MainDocsContent docs={documentationData} />;
 }

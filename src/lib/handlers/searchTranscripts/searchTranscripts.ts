@@ -2,9 +2,9 @@ import { prisma } from '@/lib/db';
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import {
-  searchTranscriptRequestOpenAPISchema,
-  searchTranscriptResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/searchTranscripts';
+  searchTranscriptRequestSchema,
+  searchTranscriptResponseSchema,
+} from './schemas';
 import { errorResponses } from '@/lib/errorResponses';
 
 export const searchTranscripts = router({
@@ -23,8 +23,8 @@ Not for: terms in the lesson title (GET /search/lessons); metadata for a known l
 Example queries: the mitochondria are the powerhouse, to be or not to be, carry the one.`,
       },
     })
-    .input(searchTranscriptRequestOpenAPISchema)
-    .output(searchTranscriptResponseOpenAPISchema)
+    .input(searchTranscriptRequestSchema)
+    .output(searchTranscriptResponseSchema)
     .query(async ({ input }) => {
       const { q } = input;
 
