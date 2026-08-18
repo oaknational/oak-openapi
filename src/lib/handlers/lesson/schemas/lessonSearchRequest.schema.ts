@@ -1,25 +1,16 @@
 import * as z from 'zod/v4';
-import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
+import {
+  keyStageSlugSchema,
+  subjectSlugSchema,
+} from '@/lib/handlers/commonTypes';
 
 export const lessonSearchRequestSchema = z.object({
   q: z.string().meta({
     description: 'Search query text snippet',
     example: 'gothic',
   }),
-  keyStage: z
-    .enum(keyStageSlugs as [string])
-    .meta({
-      description:
-        "Key stage slug to filter by, e.g. 'ks2' - note that casing is important here, and should be lowercase",
-    })
-    .optional(),
-  subject: z
-    .enum(subjectSlugs as [string])
-    .meta({
-      description:
-        "Subject slug to filter by, e.g. 'english' - note that casing is important here, and should be lowercase",
-    })
-    .optional(),
+  keyStage: keyStageSlugSchema.optional(),
+  subject: subjectSlugSchema.optional(),
   unit: z
     .string()
     .describe('Optional unit slug to additionally filter by')

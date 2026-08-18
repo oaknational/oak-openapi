@@ -16,10 +16,7 @@ import {
   sortSequencesByProgrammeSpecificity,
   testIfUnitVariant,
 } from './helpers';
-import {
-  unitSummaryRequestOpenAPISchema,
-  unitSummaryResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/units';
+import { unitSummaryRequestSchema, unitSummaryResponseSchema } from './schemas';
 
 interface StringEq {
   _eq: string;
@@ -40,7 +37,7 @@ export const getUnits = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['units', 'unit-and-curriculum-data'],
+        tags: ['units'],
         path: '/units/{unit}/summary',
         summary: 'Unit summary by slug',
         description: `Use when you have a unit slug and need the unit summary: title, description, key stage, subject, year, threads, prior-knowledge requirements, national-curriculum statements, and the lessons inside. Unit variant slugs (ending in -1, -2, etc.) resolve to that specific variant.
@@ -49,8 +46,8 @@ Not for: listing every unit in a key stage + subject (GET /key-stages/{keyStage}
         errorResponses,
       },
     })
-    .input(unitSummaryRequestOpenAPISchema)
-    .output(unitSummaryResponseOpenAPISchema)
+    .input(unitSummaryRequestSchema)
+    .output(unitSummaryResponseSchema)
     .query(async ({ input }) => {
       let { unit: slug } = input;
       const { childSubject, examBoard, pathway, tier } = input;

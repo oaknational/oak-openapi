@@ -1,0 +1,12 @@
+[
+  {
+    "unitSlug": "variables-and-data-types",
+    "unitTitle": "Variables and data types",
+    "unitOrder": 1
+  },
+  {
+    "unitSlug": "algorithms",
+    "unitTitle": "Algorithms",
+    "unitOrder": 2
+  }
+]

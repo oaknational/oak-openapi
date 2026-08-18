@@ -1,9 +1,9 @@
 import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import {
-  allKeyStageAndSubjectUnitsRequestOpenAPISchema,
-  allKeyStageAndSubjectUnitsResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/allKeyStageAndSubjectUnits';
+  allKeyStageAndSubjectUnitsRequestSchema,
+  allKeyStageAndSubjectUnitsResponseSchema,
+} from './schemas';
 import { gql } from 'graphql-request';
 import { errorResponses } from '@/lib/errorResponses';
 import type { UnitVariantLessonsView } from 'lib/owaClient';
@@ -25,8 +25,8 @@ export const getAllKeyStageAndSubjectUnits = router({
 Not for: all units across a sequence (GET /sequences/{sequence}/units); units in one programme (GET /programmes/{programme}/units); a single unit (GET /units/{unit}/summary); lessons rather than units (GET /key-stages/{keyStage}/subject/{subject}/lessons); units in a thread (GET /threads/{threadSlug}/units).`,
       },
     })
-    .input(allKeyStageAndSubjectUnitsRequestOpenAPISchema)
-    .output(allKeyStageAndSubjectUnitsResponseOpenAPISchema)
+    .input(allKeyStageAndSubjectUnitsRequestSchema)
+    .output(allKeyStageAndSubjectUnitsResponseSchema)
     .query(async ({ input, ctx }) => {
       const keyStage = decodeURIComponent(input.keyStage);
       const subject = decodeURIComponent(input.subject);

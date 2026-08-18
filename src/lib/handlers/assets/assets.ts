@@ -30,17 +30,17 @@ import type { DownloadTypeEnum, LessonAssetsType } from './types';
 import { getAttribution } from './helpers';
 
 import {
-  subjectAssetsRequestOpenAPISchema,
-  subjectAssetsResponseOpenAPISchema,
-  programmeAssetsRequestOpenAPISchema,
-  programmeAssetsResponseOpenAPISchema,
-  sequenceAssetsRequestOpenAPISchema,
-  sequenceAssetsResponseOpenAPISchema,
-  lessonAssetRequestOpenAPISchema,
-  lessonAssetResponseOpenAPISchema,
-  lessonAssetsRequestOpenAPISchema,
-  lessonAssetsResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/assets';
+  subjectAssetsRequestSchema,
+  subjectAssetsResponseSchema,
+  programmeAssetsRequestSchema,
+  programmeAssetsResponseSchema,
+  sequenceAssetsRequestSchema,
+  sequenceAssetsResponseSchema,
+  lessonAssetRequestSchema,
+  lessonAssetResponseSchema,
+  lessonAssetsRequestSchema,
+  lessonAssetsResponseSchema,
+} from './schemas';
 
 import placeholderVideoLessons from '@/lib/queryGateData/placeholderVideoLessons.json' with { type: 'json' };
 
@@ -252,7 +252,7 @@ export const getAssets = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['assets', 'sequences', 'unit-and-curriculum-data'],
+        tags: ['assets', 'sequences'],
         path: '/sequences/{sequence}/assets',
         errorResponses,
         summary: 'Downloadable assets in a sequence',
@@ -261,8 +261,8 @@ export const getAssets = router({
 Not for: assets in a single programme (GET /programmes/{programme}/assets); a single lesson's downloads (GET /lessons/{lesson}/assets); streaming one file (GET /lessons/{lesson}/assets/{type}); assets for a key stage + subject without programme structure (GET /key-stages/{keyStage}/subject/{subject}/assets).`,
       },
     })
-    .input(sequenceAssetsRequestOpenAPISchema)
-    .output(sequenceAssetsResponseOpenAPISchema)
+    .input(sequenceAssetsRequestSchema)
+    .output(sequenceAssetsResponseSchema)
     .query(async ({ input }) => {
       const { sequence, type, year } = input;
       const client = getClient();
@@ -401,8 +401,8 @@ Not for: assets in a single programme (GET /programmes/{programme}/assets); a si
 Not for: assets across a sequence (GET /sequences/{sequence}/assets); assets in one programme (GET /programmes/{programme}/assets); a single lesson's downloads (GET /lessons/{lesson}/assets); streaming one file (GET /lessons/{lesson}/assets/{type}).`,
       },
     })
-    .input(subjectAssetsRequestOpenAPISchema)
-    .output(subjectAssetsResponseOpenAPISchema)
+    .input(subjectAssetsRequestSchema)
+    .output(subjectAssetsResponseSchema)
     .query(async ({ input, ctx }) => {
       const keyStage = input.keyStage;
       const subject = input.subject;
@@ -571,7 +571,7 @@ Not for: assets across a sequence (GET /sequences/{sequence}/assets); assets in 
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['assets', 'lessons', 'lesson-data'],
+        tags: ['assets', 'lessons'],
         summary: 'Downloadable assets for a lesson',
         path: '/lessons/{lesson}/assets',
         errorResponses,
@@ -580,8 +580,8 @@ Not for: assets across a sequence (GET /sequences/{sequence}/assets); assets in 
 Not for: streaming the file itself (GET /lessons/{lesson}/assets/{type}); bulk asset retrieval across a key stage + subject (GET /key-stages/{keyStage}/subject/{subject}/assets), a sequence (GET /sequences/{sequence}/assets), or one programme (GET /programmes/{programme}/assets); lesson metadata (GET /lessons/{lesson}/summary).`,
       },
     })
-    .input(lessonAssetsRequestOpenAPISchema)
-    .output(lessonAssetsResponseOpenAPISchema)
+    .input(lessonAssetsRequestSchema)
+    .output(lessonAssetsResponseSchema)
     .query(async ({ input }) => {
       const { lesson: lessonSlug, type } = input;
 
@@ -606,8 +606,8 @@ Not for: streaming the file itself (GET /lessons/{lesson}/assets/{type}); bulk a
 Not for: assets across a whole sequence (GET /sequences/{sequence}/assets); assets for a key stage + subject without programme structure (GET /key-stages/{keyStage}/subject/{subject}/assets); a single lesson's downloads (GET /lessons/{lesson}/assets); streaming one file (GET /lessons/{lesson}/assets/{type}).`,
       },
     })
-    .input(programmeAssetsRequestOpenAPISchema)
-    .output(programmeAssetsResponseOpenAPISchema)
+    .input(programmeAssetsRequestSchema)
+    .output(programmeAssetsResponseSchema)
     .query(async ({ input, ctx }) => {
       const { programme, offset, limit } = input;
       const typeFilter = input.type;
@@ -741,7 +741,7 @@ Not for: assets across a whole sequence (GET /sequences/{sequence}/assets); asse
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['assets', 'lessons', 'lesson-data'],
+        tags: ['assets', 'lessons'],
         path: '/lessons/{lesson}/assets/{type}',
         summary: 'Stream a lesson asset file',
         description: `Use when you want to download one specific asset for a lesson — slide deck, worksheet, etc. Returns the file directly. Call GET /lessons/{lesson}/assets first to see which type values are available. Valid type values: slideDeck, starterQuiz, starterQuizAnswers, exitQuiz, exitQuizAnswers, worksheet, worksheetAnswers, supplementaryResource, video. Lesson content is under OGL v3.0; assets are either Oak-owned or third-party under an OGL-compatible licence. Attribution required — see https://open-api.thenational.academy/docs/about-oaks-api/terms.
@@ -751,8 +751,8 @@ Not for: listing which asset types a lesson has (GET /lessons/{lesson}/assets); 
         errorResponses,
       },
     })
-    .input(lessonAssetRequestOpenAPISchema)
-    .output(lessonAssetResponseOpenAPISchema) // no output, but file is streamed to the request
+    .input(lessonAssetRequestSchema)
+    .output(lessonAssetResponseSchema) // no output, but file is streamed to the request
     .query(() => {
       // IMPORTANT - this endpoint specific returns a stream of the
       // file (video, slides, etc), but the actual execution isn't

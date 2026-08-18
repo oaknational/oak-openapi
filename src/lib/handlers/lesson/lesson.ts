@@ -27,14 +27,13 @@ import {
   type UnitProgrammeFactors,
 } from '@/lib/handlers/unitProgrammeFactors';
 
-import type { LessonSearchResultType } from './schemas/lessonSearchResponse.schema';
-
 import {
-  lessonSearchRequestOpenAPISchema,
-  lessonSearchResponseOpenAPISchema,
-  lessonSummaryRequestOpenAPISchema,
-  lessonSummaryResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/lesson';
+  lessonSearchRequestSchema,
+  lessonSearchResponseSchema,
+  lessonSummaryRequestSchema,
+  lessonSummaryResponseSchema,
+  type LessonSearchResultType,
+} from './schemas';
 import {
   getCanonicalUrlForLesson,
   getOakUrlForLesson,
@@ -119,7 +118,7 @@ Not for: checking a single lesson (GET /lessons/{lesson}/summary); searching les
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['lessons', 'lesson-data'],
+        tags: ['lessons'],
         summary: 'Lesson summary by slug',
         path: '/lessons/{lesson}/summary',
         description: `Use when you have a lesson slug and need its full metadata: title, key stage, subject, unit, keywords, key learning points, misconceptions, pupil lesson outcome, teacher tips, content guidance, supervision level, and downloadsAvailable. Returns the lesson summary record.
@@ -130,8 +129,8 @@ Example slug: imagining-you-are-the-characters-the-three-billy-goats-gruff.`,
         errorResponses,
       },
     })
-    .input(lessonSummaryRequestOpenAPISchema)
-    .output(lessonSummaryResponseOpenAPISchema)
+    .input(lessonSummaryRequestSchema)
+    .output(lessonSummaryResponseSchema)
     .query(async ({ input }) => {
       const slug = decodeURIComponent(input.lesson);
       const client = getClient();
@@ -243,7 +242,7 @@ Example slug: imagining-you-are-the-characters-the-three-billy-goats-gruff.`,
           units,
           canonicalUrl: getCanonicalUrlForLesson(slug),
           oakUrl: getOakUrlForLesson(slug),
-        } as z.infer<typeof lessonSummaryResponseOpenAPISchema>;
+        } as z.infer<typeof lessonSummaryResponseSchema>;
 
         if (lesson.downloadsAvailable) {
           const gated = await isLessonRestricted(client, slug);
@@ -252,7 +251,7 @@ Example slug: imagining-you-are-the-characters-the-three-billy-goats-gruff.`,
           }
         }
 
-        lessonSummaryResponseOpenAPISchema.parse(lesson);
+        lessonSummaryResponseSchema.parse(lesson);
 
         return lesson;
       } catch {
@@ -277,8 +276,8 @@ Example queries: KS3 science photosynthesis, fractions year 5, Macbeth soliloquy
         errorResponses,
       },
     })
-    .input(lessonSearchRequestOpenAPISchema)
-    .output(lessonSearchResponseOpenAPISchema)
+    .input(lessonSearchRequestSchema)
+    .output(lessonSearchResponseSchema)
     .query(async ({ input }) => {
       // store q from input.q and sanitize for use as an sql query:
       const q = input.q;

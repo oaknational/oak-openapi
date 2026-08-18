@@ -1,9 +1,6 @@
 import * as z from 'zod/v4';
+import { lessonSlugSchema } from '@/lib/handlers/commonTypes';
 
 export const lessonSummaryRequestSchema = z.object({
-  lesson: z.string().describe('The slug of the lesson'),
+  lesson: lessonSlugSchema,
 });
-
-export type LessonSummaryRequestType = z.infer<
-  typeof lessonSummaryRequestSchema
->;

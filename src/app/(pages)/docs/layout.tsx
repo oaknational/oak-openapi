@@ -2,7 +2,6 @@ import navDocsListQuery from '@/cms/queries/navDocsListQuery/navDocsListQuery.qu
 import { headers } from 'next/headers';
 
 import DocsLayout from './DocsLayout';
-// import { getJSONData } from '@/lib/endpoint-docs/getEndpointDocs';
 
 const MARKDOWN_RENDER_MODE_HEADER = 'x-markdown-render-mode';
 const MARKDOWN_RENDER_MODE_BODY_ONLY = 'body-only';

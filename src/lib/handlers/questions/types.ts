@@ -1,5 +1,12 @@
 import * as z from 'zod/v4';
 
+import {
+  lessonSlugSchema,
+  lessonTitleSchema,
+} from '@/lib/handlers/commonTypes';
+
+import example from './schemas/sharedQuiz.example.json' assert { type: 'json' };
+
 export const multipleChoiceLit = z.literal('multiple-choice');
 export const shortAnswerLit = z.literal('short-answer');
 export const matchAnswerLit = z.literal('match');
@@ -132,22 +139,19 @@ export const questionZod = z.discriminatedUnion('questionType', [
 
 export const starterQuizSchema = z.array(questionZod).meta({
   description: 'The starter quiz questions - which test prior knowledge',
+  example: example.starterQuiz,
 });
 
 export const exitQuizSchema = z.array(questionZod).meta({
   description:
     'The exit quiz questions - which test on the knowledge learned in the lesson',
+  example: example.exitQuiz,
 });
 
 export const questionsSchema = z.array(
   z.object({
-    lessonSlug: z.string().meta({
-      description: 'The lesson slug identifier',
-    }),
-    lessonTitle: z.string().meta({
-      description: 'The title of the lesson',
-    }),
-    // unitSlug: z.string(),
+    lessonSlug: lessonSlugSchema,
+    lessonTitle: lessonTitleSchema,
     starterQuiz: starterQuizSchema,
     exitQuiz: exitQuizSchema,
   }),

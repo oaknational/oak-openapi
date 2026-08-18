@@ -1,0 +1,16 @@
+[
+  {
+    "keyword": "'Macbeth'",
+    "description": "a play written by Shakespeare which includes the supernatural; it is a tragedy with a sad, violent ending",
+    "keyStageSlug": "ks3",
+    "subjectSlug": "english",
+    "lessonSlugs": ["pucks-ambiguous-character"]
+  },
+  {
+    "keyword": "a covert",
+    "description": "bushes growing close together in which hunted animals can hide",
+    "keyStageSlug": "ks3",
+    "subjectSlug": "english",
+    "lessonSlugs": ["an-exploration-of-chapter-12-of-lord-of-the-flies"]
+  }
+]
