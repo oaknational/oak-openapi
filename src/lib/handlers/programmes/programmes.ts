@@ -3,9 +3,11 @@ import { router } from '@/lib/trpc';
 import * as z from 'zod/v4';
 import { errorResponses } from '@/lib/errorResponses';
 import {
-  programmeUnitsRequestOpenAPISchema,
-  programmeUnitsResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/programmes';
+  programmeUnitsRequestSchema,
+  programmeUnitsResponseSchema,
+  programmeResponseSchema,
+  sequenceProgrammesResponseSchema,
+} from './schemas';
 import {
   getClient,
   programmesByYearView,
@@ -17,64 +19,7 @@ import {
 } from '@/lib/owaClient';
 import { subjectSlugs } from '@/lib/keyStageAndSubjects';
 import { TRPCError } from '@trpc/server';
-
-const subjectProgrammeRequestOpenAPISchema = z.object({
-  subject: z
-    .enum(subjectSlugs)
-    .meta({ description: 'The subject slug identifier', example: 'english' }),
-});
-
-const sequenceProgrammesResponseOpenAPISchema = z.array(z.string()).meta({
-  id: 'SubjectProgrammesResponseSchema',
-  example: [
-    'english-secondary-year-7',
-    'english-secondary-year-8',
-    'english-secondary-year-9',
-    'english-secondary-year-10-aqa',
-    'english-secondary-year-10-edexcel',
-    'english-secondary-year-10-eduqas',
-    'english-secondary-year-11-aqa',
-    'english-secondary-year-11-edexcel',
-    'english-secondary-year-11-eduqas',
-  ],
-});
-
-const programmeResponseOpenAPISchema = z
-  .object({
-    examboardSlug: z.string().nullable(),
-    examboardTitle: z.string().nullable(),
-    keystageSlug: z.string(),
-    keystageTitle: z.string(),
-    pathwaySlug: z.string().nullable(),
-    pathwayTitle: z.string().nullable(),
-    phaseSlug: z.string(),
-    phaseTitle: z.string(),
-    subjectSlug: z.string(),
-    subjectTitle: z.string(),
-    tierSlug: z.string().nullable(),
-    tierTitle: z.string().nullable(),
-    yearSlug: z.string(),
-    yearTitle: z.string(),
-  })
-  .meta({
-    id: 'ProgrammeResponseSchema',
-    example: {
-      examboardSlug: 'aqa',
-      examboardTitle: 'AQA',
-      keystageSlug: 'ks4',
-      keystageTitle: 'Key Stage 4',
-      pathwaySlug: null,
-      pathwayTitle: null,
-      phaseSlug: 'secondary',
-      phaseTitle: 'Secondary',
-      subjectSlug: 'computing',
-      subjectTitle: 'Computing',
-      tierSlug: null,
-      tierTitle: null,
-      yearSlug: 'year-10',
-      yearTitle: 'Year 10',
-    },
-  });
+import { subjectSlugSchema } from '@/lib/handlers/commonTypes';
 
 export const getAllProgrammesForSubject = router({
   getAllProgrammesForSubject: protectedProcedure
@@ -91,8 +36,8 @@ Not for: the metadata of one programme (GET /programmes/{programme}); the units,
         errorResponses,
       },
     })
-    .input(subjectProgrammeRequestOpenAPISchema)
-    .output(sequenceProgrammesResponseOpenAPISchema)
+    .input(z.object({ subject: subjectSlugSchema }))
+    .output(sequenceProgrammesResponseSchema)
     .query(async ({ input }) => {
       const { subject } = input;
 
@@ -137,8 +82,8 @@ Not for: the units, questions, or assets of one programme (GET /programmes/{prog
         errorResponses,
       },
     })
-    .input(programmeUnitsRequestOpenAPISchema)
-    .output(programmeResponseOpenAPISchema)
+    .input(programmeUnitsRequestSchema)
+    .output(programmeResponseSchema)
     .query(async ({ input }) => {
       const { programme } = input;
 
@@ -222,8 +167,8 @@ Not for: the units, questions, or assets of one programme (GET /programmes/{prog
         errorResponses,
       },
     })
-    .input(programmeUnitsRequestOpenAPISchema)
-    .output(programmeUnitsResponseOpenAPISchema)
+    .input(programmeUnitsRequestSchema)
+    .output(programmeUnitsResponseSchema)
     .query(async ({ input }) => {
       const { programme } = input;
 

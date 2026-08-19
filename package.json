@@ -26,7 +26,6 @@
     "test": "prisma generate --no-engine; NODE_OPTIONS=--no-deprecation pnpm with-env vitest",
     "test:vscode": "pnpm with-env vitest --no-file-parallelism --test-timeout=0",
     "with-env": "dotenv -e ./.env --",
-    "generate:openapi": "node bin/zod-openapi-schema-gen/addExamplesToZodSchema.mjs",
     "test:all": "pnpm -r test",
     "gen-zod-from-gql": "tsx bin/zod-from-gql.ts"
   },

@@ -4,10 +4,7 @@ import { router } from '@/lib/trpc';
 import type { UnitVariantLessonsView } from 'lib/owaClient';
 import { getClient, gql, unitVariantLessonsView } from 'lib/owaClient';
 
-import {
-  keywordsRequestOpenAPISchema,
-  keywordsResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/keywords';
+import { keywordsRequestSchema, keywordsResponseSchema } from './schemas';
 import { phaseToKeyStageMap } from '@/lib/oakConsts';
 import { nextPageLink } from '@/lib/pagination';
 
@@ -23,8 +20,8 @@ export const getKeywords = router({
         errorResponses: [],
       },
     })
-    .input(keywordsRequestOpenAPISchema)
-    .output(keywordsResponseOpenAPISchema)
+    .input(keywordsRequestSchema)
+    .output(keywordsResponseSchema)
     .query(async ({ input, ctx }) => {
       const { offset, limit } = input;
       const keyStage = decodeURIComponent(input.keyStage || '') || undefined;

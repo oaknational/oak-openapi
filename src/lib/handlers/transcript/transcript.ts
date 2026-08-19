@@ -4,10 +4,7 @@ import type { LessonContentView } from 'lib/owaClient';
 import { getClient, gql, lessonContentView } from 'lib/owaClient';
 
 import { isLessonRestricted } from '../../queryGate';
-import {
-  transcriptRequestOpenAPISchema,
-  transcriptResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/transcript';
+import { transcriptRequestSchema, transcriptResponseSchema } from './schemas';
 import { TRPCError } from '@trpc/server';
 import { errorResponses } from '@/lib/errorResponses';
 
@@ -16,7 +13,7 @@ export const getLessonTranscript = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['lessons', 'lesson-data'],
+        tags: ['lessons'],
         summary: 'Lesson video transcript',
         path: '/lessons/{lesson}/transcript',
         description: `Use when you have a lesson slug and need the video transcript — for accessibility, captioning, or text analysis. Returns the transcript as an array of sentences plus a raw WebVTT captions file (vtt) suitable for a <track> element.
@@ -25,8 +22,8 @@ Not for: searching across transcripts (GET /search/transcripts); the video file 
         errorResponses,
       },
     })
-    .input(transcriptRequestOpenAPISchema)
-    .output(transcriptResponseOpenAPISchema)
+    .input(transcriptRequestSchema)
+    .output(transcriptResponseSchema)
     .query(async ({ input }) => {
       const slug = decodeURIComponent(input.lesson);
 

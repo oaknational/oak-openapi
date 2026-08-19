@@ -36,17 +36,50 @@ function applyVideoRedirectResponse(document: OpenAPIObject): OpenAPIObject {
   return document;
 }
 
+const OPERATION_METHODS = [
+  'get',
+  'put',
+  'post',
+  'delete',
+  'options',
+  'head',
+  'patch',
+  'trace',
+] as const;
+
+// trpc-to-openapi derives each operationId from the tRPC procedure path with
+// dots swapped for dashes (e.g. `getLessons-searchByTextSimilarity`). Collapse
+// those dashes into a single camelCase identifier, title-casing the segment
+// that follows each dash: `getLessons-searchByTextSimilarity` becomes
+// `getLessonsSearchByTextSimilarity`.
+function camelCaseOperationIds(document: OpenAPIObject): OpenAPIObject {
+  for (const pathItem of Object.values(document.paths ?? {})) {
+    if (!pathItem) continue;
+    for (const method of OPERATION_METHODS) {
+      const operation = pathItem[method];
+      if (operation?.operationId) {
+        operation.operationId = operation.operationId.replace(
+          /-+(.)/g,
+          (_match: string, nextChar: string) => nextChar.toUpperCase(),
+        );
+      }
+    }
+  }
+  return document;
+}
+
 // trpc-to-openapi rebuilds query parameters from the input schema's shape,
 // which loses the descriptions and cross-field rules declared on it, so we copy
 // them back onto the document afterwards.
-export const openApiDocument = applyVideoRedirectResponse(
-  applyRequestMetadata(
-    generateOpenApiDocument(router, {
-      title: 'Oak Curriculum API',
-      version: VERSION,
-      baseUrl,
-      docsUrl: '/docs',
-      description: `This Oak Curriculum API is an intermediary that enables software applications to communicate with each other to exchange - in this case - data and assets. Through the Oak Curriculum API, you will have access to a wide range of educational content across subjects for key stages 1-4.
+export const openApiDocument = camelCaseOperationIds(
+  applyVideoRedirectResponse(
+    applyRequestMetadata(
+      generateOpenApiDocument(router, {
+        title: 'Oak Curriculum API',
+        version: VERSION,
+        baseUrl,
+        docsUrl: '/docs',
+        description: `This Oak Curriculum API is an intermediary that enables software applications to communicate with each other to exchange - in this case - data and assets. Through the Oak Curriculum API, you will have access to a wide range of educational content across subjects for key stages 1-4.
 
 ### How could you use this API?
 
@@ -61,21 +94,22 @@ To give you some inspiration, here are just a few examples of how you could use 
 
 Full documentation for the Oak Curriculum API is available on the URL below:
 `,
-      securitySchemes: {
-        bearerAuth,
-      },
-      tags: [
-        'internal',
-        'lists',
-        'assets',
-        'lessons',
-        'questions',
-        'units',
-        'search',
-        'sequences',
-        'programmes',
-      ],
-    }),
-    router,
+        securitySchemes: {
+          bearerAuth,
+        },
+        tags: [
+          'internal',
+          'assets',
+          'lessons',
+          'lists',
+          'programmes',
+          'questions',
+          'search',
+          'sequences',
+          'units',
+        ],
+      }),
+      router,
+    ),
   ),
 );

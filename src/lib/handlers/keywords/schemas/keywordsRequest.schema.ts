@@ -1,6 +1,11 @@
 import * as z from 'zod/v4';
-import { keyStageSlugs, subjectSlugs } from '@/lib/keyStageAndSubjects';
-import { limitSchema, offsetSchema } from '@/lib/handlers/commonTypes';
+import {
+  limitSchema,
+  offsetSchema,
+  keyStageSlugSchema,
+  subjectSlugSchema,
+  lessonSlugSchema,
+} from '@/lib/handlers/commonTypes';
 import { phases } from '@/lib/oakConsts';
 import { requestRulesKey } from '@/lib/zod-openapi/schema/requestMetadata';
 
@@ -17,16 +22,8 @@ const atLeastOneFilterRule =
 
 export const keywordsRequestSchema = z
   .object({
-    subject: z
-      .enum(subjectSlugs as [string])
-      .optional()
-      .describe(
-        "Subject slug to search by, e.g. 'science' - note that casing is important here (always lowercase)",
-      ),
-    keyStage: z
-      .enum(keyStageSlugs as [string])
-      .optional()
-      .describe("Key stage slug to filter by, e.g. 'ks2'"),
+    subject: subjectSlugSchema.optional(),
+    keyStage: keyStageSlugSchema.optional(),
     phase: z
       .enum(validPhases)
       .optional()
@@ -39,12 +36,7 @@ export const keywordsRequestSchema = z
       .describe(
         "Unit slug to search by, e.g. 'forces-and-magnets' - note that casing is important here (always lowercase)",
       ),
-    lesson: z
-      .string()
-      .optional()
-      .describe(
-        "Lesson slug to search by, e.g. 'animating-text' - note that casing is important here (always lowercase)",
-      ),
+    lesson: lessonSlugSchema.optional().describe('Lesson slug to search by'),
     offset: offsetSchema,
     limit: limitSchema.describe(
       'Limit the number of keywords, e.g. return a maximum of 300 keywords',
@@ -57,7 +49,4 @@ export const keywordsRequestSchema = z
       ),
     { message: atLeastOneFilterRule },
   )
-  // .refine((data) => !(data.phase && data.keyStage), {
-  //   message: phaseOrKeyStageRule,
-  // })
   .meta({ [requestRulesKey]: [atLeastOneFilterRule] });

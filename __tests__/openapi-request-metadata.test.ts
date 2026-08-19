@@ -89,7 +89,7 @@ describe('query parameter descriptions', () => {
     );
 
     expect(examples.subject).toBe('english');
-    expect(examples.keyStage).toBe('ks1');
+    expect(examples.keyStage).toBe('ks3');
   });
 
   it('describes every query parameter across the API', () => {

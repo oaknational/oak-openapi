@@ -11,11 +11,8 @@ import {
 import ContentPortableText from '@/cms/sanityResolvers/ContentPortableText';
 import type { DocumentationContentPageBlock } from '@/cms/schemaTypes';
 import styled from 'styled-components';
-import type { EndpointInfo } from './EndpointBlock';
-import EndpointBlock from './EndpointBlock';
 
 interface CMSDocumentationProps {
-  endpoints?: EndpointInfo[];
   docs: DocumentationContentPageBlock[];
 }
 
@@ -26,24 +23,17 @@ const OakGridArea = styled(_OakGridArea)`
 
 export default function MainDocsContent({
   docs,
-  endpoints,
 }: CMSDocumentationProps): React.ReactElement {
-  const isEndpointPage = endpoints && endpoints.length > 0;
   const contentsRaw =
     docs?.[0]?.docsBlocks?.filter(
       (_) => _.style === 'h2',
       // || _.style === 'h3',
     ) || [];
 
-  let contents = isEndpointPage
-    ? endpoints.map(({ title, slug }) => ({
-        title,
-        anchor: slug,
-      }))
-    : contentsRaw.map((content) => ({
-        title: content.children.map((_) => _.text).join(' '),
-        anchor: content._key,
-      }));
+  let contents = contentsRaw.map((content) => ({
+    title: content.children.map((_) => _.text).join(' '),
+    anchor: content._key,
+  }));
 
   if (contents.length < 3) {
     contents = []; // Hide contents if there are less than 3 items
@@ -95,13 +85,6 @@ export default function MainDocsContent({
               portableText={doc.docsBlocks}
             />
           ))}
-          {isEndpointPage && (
-            <OakFlex $pa="0" $gap="spacing-12" $ma="0" $flexDirection="column">
-              {endpoints.map((endpoint) => (
-                <EndpointBlock endpoint={endpoint} key={endpoint.path} />
-              ))}
-            </OakFlex>
-          )}
         </OakGridArea>
 
         {contents.length > 0 && (

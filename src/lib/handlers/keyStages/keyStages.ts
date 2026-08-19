@@ -2,7 +2,7 @@ import { protectedProcedure } from '@/lib/protect';
 import { router } from '@/lib/trpc';
 import { keyStages } from '@/lib/keyStageAndSubjects';
 import * as z from 'zod/v4';
-import { keyStageResponseOpenAPISchema } from '@/lib/zod-openapi/generated/keyStages';
+import { keyStageResponseSchema } from './schemas';
 import { errorResponses } from '@/lib/errorResponses';
 
 export const getKeyStages = router({
@@ -20,6 +20,6 @@ Not for: key stages restricted to a subject (GET /subjects/{subject}/key-stages)
       },
     })
     .input(z.void())
-    .output(keyStageResponseOpenAPISchema)
+    .output(keyStageResponseSchema)
     .query(() => keyStages),
 });

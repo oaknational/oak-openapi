@@ -3,13 +3,17 @@ import { childSubjects, examBoards, pathways } from '@/lib/oakConsts';
 import { tierSlugs } from '@oaknational/oak-curriculum-schema';
 
 export const unitSummaryRequestSchema = z.object({
-  unit: z.string().describe('The unit slug'),
+  unit: z
+    .string()
+    .describe('The unit slug')
+    .meta({ example: 'programming-subroutines' }),
   examBoard: z
     .enum(examBoards as [string, ...string[]])
     .optional()
     .describe(
       "Optional exam board slug to narrow the unit to a specific programme variant, e.g. 'aqa'.",
-    ),
+    )
+    .meta({ example: 'aqa' }),
   pathway: z
     .enum(pathways as [string, ...string[]])
     .optional()
