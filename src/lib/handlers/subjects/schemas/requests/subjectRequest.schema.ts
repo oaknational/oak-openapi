@@ -1,6 +1,6 @@
 import * as z from 'zod/v4';
-import { subjectSlugs } from '@/lib/keyStageAndSubjects';
+import { subjectSlugSchema } from '@/lib/handlers/commonTypes';
 
 export const subjectRequestSchema = z.object({
-  subject: z.enum(subjectSlugs).describe('The slug identifier for the subject'),
+  subject: subjectSlugSchema,
 });

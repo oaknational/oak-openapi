@@ -1,0 +1,58 @@
+{
+  "starterQuiz": [
+    {
+      "question": "Where does a prefix come in a word?",
+      "questionType": "multiple-choice",
+      "answers": [
+        {
+          "type": "text",
+          "content": "At the beginning",
+          "distractor": false
+        },
+        {
+          "type": "text",
+          "content": "In the middle",
+          "distractor": true
+        },
+        {
+          "type": "text",
+          "content": "At the end",
+          "distractor": true
+        },
+        {
+          "type": "text",
+          "content": "Underneath",
+          "distractor": true
+        }
+      ]
+    }
+  ],
+  "exitQuiz": [
+    {
+      "question": "Smog is an example of: ",
+      "questionType": "multiple-choice",
+      "answers": [
+        {
+          "type": "text",
+          "content": "word blending",
+          "distractor": false
+        },
+        {
+          "type": "text",
+          "content": "a compound",
+          "distractor": true
+        },
+        {
+          "type": "text",
+          "content": "affixation",
+          "distractor": true
+        },
+        {
+          "type": "text",
+          "content": "an acronym",
+          "distractor": true
+        }
+      ]
+    }
+  ]
+}

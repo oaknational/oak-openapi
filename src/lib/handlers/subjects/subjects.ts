@@ -10,14 +10,14 @@ import {
 } from './helpers';
 import { errorResponses } from '@/lib/errorResponses';
 import {
-  allSubjectsResponseOpenAPISchema,
-  subjectKeyStagesRequestOpenAPISchema,
-  subjectKeyStagesResponseOpenAPISchema,
-  subjectRequestOpenAPISchema,
-  subjectResponseOpenAPISchema,
-  subjectYearsRequestOpenAPISchema,
-  subjectYearsResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/subjects';
+  allSubjectsResponseSchema,
+  subjectKeyStagesRequestSchema,
+  subjectKeyStagesResponseSchema,
+  subjectRequestSchema,
+  subjectResponseSchema,
+  subjectYearsRequestSchema,
+  subjectYearsResponseSchema,
+} from './schemas';
 
 export const getSubjects = router({
   getAllSubjects: protectedProcedure
@@ -34,7 +34,7 @@ Not for: a single subject (GET /subjects/{subject}); the key stages or year grou
       },
     })
     .input(z.void())
-    .output(allSubjectsResponseOpenAPISchema)
+    .output(allSubjectsResponseSchema)
     .query(() => {
       return subjectSlugs;
     }),
@@ -53,8 +53,8 @@ Not for: every subject in one call (GET /subjects); the key stages or year group
 Example: subject=maths.`,
       },
     })
-    .input(subjectRequestOpenAPISchema)
-    .output(subjectResponseOpenAPISchema)
+    .input(subjectRequestSchema)
+    .output(subjectResponseSchema)
     .query(({ input }) => {
       return getSubjectFromProgrammes(input.subject);
     }),
@@ -73,8 +73,8 @@ Not for: every key stage (GET /key-stages); the subject record (GET /subjects/{s
 Example: 'subject=history'.`,
       },
     })
-    .input(subjectKeyStagesRequestOpenAPISchema)
-    .output(subjectKeyStagesResponseOpenAPISchema)
+    .input(subjectKeyStagesRequestSchema)
+    .output(subjectKeyStagesResponseSchema)
     .query(async ({ input }) => {
       return phaseToKeyStages(await getSubjectPhase(input.subject));
     }),
@@ -93,8 +93,8 @@ Not for: the subject record (GET /subjects/{subject}); key stages rather than ye
 Example: 'subject=english'.`,
       },
     })
-    .input(subjectYearsRequestOpenAPISchema)
-    .output(subjectYearsResponseOpenAPISchema)
+    .input(subjectYearsRequestSchema)
+    .output(subjectYearsResponseSchema)
     .query(async ({ input }) => {
       return yearsFromKeyStages(
         phaseToKeyStages(await getSubjectPhase(input.subject)),

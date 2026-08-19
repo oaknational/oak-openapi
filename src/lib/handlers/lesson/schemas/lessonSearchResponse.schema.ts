@@ -1,5 +1,6 @@
 import * as z from 'zod/v4';
-import { oakUrlSchema } from '../../commonTypes';
+import { oakUrlSchema } from '@/lib/handlers/commonTypes';
+import example from './lessonSearchResponse.example.json' assert { type: 'json' };
 
 export const lessonSearchResultSchema = z.object({
   lessonSlug: z.string().meta({ description: 'The lesson slug identifier' }),
@@ -26,7 +27,9 @@ export const lessonSearchResultSchema = z.object({
 
 export type LessonSearchResultType = z.infer<typeof lessonSearchResultSchema>;
 
-export const lessonSearchResponseSchema = z.array(lessonSearchResultSchema);
+export const lessonSearchResponseSchema = z
+  .array(lessonSearchResultSchema)
+  .meta({ example });
 
 export type LessonSearchResponseType = z.infer<
   typeof lessonSearchResponseSchema

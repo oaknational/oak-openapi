@@ -13,9 +13,9 @@ import {
 } from 'lib/owaClient';
 
 import {
-  keyStageSubjectLessonsRequestOpenAPISchema,
-  keyStageSubjectLessonsResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/keyStageSubjectLessons';
+  keyStageSubjectLessonsRequestSchema,
+  keyStageSubjectLessonsResponseSchema,
+} from './schemas';
 import { nextPageLink } from '@/lib/pagination';
 import {
   collapsedRestrictionStatus,
@@ -42,8 +42,8 @@ Example: keyStage=ks3, subject=maths, unit=perimeter-and-area.`,
         errorResponses,
       },
     })
-    .input(keyStageSubjectLessonsRequestOpenAPISchema)
-    .output(keyStageSubjectLessonsResponseOpenAPISchema)
+    .input(keyStageSubjectLessonsRequestSchema)
+    .output(keyStageSubjectLessonsResponseSchema)
     .query(async ({ input, ctx }) => {
       const keyStage = decodeURIComponent(input.keyStage);
       const subject = decodeURIComponent(input.subject);
@@ -182,7 +182,7 @@ Example: keyStage=ks3, subject=maths, unit=perimeter-and-area.`,
         errorResponses,
       },
     })
-    .input(keyStageSubjectLessonsRequestOpenAPISchema)
+    .input(keyStageSubjectLessonsRequestSchema)
     .output(checkRestrictedLessonsResponseSchema)
     .query(async ({ input, ctx }) => {
       const keyStage = decodeURIComponent(input.keyStage);

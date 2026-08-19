@@ -21,13 +21,13 @@ import type {
 import { errorResponses } from '@/lib/errorResponses';
 
 import {
-  sequenceUnitsRequestOpenAPISchema,
-  sequenceUnitsResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/sequences';
+  sequenceUnitsRequestSchema,
+  sequenceUnitsResponseSchema,
+} from './schemas';
 import {
-  subjectSequenceRequestOpenAPISchema,
-  subjectSequenceResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/subjects';
+  subjectSequenceRequestSchema,
+  subjectSequenceResponseSchema,
+} from '@/lib/handlers/subjects/schemas';
 import { TRPCError } from '@trpc/server';
 import { getSubjectFromProgrammes } from '../subjects/helpers';
 
@@ -204,8 +204,8 @@ Not for: the programmes within this sequence (GET /subjects/{subject}/programmes
 Example: sequence=maths-primary or science-secondary-aqa.`,
       },
     })
-    .input(subjectSequenceRequestOpenAPISchema)
-    .output(subjectSequenceResponseOpenAPISchema)
+    .input(subjectSequenceRequestSchema)
+    .output(subjectSequenceResponseSchema)
     .query(async ({ input }) => {
       const rawSlug = input.sequence;
 
@@ -256,7 +256,7 @@ Example: sequence=maths-primary or science-secondary-aqa.`,
   getSequenceUnits: protectedProcedure
     .meta({
       openapi: {
-        tags: ['units', 'sequences', 'unit-and-curriculum-data'],
+        tags: ['units', 'sequences'],
         method: 'GET',
         summary: 'Units in a curriculum sequence',
         path: '/sequences/{sequence}/units',
@@ -268,8 +268,8 @@ Example: sequence=science-secondary-aqa or maths-primary.`,
         errorResponses,
       },
     })
-    .input(sequenceUnitsRequestOpenAPISchema)
-    .output(sequenceUnitsResponseOpenAPISchema)
+    .input(sequenceUnitsRequestSchema)
+    .output(sequenceUnitsResponseSchema)
     .query(async ({ input }) => {
       const client = getClient();
 

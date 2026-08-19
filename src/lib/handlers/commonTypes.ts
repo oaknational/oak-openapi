@@ -9,6 +9,17 @@ export const oakUrlSchema = z
   .url()
   .meta({ description: 'The Oak National URL for the lesson' });
 
+export const subjectSlugSchema = z.enum(subjectSlugs as [string]).meta({
+  description:
+    "Subject slug to search by, e.g. 'english' - note that casing is important here (always lowercase)",
+  example: 'english',
+});
+
+export const keyStageSlugSchema = z.enum(keyStageSlugs as [string]).meta({
+  description: "Key stage slug to filter by, e.g. 'ks3'",
+  example: 'ks3',
+});
+
 export const offsetSchema = z
   .number()
   .describe(
@@ -36,3 +47,20 @@ export const keyStageSubjectSchema = z.object({
       "Subject slug to search by, e.g. 'science' - note that casing is important here (always lowercase)",
     ),
 });
+
+export const lessonSlugSchema = z.string().meta({
+  description: 'The unique slug identifier for the lesson',
+  example: 'creating-a-new-word',
+});
+
+export const lessonTitleSchema = z.string().meta({
+  description: 'The title of the lesson',
+  example: 'Creating a new word',
+});
+
+export const programmeSlugSchema = z.string().meta({
+  description: 'The programme slug identifier',
+  example: 'english-secondary-year-8',
+});
+
+export type LessonSlugSchema = z.infer<typeof lessonSlugSchema>;

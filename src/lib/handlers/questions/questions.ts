@@ -20,15 +20,15 @@ import { TRPCError } from '@trpc/server';
 import { sequenceWhere } from '../sequences/sequences';
 import { questionsForQuiz } from './helpers';
 import {
-  questionForLessonsRequestOpenAPISchema,
-  questionForLessonsResponseOpenAPISchema,
-  questionsForKeyStageAndSubjectRequestOpenAPISchema,
-  questionsForKeyStageAndSubjectResponseOpenAPISchema,
-  questionsForProgrammeRequestOpenAPISchema,
-  questionsForProgrammeResponseOpenAPISchema,
-  questionsForSequenceRequestOpenAPISchema,
-  questionsForSequenceResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/questions';
+  questionForLessonsRequestSchema,
+  questionForLessonsResponseSchema,
+  questionsForKeyStageAndSubjectRequestSchema,
+  questionsForKeyStageAndSubjectResponseSchema,
+  questionsForProgrammeRequestSchema,
+  questionsForProgrammeResponseSchema,
+  questionsForSequenceRequestSchema,
+  questionsForSequenceResponseSchema,
+} from './schemas';
 import { nextPageLink } from '@/lib/pagination';
 import { errorResponses } from '@/lib/errorResponses';
 import { subjectSlugs } from '@/lib/keyStageAndSubjects';
@@ -42,7 +42,7 @@ export const getQuestions = router({
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['lessons', 'questions', 'quiz-questions'],
+        tags: ['lessons', 'questions'],
         path: '/lessons/{lesson}/quiz',
         summary: 'Quiz questions for a lesson',
         errorResponses,
@@ -51,8 +51,8 @@ export const getQuestions = router({
 Not for: quiz questions across a sequence (GET /sequences/{sequence}/questions); quiz questions in one programme (GET /programmes/{programme}/questions); across a key stage + subject (GET /key-stages/{keyStage}/subject/{subject}/questions); lesson metadata or assets (GET /lessons/{lesson}/summary or GET /lessons/{lesson}/assets).`,
       },
     })
-    .input(questionForLessonsRequestOpenAPISchema)
-    .output(questionForLessonsResponseOpenAPISchema)
+    .input(questionForLessonsRequestSchema)
+    .output(questionForLessonsResponseSchema)
     .query(async ({ input }) => {
       const slug = decodeURIComponent(input.lesson);
 
@@ -118,7 +118,7 @@ Not for: quiz questions across a sequence (GET /sequences/{sequence}/questions);
     .meta({
       openapi: {
         method: 'GET',
-        tags: ['questions', 'sequences', 'unit-and-curriculum-data'],
+        tags: ['questions', 'sequences'],
         path: '/sequences/{sequence}/questions',
         summary: 'Quiz questions across a sequence',
         description: `Use when you want every quiz question across a whole sequence — all programmes combined. Returns questions grouped by lesson in unit sequence order. Pass year as an optional filter to return only that year's questions. Supports offset and limit; Link: rel="next" header signals more pages.
@@ -127,8 +127,8 @@ Not for: questions in a single programme (GET /programmes/{programme}/questions)
         errorResponses,
       },
     })
-    .input(questionsForSequenceRequestOpenAPISchema)
-    .output(questionsForSequenceResponseOpenAPISchema)
+    .input(questionsForSequenceRequestSchema)
+    .output(questionsForSequenceResponseSchema)
     .query(async ({ input, ctx }) => {
       const { limit, offset, sequence, year } = input;
       const client = getClient();
@@ -245,7 +245,7 @@ Not for: questions in a single programme (GET /programmes/{programme}/questions)
   getQuestionsForKeyStageAndSubject: protectedProcedure
     .meta({
       openapi: {
-        tags: ['questions', 'quiz-questions'],
+        tags: ['questions'],
         method: 'GET',
         path: '/key-stages/{keyStage}/subject/{subject}/questions',
         summary: 'Quiz questions by key stage and subject',
@@ -255,8 +255,8 @@ Not for: questions in a single programme (GET /programmes/{programme}/questions)
 Not for: a single lesson's quiz (GET /lessons/{lesson}/quiz); questions across a sequence (GET /sequences/{sequence}/questions); questions in one programme (GET /programmes/{programme}/questions).`,
       },
     })
-    .input(questionsForKeyStageAndSubjectRequestOpenAPISchema)
-    .output(questionsForKeyStageAndSubjectResponseOpenAPISchema)
+    .input(questionsForKeyStageAndSubjectRequestSchema)
+    .output(questionsForKeyStageAndSubjectResponseSchema)
     .query(async ({ input, ctx }) => {
       const keyStage = decodeURIComponent(input.keyStage);
       const subject = decodeURIComponent(input.subject);
@@ -375,8 +375,8 @@ Not for: questions in a single lesson (GET /lessons/{lesson}/quiz); questions ac
         errorResponses,
       },
     })
-    .input(questionsForProgrammeRequestOpenAPISchema)
-    .output(questionsForProgrammeResponseOpenAPISchema)
+    .input(questionsForProgrammeRequestSchema)
+    .output(questionsForProgrammeResponseSchema)
     .query(async ({ input, ctx }) => {
       const { programme, limit, offset, filter } = input;
       const client = getClient();

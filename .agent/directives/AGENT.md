@@ -58,7 +58,6 @@ pnpm format           # format files
 pnpm test             # tests
 pnpm test:vscode      # tests in VSCode
 pnpm build-subjects   # regenerate key stage/subject list
-pnpm generate:openapi # regenerate OpenAPI schemas
 pnpm bulk             # run bulk export
 pnpm load-test        # load tests (Artillery)
 ```
@@ -77,5 +76,9 @@ pnpm test --testNamePattern="test name"
 
 ## Schema changes
 
-Run `pnpm generate:openapi` after changing a handler's request or response
-schema. Do not edit generated schemas by hand.
+Request/response shapes live in each handler's `schemas/` directory. Attach
+examples to the Zod schemas themselves (`.meta({ example })`, loading larger
+response examples from a co-located `*.example.json`). The OpenAPI document is
+built from these schemas at runtime by
+[`src/lib/zod-openapi/schema/generateDocument.ts`](../../src/lib/zod-openapi/schema/generateDocument.ts);
+there is no separate generation step to run.

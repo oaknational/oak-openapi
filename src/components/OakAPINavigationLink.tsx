@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 export const OakAPINavigationLink = styled(_OakLink).attrs({
   variant: 'secondary',
+  color: 'text-primary',
 })`
   text-decoration: none;
 

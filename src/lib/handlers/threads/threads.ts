@@ -11,10 +11,10 @@ import {
 } from '@/lib/owaClient';
 import { TRPCError } from '@trpc/server';
 import {
-  allThreadsResponseOpenAPISchema,
-  threadUnitsRequestOpenAPISchema,
-  threadUnitsResponseOpenAPISchema,
-} from '@/lib/zod-openapi/generated/threads';
+  allThreadsResponseSchema,
+  threadUnitsRequestSchema,
+  threadUnitsResponseSchema,
+} from './schemas';
 import { errorResponses } from '@/lib/errorResponses';
 // import {
 //   getUnitProgrammeFactorsFromSequence,
@@ -35,7 +35,7 @@ export const getThreads = router({
 Not for: the units inside a thread (GET /threads/{threadSlug}/units).`,
       },
     })
-    .output(allThreadsResponseOpenAPISchema)
+    .output(allThreadsResponseSchema)
     .input(z.void())
     .query(async () => {
       const client = getClient();
@@ -76,8 +76,8 @@ Example: 'threadSlug=number-and-place-value'.`,
         errorResponses,
       },
     })
-    .input(threadUnitsRequestOpenAPISchema)
-    .output(threadUnitsResponseOpenAPISchema)
+    .input(threadUnitsRequestSchema)
+    .output(threadUnitsResponseSchema)
     .query(async ({ input }) => {
       const client = getClient();
       const { threadSlug } = input;
