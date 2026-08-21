@@ -33,6 +33,13 @@ const getConfig = async () => {
     compiler: {
       styledComponents: true,
     },
+    // trpc-to-openapi feature-detects zod's coerce support with `'coerce' in z`.
+    // Webpack statically folds that `in` expression against zod's ESM namespace
+    // to `false`, so the library wrongly rejects every non-string query param
+    // (e.g. `offset: z.number()`) with "Input parser key: 'offset' must be
+    // ZodString". Externalising it makes Next require the package natively at
+    // runtime, where the check evaluates to `true` as intended.
+    serverExternalPackages: ['trpc-to-openapi'],
     transpilePackages: ['@oaknational/oak-components'],
     reactStrictMode: true,
     images: {
