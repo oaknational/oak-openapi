@@ -4,9 +4,9 @@ This directory contains the CMS integration layer for fetching and transforming 
 
 ## Related docs
 
-- [README.md](README.md) (repo overview and quickstart)
-- [docs/engineering/onboarding.md](docs/engineering/onboarding.md) (local setup and common tasks)
-- [docs/engineering/README.md](docs/engineering/README.md) (lightweight planning structure)
+- [README.md](../../README.md) (repo overview and quickstart)
+- [docs/README.md](../../docs/README.md) (docs index)
+- [CONTRIBUTING.md](../../CONTRIBUTING.md) (how to work on this repository)
 
 ## Structure
 

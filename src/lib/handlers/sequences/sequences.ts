@@ -462,8 +462,7 @@ Example: sequence=science-secondary-aqa or maths-primary.`,
         }
 
         const examSubjects: (
-          | ExamSubjectsWithTiers
-          | ExamSubjectsWithoutTiers
+          ExamSubjectsWithTiers | ExamSubjectsWithoutTiers
         )[] = [];
 
         // reset seen

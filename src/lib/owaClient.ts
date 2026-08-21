@@ -42,13 +42,6 @@ export const views = [
 ];
 
 function hasuraHeaders() {
-  // FIXME remove later
-  if (process.env.OAK_GRAPHQL_DEV) {
-    return {
-      'content-type': 'application/json',
-      'x-hasura-admin-secret': process.env.OAK_GRAPHQL_DEV,
-    };
-  }
   return {
     'content-type': 'application/json',
     authorization: `Bearer ${process.env.OAK_GRAPHQL_SECRET}`,
@@ -57,7 +50,6 @@ function hasuraHeaders() {
 
 export function getClient(): GraphQLClient {
   return new GraphQLClient(`${process.env.OAK_GRAPHQL_HOST}/v1/graphql`, {
-    // @ts-expect-error FIXME will remove later
     headers: hasuraHeaders(),
   });
 }
@@ -390,10 +382,7 @@ export type Question = {
 } & Answers;
 
 export type Answers =
-  | MultipleChoiceAnswerObject
-  | MatchObject
-  | OrderObject
-  | ShortAnswerObject;
+  MultipleChoiceAnswerObject | MatchObject | OrderObject | ShortAnswerObject;
 
 interface MultipleChoiceAnswerObject {
   questionType: QuestionTypeEnum.MultipleChoice;
