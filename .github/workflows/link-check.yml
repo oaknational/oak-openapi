@@ -1,0 +1,50 @@
+name: Link Check
+
+# Documentation that points at files someone deleted is one of the fastest ways
+# for a public repository's front page to go stale. Check every Markdown link,
+# on every pull request that touches documentation, and weekly against the live
+# site so external links that rot are caught too.
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**/*.md'
+      - '.github/workflows/link-check.yml'
+  schedule:
+    # 07:00 UTC every Monday.
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: link-check-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  link-check:
+    name: link-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Check links
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          args: >-
+            --no-progress
+            --include-fragments
+            --exclude-path node_modules
+            --exclude-path CHANGELOG.md
+            --exclude '^https://console\.upstash\.com'
+            --exclude '^https://.*\.hsforms\.com'
+            --accept 200,206,403,429
+            './**/*.md'
+          output: lychee-report.md
+          fail: true
+
+      - name: Publish report
+        if: always()
+        run: cat lychee-report.md >> "$GITHUB_STEP_SUMMARY" || true
