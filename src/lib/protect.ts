@@ -25,24 +25,20 @@ const protectLogic = async (
   }
 
   // rate limit the user
-  let limit: RateLimitInfo | undefined;
+  const rateLimit = getRateLimiter(user.rateLimit);
+  const limit: RateLimitInfo = await rateLimit.check(user, noCost);
+  if (limit.isSubjectToRateLimiting) {
+    resHeaders.set('X-RateLimit-Limit', limit.limit.toString());
+    resHeaders.set('X-RateLimit-Remaining', limit.remaining.toString());
+    resHeaders.set('X-RateLimit-Reset', limit.reset.toString());
+    if (limit.remaining <= 0 && !noCost) {
+      resHeaders.set('X-Retry-After', limit.reset.toString());
+      // resHeaders.statusCode = 429; // not sure this is needed, but belt & braces
 
-  if (user) {
-    const rateLimit = getRateLimiter(user.rateLimit);
-    limit = await rateLimit.check(user, noCost);
-    if (limit.isSubjectToRateLimiting) {
-      resHeaders.set('X-RateLimit-Limit', limit.limit.toString());
-      resHeaders.set('X-RateLimit-Remaining', limit.remaining.toString());
-      resHeaders.set('X-RateLimit-Reset', limit.reset.toString());
-      if (limit.remaining <= 0 && !noCost) {
-        resHeaders.set('X-Retry-After', limit.reset.toString());
-        // resHeaders.statusCode = 429; // not sure this is needed, but belt & braces
-
-        throw new TRPCError({
-          message: 'Rate limited exceeded',
-          code: 'TOO_MANY_REQUESTS',
-        });
-      }
+      throw new TRPCError({
+        message: 'Rate limited exceeded',
+        code: 'TOO_MANY_REQUESTS',
+      });
     }
   }
 };

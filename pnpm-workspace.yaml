@@ -1,3 +1,10 @@
+auditConfig:
+  ignoreGhsas:
+    # decompress advisories reachable only via Sanity's dev-time CLI
+    # (@sanity/cli). No upstream fix available; not used at runtime.
+    - GHSA-mp2f-45pm-3cg9 # critical: extraction outside target dir
+    - GHSA-h39j-r5qq-r9mm # moderate: arbitrary file write (Zip Slip)
+    - GHSA-jwp9-9v96-94mx # moderate: arbitrary hardlink creation
 allowBuilds:
   '@prisma/client': true
   '@prisma/engines': true

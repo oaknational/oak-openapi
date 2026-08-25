@@ -5,9 +5,6 @@ for public release against Oak's checklist for releasing public GitHub
 repositories. It exists so a reviewer can tell "not relevant" apart from
 "not done".
 
-**What is still outstanding lives in [TODO.md](../TODO.md).** This file records
-what was decided and why; that file records what is left to do.
-
 Last reviewed: **20 August 2026**.
 
 ## Scope and triage
@@ -92,7 +89,7 @@ unresolved cases are:
 | `@img/sharp-libvips-*`         | LGPL-3.0-or-later     | Platform-specific native binaries reached transitively through Next.js image optimisation. LGPL permits dynamic linking without relicensing the calling code, and the binaries are used unmodified. Allowed explicitly in `dependency-review.yml` so a routine Next.js bump does not fail the check, rather than weakening the deny-list. |
 | `axe-core`, `@vercel/stega`    | MPL-2.0               | File-level copyleft: obligations attach only to modified MPL files. Neither is modified.                                                                                                                                                                                                                                                  |
 | `dompurify`                    | MPL-2.0 OR Apache-2.0 | Dual-licensed; Oak takes it under Apache-2.0.                                                                                                                                                                                                                                                                                             |
-| `@prisma/extension-accelerate` | **unresolved**        | Version 1.3.0 ships no `license` field and no licence file. Prisma's own repository states Apache-2.0, but the published package does not. Outstanding — see [TODO.md §4](../TODO.md).                                                                                                                                                    |
+| `@prisma/extension-accelerate` | Unlicensed            | Version 1.3.0 ships no `license` field and no licence file. Prisma's own repository states Apache-2.0, but the published package does not.                                                                                                                                                                                                |
 
 **Reasoning, not just the list.** These obligations attach to *distributing* a
 dependency or *modifying* its source. Oak does neither:
@@ -120,19 +117,11 @@ high, the rest moderate or low. Split by where they sit:
 | Critical | 4 paths / 3 roots (`sanity`, `@google-cloud/storage`, `posthog-js`)                                                                                | 1 (`vitest`)        |
 | High     | 21 paths / 8 roots (`sanity`, `swagger-ui-react`, `next`, `@google-cloud/storage`, `trpc-to-openapi`, `styled-components`, `lodash`, `posthog-js`) | 22 paths / 13 roots |
 
-This backlog predates the public-release work and is **not** blocked by
-`dependency-review.yml`, which only inspects dependencies a pull request adds or
-changes. Dependabot security alerts and security updates are already enabled and
-will raise it. Triage is tracked in [TODO.md §4](../TODO.md).
-
 ## Data protection
 
 The correction and takedown route is published: the
 [API feedback form](https://bvumd.share.hsforms.com/2nacebr1eQuKMoA-vGpkjCA),
 documented in [SUPPORT.md](../SUPPORT.md).
-
-The DPIA or "no personal data" assessment, and Oak's position on AI and
-machine-learning training use, are outstanding — see [TODO.md §5](../TODO.md).
 
 ## Static analysis
 
@@ -146,18 +135,12 @@ env-var injection, no cache poisoning, no unpinned-action paths.
 
 ### TypeScript (`javascript-typescript` language)
 
-Seven results: four security, three quality. None is a blocker; two are worth
-fixing and are tracked in [TODO.md §9](../TODO.md).
 
-| Rule                                               | Location                                   | Assessment                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| -------------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `js/insufficient-password-hash` (8.1)              | `src/lib/analytics/posthogServer.ts:137`   | **Mischaracterised but points at something real.** This is an analytics fingerprint, not password storage, and the keys are UUIDs, so the truncated SHA-256 is not the problem. The problem is the `apiKey.slice(-4)` suffix appended to it: four characters of every live API key are sent to PostHog, a third-party processor, as `api_key_fingerprint` and as the `distinctId`. Not brute-forceable, but an unnecessary disclosure — and once the repo is public, anyone can read that PostHog holds it. |
-| `js/incomplete-multi-character-sanitization` (7.8) | `bin/prepare-bulk.ts:132`                  | **Genuine.** `.replace(/<[^>]*>/g, '')` is not idempotent: `<scr<a>ipt>` survives one pass. Input is Oak's own CMS transcripts rather than user submissions, so exposure is low, but the output ships to third parties in the bulk download JSONL.                                                                                                                                                                                                                                                          |
-| `js/http-to-file-access` (6.3)                     | `bin/build-subjects-and-key-stages.ts:102` | **Accepted.** A developer-run build script writing Oak's own API response into `keyStageAndSubjects.json`. The result is reviewed and committed, so the write is not unattended.                                                                                                                                                                                                                                                                                                                            |
-| `js/xss-through-dom` (7.8)                         | `coverage/sorter.js:116`                   | **Not applicable.** Generated Istanbul coverage output produced by a local run. `coverage/` is gitignored, so a clean CI checkout never contains it.                                                                                                                                                                                                                                                                                                                                                        |
-| `js/trivial-conditional`                           | `src/lib/protect.ts:30`                    | Cosmetic. `if (user)` is unreachable-as-false because `if (!user) throw` precedes it. Harmless defensive code, not a missing check.                                                                                                                                                                                                                                                                                                                                                                         |
-| `js/trivial-conditional`                           | `bin/openapi-schema-single.ts:47`          | Cosmetic.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| `js/superfluous-trailing-arguments`                | `__tests__/headers.test.ts:130`            | Cosmetic. `getConfig('')` takes no arguments.                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Rule                                | Location                                   | Assessment                                                                                                                                                                       |
+| ----------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `js/http-to-file-access` (6.3)      | `bin/build-subjects-and-key-stages.ts:102` | **Accepted.** A developer-run build script writing Oak's own API response into `keyStageAndSubjects.json`. The result is reviewed and committed, so the write is not unattended. |
+| `js/xss-through-dom` (7.8)          | `coverage/sorter.js:116`                   | **Not applicable.** Generated Istanbul coverage output produced by a local run. `coverage/` is gitignored, so a clean CI checkout never contains it.                             |
+| `js/superfluous-trailing-arguments` | `__tests__/headers.test.ts:130`            | Cosmetic. `getConfig('')` takes no arguments.                                                                                                                                    |
 
 Reproduce with:
 
@@ -186,7 +169,7 @@ Applied on **20 August 2026** and verified through the API:
 | `has_wiki` / `has_projects` / `has_discussions` | `false`               | Not used; the docs live in the repository.                                                                                                                     |
 | `delete_branch_on_merge`                        | `true`                | Already set.                                                                                                                                                   |
 | Merge methods                                   | merge, squash, rebase | Left as the team already works. Not a release blocker.                                                                                                         |
-| `private_vulnerability_reporting`               | **pending**           | The endpoint 404s on a private repository. Enable immediately after going public — see [TODO.md §2](../TODO.md).                                               |
+| `private_vulnerability_reporting`               | **pending**           | The endpoint 404s on a private repository. Enable immediately after going public                                                                               |
 
 Confirm at any time with:
 
@@ -195,11 +178,6 @@ gh api repos/:owner/:repo --jq .security_and_analysis
 gh api repos/:owner/:repo/actions/permissions
 gh api repos/:owner/:repo/actions/permissions/workflow
 ```
-
-## Branch and tag protection
-
-The rulesets on `main` have **not** been tightened yet. The exact API calls,
-and the reasoning about the bypass actor, are in [TODO.md §1](../TODO.md).
 
 ## Sign-off
 
@@ -220,7 +198,3 @@ left blank at the point the repository is made public.
 The maintainer is named and the response expectation stated publicly in
 [SUPPORT.md](../SUPPORT.md): the @oaknational/devs team, first response within
 5 working days.
-
-Briefing, comms plan, rollback plan, success metrics, the 30-day post-launch
-review and the deprecation policy are outstanding — see
-[TODO.md §8](../TODO.md).

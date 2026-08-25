@@ -51,6 +51,8 @@ jobs:
             --exclude '^https://console\.upstash\.com'
             --exclude '^https://.*\.hsforms\.com'
             --exclude '^http://localhost'
+            --exclude '^https://github\.com/oaknational/'
+            --exclude '^https://app\.notion\.com/p/oaknationalacademy/'
             --accept 200,206,403,429
             './**/*.md'
           output: lychee-report.md
