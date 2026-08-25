@@ -28,7 +28,6 @@ focuses on correctness and trust.
 
 - [`accessibility.md`](accessibility.md) — conformance level and how to report a barrier.
 - [`public-release.md`](public-release.md) — the public release record and triage decisions.
-- [`../TODO.md`](../TODO.md) — what is still outstanding before the repository goes public.
 - [`../SUPPORT.md`](../SUPPORT.md) — where to ask questions and what to expect.
 - [`../SECURITY.md`](../SECURITY.md) — supported versions and vulnerability reporting.
 - [`../CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md) — expected behaviour.

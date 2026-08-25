@@ -46,7 +46,7 @@ You do not need to read any further unless you are a software developer.
 - [API keys](#api-keys)
 - [Available subjects](#available-subjects)
 - [Errors](#errors)
-- [Analytics / Logging](#analytics-logging)
+- [Analytics Logging](#analytics-logging)
 - [Batch requests for video urls](#batch-requests-for-video-urls)
 - [Infrastructure](#infrastructure)
 - [Repository structure](#repository-structure)
@@ -212,7 +212,7 @@ throw new TRPCError({
 });
 ```
 
-## Analytics / Logging
+## Analytics Logging
 
 Currently the following data is connected to user accounts (in upstash):
 
