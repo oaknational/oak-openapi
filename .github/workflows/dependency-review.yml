@@ -2,7 +2,7 @@ name: Dependency Review
 
 # Dependabot reports vulnerable dependencies after they are merged. This blocks
 # them at review time, and flags licences that are not compatible with the
-# repository's own Open Government Licence.
+# repository's own MIT Licence.
 on:
   pull_request:
     branches:

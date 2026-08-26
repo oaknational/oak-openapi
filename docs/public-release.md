@@ -46,11 +46,11 @@ git ls-files | grep -iE '\.env|\.DS_Store|\.pem$|id_rsa'
 
 ## Licensing
 
-The repository is licensed under the **Open Government Licence v3.0**
+The repository is licensed under the **MIT License**
 ([LICENSE](../LICENSE)), as a single licence covering the whole repository. No
 code/data split is needed because no datasets are committed here.
 
-`package.json` declares the SPDX identifier `OGL-UK-3.0`. Confirm how GitHub
+`package.json` declares the SPDX identifier `MIT`. Confirm how GitHub
 reports it after publishing:
 
 ```sh

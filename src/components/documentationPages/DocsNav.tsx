@@ -74,6 +74,18 @@ const DocsNavContainer = styled(OakFlex)`
   }
 `;
 
+const IconMod = styled(OakBox)`
+  > div {
+    width: 100%;
+  }
+  button:hover {
+    text-decoration: none;
+  }
+  button > div {
+    justify-content: space-between;
+  }
+`;
+
 const VisibleOnFocusOakSecondaryButton = styled(OakSecondaryButton)`
   position: absolute;
   left: -9999px;
@@ -105,18 +117,6 @@ export default function DocsNav({
     },
     { title: '' },
   );
-
-  const IconMod = styled(OakBox)`
-    > div {
-      width: 100%;
-    }
-    button:hover {
-      text-decoration: none;
-    }
-    button > div {
-      justify-content: space-between;
-    }
-  `;
 
   const docHeadingId = useStableId('docs-nav-heading');
 

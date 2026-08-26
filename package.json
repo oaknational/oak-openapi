@@ -6,15 +6,15 @@
     "pnpm": ">=10"
   },
   "scripts": {
-    "build": "next build",
+    "build": "next build --webpack",
     "build-subjects": "tsx bin/build-subjects-and-key-stages.ts",
-    "dev": "pnpm with-env next dev --port ${PORT:-2727}",
+    "dev": "pnpm with-env next dev --port ${PORT:-2727} --webpack",
     "bulk": "NODE_OPTIONS='--max-old-space-size=4096' tsx bin/prepare-bulk.ts",
     "bulk:schema-check": "tsx bin/bulk-data-checks/run_checks.ts --schema ./src/app/api/bulk/schema.json/schema.json",
     "postinstall": "prisma generate --schema ./schema.prisma",
     "format:check": "prettier '**/*.{mj,j,t}{s,sx}' --check",
     "format": "prettier '**/*.{mj,j,t}{s,sx}' --write",
-    "lint": "NEXT_TELEMETRY_DISABLED=1 NODE_DEBUG=http,https next lint . && tsc --noEmit",
+    "lint": "NEXT_TELEMETRY_DISABLED=1 NODE_DEBUG=http,https eslint src && tsc --noEmit",
     "ts": "tsc --noEmit",
     "check:env-example": "tsx bin/check-env-example.ts",
     "load-test": "pnpm with-env artillery run __tests__/load-tests.yml",
@@ -27,12 +27,13 @@
   },
   "keywords": [],
   "author": "",
-  "license": "OGL-UK-3.0",
+  "license": "MIT",
   "type": "module",
   "private": true,
   "dependencies": {
+    "@emotion/is-prop-valid": "^1.4.0",
     "@google-cloud/storage": "^7.22.0",
-    "@next/eslint-plugin-next": "^15.3.3",
+    "@next/eslint-plugin-next": "^16.3.2",
     "@oaknational/oak-components": "^3.7.1",
     "@oaknational/oak-curriculum-schema": "^2.0.0",
     "@portabletext/react": "^3.2.1",
@@ -49,7 +50,7 @@
     "highlight.js": "^11.11.1",
     "http-codes": "^1.0.0",
     "lodash": "^4.17.21",
-    "next": "^15.3.8",
+    "next": "^16.3.2",
     "next-hubspot": "^2.0.0",
     "next-sanity": "9",
     "node-html-markdown": "^2.0.0",
@@ -68,7 +69,7 @@
     "superjson": "^2.2.1",
     "swagger-ui-react": "^5.31.0",
     "tar-stream": "^3.1.7",
-    "trpc-to-openapi": "3.1.0",
+    "trpc-to-openapi": "3.3.0",
     "uuid": "^13.0.0",
     "vite-plugin-graphql-loader": "^4.0.4",
     "yazl": "^3.3.1",
@@ -148,7 +149,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs}": [
-      "eslint --max-warnings=0"
+      "eslint --max-warnings=0 --no-warn-ignored"
     ]
   },
   "packageManager": "pnpm@11.22.0"

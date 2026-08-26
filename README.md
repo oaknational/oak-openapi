@@ -3,13 +3,13 @@
 [![Latest release](https://img.shields.io/github/v/release/oaknational/oak-openapi?label=release)](https://github.com/oaknational/oak-openapi/releases)
 [![Tests](https://github.com/oaknational/oak-openapi/actions/workflows/test.yml/badge.svg)](https://github.com/oaknational/oak-openapi/actions/workflows/test.yml)
 [![Lint](https://github.com/oaknational/oak-openapi/actions/workflows/lint.yml/badge.svg)](https://github.com/oaknational/oak-openapi/actions/workflows/lint.yml)
-[![Licence: OGL v3.0](https://img.shields.io/badge/licence-OGL--UK--3.0-blue)](LICENSE)
+[![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue)](LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/oaknational/oak-openapi)](https://github.com/oaknational/oak-openapi/commits/main)
 [![API status](https://img.shields.io/badge/API-v0%20public%20beta-green)](https://open-api.thenational.academy/)
 
-> **Licence:** this repository is published under the
-> [Open Government Licence v3.0](LICENSE). When using this work, please credit
-> "Oak National Academy". See [Licence](#licence) for the full terms.
+> **Licence:** this repository is published under the [MIT License](LICENSE).
+> When using this work, please credit "Oak National Academy". See
+> [Licence](#licence) for the full terms.
 
 ## In plain English
 
@@ -457,16 +457,16 @@ Oak's [security.txt](https://www.thenational.academy/.well-known/security.txt),
 
 ## Licence
 
-This repository is published under the **Open Government Licence v3.0**. The full
-terms are in [LICENSE](LICENSE), and the canonical text is at
-[nationalarchives.gov.uk/doc/open-government-licence/version/3](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
+This repository is published under the **MIT License**. The full terms are in
+[LICENSE](LICENSE).
 
-You are free to copy, adapt and exploit this work commercially and
-non-commercially, provided you acknowledge the source.
+You are free to use, copy, modify, merge, publish, distribute, sublicense and
+sell copies of this software, provided the copyright notice and permission
+notice are included.
 
 Curriculum content served *through* the API — lesson materials, videos,
 worksheets and quizzes — is not covered by this repository's licence. Its terms
-are set by Oak's [content licensing](https://www.thenational.academy/legal/)
+are set by Oak's [copyright notice](https://www.thenational.academy/legal/copyright-notice)
 and, for some material, by third-party rights that Oak is not able to sublicense.
 See the gating rules in `src/lib/queryGate.ts`.
 
@@ -475,12 +475,6 @@ See the gating rules in `src/lib/queryGate.ts`.
 When using this work, please credit:
 
 > Oak National Academy
-
-If you are re-using data obtained through the API, the Open Government Licence's
-default attribution also applies:
-
-> Contains public sector information licensed under the Open Government Licence
-> v3.0.
 
 This repository does not currently carry a DOI or a `CITATION.cff`, because it
 publishes an API service rather than a citable research output or dataset. That
