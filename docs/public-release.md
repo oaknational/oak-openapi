@@ -107,16 +107,6 @@ dependency or *modifying* its source. Oak does neither:
 GitHub's dependency-graph SBOM was deliberately not used as the licence source:
 it leaves many packages unresolved and reports registry metadata verbatim.
 
-### Known vulnerable dependencies
-
-`pnpm audit` on **20 August 2026** reported 221 advisories: 5 critical, 105
-high, the rest moderate or low. Split by where they sit:
-
-| Severity | Production deps                                                                                                                                    | Dev-only deps       |
-| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| Critical | 4 paths / 3 roots (`sanity`, `@google-cloud/storage`, `posthog-js`)                                                                                | 1 (`vitest`)        |
-| High     | 21 paths / 8 roots (`sanity`, `swagger-ui-react`, `next`, `@google-cloud/storage`, `trpc-to-openapi`, `styled-components`, `lodash`, `posthog-js`) | 22 paths / 13 roots |
-
 ## Data protection
 
 The correction and takedown route is published: the
