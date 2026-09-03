@@ -35,7 +35,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
 
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --ignore-scripts --frozen-lockfile
       - name: Lint and type-check
         run: pnpm lint
       - name: Check formatting

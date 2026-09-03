@@ -106,7 +106,7 @@ const documented = new Set(
 
 const missing = [...used]
   .filter((name) => !PROVIDED_BY_RUNTIME.has(name) && !documented.has(name))
-  .sort();
+  .sort((a, b) => a.localeCompare(b));
 
 // A documented variable may legitimately be consumed outside src/ and bin/ —
 // schema.prisma reads one via `env()`, the Artillery config reads another — so
@@ -126,7 +126,7 @@ const everywhere = tracked
 
 const unused = [...documented]
   .filter((name) => !used.has(name) && !everywhere.includes(name))
-  .sort();
+  .sort((a, b) => a.localeCompare(b));
 
 if (missing.length > 0) {
   console.error(
