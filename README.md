@@ -285,13 +285,13 @@ generation step.
 
 ## Bulk Download
 
-The bulk download feature allows you to download all assets (videos, worksheets, slide decks, quizzes, etc.) for entire sequences, organized into tar archives.
+The bulk download feature allows you to download all assets (videos, worksheets, slide decks, quizzes, etc.) for entire sequences, organised into tar archives.
 
 See [README_BULK_DOWNLOAD.md](README_BULK_DOWNLOAD.md) for the full release and ops process.
 
 ### Using the Bulk Download Script
 
-The prepare-bulk.ts script creates organized archives of Oak educational content for offline use.
+The prepare-bulk.ts script creates organised archives of Oak educational content for offline use.
 
 #### Prerequisites
 
@@ -308,7 +308,7 @@ pnpx tsx bin/prepare-bulk.ts
 
 #### Output Structure
 
-The script generates a directory structure in the `out` folder organized by sequence:
+The script generates a directory structure in the `out` folder organised by sequence:
 
 ```
 out/

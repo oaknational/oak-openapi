@@ -330,7 +330,7 @@ async function main() {
       }
 
       if (processAssets) {
-        // finalize all tarballs
+        // finalise all tarballs
         if (assetPacks.worksheets) {
           assetPacks.worksheets.finalize();
         }

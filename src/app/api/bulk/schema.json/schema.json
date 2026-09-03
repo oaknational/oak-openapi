@@ -68,7 +68,7 @@
         },
         "threads": {
           "type": "array",
-          "description": "Thread tags that categorize unit content.",
+          "description": "Thread tags that categorise unit content.",
           "items": {
             "$ref": "#/$defs/thread"
           }
@@ -162,7 +162,7 @@
         },
         "categories": {
           "type": "array",
-          "description": "Categorization tags for the unit.",
+          "description": "Categorisation tags for the unit.",
           "items": {
             "type": "object",
             "additionalProperties": false,

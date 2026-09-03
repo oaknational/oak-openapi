@@ -12,7 +12,7 @@ This directory contains the CMS integration layer for fetching and transforming 
 
 ### `/queries` Directory
 
-Each query folder contains a standardized set of files for interacting with Sanity CMS:
+Each query folder contains a standardised set of files for interacting with Sanity CMS:
 
 1. **`.gql` file** - GraphQL query that fetches data from Sanity
 2. **`.schema.ts` file** - Zod schema and TypeScript types (generated from the `.gql` file)
