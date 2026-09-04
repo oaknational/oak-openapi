@@ -169,20 +169,6 @@ gh api repos/:owner/:repo/actions/permissions
 gh api repos/:owner/:repo/actions/permissions/workflow
 ```
 
-## Sign-off
-
-Record who approved, on what date, and against which commit SHA. No row may be
-left blank at the point the repository is made public.
-
-| Role                                                       | Name | Date | Commit SHA |
-| ---------------------------------------------------------- | ---- | ---- | ---------- |
-| SLT member responsible for the product                     |      |      |            |
-| Senior engineer — full technical review                    |      |      |            |
-| Principal engineer — quality and compliance                |      |      |            |
-| Education stakeholder                                      |      |      |            |
-| Licensing, content sensitivity and compliance (incl. GDPR) |      |      |            |
-| Accessibility reviewer                                     |      |      |            |
-
 ## Launch and after
 
 The maintainer is named and the response expectation stated publicly in
