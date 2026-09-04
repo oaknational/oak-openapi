@@ -40,7 +40,7 @@
     "@prisma/client": "^5.22.0",
     "@prisma/extension-accelerate": "^1.1.0",
     "@sanity/icons": "^3.7.0",
-    "@sanity/image-url": "^1.1.0",
+    "@sanity/image-url": "^2.1.1",
     "@sanity/vision": "3",
     "@trpc/server": "^11.8.1",
     "@upstash/ratelimit": "^2.0.5",
