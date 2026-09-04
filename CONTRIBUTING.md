@@ -59,7 +59,10 @@ If you work at Oak, the working notes for this repository are in
 2. Commits follow [Conventional Commits](https://www.conventionalcommits.org/).
    The scope decides whether a change is released — see `.releaserc.json` —
    so `feat(api):` and `fix(api):` trigger a release and other scopes do not.
-   `commitlint` enforces this locally and in CI.
+   `commitlint` enforces this locally and in CI. Keep the subject line to 100
+   characters or fewer, and wrap body and footer lines at 100 (a single
+   unbreakable URL that alone exceeds the limit is allowed). See
+   [`commitlint.config.ts`](commitlint.config.ts) for the enforced rules.
 3. Run `pnpm lint`, `pnpm format:check` and `pnpm test` before pushing. The
    pre-commit hook runs the same commands CI does.
 4. Open a pull request against `main`. It needs a passing build and an

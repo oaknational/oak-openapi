@@ -37,6 +37,10 @@ follow-up item in the plans.
   `revert(api)` release a new version. Everything else deploys but does not move
   the version or reach the changelog, so a mis-scoped API change ships
   unannounced. When in doubt, scope it `api`.
+- Keep the commit subject line to 100 characters or fewer, and wrap body and
+  footer lines at 100 (commitlint exempts a single unbreakable URL that alone
+  exceeds the limit). If a generated body has over-long lines, rewrite the body
+  to comply rather than disabling the check.
 - Do not edit `src/lib/version.ts` or `package.json`'s `version` by hand;
   semantic-release owns them.
 - See [`docs/RELEASING.md`](../../docs/RELEASING.md) before changing
