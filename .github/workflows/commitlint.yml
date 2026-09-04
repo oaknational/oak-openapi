@@ -7,25 +7,40 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+
+concurrency:
+  group: commitlint-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   commitlint:
+    name: commitlint
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        # Fetch the pnpm binary directly instead of via `npm install`, which has
+        # stalled for minutes on the npm registry/audit endpoint during setup.
         with:
-          node-version: 24
+          standalone: true
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: '.nvmrc'
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
 
       - name: Lint commits in this pull request
+        # Ranges come from the pull_request event's own SHAs, which GitHub sets;
+        # they are not attacker-controlled text.
         run: >
           pnpm commitlint
           --from ${{ github.event.pull_request.base.sha }}

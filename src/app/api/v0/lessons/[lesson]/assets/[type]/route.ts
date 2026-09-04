@@ -2,27 +2,26 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { TRPCError } from '@trpc/server';
 import { TRPC_ERROR_CODES_BY_KEY } from '@trpc/server/rpc';
-import { StatusCodes } from 'http-status-codes';
 
 import type { Context } from '@/lib/context';
 import { getApiKeyFromRequest, withUser } from '@/lib/context';
 
 // Map TRPC error codes to HTTP status codes
 const trpcErrorCodeToHttpStatus: Record<string, number> = {
-  PARSE_ERROR: StatusCodes.BAD_REQUEST,
-  BAD_REQUEST: StatusCodes.BAD_REQUEST,
-  UNAUTHORIZED: StatusCodes.UNAUTHORIZED,
-  FORBIDDEN: StatusCodes.FORBIDDEN,
-  NOT_FOUND: StatusCodes.NOT_FOUND,
-  METHOD_NOT_SUPPORTED: StatusCodes.METHOD_NOT_ALLOWED,
-  TIMEOUT: StatusCodes.REQUEST_TIMEOUT,
-  CONFLICT: StatusCodes.CONFLICT,
-  PRECONDITION_FAILED: StatusCodes.PRECONDITION_FAILED,
+  PARSE_ERROR: 400,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  METHOD_NOT_SUPPORTED: 405,
+  TIMEOUT: 408,
+  CONFLICT: 409,
+  PRECONDITION_FAILED: 412,
   PAYLOAD_TOO_LARGE: 413,
   UNPROCESSABLE_CONTENT: 422,
-  TOO_MANY_REQUESTS: StatusCodes.TOO_MANY_REQUESTS,
+  TOO_MANY_REQUESTS: 429,
   CLIENT_CLOSED_REQUEST: 499,
-  INTERNAL_SERVER_ERROR: StatusCodes.INTERNAL_SERVER_ERROR,
+  INTERNAL_SERVER_ERROR: 500,
 };
 import {
   getSignedAssetUrl,
@@ -65,7 +64,7 @@ const hasErrorCode = (error: unknown): error is { code: string } => {
     typeof error === 'object' &&
     error !== null &&
     'code' in error &&
-    typeof (error as { code: unknown }).code === 'string'
+    typeof error.code === 'string'
   );
 };
 
@@ -109,7 +108,7 @@ const handler = async (
 
     const usePPTX = type === 'slideDeck';
     if (usePPTX) {
-      type = type.replace('PPTX', '') as DownloadTypeEnum;
+      type = type.replace('PPTX', '');
     }
 
     const asset = assets[type as DownloadTypeEnum];
@@ -253,13 +252,14 @@ async function handlerWrapper(
             code: e.code,
             httpStatus:
               trpcErrorCodeToHttpStatus[e.code] ||
-              StatusCodes.INTERNAL_SERVER_ERROR,
+              trpcErrorCodeToHttpStatus.INTERNAL_SERVER_ERROR,
           },
         },
       });
 
       const status =
-        trpcErrorCodeToHttpStatus[e.code] || StatusCodes.INTERNAL_SERVER_ERROR;
+        trpcErrorCodeToHttpStatus[e.code] ||
+        trpcErrorCodeToHttpStatus.INTERNAL_SERVER_ERROR;
 
       return new NextResponse(
         JSON.stringify({ ...errorPayload, code: e.code }),

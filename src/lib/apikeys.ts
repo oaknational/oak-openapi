@@ -65,7 +65,7 @@ async function readUserRecord(key: string): Promise<User | null> {
  */
 export async function generateUniqueApiKey(attempts = 5): Promise<string> {
   for (let attempt = 0; attempt < attempts; attempt += 1) {
-    const candidate = uuid() as unknown as string;
+    const candidate = uuid();
     if (!(await redis.exists(`user:${candidate}`))) {
       return candidate;
     }
@@ -184,7 +184,7 @@ export async function findUserByEmail(email: string): Promise<User | null> {
  */
 async function allUserRecords(): Promise<User[]> {
   const keys = (await redis.keys('user:*')).filter(
-    (key) => !key.startsWith('user:email:'),
+    (key: string) => !key.startsWith('user:email:'),
   );
 
   if (keys.length === 0) {
@@ -199,7 +199,8 @@ async function allUserRecords(): Promise<User[]> {
 
   return records
     .filter(
-      (record): record is User => !!record && Object.keys(record).length > 0,
+      (record: User | null): record is User =>
+        !!record && Object.keys(record).length > 0,
     )
     .map(normaliseUser);
 }
@@ -217,12 +218,7 @@ export async function findUsersSince(since: Date): Promise<User[]> {
 }
 
 export type UserSortField =
-  | 'id'
-  | 'name'
-  | 'company'
-  | 'email'
-  | 'requests'
-  | 'lastRequest';
+  'id' | 'name' | 'company' | 'email' | 'requests' | 'lastRequest';
 
 export interface ListUsersOptions {
   search?: string;

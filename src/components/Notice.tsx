@@ -20,12 +20,7 @@ export const Notice = ({ value }: { value: Notice }): React.ReactElement => {
         icon={(value.icon || '') as OakIconName}
         type={
           (value.type || 'info') as
-            | 'info'
-            | 'neutral'
-            | 'success'
-            | 'alert'
-            | 'warning'
-            | 'error'
+            'info' | 'neutral' | 'success' | 'alert' | 'warning' | 'error'
         }
         variant="regular"
       />

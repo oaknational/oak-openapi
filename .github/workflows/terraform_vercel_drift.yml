@@ -4,20 +4,29 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'infrastructure/**'
+      - '.github/workflows/terraform_vercel_drift.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: terraform-drift
+  cancel-in-progress: false
 
 permissions:
   contents: read
 
 jobs:
   check-drift:
+    name: check-drift
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Run Drift Detection
-        uses: oaknational/oak-terraform-actions/actions/terraform-vercel-drift@a1fe3aea1efa31ee5d29e387d584c006a2d33bcc # v1.13.1
+        uses: oaknational/oak-terraform-actions/actions/terraform-vercel-drift@d0aba78a1675931aef78069d13f75afabea2380f # v1.13.2
         with:
           TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
           TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}

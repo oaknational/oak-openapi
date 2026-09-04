@@ -129,6 +129,7 @@ async function buildLessonData(
           lesson.restricted = true;
         } else {
           if (lesson.transcript_sentences) {
+            // this isn't stripping html, but known VTT tags.
             lesson.transcript_sentences = lesson.transcript_sentences.replace(
               /<[^>]*>/g,
               '',
@@ -329,7 +330,7 @@ async function main() {
       }
 
       if (processAssets) {
-        // finalize all tarballs
+        // finalise all tarballs
         if (assetPacks.worksheets) {
           assetPacks.worksheets.finalize();
         }

@@ -21,5 +21,5 @@ Discovery
 
 Related docs
 
-- [`docs/architecture/openapi-generation.md`](../architecture/openapi-generation.md)
-- [`README.md`](../../README.md)
+- [`docs/README.md`](../README.md) (docs index)
+- [`README.md`](../../README.md) (repo overview and quickstart)

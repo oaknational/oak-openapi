@@ -4,12 +4,35 @@ on:
   pull_request:
     branches:
       - main
+  # Allow a manual run so the suite can be exercised without pushing a commit.
+  # This is also how a maintainer runs the full suite against a Dependabot
+  # branch: "Run workflow" -> pick the dependabot/... branch. A workflow_dispatch
+  # run executes in the normal context (with secrets), unlike Dependabot's PR run.
+  workflow_dispatch:
+
+# Only the latest push to a branch needs testing.
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   test:
+    name: test
     runs-on: ubuntu-latest
 
     env:
+      # The suite runs integration tests against real backends, so it needs the
+      # secrets below. Dependabot-triggered runs don't receive repository
+      # secrets, so those tests can only fail (the GraphQL host is empty and the
+      # client builds an invalid URL). Skip them for Dependabot PRs and let the
+      # job pass — it's a required check, so it must still report success. A
+      # maintainer runs the real suite on the branch via workflow_dispatch.
+      # Keyed on the PR author, which (unlike github.actor) is stable across
+      # manual re-runs of a Dependabot PR.
+      RUN_TESTS: ${{ github.event.pull_request.user.login != 'dependabot[bot]' }}
       OAK_GRAPHQL_SECRET: ${{ secrets.OAK_GRAPHQL_SECRET }}
       OAK_GRAPHQL_HOST: ${{ secrets.OAK_GRAPHQL_HOST }}
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
@@ -17,12 +40,59 @@ jobs:
       PRISMA_ACCELERATE_DATABASE_URL: ${{ secrets.PRISMA_ACCELERATE_DATABASE_URL }}
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - name: Explain skipped tests for Dependabot
+        if: env.RUN_TESTS != 'true'
+        run: |
+          {
+            echo "### Tests skipped for Dependabot"
+            echo
+            echo "Integration tests need backend secrets that Dependabot runs cannot access, so they are skipped here."
+            echo "A maintainer can run the full suite on this branch via **Run workflow** (workflow_dispatch)."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: env.RUN_TESTS == 'true'
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        # Fetch the pnpm binary directly instead of via `npm install`, which has
+        # stalled for minutes on the npm registry/audit endpoint during setup.
+        if: env.RUN_TESTS == 'true'
         with:
-          node-version: 24
-          cache: "pnpm"
+          standalone: true
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        if: env.RUN_TESTS == 'true'
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm test
+        if: env.RUN_TESTS == 'true'
+      - run: pnpm test --coverage
+        if: env.RUN_TESTS == 'true'
+
+      - name: Summarise coverage
+        if: always() && env.RUN_TESTS == 'true'
+        run: |
+          {
+            echo "### Test coverage"
+            echo
+            if [ -f coverage/coverage-summary.json ]; then
+              node -e '
+                const t = require("./coverage/coverage-summary.json").total;
+                console.log("| Metric | Covered |");
+                console.log("| --- | --- |");
+                for (const k of ["lines", "statements", "functions", "branches"]) {
+                  console.log(`| ${k} | ${t[k].pct}% |`);
+                }
+              '
+            else
+              echo "No coverage summary was produced."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload coverage report
+        if: always() && env.RUN_TESTS == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 14

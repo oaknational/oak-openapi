@@ -4,7 +4,7 @@ A job that runs regularly to perform bulk uploads
 
 ## Set up a new Terraform Workspace
 
-Follow the [instructions](https://www.notion.so/oaknationalacademy/Terraform-The-Oak-Guide-to-b3930c13433f48fa890968636f495098?pvs=4#c9a59558baed4fe3867a6bde498bc027) in the Terraform guide on how to do this.
+Follow the [instructions](https://app.notion.com/p/oaknationalacademy/Terraform-The-Oak-Guide-to-b3930c13433f48fa890968636f495098#c9a59558baed4fe3867a6bde498bc027) in the Terraform guide on how to do this.
 
 The workspace prefix is `open-api-bulk-loader`.
 
