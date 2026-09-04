@@ -38,7 +38,7 @@
     "@oaknational/oak-curriculum-schema": "^2.0.0",
     "@portabletext/react": "^3.2.1",
     "@prisma/client": "^5.22.0",
-    "@prisma/extension-accelerate": "^1.1.0",
+    "@prisma/extension-accelerate": "^3.0.1",
     "@sanity/icons": "^3.7.0",
     "@sanity/image-url": "^1.1.0",
     "@sanity/vision": "3",
