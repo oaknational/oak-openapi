@@ -169,8 +169,3 @@ gh api repos/:owner/:repo/actions/permissions
 gh api repos/:owner/:repo/actions/permissions/workflow
 ```
 
-## Launch and after
-
-The maintainer is named and the response expectation stated publicly in
-[SUPPORT.md](../SUPPORT.md): the @oaknational/devs team, first response within
-5 working days.
