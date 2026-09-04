@@ -114,9 +114,7 @@ export default function Footer(): React.ReactElement {
             $gap={['spacing-48', 'spacing-16']}
           >
             <OakBox style={{ flex: '1' }} $minWidth="240px">
-              <FooterSectionLinks
-                {...(footerSections.pupils as FooterSectionLinksProps)}
-              />
+              <FooterSectionLinks {...footerSections.pupils} />
             </OakBox>
             <OakBox style={{ flex: '1' }} $minWidth="240px">
               <FooterSectionLinks
@@ -124,9 +122,7 @@ export default function Footer(): React.ReactElement {
               />
             </OakBox>
             <OakBox style={{ flex: '1' }} $minWidth="240px">
-              <FooterSectionLinks
-                {...(footerSections.legal as FooterSectionLinksProps)}
-              />
+              <FooterSectionLinks {...footerSections.legal} />
             </OakBox>
           </OakFlex>
           <OakFlex

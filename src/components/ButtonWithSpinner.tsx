@@ -25,18 +25,22 @@ export const ButtonWithSpinner = styled(OakPrimaryButton)<{
   ${(props) =>
     props.$width
       ? css`
-          --width: ${Array.isArray(props.$width)
-            ? props.$width[0]
-            : props.$width};
+          --width: ${
+            Array.isArray(props.$width) ? props.$width[0] : props.$width
+          };
           @media (min-width: 768px) {
-            --width: ${Array.isArray(props.$width)
-              ? props.$width[1] || props.$width[0]
-              : props.$width};
+            --width: ${
+              Array.isArray(props.$width)
+                ? props.$width[1] || props.$width[0]
+                : props.$width
+            };
           }
           @media (min-width: 1024px) {
-            --width: ${Array.isArray(props.$width)
-              ? props.$width[2] || props.$width[1] || props.$width[0]
-              : props.$width};
+            --width: ${
+              Array.isArray(props.$width)
+                ? props.$width[2] || props.$width[1] || props.$width[0]
+                : props.$width
+            };
           }
         `
       : css`

@@ -279,7 +279,7 @@ Example queries: KS3 science photosynthesis, fractions year 5, Macbeth soliloquy
     .input(lessonSearchRequestSchema)
     .output(lessonSearchResponseSchema)
     .query(async ({ input }) => {
-      // store q from input.q and sanitize for use as an sql query:
+      // store q from input.q and sanitise for use as an sql query:
       const q = input.q;
       const unit = input.unit || null;
       const subject = input.subject || null;

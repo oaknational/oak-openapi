@@ -15,7 +15,13 @@ export default function (source) {
       export default doc;
     `;
   } catch (error) {
-    this.emitError(new Error(`GraphQL syntax error: ${error.message}`));
+    // Turbopack's webpack-loader shim does not implement emitError.
+    const message = `GraphQL syntax error: ${error.message}`;
+    if (typeof this?.emitError === 'function') {
+      this.emitError(new Error(message));
+    } else {
+      throw new Error(message);
+    }
     return 'export default null;';
   }
 }

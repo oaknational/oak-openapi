@@ -4,12 +4,21 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'infrastructure/**'
+      - '.github/workflows/terraform_vercel_drift.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: terraform-drift
+  cancel-in-progress: false
 
 permissions:
   contents: read
 
 jobs:
   check-drift:
+    name: check-drift
     runs-on: ubuntu-latest
 
     steps:

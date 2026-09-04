@@ -5,6 +5,14 @@ on:
     types: [opened, synchronize]
   release:
     types: [released]
+  workflow_dispatch:
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 env:
   PROJECT_ID: oak-national-academy-ci-cd
@@ -14,6 +22,7 @@ env:
 
 jobs:
   deploy:
+    name: deploy
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -21,14 +30,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
-        uses: 'actions/checkout@v3'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set release version from tag id
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        # The tag name goes through the environment rather than straight into the
+        # script, so it is never interpolated into the shell.
+        env:
+          RELEASE_TAG_INPUT: ${{ github.event.release.tag_name }}
         run: |
-          RELEASE_TAG=${{ github.event.release.tag_name }}
-          [ -z "$RELEASE_TAG" ] && echo "Release tag not set, exiting..." && exit 1;
-          echo "RELEASE_TAG=$RELEASE_TAG" >> "$GITHUB_ENV"
+          [ -z "$RELEASE_TAG_INPUT" ] && echo "Release tag not set, exiting..." && exit 1
+          echo "RELEASE_TAG=$RELEASE_TAG_INPUT" >> "$GITHUB_ENV"
 
       - name: Set release version from date time
         if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
@@ -37,24 +49,37 @@ jobs:
 
       - name: 'Google auth'
         id: 'auth'
-        uses: 'google-github-actions/auth@v1'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
         with:
           workload_identity_provider: ${{ vars.GOOGLE_IDENTITY_PROVIDER_NAME }}
           service_account: ${{ vars.GOOGLE_CLOUD_SERVICE_ACCOUNT }}
 
       - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v1'
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
         with:
           project_id: '${{ env.PROJECT_ID }}'
 
       - name: 'Docker auth'
         run: |-
-          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev"
 
       - name: 'Build and push container'
         run: |-
-          docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ env.APP }}:${{ env.RELEASE_TAG }}" .
-          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ env.APP }}:${{ env.RELEASE_TAG }}"
+          IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${APP}:${RELEASE_TAG}"
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
 
-      - name: 'Release Tag'
-        run: echo ${RELEASE_TAG}
+      - name: Summarise the published image
+        if: always()
+        run: |
+          {
+            echo "### bulk-data image"
+            echo
+            echo "| Field | Value |"
+            echo "| --- | --- |"
+            echo "| Image | \`${IMAGE:-not published}\` |"
+            echo "| Tag | \`${RELEASE_TAG:-unset}\` |"
+            echo "| Source commit | \`${GITHUB_SHA}\` |"
+            echo "| Ref | \`${GITHUB_REF}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
