@@ -4,9 +4,20 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
-  test:
+  # Named `lint`, not `test`: two workflows sharing a job name makes the
+  # required-status-check entry in the branch ruleset ambiguous.
+  lint:
+    name: lint
     runs-on: ubuntu-latest
 
     env:
@@ -17,19 +28,24 @@ jobs:
       PRISMA_ACCELERATE_DATABASE_URL: ${{ secrets.PRISMA_ACCELERATE_DATABASE_URL }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "24.18"
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
 
-      - name: Install pnpm
-        run: npm install -g pnpm@10
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Run lint
+      - run: pnpm install --ignore-scripts --frozen-lockfile
+      # --ignore-scripts skips the postinstall that generates the Prisma client,
+      # so the type-aware lint/tsc rules can't resolve @prisma/client. Generate
+      # it explicitly here rather than dropping the supply-chain safety flag.
+      - run: pnpm exec prisma generate --schema ./schema.prisma
+      - name: Lint and type-check
         run: pnpm lint
+      - name: Check formatting
+        run: pnpm format:check
+
+      # Documentation that drifts from the code is the fastest way for a public
+      # repo's setup instructions to become wrong.
+      - name: Check .env.example matches what the code reads
+        run: pnpm check:env-example

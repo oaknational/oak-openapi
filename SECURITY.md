@@ -2,12 +2,22 @@
 
 ## Supported Versions
 
-We continously update and improve Oak National Academy's product and codebase including patching security vulnerabilities.
+We continuously update and improve Oak National Academy's product and codebase,
+including patching security vulnerabilities.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| > 1.0.x | :white_check_mark: |
+The public API is **v0** (public alpha moving towards public beta). Only the
+version currently deployed at `open-api.thenational.academy` is supported —
+fixes are rolled forward, not backported to earlier tags.
+
+| Version                                  | Supported          |
+| ---------------------------------------- | ------------------ |
+| Latest release, as deployed to production | :white_check_mark: |
+| Any earlier release                       | :x:                |
 
 ## Reporting a Vulnerability
 
 To report any vulnerability please see our [security.txt](https://www.thenational.academy/.well-known/security.txt) file
+
+Please do **not** report vulnerabilities through the API feedback form, a pull
+request, or any other public channel. See [SUPPORT.md](SUPPORT.md) for
+non-security questions.

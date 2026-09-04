@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import typescriptEslint from '@typescript-eslint/eslint-plugin';
@@ -47,17 +45,21 @@ const tsUntypedPresets = [
 
 /** @type {import("eslint").Linter.Config[]} */
 export default [
+  // Global ignores: a config object containing ONLY `ignores` applies repo-wide.
+  {
+    ignores: [
+      '**/*.md',
+      '.next/**/*',
+      'next-env.d.ts',
+      'generated/**/*',
+      'tmp/**/*',
+      'dist/**/*',
+    ],
+  },
   ...baseConfig,
   ...tsUntypedPresets,
   { languageOptions: baseLanguageOptions, rules: baseRules },
   {
-    ignores: [
-      '**/*.md',
-      'generated/**/*',
-      'tmp/**/*',
-      'dist/**/*',
-      // 'eslint.config.js',
-    ],
     // Untyped checks everywhere
     files: ['**/*.{js,jsx,ts,tsx}', '**/*.stories.tsx', '**/*.test.{ts,tsx}'],
     languageOptions: {

@@ -16,10 +16,7 @@ export interface ApiRequestCapturePayload {
   httpMethod?: string | null;
   queryParams?: Record<string, QueryParamValue>;
   source:
-    | 'trpc_middleware'
-    | 'trpc_on_error'
-    | 'bulk_route'
-    | 'lesson_assets_route';
+    'trpc_middleware' | 'trpc_on_error' | 'bulk_route' | 'lesson_assets_route';
   success: boolean;
   trpcPath?: string | null;
   userId?: number | string | null;

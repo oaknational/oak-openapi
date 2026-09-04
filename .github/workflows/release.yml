@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -17,6 +18,7 @@ concurrency:
 
 jobs:
   release:
+    name: release
     runs-on: ubuntu-latest
 
     steps:
@@ -25,12 +27,12 @@ jobs:
       # on the branch-protection bypass list. See docs/RELEASING.md.
       - name: Generate a token
         id: app-token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ secrets.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ steps.app-token.outputs.token }}
           # semantic-release needs the full history and tags to work out what
@@ -38,11 +40,11 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 24
-          cache: 'pnpm'
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
 
       - run: pnpm install --frozen-lockfile
 
@@ -53,3 +55,16 @@ jobs:
           # changelog lines run well past commitlint's body-max-line-length.
           # Skip the husky hooks rather than lint a machine-written commit.
           HUSKY: 0
+
+      - name: Summarise the release
+        if: always()
+        run: |
+          {
+            echo "### Release"
+            echo
+            echo "Commit: \`${GITHUB_SHA}\`"
+            echo
+            echo "See the [releases page](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases) for what was published, if anything."
+            echo
+            echo "Only commits scoped \`api\` produce a release — see \`.releaserc.json\`."
+          } >> "$GITHUB_STEP_SUMMARY"

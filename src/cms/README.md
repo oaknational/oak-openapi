@@ -4,15 +4,15 @@ This directory contains the CMS integration layer for fetching and transforming 
 
 ## Related docs
 
-- [README.md](README.md) (repo overview and quickstart)
-- [docs/engineering/onboarding.md](docs/engineering/onboarding.md) (local setup and common tasks)
-- [docs/engineering/README.md](docs/engineering/README.md) (lightweight planning structure)
+- [README.md](../../README.md) (repo overview and quickstart)
+- [docs/README.md](../../docs/README.md) (docs index)
+- [CONTRIBUTING.md](../../CONTRIBUTING.md) (how to work on this repository)
 
 ## Structure
 
 ### `/queries` Directory
 
-Each query folder contains a standardized set of files for interacting with Sanity CMS:
+Each query folder contains a standardised set of files for interacting with Sanity CMS:
 
 1. **`.gql` file** - GraphQL query that fetches data from Sanity
 2. **`.schema.ts` file** - Zod schema and TypeScript types (generated from the `.gql` file)

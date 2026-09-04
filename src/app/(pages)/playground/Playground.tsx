@@ -40,8 +40,7 @@ interface ParsedRequest {
 const parseRequest = (request: unknown): ParsedRequest => {
   const req = request as SwaggerRequest;
   const headers = req.get('headers') as
-    | { toJS: () => Record<string, string> }
-    | undefined;
+    { toJS: () => Record<string, string> } | undefined;
   return {
     url: req.get('url') as string,
     method: ((req.get('method') as string) ?? 'GET').toUpperCase(),

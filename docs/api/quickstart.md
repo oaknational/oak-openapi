@@ -43,5 +43,5 @@ Errors and rate limits
 - Rate-limit headers are returned on tRPC routes.
 
 Related docs
-- [`docs/architecture/openapi-generation.md`](../architecture/openapi-generation.md)
-- [`docs/engineering/onboarding.md`](../engineering/onboarding.md)
+- [`docs/ENDPOINTS.md`](../ENDPOINTS.md) (endpoint-to-source-file index)
+- [`CONTRIBUTING.md`](../../CONTRIBUTING.md) (local setup and common tasks)

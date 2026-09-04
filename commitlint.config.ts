@@ -43,6 +43,23 @@ const config: UserConfig = {
 
           return [true];
         },
+        // Replaces the built-in body-max-line-length: prose must still wrap,
+        // but a line is exempt when a single unbreakable token (e.g. a URL)
+        // is what pushes it over the limit — you can't wrap a URL.
+        'body-max-line-length-allow-urls': ({ body }, _when, max) => {
+          const limit = typeof max === 'number' ? max : 100;
+          const offenders = (body ?? '').split('\n').filter((line) => {
+            if (line.length <= limit) return false;
+            const longestToken = line
+              .split(/\s+/)
+              .reduce((n, token) => Math.max(n, token.length), 0);
+            return longestToken <= limit;
+          });
+          return [
+            offenders.length === 0,
+            `body lines must not exceed ${limit} characters (unbreakable URLs exempt)`,
+          ];
+        },
       },
     },
   ],
@@ -52,6 +69,8 @@ const config: UserConfig = {
   ignores: [(message) => message.startsWith('chore(release):')],
   rules: {
     'scope-required-unless-exempt': [2, 'always'],
+    'body-max-line-length': [0], // replaced by body-max-line-length-allow-urls
+    'body-max-line-length-allow-urls': [2, 'always', 100],
   },
 };
 
